@@ -383,12 +383,19 @@
             position: absolute;
             top: 0;
             left: 0;
+            padding: 20px;
         }
         
         .banner-slide.active {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        
+        .banner-slide > div {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         /* Banner navigation dots */
@@ -410,6 +417,13 @@
             border: 2px solid rgba(255, 255, 255, 0.8);
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 12px;
+            min-height: 12px;
+        }
+        
+        .banner-dot:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.2);
         }
         
         .banner-dot.active {
@@ -424,16 +438,140 @@
             }
         }
         
+        @media (max-width: 1024px) {
+            .banner {
+                height: 400px;
+            }
+            
+            .banner-slide {
+                padding: 15px;
+            }
+        }
+        
         @media (max-width: 768px) {
             .banner {
-                height: auto;
+                height: 350px;
+                min-height: 350px;
+            }
+            
+            .banner-slide {
+                padding: 20px 15px;
+            }
+            
+            .banner-slide h1 {
+                font-size: 1.75rem !important;
+                line-height: 1.2;
+                margin-bottom: 1rem !important;
+            }
+            
+            .banner-slide p {
+                font-size: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .banner-dots {
+                bottom: 15px;
+                gap: 8px;
+            }
+            
+            .banner-dot {
+                width: 10px;
+                height: 10px;
+                min-width: 10px;
+                min-height: 10px;
+                border-width: 1.5px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .banner {
+                height: 300px;
                 min-height: 300px;
+            }
+            
+            .banner-slide {
+                padding: 15px 10px;
+            }
+            
+            .banner-slide h1 {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .banner-slide p {
+                font-size: 0.875rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            .banner-dots {
+                bottom: 10px;
+                gap: 6px;
             }
         }
         
         @media (max-width: 480px) {
             .banner {
+                height: 280px;
+                min-height: 280px;
+            }
+            
+            .banner-slide {
+                padding: 12px 8px;
+            }
+            
+            .banner-slide h1 {
+                font-size: 1.25rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .banner-slide p {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .banner-slide .flex {
+                gap: 0.5rem !important;
+            }
+            
+            .banner-slide a {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            .banner-dots {
+                bottom: 8px;
+                gap: 5px;
+            }
+            
+            .banner-dot {
+                width: 8px;
+                height: 8px;
+                min-width: 8px;
+                min-height: 8px;
+                border-width: 1px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .banner {
+                height: 250px;
                 min-height: 250px;
+            }
+            
+            .banner-slide h1 {
+                font-size: 1.125rem !important;
+            }
+            
+            .banner-slide p {
+                font-size: 0.7rem !important;
+            }
+        }
+        
+        /* Ensure banner content is always visible and properly centered */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .banner {
+                height: 100vh;
+                min-height: 300px;
             }
         }
     </style>
@@ -512,14 +650,14 @@
         <div class="banner-slideshow">
             <!-- Slide 1 -->
             <div class="banner-slide active" style="background-image: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);">
-                <div class="text-center px-4 text-white relative z-10">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Welcome to Board Member Portal</h1>
-                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Your gateway to seamless board management, meetings, and collaboration</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="/login" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#A855F7] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
+                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
+                        <a href="/login" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#A855F7] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             Get Started
                         </a>
-                        <a href="#about" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#A855F7] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#about" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#A855F7] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             Learn More
                         </a>
                     </div>
@@ -527,14 +665,14 @@
             </div>
             <!-- Slide 2 -->
             <div class="banner-slide" style="background-image: linear-gradient(135deg, #003366 0%, #0066cc 100%);">
-                <div class="text-center px-4 text-white relative z-10">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Efficient Board Management</h1>
-                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Streamline your board operations with our comprehensive portal</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="#announcements" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#003366] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
+                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
+                        <a href="#announcements" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#003366] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             View Announcements
                         </a>
-                        <a href="#meetings" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#003366] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#meetings" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#003366] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             Upcoming Meetings
                         </a>
                     </div>
@@ -542,14 +680,14 @@
             </div>
             <!-- Slide 3 -->
             <div class="banner-slide" style="background-image: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);">
-                <div class="text-center px-4 text-white relative z-10">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Secure & Modern Platform</h1>
-                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Enterprise-grade security with intuitive design for all board members</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="/register" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#10B981] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure & Modern Platform</h1>
+                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
+                        <a href="/register" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#10B981] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             Register Now
                         </a>
-                        <a href="#contact" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#10B981] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#contact" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#10B981] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
                             Contact Us
                         </a>
                     </div>
