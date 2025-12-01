@@ -386,8 +386,10 @@
     <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between w-full">
-                <div class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#3B82F6] bg-clip-text text-transparent truncate">
-                    Board Portal
+                <div class="flex items-center">
+                    <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
+                         alt="Agency Logo" 
+                         class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
                 </div>
                 <div class="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-shrink-0">
                     <a href="#announcements" class="text-sm xl:text-base hover:text-[#A855F7] transition whitespace-nowrap">Announcements</a>
