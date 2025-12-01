@@ -121,14 +121,21 @@
             color: #cccccc;
         }
         
-        /* Republic Seal in footer - 36x36px */
+        /* Republic Seal in footer - 36x36px with exact margins */
+        .standard-footer .republic-seal-container {
+            padding: 0;
+            margin: 0;
+        }
+        
         .standard-footer .republic-seal {
             width: 36px;
             height: 36px;
             margin-left: 13px;
             margin-top: 5px;
             margin-bottom: 5px;
+            margin-right: 0;
             object-fit: contain;
+            display: block;
         }
         
         /* Responsive adjustments */
@@ -594,7 +601,7 @@
     <div class="standard-footer">
         <div class="gov-container">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="flex items-start justify-center md:justify-start">
+                <div class="republic-seal-container">
                     <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
                          alt="Republic of the Philippines" 
                          class="republic-seal">
