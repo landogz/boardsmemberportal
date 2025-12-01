@@ -56,6 +56,49 @@
             -webkit-text-fill-color: transparent;
             animation: gradient-shift 3s ease infinite;
         }
+        /* Go to Top Button */
+        #goToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #A855F7, #3B82F6);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        #goToTop.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #goToTop:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+        #goToTop:active {
+            transform: translateY(-2px) scale(1.05);
+        }
+        @media (max-width: 768px) {
+            #goToTop {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
     </style>
     <script>
         // Initialize theme immediately before page renders to prevent flash
@@ -356,6 +399,11 @@
         </div>
     </footer>
 
+    <!-- Go to Top Button -->
+    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top">
+        ↑
+    </button>
+
     <script>
         // Dark Mode Toggle with localStorage
         (function() {
@@ -464,6 +512,40 @@
                         e.preventDefault();
                         alert('Thank you for your message! We will get back to you soon.');
                     });
+
+                    // Go to Top Button
+                    const goToTopBtn = document.getElementById('goToTop');
+                    
+                    // Show/hide button based on scroll position
+                    function toggleGoToTop() {
+                        if (window.pageYOffset > 300) {
+                            goToTopBtn.classList.add('show');
+                        } else {
+                            goToTopBtn.classList.remove('show');
+                        }
+                    }
+
+                    // Scroll to top function
+                    function scrollToTop() {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+
+                    // Event listeners
+                    window.addEventListener('scroll', toggleGoToTop);
+                    goToTopBtn.addEventListener('click', scrollToTop);
+                    
+                    // Also use jQuery for smooth scroll
+                    $(goToTopBtn).on('click', function() {
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 600);
+                    });
+
+                    // Initial check
+                    toggleGoToTop();
                 });
             }
             
