@@ -354,7 +354,7 @@
             <div class="flex items-center gap-4 flex-1">
                 <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
                      alt="Agency Logo" 
-                     class="h-20 sm:h-24 md:h-28 w-auto object-contain max-h-[120px]">
+                     class="h-12 sm:h-14 md:h-16 w-auto object-contain max-h-[70px]">
                 <!-- Main Menu -->
                 <ul class="main-menu hidden md:flex">
                     <li><a href="#announcements">Announcements</a></li>
