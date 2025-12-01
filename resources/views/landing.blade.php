@@ -372,11 +372,8 @@
                     <div class="mb-4">
                         <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
                              alt="Republic of the Philippines" 
-                             class="w-32 h-auto mb-3 filter brightness-0 invert dark:brightness-100 dark:invert-0">
+                             class="w-32 h-auto">
                     </div>
-                    <p class="text-blue-400 dark:text-blue-500 font-semibold text-sm uppercase tracking-wide">
-                        Republic of the Philippines
-                    </p>
                 </div>
 
                 <!-- Second Section: Public Domain Content -->
