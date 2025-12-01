@@ -164,6 +164,7 @@
             list-style: none;
             margin: 0;
             padding: 0;
+            align-items: center;
         }
         
         .main-menu a {
@@ -173,10 +174,19 @@
             font-size: 14px;
             padding: 5px 0;
             transition: color 0.3s;
+            white-space: nowrap;
         }
         
         .main-menu a:hover {
             color: #0066cc;
+        }
+        
+        .dark .main-menu a {
+            color: #3B82F6;
+        }
+        
+        .dark .main-menu a:hover {
+            color: #60A5FA;
         }
         
         /* Banner slideshow */
@@ -340,11 +350,19 @@
 
     <!-- 2. MastHead - 1190x140px - Mandatory, Customizable -->
     <div class="masthead">
-        <div class="gov-container flex items-center justify-between w-full flex-wrap">
-            <div class="flex items-center gap-4">
+        <div class="gov-container flex items-center justify-between w-full flex-wrap gap-4">
+            <div class="flex items-center gap-4 flex-1">
                 <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
                      alt="Agency Logo" 
                      class="h-20 sm:h-24 md:h-28 w-auto object-contain max-h-[120px]">
+                <!-- Main Menu -->
+                <ul class="main-menu hidden md:flex">
+                    <li><a href="#announcements">Announcements</a></li>
+                    <li><a href="#meetings">Meetings</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#vision">Vision & Mission</a></li>
+                </ul>
             </div>
             <div class="flex items-center gap-4">
                 <!-- Dark Mode Toggle -->
@@ -370,18 +388,8 @@
         </div>
     </div>
 
-    <!-- 4. Auxiliary Menu - 1190x45px - Optional -->
-    <div class="auxiliary-menu">
-        <div class="gov-container">
-            <ul class="main-menu">
-                <li><a href="#announcements">Announcements</a></li>
-                <li><a href="#meetings">Meetings</a></li>
-                <li><a href="#about">About Us</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#vision">Vision & Mission</a></li>
-            </ul>
-        </div>
-    </div>
+    <!-- 4. Auxiliary Menu - 1190x45px - Optional (Hidden - Menu moved to MastHead) -->
+    <!-- Menu is now in MastHead section -->
 
     <!-- 5. Content Area - 1190 W, H varies - Min 1 column, Max 3 columns -->
     <div class="content-area" id="content">
