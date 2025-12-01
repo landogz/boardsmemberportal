@@ -1,61 +1,439 @@
 # boardsmemberportal
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQuery. Features a GEN-Z inspired design with comprehensive content management, meeting management, and communication tools.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🚀 Tech Stack
 
-## About Laravel
+- **Backend:** Laravel 12
+- **Frontend:** Tailwind CSS v4, HTML5, JavaScript
+- **AJAX:** Axios, jQuery
+- **Notifications:** SweetAlert2
+- **Database:** MySQL
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 Table of Contents
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. [System Workflow](#1-system-workflow-flowchart)
+2. [Database Structure](#2-database-structure-erd--tables)
+3. [Pages & Routes](#3-pages-needed-full-routes)
+4. [Design Guidelines](#4-design-guidelines-modern-gen-z-ui)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 1. SYSTEM WORKFLOW (FLOWCHART)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### A. User Access Flow
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+Start
+  └─► Landing Page (User / Admin)
+        ├─► Login
+        │      ├─► Validate Credentials
+        │      ├─► Check Role (User / Admin / Manager)
+        │      └─► Redirect to Dashboard
+        └─► Register (Authorized Representatives only)
+               ├─► Fill Personal & Organization Details
+               ├─► Email Verification
+               └─► Account Activation
+```
 
-## Laravel Sponsors
+### B. Dashboard Flow
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+Dashboard
+  ├─► Announcement (view, read more)
+  ├─► Calendar (events, meetings, schedules)
+  ├─► Chat Facility (direct or group)
+  ├─► Meeting Notices → View → Link / Attached Files
+  └─► Board Resolution Library → View / Download
+```
 
-### Premium Partners
+### C. Content Management Flow
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```
+Admin / Portal Manager
+   ├─► Create / Edit Templates
+   ├─► Upload Media (Drag & Drop)
+   │         ├─► Images
+   │         ├─► Audio / Video
+   │         └─► Galleries
+   ├─► Send Meeting Notices (email + dashboard)
+   └─► Manage Menu Items
+```
 
-## Contributing
+### D. Attendance Confirmation Flow
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+Admin → Select Meeting
+   ├─► Send Attendance Request
+   │         ├─► Individual Email
+   │         └─► Bulk Email
+   └─► Users Click Link → Confirm / Decline
+             └─► Update Attendance Table
+```
 
-## Code of Conduct
+### E. Board Resolution Library Flow
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+Admin → Upload Approved Resolution
+   ├─► Tag (Category, Date, Committee)
+   ├─► Upload PDF / Attachments
+   └─► Publish to Library
 
-## Security Vulnerabilities
+User → View Resolutions → Filter / Download
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### F. Administration Flow
 
-## License
+```
+Admin Panel
+   ├─► User Management (create, edit, deactivate)
+   ├─► Access Control List (roles, permissions)
+   ├─► Code Library Maintenance
+   ├─► CMS Settings (SEO, SSL, menus)
+   └─► Browser Compatibility Checks
+```
+
+---
+
+## 2. DATABASE STRUCTURE (ERD + TABLES)
+
+### A. Main Entities
+
+- Users
+- Roles & Permissions (ACL)
+- Announcements
+- Calendar Events
+- Chats
+- Registrations & Authorized Representatives
+- Notices / Email Templates
+- Attendances
+- Board Resolutions
+- Media Library
+- Audit Logs
+
+### B. ERD Structure (Relationships)
+
+```
+Users 1..* Notices
+Users 1..* Attendances
+Users 1..* Chat Messages
+Admin 1..* Announcements
+Admin 1..* Board Resolutions
+Media 1..* Attachments
+```
+
+### C. Tables & Important Fields
+
+#### 1. users
+```sql
+id (uuid)
+first_name
+last_name
+email (unique)
+password_hash
+role_id (fk)
+is_active (bool)
+mobile
+created_at
+updated_at
+```
+
+#### 2. roles
+```sql
+id
+role_name (Admin, Portal Manager, Board Member, Representative)
+description
+```
+
+#### 3. permissions
+```sql
+id
+permission_code
+description
+```
+
+#### 4. role_permissions
+```sql
+role_id
+permission_id
+```
+
+#### 5. announcements
+```sql
+id
+title
+content
+created_by (user_id)
+publish_date
+attachments (media_ids)
+created_at
+```
+
+#### 6. calendar_events
+```sql
+id
+title
+description
+event_date
+meeting_link
+created_by
+attachments
+```
+
+#### 7. chats
+```sql
+id
+sender_id
+receiver_id (or group_id)
+message
+attachments (media_id)
+timestamp
+```
+
+#### 8. registrations
+```sql
+id
+board_member_name
+representative_name
+email
+mobile
+company
+status (pending, approved)
+created_at
+```
+
+#### 9. notices
+```sql
+id
+subject
+content
+template_id
+sent_by
+sent_date
+is_bulk (bool)
+attachments
+```
+
+#### 10. attendance
+```sql
+id
+meeting_id
+user_id
+status (confirmed, declined, pending)
+confirmation_date
+```
+
+#### 11. board_resolutions
+```sql
+id
+resolution_number
+title
+description
+pdf_file (media_id)
+category
+approved_date
+uploaded_by
+```
+
+#### 12. media_library
+```sql
+id
+file_name
+file_type
+file_path
+uploaded_by
+uploaded_at
+```
+
+---
+
+## 3. PAGES NEEDED (FULL ROUTES)
+
+### A. Public Pages
+
+- `/` - Landing Page (Modern GEN-Z design)
+- `/about` - About
+- `/login` - Login
+- `/register` - Register
+- `/forgot-password` - Forgot Password
+
+### B. User Dashboard
+
+- `/dashboard` - Dashboard (Announcements + Calendar + Chat)
+- `/profile` - My Profile
+- `/notifications` - Notifications Center
+- `/messages` - Messages / Chat Page
+- `/meeting-notices` - Meeting Notices
+- `/attendance/confirm` - Attendance Confirmation Page
+- `/resolutions` - Board Resolution Library
+- `/media/{id}` - Media Viewer
+
+### C. Portal Manager / Admin Pages
+
+#### Content Management
+- `/admin/announcements` - Announcements
+- `/admin/templates` - Templates
+- `/admin/notices` - Notices (Send individual / bulk)
+- `/admin/meetings` - Meeting links
+- `/admin/media` - Media library
+
+#### Attendance Management
+- `/admin/meetings/create` - Create Meeting
+- `/admin/attendance/send` - Send Attendance Email
+- `/admin/attendance/status` - Attendance status table
+
+#### Board Resolution Management
+- `/admin/resolutions/upload` - Upload resolution
+- `/admin/resolutions/categories` - Category management
+- `/admin/resolutions` - View / edit / archive
+
+#### Administration (ACL)
+- `/admin/users` - User management
+- `/admin/roles` - Role management
+- `/admin/permissions` - Permission settings
+- `/admin/code-library` - Code library maintenance
+- `/admin/menus` - Menu management
+- `/admin/settings` - CMS Settings (SEO, SSL, Metadata)
+
+---
+
+## 4. DESIGN GUIDELINES (MODERN GEN-Z UI)
+
+### Tone
+
+**Clean • Neon accents • Smooth gradients • Rounded cards • Micro-animations • Dark + Light Mode**
+
+### Color Palette (GEN-Z Inspired)
+
+```css
+Primary: Electric Purple #A855F7
+Accent: Neon Blue #3B82F6
+Secondary: Mint #10B981
+Background Light: #F9FAFB
+Background Dark: #0F172A
+Text: #0A0A0A / #F1F5F9
+```
+
+### Layout Style
+
+- Full-width hero section with big headlines
+- Rounded tiles/cards (radius 16–24px)
+- Vertical rhythm spacing (8px scale)
+- Floating elements & subtle shadows
+- Sticky header + slide-out mobile menu
+
+### Components
+
+- Announcement cards with icons
+- Calendar with colored event tags
+- Chat UI similar to Messenger/Slack
+- Drag & drop media uploader with preview
+- Modal + drawer views
+- Breadcrumbs for admin pages
+- Data tables with filters + search
+
+### Gen-Z Landing Page Styles
+
+- Oversized bold typography
+- Gradient backgrounds
+- Animated blobs or shapes
+- Subtle parallax
+- Floating neon elements
+- Call to action: solid rounded pill buttons
+
+---
+
+## 🛠️ Installation
+
+### Prerequisites
+
+- PHP 8.2+
+- Composer
+- Node.js & npm
+- MySQL
+- XAMPP (for local development)
+
+### Setup Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/landogz/boardsmemberportal.git
+   cd boardsmemberportal
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Install Node dependencies**
+   ```bash
+   npm install
+   ```
+
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Update `.env` with your database credentials**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=boardsmemberportal
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+6. **Create database**
+   ```sql
+   CREATE DATABASE boardsmemberportal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+7. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
+
+8. **Build assets**
+   ```bash
+   npm run dev
+   # or for production
+   npm run build
+   ```
+
+9. **Start development server**
+   ```bash
+   php artisan serve
+   ```
+
+10. **Visit**
+    - Application: `http://localhost:8000`
+    - Example Page: `http://localhost:8000/example`
+
+---
+
+## 📚 Documentation
+
+- [MySQL Setup Guide](README_MYSQL.md)
+- [Git Push Instructions](GIT_PUSH_INSTRUCTIONS.md)
+
+---
+
+## 📝 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## 🤝 Contributing
+
+Thank you for considering contributing to the boardsmemberportal project!
+
+---
+
+## 🔒 Security Vulnerabilities
+
+If you discover a security vulnerability, please send an e-mail to the project maintainers. All security vulnerabilities will be promptly addressed.
