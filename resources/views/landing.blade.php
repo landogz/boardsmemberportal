@@ -366,13 +366,13 @@
     <!-- Footer -->
     <footer class="bg-gray-800 dark:bg-[#1a1a1a] text-gray-300 dark:text-gray-400 py-12 transition-colors duration-300">
         <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8 text-center md:text-left">
                 <!-- Left Section: Republic of the Philippines Emblem -->
                 <div class="md:col-span-1 flex items-center justify-center md:justify-start">
                     <div>
                         <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
                              alt="Republic of the Philippines" 
-                             class="w-32 h-auto">
+                             class="w-32 h-auto mx-auto md:mx-0">
                     </div>
                 </div>
 
@@ -392,19 +392,19 @@
                     </p>
                     <ul class="space-y-2 text-sm">
                         <li>
-                            <a href="#about" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="#about" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 About Us
                             </a>
                         </li>
                         <li>
-                            <a href="#announcements" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="#announcements" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Announcements
                             </a>
                         </li>
                         <li>
-                            <a href="#meetings" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="#meetings" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Public Meetings
                             </a>
@@ -417,25 +417,25 @@
                     <h4 class="text-blue-400 dark:text-blue-500 font-bold mb-4 text-sm uppercase tracking-wide">QUICK LINKS</h4>
                     <ul class="space-y-2 text-sm">
                         <li>
-                            <a href="/login" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="/login" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Login
                             </a>
                         </li>
                         <li>
-                            <a href="/register" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="/register" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Register
                             </a>
                         </li>
                         <li>
-                            <a href="#contact" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="#contact" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Contact Us
                             </a>
                         </li>
                         <li>
-                            <a href="#vision" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center">
+                            <a href="#vision" class="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-500 transition flex items-center justify-center md:justify-start">
                                 <span class="w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full mr-2"></span>
                                 Vision & Mission
                             </a>
@@ -444,9 +444,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 dark:border-gray-600 pt-6 mt-6">
-                <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 dark:text-gray-500">
+                <div class="flex flex-col md:flex-row justify-center items-center text-sm text-gray-400 dark:text-gray-500 text-center">
                     <p>&copy; 2024 Board Member Portal. All rights reserved.</p>
-                    <p class="mt-2 md:mt-0">Republic of the Philippines</p>
+                    <p class="mt-2 md:mt-0 md:ml-4">Republic of the Philippines</p>
                 </div>
             </div>
         </div>
