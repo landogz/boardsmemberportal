@@ -42,6 +42,12 @@
             padding: 0 15px;
         }
         
+        .masthead img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        
         /* Banner - 1190x460px - Mandatory, Customizable */
         .banner {
             width: 100%;
@@ -336,9 +342,9 @@
     <div class="masthead">
         <div class="gov-container flex items-center justify-between w-full flex-wrap">
             <div class="flex items-center gap-4">
-                <div class="text-2xl sm:text-3xl font-bold text-[#003366] dark:text-[#3B82F6]">
-                    Board Member Portal
-                </div>
+                <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
+                     alt="Agency Logo" 
+                     class="h-20 sm:h-24 md:h-28 w-auto object-contain max-h-[120px]">
             </div>
             <div class="flex items-center gap-4">
                 <!-- Dark Mode Toggle -->
