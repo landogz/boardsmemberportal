@@ -57,6 +57,16 @@
             animation: gradient-shift 3s ease infinite;
         }
     </style>
+    <script>
+        // Initialize theme immediately before page renders to prevent flash
+        (function() {
+            const theme = localStorage.getItem('theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
     <!-- Navigation -->
@@ -347,7 +357,7 @@
     </footer>
 
     <script>
-        // Dark Mode Toggle with localStorage
+        // Dark Mode Toggle with localStorage - Run immediately
         (function() {
             // Get theme from localStorage or default to light
             function getTheme() {
@@ -365,10 +375,14 @@
             // Apply theme
             function applyTheme(theme) {
                 const html = document.documentElement;
+                const body = document.body;
+                
                 if (theme === 'dark') {
                     html.classList.add('dark');
+                    html.setAttribute('data-theme', 'dark');
                 } else {
                     html.classList.remove('dark');
+                    html.setAttribute('data-theme', 'light');
                 }
                 updateThemeIcons(theme);
             }
@@ -384,21 +398,18 @@
 
             // Toggle theme
             function toggleTheme() {
-                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                const html = document.documentElement;
+                const isDark = html.classList.contains('dark');
+                const newTheme = isDark ? 'light' : 'dark';
                 applyTheme(newTheme);
                 localStorage.setItem('theme', newTheme);
             }
 
-            // Initialize theme on page load
-            function initTheme() {
-                const theme = getTheme();
-                applyTheme(theme);
-            }
+            // Initialize theme on page load - Run immediately
+            const theme = getTheme();
+            applyTheme(theme);
 
-            // Initialize theme immediately (before DOM ready to prevent flash)
-            initTheme();
-
+            // Wait for DOM and jQuery
             function initApp() {
                 if (typeof $ === 'undefined') {
                     setTimeout(initApp, 100);
@@ -406,8 +417,20 @@
                 }
 
                 $(document).ready(function() {
-                    // Theme toggle buttons
-                    $('#themeToggle, #themeToggleMobile').on('click', function() {
+                    // Theme toggle buttons - Use direct event listeners as backup
+                    const themeToggle = document.getElementById('themeToggle');
+                    const themeToggleMobile = document.getElementById('themeToggleMobile');
+                    
+                    if (themeToggle) {
+                        themeToggle.addEventListener('click', toggleTheme);
+                    }
+                    if (themeToggleMobile) {
+                        themeToggleMobile.addEventListener('click', toggleTheme);
+                    }
+                    
+                    // Also use jQuery for consistency
+                    $('#themeToggle, #themeToggleMobile').on('click', function(e) {
+                        e.preventDefault();
                         toggleTheme();
                     });
 
