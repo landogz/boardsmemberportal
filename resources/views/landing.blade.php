@@ -263,6 +263,96 @@
                 margin: 10px auto;
             }
         }
+        
+        /* DICT/GWTD Layout Specifications */
+        .gov-container {
+            max-width: 1190px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Top Bar - 1190x45px - Mandatory, Locked */
+        .top-bar {
+            width: 100%;
+            height: 45px;
+            background-color: #003366;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 12px;
+            font-family: Arial, Verdana, Tahoma, sans-serif;
+        }
+        
+        .dark .top-bar {
+            background-color: #1a1a1a;
+        }
+        
+        /* Search bar styling */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .search-bar input {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 12px;
+            width: 200px;
+        }
+        
+        .search-bar button {
+            padding: 5px 15px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            min-height: 32px;
+        }
+        
+        .search-bar button:hover {
+            background-color: #004488;
+        }
+        
+        .dark .search-bar input {
+            background-color: #1e293b;
+            color: white;
+            border-color: #374151;
+        }
+        
+        .dark .search-bar button {
+            background-color: #3B82F6;
+        }
+        
+        .dark .search-bar button:hover {
+            background-color: #2563EB;
+        }
+        
+        /* Responsive adjustments for top-bar */
+        @media (max-width: 768px) {
+            .top-bar {
+                height: auto;
+                min-height: 45px;
+                flex-direction: column;
+                padding: 8px 15px;
+                font-size: 11px;
+            }
+            
+            .search-bar {
+                width: 100%;
+                margin-top: 8px;
+            }
+            
+            .search-bar input {
+                flex: 1;
+                width: auto;
+            }
+        }
     </style>
     <script>
         // Initialize theme immediately before page renders to prevent flash
@@ -276,6 +366,22 @@
     </script>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
+    <!-- Top Bar - 1190x45px - Mandatory, Locked -->
+    <div class="top-bar">
+        <div class="gov-container flex items-center justify-between w-full">
+            <div class="flex items-center gap-4">
+                <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
+                     alt="Republic of the Philippines" 
+                     class="h-8 w-auto object-contain">
+                <span class="hidden sm:inline">REPUBLIC OF THE PHILIPPINES</span>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
+                <button type="button" onclick="handleSearch()" class="dark:bg-blue-600">Search</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
         <div class="container mx-auto px-4 py-4">
@@ -656,6 +762,28 @@
             // Initialize theme on page load
             const theme = getTheme();
             applyTheme(theme);
+
+            // Search functionality
+            window.handleSearch = function() {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        // You can implement actual search functionality here
+                        // For now, just show an alert or redirect to search results
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Search',
+                                text: 'Searching for: ' + query,
+                                confirmButtonColor: '#A855F7'
+                            });
+                        } else {
+                            alert('Searching for: ' + query);
+                        }
+                    }
+                }
+            };
 
             // Wait for DOM
             function initApp() {
