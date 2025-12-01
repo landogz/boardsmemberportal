@@ -89,11 +89,46 @@
         .standard-footer {
             width: 100%;
             min-height: 150px;
-            background-color: #1a1a1a;
+            background-color: #222222;
             color: #ffffff;
             padding: 20px 15px;
-            font-size: 12px;
-            font-family: Arial, Verdana, Tahoma, sans-serif;
+            font-size: 12pt;
+            font-family: Arial, sans-serif;
+        }
+        
+        .standard-footer h4 {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .standard-footer p,
+        .standard-footer li,
+        .standard-footer a {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            color: #ffffff;
+        }
+        
+        .standard-footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        
+        .standard-footer a:hover {
+            color: #cccccc;
+        }
+        
+        /* Republic Seal in footer - 36x36px */
+        .standard-footer .republic-seal {
+            width: 36px;
+            height: 36px;
+            margin-left: 13px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            object-fit: contain;
         }
         
         /* Responsive adjustments */
@@ -559,35 +594,35 @@
     <div class="standard-footer">
         <div class="gov-container">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="flex items-center justify-center md:justify-start">
+                <div class="flex items-start justify-center md:justify-start">
                     <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
                          alt="Republic of the Philippines" 
-                         class="h-20 w-auto object-contain opacity-80">
+                         class="republic-seal">
                 </div>
                 <div>
-                    <h4 class="text-blue-400 font-bold mb-2 text-sm uppercase">REPUBLIC OF THE PHILIPPINES</h4>
-                    <p class="text-gray-300 text-xs">All content is in the public domain unless otherwise stated.</p>
+                    <h4 class="mb-2">REPUBLIC OF THE PHILIPPINES</h4>
+                    <p>All content is in the public domain unless otherwise stated.</p>
                 </div>
                 <div>
-                    <h4 class="text-blue-400 font-bold mb-2 text-sm uppercase">ABOUT PORTAL</h4>
-                    <p class="text-gray-300 text-xs mb-2">Learn more about the Board Member Portal, its features, and how it facilitates seamless board management.</p>
-                    <ul class="space-y-1 text-xs">
-                        <li><a href="#about" class="text-blue-400 hover:text-blue-300">About Us</a></li>
-                        <li><a href="#announcements" class="text-blue-400 hover:text-blue-300">Announcements</a></li>
-                        <li><a href="#meetings" class="text-blue-400 hover:text-blue-300">Public Meetings</a></li>
+                    <h4 class="mb-2">ABOUT PORTAL</h4>
+                    <p class="mb-2">Learn more about the Board Member Portal, its features, and how it facilitates seamless board management.</p>
+                    <ul class="space-y-1" style="list-style: none; padding: 0;">
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#announcements">Announcements</a></li>
+                        <li><a href="#meetings">Public Meetings</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-blue-400 font-bold mb-2 text-sm uppercase">GOVERNMENT LINKS</h4>
-                    <ul class="space-y-1 text-xs text-blue-400">
-                        <li><a href="https://www.gov.ph" target="_blank" class="hover:text-blue-300">GOV.PH</a></li>
-                        <li><a href="https://data.gov.ph" target="_blank" class="hover:text-blue-300">Open Data Portal</a></li>
-                        <li><a href="https://www.officialgazette.gov.ph" target="_blank" class="hover:text-blue-300">Official Gazette</a></li>
-                        <li><a href="https://www.president.gov.ph" target="_blank" class="hover:text-blue-300">Office of the President</a></li>
+                    <h4 class="mb-2">GOVERNMENT LINKS</h4>
+                    <ul class="space-y-1" style="list-style: none; padding: 0;">
+                        <li><a href="https://www.gov.ph" target="_blank">GOV.PH</a></li>
+                        <li><a href="https://data.gov.ph" target="_blank">Open Data Portal</a></li>
+                        <li><a href="https://www.officialgazette.gov.ph" target="_blank">Official Gazette</a></li>
+                        <li><a href="https://www.president.gov.ph" target="_blank">Office of the President</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-700 pt-4 text-center text-gray-400 text-xs">
+            <div class="border-t border-gray-600 pt-4 text-center">
                 <p>&copy; 2024 Board Member Portal. All rights reserved. | Republic of the Philippines</p>
             </div>
         </div>
@@ -634,6 +669,7 @@
                 const html = document.documentElement;
                 const isDark = html.classList.contains('dark');
                 const newTheme = isDark ? 'light' : 'dark';
+                
                 applyTheme(newTheme);
                 localStorage.setItem('theme', newTheme);
             };
