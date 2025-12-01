@@ -210,29 +210,80 @@
             flex-wrap: wrap;
         }
         
-        .main-menu a {
+        .main-menu a,
+        .main-menu button {
             color: #003366;
             text-decoration: none;
             font-weight: 500;
             font-size: 14px;
-            padding: 8px 0;
-            transition: color 0.3s;
+            padding: 8px 12px;
+            transition: all 0.3s;
             white-space: nowrap;
             min-height: 44px;
             display: flex;
             align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
         }
         
-        .main-menu a:hover {
+        .main-menu a:hover,
+        .main-menu button:hover {
             color: #0066cc;
         }
         
-        .dark .main-menu a {
+        .main-menu .btn-login {
+            background-color: #003366;
+            color: white;
+            border-radius: 6px;
+            padding: 8px 16px;
+        }
+        
+        .main-menu .btn-login:hover {
+            background-color: #004488;
+            color: white;
+        }
+        
+        .main-menu .btn-register {
+            background-color: transparent;
+            border: 2px solid #003366;
+            color: #003366;
+            border-radius: 6px;
+            padding: 6px 16px;
+        }
+        
+        .main-menu .btn-register:hover {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .dark .main-menu a,
+        .dark .main-menu button {
             color: #3B82F6;
         }
         
-        .dark .main-menu a:hover {
+        .dark .main-menu a:hover,
+        .dark .main-menu button:hover {
             color: #60A5FA;
+        }
+        
+        .dark .main-menu .btn-login {
+            background-color: #3B82F6;
+        }
+        
+        .dark .main-menu .btn-login:hover {
+            background-color: #2563EB;
+        }
+        
+        .dark .main-menu .btn-register {
+            border-color: #3B82F6;
+            color: #3B82F6;
+        }
+        
+        .dark .main-menu .btn-register:hover {
+            background-color: #3B82F6;
+            color: white;
         }
         
         /* Mobile menu button */
@@ -286,7 +337,8 @@
             border-bottom: none;
         }
         
-        .mobile-menu a {
+        .mobile-menu a,
+        .mobile-menu button {
             display: block;
             padding: 12px 0;
             color: #003366;
@@ -296,10 +348,48 @@
             min-height: 44px;
             align-items: center;
             display: flex;
+            width: 100%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            text-align: left;
         }
         
-        .mobile-menu a:hover {
+        .mobile-menu a:hover,
+        .mobile-menu button:hover {
             color: #0066cc;
+        }
+        
+        .mobile-menu .btn-login {
+            background-color: #003366;
+            color: white;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .mobile-menu .btn-login:hover {
+            background-color: #004488;
+            color: white;
+        }
+        
+        .mobile-menu .btn-register {
+            background-color: transparent;
+            border: 2px solid #003366;
+            color: #003366;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .mobile-menu .btn-register:hover {
+            background-color: #003366;
+            color: white;
         }
         
         .dark .mobile-menu {
@@ -311,96 +401,34 @@
             border-bottom-color: #374151;
         }
         
-        .dark .mobile-menu a {
+        .dark .mobile-menu a,
+        .dark .mobile-menu button {
             color: #3B82F6;
         }
         
-        .dark .mobile-menu a:hover {
+        .dark .mobile-menu a:hover,
+        .dark .mobile-menu button:hover {
             color: #60A5FA;
         }
         
-        /* Mobile menu buttons section */
-        .mobile-menu-actions {
-            padding: 15px 0;
-            border-top: 1px solid #e5e7eb;
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .dark .mobile-menu-actions {
-            border-top-color: #374151;
-        }
-        
-        .mobile-menu-actions .theme-toggle-mobile {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            background: none;
-            border: none;
-            color: #003366;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            min-height: 44px;
-            width: 100%;
-            text-align: left;
-        }
-        
-        .dark .mobile-menu-actions .theme-toggle-mobile {
-            color: #3B82F6;
-        }
-        
-        .mobile-menu-actions .theme-toggle-mobile:hover {
-            color: #0066cc;
-        }
-        
-        .dark .mobile-menu-actions .theme-toggle-mobile:hover {
-            color: #60A5FA;
-        }
-        
-        .mobile-menu-actions .btn-login,
-        .mobile-menu-actions .btn-register {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            border-radius: 6px;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .mobile-menu-actions .btn-login {
-            background-color: #003366;
-            color: white;
-        }
-        
-        .dark .mobile-menu-actions .btn-login {
+        .dark .mobile-menu .btn-login {
             background-color: #3B82F6;
         }
         
-        .mobile-menu-actions .btn-register {
-            background-color: transparent;
-            border: 2px solid #003366;
-            color: #003366;
+        .dark .mobile-menu .btn-login:hover {
+            background-color: #2563EB;
         }
         
-        .dark .mobile-menu-actions .btn-register {
+        .dark .mobile-menu .btn-register {
             border-color: #3B82F6;
             color: #3B82F6;
         }
         
-        .mobile-menu-actions .btn-login:hover,
-        .mobile-menu-actions .btn-register:hover {
-            opacity: 0.9;
+        .dark .mobile-menu .btn-register:hover {
+            background-color: #3B82F6;
+            color: white;
         }
+        
         
         /* Responsive menu */
         @media (max-width: 1024px) {
@@ -606,19 +634,18 @@
                     <li><a href="#about">About Us</a></li>
                     <li><a href="#contact">Contact</a></li>
                     <li><a href="#vision">Vision & Mission</a></li>
+                    <li>
+                        <button id="themeToggle" type="button" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
+                            <span id="themeIcon">🌙</span>
+                        </button>
+                    </li>
+                    <li><a href="/login" class="btn-login">Login</a></li>
+                    <li><a href="/register" class="btn-register">Register</a></li>
                 </ul>
                 <!-- Mobile Menu Button -->
                 <button id="mobileMenuBtn" class="mobile-menu-btn md:hidden" aria-label="Toggle menu" aria-expanded="false">
                     <span id="menuIcon">☰</span>
                 </button>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-4">
-                <!-- Dark Mode Toggle -->
-                <button id="themeToggle" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
-                    <span id="themeIcon" class="text-xl">🌙</span>
-                </button>
-                <a href="/login" class="px-3 sm:px-4 py-2 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition text-xs sm:text-sm md:text-base whitespace-nowrap">Login</a>
-                <a href="/register" class="px-3 sm:px-4 py-2 border-2 border-[#003366] dark:border-[#3B82F6] text-[#003366] dark:text-[#3B82F6] rounded hover:bg-[#003366] dark:hover:bg-[#3B82F6] hover:text-white transition text-xs sm:text-sm md:text-base whitespace-nowrap">Register</a>
             </div>
         </div>
         <!-- Mobile Menu -->
@@ -629,15 +656,14 @@
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#contact">Contact</a></li>
                 <li><a href="#vision">Vision & Mission</a></li>
+                <li>
+                    <button id="themeToggleMobile" type="button" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
+                        <span id="themeIconMobile">🌙</span>
+                    </button>
+                </li>
+                <li><a href="/login" class="btn-login">Login</a></li>
+                <li><a href="/register" class="btn-register">Register</a></li>
             </ul>
-            <div class="mobile-menu-actions">
-                <button id="themeToggleMobile" type="button" class="theme-toggle-mobile" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
-                    <span>Dark Mode</span>
-                    <span id="themeIconMobile">🌙</span>
-                </button>
-                <a href="/login" class="btn-login">Login</a>
-                <a href="/register" class="btn-register">Register</a>
-            </div>
         </div>
     </div>
 
