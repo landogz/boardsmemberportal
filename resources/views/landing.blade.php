@@ -369,7 +369,7 @@
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <!-- Left Section: Republic of the Philippines Emblem -->
                 <div class="md:col-span-1">
-                    <div class="mb-4">
+                    <div class="mb-4 flex justify-center md:justify-start">
                         <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
                              alt="Republic of the Philippines" 
                              class="w-32 h-auto">
