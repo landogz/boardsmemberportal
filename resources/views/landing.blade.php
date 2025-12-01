@@ -353,6 +353,89 @@
                 width: auto;
             }
         }
+        
+        /* Banner - 1190x460px - Mandatory, Customizable */
+        .banner {
+            width: 100%;
+            height: 460px;
+            background-color: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dark .banner {
+            background-color: #1e293b;
+        }
+        
+        /* Banner slideshow */
+        .banner-slideshow {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .banner-slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            background-size: cover;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .banner-slide.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Banner navigation dots */
+        .banner-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .banner-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .banner-dot.active {
+            background-color: white;
+            border-color: white;
+        }
+        
+        /* Responsive adjustments for banner */
+        @media (max-width: 1190px) {
+            .banner {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .banner {
+                height: auto;
+                min-height: 300px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .banner {
+                min-height: 250px;
+            }
+        }
     </style>
     <script>
         // Initialize theme immediately before page renders to prevent flash
@@ -424,31 +507,62 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden gradient-bg text-white py-12 sm:py-16 md:py-20 lg:py-32">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-10 left-10 sm:top-20 sm:left-20 w-48 h-48 sm:w-72 sm:h-72 bg-white rounded-full blur-3xl float-animation"></div>
-            <div class="absolute bottom-10 right-10 sm:bottom-20 sm:right-20 w-64 h-64 sm:w-96 sm:h-96 bg-white rounded-full blur-3xl float-animation" style="animation-delay: 2s;"></div>
-        </div>
-        <div class="container mx-auto px-4 sm:px-6 relative z-10">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight px-2">
-                    Welcome to Board Member Portal
-                </h1>
-                <p class="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 opacity-90 px-2">
-                    Your gateway to seamless board management, meetings, and collaboration
-                </p>
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2">
-                    <a href="/login" class="px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
-                        Get Started
-                    </a>
-                    <a href="#about" class="px-6 sm:px-8 py-3 sm:py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
-                        Learn More
-                    </a>
+    <!-- Banner - 1190x460px - Mandatory, Customizable -->
+    <div class="banner">
+        <div class="banner-slideshow">
+            <!-- Slide 1 -->
+            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);">
+                <div class="text-center px-4 text-white relative z-10">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Welcome to Board Member Portal</h1>
+                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Your gateway to seamless board management, meetings, and collaboration</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/login" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#A855F7] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            Get Started
+                        </a>
+                        <a href="#about" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#A855F7] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            Learn More
+                        </a>
+                    </div>
                 </div>
             </div>
+            <!-- Slide 2 -->
+            <div class="banner-slide" style="background-image: linear-gradient(135deg, #003366 0%, #0066cc 100%);">
+                <div class="text-center px-4 text-white relative z-10">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Efficient Board Management</h1>
+                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Streamline your board operations with our comprehensive portal</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#announcements" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#003366] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            View Announcements
+                        </a>
+                        <a href="#meetings" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#003366] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            Upcoming Meetings
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="banner-slide" style="background-image: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);">
+                <div class="text-center px-4 text-white relative z-10">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Secure & Modern Platform</h1>
+                    <p class="text-lg sm:text-xl md:text-2xl mb-6 opacity-90">Enterprise-grade security with intuitive design for all board members</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/register" class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#10B981] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            Register Now
+                        </a>
+                        <a href="#contact" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#10B981] transition text-sm sm:text-base min-h-[44px] flex items-center justify-center">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation Dots -->
+            <div class="banner-dots">
+                <span class="banner-dot active" data-slide="0"></span>
+                <span class="banner-dot" data-slide="1"></span>
+                <span class="banner-dot" data-slide="2"></span>
+            </div>
         </div>
-    </section>
+    </div>
 
     <!-- Public Announcements Section -->
     <section id="announcements" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
@@ -786,6 +900,76 @@
                     }
                 }
             };
+
+            // Banner Slideshow Functionality
+            (function() {
+                let currentSlide = 0;
+                const slides = document.querySelectorAll('.banner-slide');
+                const dots = document.querySelectorAll('.banner-dot');
+                const totalSlides = slides.length;
+                let slideInterval;
+
+                function showSlide(index) {
+                    // Remove active class from all slides and dots
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    
+                    // Add active class to current slide and dot
+                    if (slides[index]) {
+                        slides[index].classList.add('active');
+                    }
+                    if (dots[index]) {
+                        dots[index].classList.add('active');
+                    }
+                }
+
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    showSlide(currentSlide);
+                }
+
+                function goToSlide(index) {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                    resetInterval();
+                }
+
+                function resetInterval() {
+                    clearInterval(slideInterval);
+                    slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+                }
+
+                // Initialize slideshow
+                function initSlideshow() {
+                    if (slides.length === 0) return;
+                    
+                    showSlide(0);
+                    resetInterval();
+
+                    // Add click handlers to dots
+                    dots.forEach((dot, index) => {
+                        dot.addEventListener('click', () => goToSlide(index));
+                    });
+
+                    // Pause on hover
+                    const banner = document.querySelector('.banner');
+                    if (banner) {
+                        banner.addEventListener('mouseenter', () => {
+                            clearInterval(slideInterval);
+                        });
+                        banner.addEventListener('mouseleave', () => {
+                            resetInterval();
+                        });
+                    }
+                }
+
+                // Wait for DOM to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initSlideshow);
+                } else {
+                    initSlideshow();
+                }
+            })();
 
             // Wait for DOM
             function initApp() {
