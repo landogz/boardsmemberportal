@@ -38,6 +38,14 @@
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
+        /* Ensure buttons are visible */
+        .hero-button {
+            display: inline-block;
+            position: relative;
+            z-index: 10;
+            min-width: 150px;
+            text-align: center;
+        }
         .neon-glow {
             box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
         }
@@ -167,10 +175,10 @@
                     Your gateway to seamless board management, meetings, and collaboration
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/login" class="px-8 py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl">
+                    <a href="/login" class="hero-button px-8 py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl hover:shadow-2xl">
                         Get Started
                     </a>
-                    <a href="#about" class="px-8 py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition">
+                    <a href="#about" class="hero-button px-8 py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition">
                         Learn More
                     </a>
                 </div>
