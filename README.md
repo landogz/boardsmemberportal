@@ -23,6 +23,26 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 
 ### A. User Access Flow
 
+#### Landing Page Structure
+
+```mermaid
+flowchart TD
+    Start((Start)) --> Landing[Landing Page Public Homepage]
+    
+    %% Landing Page Elements
+    Landing --> Login[Login Page]
+    Landing --> Register[Register Page]
+    
+    %% Public Sections On Landing
+    Landing --> AnnPub[Public Announcements]
+    Landing --> MeetPub[Public Meetings]
+    Landing --> Vision[Vision & Mission]
+    Landing --> About[About Us]
+    Landing --> Contact[Contact Us]
+```
+
+#### Authentication Flow
+
 ```
 Start
   └─► Landing Page (User / Admin)
