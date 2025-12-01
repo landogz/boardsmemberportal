@@ -320,37 +320,37 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#0F172A] text-[#F1F5F9] py-12">
+    <footer class="bg-gray-100 dark:bg-[#0F172A] text-gray-800 dark:text-[#F1F5F9] py-12 transition-colors duration-300">
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <h3 class="text-xl font-bold mb-4 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] bg-clip-text text-transparent">Board Portal</h3>
-                    <p class="text-gray-400">Modern board management platform</p>
+                    <p class="text-gray-600 dark:text-gray-400">Modern board management platform</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
+                    <h4 class="font-semibold mb-4 text-gray-900 dark:text-white">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
                         <li><a href="#announcements" class="hover:text-[#A855F7] transition">Announcements</a></li>
                         <li><a href="#meetings" class="hover:text-[#A855F7] transition">Meetings</a></li>
                         <li><a href="#about" class="hover:text-[#A855F7] transition">About</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Account</h4>
-                    <ul class="space-y-2 text-gray-400">
+                    <h4 class="font-semibold mb-4 text-gray-900 dark:text-white">Account</h4>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
                         <li><a href="/login" class="hover:text-[#A855F7] transition">Login</a></li>
                         <li><a href="/register" class="hover:text-[#A855F7] transition">Register</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
+                    <h4 class="font-semibold mb-4 text-gray-900 dark:text-white">Contact</h4>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
                         <li>Email: info@boardportal.com</li>
                         <li>Phone: +1 (555) 123-4567</li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <div class="border-t border-gray-300 dark:border-gray-800 pt-8 text-center text-gray-600 dark:text-gray-400">
                 <p>&copy; 2024 Board Member Portal. All rights reserved.</p>
             </div>
         </div>
