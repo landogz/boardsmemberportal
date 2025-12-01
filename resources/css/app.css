@@ -10,9 +10,7 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-/* Enable dark mode with class strategy */
-@media (prefers-color-scheme: dark) {
-    :root:not(.light) {
-        color-scheme: dark;
-    }
+/* Dark mode support - Tailwind v4 uses class strategy by default */
+.dark {
+    color-scheme: dark;
 }

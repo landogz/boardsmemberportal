@@ -82,14 +82,14 @@
                     <a href="#about" class="hover:text-[#A855F7] transition">About</a>
                     <a href="#contact" class="hover:text-[#A855F7] transition">Contact</a>
                     <!-- Dark Mode Toggle -->
-                    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
+                    <button id="themeToggle" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
                         <span id="themeIcon" class="text-2xl">🌙</span>
                     </button>
                     <a href="/login" class="px-4 py-2 rounded-full border border-[#A855F7] hover:bg-[#A855F7] hover:text-white transition">Login</a>
                     <a href="/register" class="px-4 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white hover:shadow-lg transition">Register</a>
                 </div>
                 <div class="flex items-center space-x-2 md:hidden">
-                    <button id="themeToggleMobile" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
+                    <button id="themeToggleMobile" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
                         <span id="themeIconMobile" class="text-2xl">🌙</span>
                     </button>
                     <button id="mobileMenuBtn" class="text-2xl">☰</button>
@@ -357,7 +357,7 @@
     </footer>
 
     <script>
-        // Dark Mode Toggle with localStorage - Run immediately
+        // Dark Mode Toggle with localStorage
         (function() {
             // Get theme from localStorage or default to light
             function getTheme() {
@@ -375,15 +375,14 @@
             // Apply theme
             function applyTheme(theme) {
                 const html = document.documentElement;
-                const body = document.body;
                 
                 if (theme === 'dark') {
                     html.classList.add('dark');
-                    html.setAttribute('data-theme', 'dark');
                 } else {
                     html.classList.remove('dark');
-                    html.setAttribute('data-theme', 'light');
                 }
+                
+                // Update icons
                 updateThemeIcons(theme);
             }
 
@@ -396,42 +395,51 @@
                 if (themeIconMobile) themeIconMobile.textContent = icon;
             }
 
-            // Toggle theme
-            function toggleTheme() {
+            // Toggle theme function
+            window.toggleTheme = function() {
                 const html = document.documentElement;
                 const isDark = html.classList.contains('dark');
                 const newTheme = isDark ? 'light' : 'dark';
                 applyTheme(newTheme);
                 localStorage.setItem('theme', newTheme);
-            }
+            };
 
-            // Initialize theme on page load - Run immediately
+            // Initialize theme on page load
             const theme = getTheme();
             applyTheme(theme);
 
-            // Wait for DOM and jQuery
+            // Wait for DOM
             function initApp() {
+                // Theme toggle buttons - Use direct event listeners
+                const themeToggle = document.getElementById('themeToggle');
+                const themeToggleMobile = document.getElementById('themeToggleMobile');
+                
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.toggleTheme();
+                    });
+                }
+                if (themeToggleMobile) {
+                    themeToggleMobile.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.toggleTheme();
+                    });
+                }
+
+                // Wait for jQuery for other functionality
                 if (typeof $ === 'undefined') {
                     setTimeout(initApp, 100);
                     return;
                 }
 
                 $(document).ready(function() {
-                    // Theme toggle buttons - Use direct event listeners as backup
-                    const themeToggle = document.getElementById('themeToggle');
-                    const themeToggleMobile = document.getElementById('themeToggleMobile');
-                    
-                    if (themeToggle) {
-                        themeToggle.addEventListener('click', toggleTheme);
-                    }
-                    if (themeToggleMobile) {
-                        themeToggleMobile.addEventListener('click', toggleTheme);
-                    }
-                    
-                    // Also use jQuery for consistency
-                    $('#themeToggle, #themeToggleMobile').on('click', function(e) {
+                    // Also bind with jQuery as backup
+                    $('#themeToggle, #themeToggleMobile').off('click').on('click', function(e) {
                         e.preventDefault();
-                        toggleTheme();
+                        window.toggleTheme();
                     });
 
                     // Mobile menu toggle
@@ -454,7 +462,6 @@
                     // Contact form
                     $('#contactForm').on('submit', function(e) {
                         e.preventDefault();
-                        // Form submission logic here
                         alert('Thank you for your message! We will get back to you soon.');
                     });
                 });
