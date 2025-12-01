@@ -38,14 +38,6 @@
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
-        /* Ensure buttons are visible */
-        .hero-button {
-            display: inline-block;
-            position: relative;
-            z-index: 10;
-            min-width: 150px;
-            text-align: center;
-        }
         .neon-glow {
             box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
         }
@@ -69,8 +61,8 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: linear-gradient(135deg, #A855F7, #3B82F6);
             color: white;
@@ -79,21 +71,22 @@
             display: none;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
             z-index: 1000;
             transition: all 0.3s ease;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(20px) scale(0.8);
         }
         #goToTop.show {
             display: flex;
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
         #goToTop:hover {
             transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.6);
+            background: linear-gradient(135deg, #3B82F6, #10B981);
         }
         #goToTop:active {
             transform: translateY(-2px) scale(1.05);
@@ -102,9 +95,9 @@
             #goToTop {
                 bottom: 20px;
                 right: 20px;
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
             }
         }
     </style>
@@ -175,10 +168,10 @@
                     Your gateway to seamless board management, meetings, and collaboration
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/login" class="hero-button px-8 py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl hover:shadow-2xl">
+                    <a href="/login" class="px-8 py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl">
                         Get Started
                     </a>
-                    <a href="#about" class="hero-button px-8 py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition">
+                    <a href="#about" class="px-8 py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition">
                         Learn More
                     </a>
                 </div>
@@ -407,9 +400,11 @@
         </div>
     </footer>
 
-    <!-- Go to Top Button -->
-    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top">
-        ↑
+    <!-- Go to Top Floating Button -->
+    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="fixed bottom-8 right-8 z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
     </button>
 
     <script>
@@ -543,14 +538,16 @@
 
                     // Event listeners
                     window.addEventListener('scroll', toggleGoToTop);
-                    goToTopBtn.addEventListener('click', scrollToTop);
-                    
-                    // Also use jQuery for smooth scroll
-                    $(goToTopBtn).on('click', function() {
-                        $('html, body').animate({
-                            scrollTop: 0
-                        }, 600);
-                    });
+                    if (goToTopBtn) {
+                        goToTopBtn.addEventListener('click', scrollToTop);
+                        
+                        // Also use jQuery for smooth scroll
+                        $(goToTopBtn).on('click', function() {
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 600);
+                        });
+                    }
 
                     // Initial check
                     toggleGoToTop();
