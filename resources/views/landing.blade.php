@@ -7,296 +7,386 @@
     <title>Board Member Portal - Welcome</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* DICT/GWTD Compliance Styles */
+        body {
+            font-family: Verdana, Arial, Tahoma, sans-serif;
+            font-size: 12pt; /* 10-12pt as per DICT guidelines */
+            line-height: 1.6;
+            color: #000000;
+            background-color: #FFFFFF;
         }
-        .float-animation {
-            animation: float 6s ease-in-out infinite;
+        
+        .content-area {
+            background-color: #FFFFFF;
+            color: #000000;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: Verdana, Arial, Tahoma, sans-serif;
+            font-weight: bold;
         }
-        .neon-glow {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
+        
+        h1 {
+            font-size: 24pt;
+        }
+        
+        h2 {
+            font-size: 20pt;
+        }
+        
+        h3 {
+            font-size: 16pt;
+        }
+        
+        p, li, td, th {
+            font-size: 12pt; /* 10-12pt for content */
+        }
+        
+        a {
+            color: #0066CC;
+            text-decoration: underline;
+        }
+        
+        a:hover, a:focus {
+            color: #004499;
+        }
+        
+        .btn-primary {
+            background-color: #0066CC;
+            color: #FFFFFF;
+            border: 1px solid #0066CC;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #004499;
+            border-color: #004499;
+        }
+        
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: #0066CC;
+            border: 1px solid #0066CC;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #F0F0F0;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        table th, table td {
+            border: 1px solid #CCCCCC;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        table th {
+            background-color: #F0F0F0;
+            font-weight: bold;
+        }
+        
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .header-bg {
+            background-color: #003366;
+            color: #FFFFFF;
+        }
+        
+        .footer-bg {
+            background-color: #333333;
+            color: #FFFFFF;
+        }
+        
+        /* Accessibility: Skip to content link */
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            z-index: 999;
+        }
+        
+        .skip-link:focus {
+            left: 6px;
+            top: 6px;
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 8px;
+            border: 2px solid #000000;
+        }
+        
+        /* Focus indicators for accessibility */
+        *:focus {
+            outline: 2px solid #0066CC;
+            outline-offset: 2px;
         }
     </style>
 </head>
-<body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9]">
+<body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="text-2xl font-bold bg-gradient-to-r from-[#A855F7] to-[#3B82F6] bg-clip-text text-transparent">
-                    Board Portal
+    <nav class="header-bg" role="navigation" aria-label="Main navigation">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="text-xl font-bold">
+                    Board Member Portal
                 </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#announcements" class="hover:text-[#A855F7] transition">Announcements</a>
-                    <a href="#meetings" class="hover:text-[#A855F7] transition">Meetings</a>
-                    <a href="#about" class="hover:text-[#A855F7] transition">About</a>
-                    <a href="#contact" class="hover:text-[#A855F7] transition">Contact</a>
-                    <a href="/login" class="px-4 py-2 rounded-full border border-[#A855F7] hover:bg-[#A855F7] hover:text-white transition">Login</a>
-                    <a href="/register" class="px-4 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white hover:shadow-lg transition">Register</a>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#announcements" class="text-white hover:underline">Announcements</a>
+                    <a href="#meetings" class="text-white hover:underline">Meetings</a>
+                    <a href="#vision" class="text-white hover:underline">Vision & Mission</a>
+                    <a href="#about" class="text-white hover:underline">About</a>
+                    <a href="#contact" class="text-white hover:underline">Contact</a>
+                    <a href="/login" class="btn-secondary">Login</a>
+                    <a href="/register" class="btn-primary">Register</a>
                 </div>
-                <button id="mobileMenuBtn" class="md:hidden text-2xl">☰</button>
+                <button id="mobileMenuBtn" class="md:hidden text-white text-xl" aria-label="Toggle mobile menu" aria-expanded="false">
+                    ☰ Menu
+                </button>
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
-            <div class="container mx-auto px-4 py-4 space-y-4">
-                <a href="#announcements" class="block hover:text-[#A855F7] transition">Announcements</a>
-                <a href="#meetings" class="block hover:text-[#A855F7] transition">Meetings</a>
-                <a href="#about" class="block hover:text-[#A855F7] transition">About</a>
-                <a href="#contact" class="block hover:text-[#A855F7] transition">Contact</a>
-                <a href="/login" class="block px-4 py-2 rounded-full border border-[#A855F7] text-center">Login</a>
-                <a href="/register" class="block px-4 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white text-center">Register</a>
+        <div id="mobileMenu" class="hidden md:hidden border-t border-gray-600">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#announcements" class="block text-white hover:underline">Announcements</a>
+                <a href="#meetings" class="block text-white hover:underline">Meetings</a>
+                <a href="#vision" class="block text-white hover:underline">Vision & Mission</a>
+                <a href="#about" class="block text-white hover:underline">About</a>
+                <a href="#contact" class="block text-white hover:underline">Contact</a>
+                <a href="/login" class="block btn-secondary text-center">Login</a>
+                <a href="/register" class="block btn-primary text-center">Register</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden gradient-bg text-white py-20 md:py-32">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl float-animation"></div>
-            <div class="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl float-animation" style="animation-delay: 2s;"></div>
-        </div>
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                    Welcome to Board Member Portal
-                </h1>
-                <p class="text-xl md:text-2xl mb-8 opacity-90">
-                    Your gateway to seamless board management, meetings, and collaboration
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/login" class="px-8 py-4 rounded-full bg-white text-[#A855F7] font-bold hover:scale-105 transition transform shadow-xl">
-                        Get Started
-                    </a>
-                    <a href="#about" class="px-8 py-4 rounded-full border-2 border-white text-white font-bold hover:bg-white hover:text-[#A855F7] transition">
-                        Learn More
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Public Announcements Section -->
-    <section id="announcements" class="py-16 md:py-24 bg-white dark:bg-[#0F172A]">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] bg-clip-text text-transparent">
-                Public Announcements
-            </h2>
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Announcement Card 1 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#A855F7]/10 to-[#3B82F6]/10 border border-[#A855F7]/20 hover:shadow-xl transition">
-                    <div class="w-12 h-12 rounded-full bg-[#A855F7] flex items-center justify-center mb-4">
-                        <span class="text-2xl">📢</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Important Update</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Latest board meeting schedule and agenda items...</p>
-                    <a href="#" class="text-[#A855F7] font-semibold hover:underline">Read More →</a>
-                </div>
-                <!-- Announcement Card 2 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#10B981]/10 to-[#3B82F6]/10 border border-[#10B981]/20 hover:shadow-xl transition">
-                    <div class="w-12 h-12 rounded-full bg-[#10B981] flex items-center justify-center mb-4">
-                        <span class="text-2xl">📅</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Upcoming Events</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Mark your calendars for the quarterly review meeting...</p>
-                    <a href="#" class="text-[#10B981] font-semibold hover:underline">Read More →</a>
-                </div>
-                <!-- Announcement Card 3 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#3B82F6]/10 to-[#A855F7]/10 border border-[#3B82F6]/20 hover:shadow-xl transition">
-                    <div class="w-12 h-12 rounded-full bg-[#3B82F6] flex items-center justify-center mb-4">
-                        <span class="text-2xl">🎯</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">New Features</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Enhanced portal features for better collaboration...</p>
-                    <a href="#" class="text-[#3B82F6] font-semibold hover:underline">Read More →</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Public Meetings Section -->
-    <section id="meetings" class="py-16 md:py-24 bg-gradient-to-br from-[#F9FAFB] to-gray-100 dark:from-[#0F172A] dark:to-[#1e293b]">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-[#3B82F6] to-[#10B981] bg-clip-text text-transparent">
-                Public Meetings
-            </h2>
-            <div class="max-w-4xl mx-auto space-y-6">
-                <!-- Meeting Card 1 -->
-                <div class="rounded-3xl p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="px-3 py-1 rounded-full bg-[#A855F7] text-white text-sm font-semibold">Upcoming</span>
-                                <span class="text-gray-500 dark:text-gray-400">Dec 15, 2024</span>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-2">Quarterly Board Meeting</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Review of Q4 performance and strategic planning for next quarter.</p>
-                        </div>
-                        <a href="#" class="px-6 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white font-semibold hover:scale-105 transition transform">
-                            View Details
-                        </a>
-                    </div>
-                </div>
-                <!-- Meeting Card 2 -->
-                <div class="rounded-3xl p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="px-3 py-1 rounded-full bg-[#10B981] text-white text-sm font-semibold">Scheduled</span>
-                                <span class="text-gray-500 dark:text-gray-400">Dec 20, 2024</span>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-2">Annual General Meeting</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Annual review and election of board members.</p>
-                        </div>
-                        <a href="#" class="px-6 py-3 rounded-full bg-gradient-to-r from-[#10B981] to-[#3B82F6] text-white font-semibold hover:scale-105 transition transform">
-                            View Details
-                        </a>
+    <!-- Main Content -->
+    <main id="main-content" class="content-area">
+        <!-- Hero Section -->
+        <section class="header-bg py-12 md:py-16">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="mb-4">Welcome to Board Member Portal</h1>
+                    <p class="text-lg mb-8">Your gateway to seamless board management, meetings, and collaboration</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/login" class="btn-primary">Get Started</a>
+                        <a href="#about" class="btn-secondary">Learn More</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Vision & Mission Section -->
-    <section id="vision" class="py-16 md:py-24 bg-white dark:bg-[#0F172A]">
-        <div class="container mx-auto px-4">
-            <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-                <!-- Vision -->
-                <div class="rounded-3xl p-8 bg-gradient-to-br from-[#A855F7]/20 to-[#3B82F6]/20 border border-[#A855F7]/30">
-                    <div class="w-16 h-16 rounded-full bg-[#A855F7] flex items-center justify-center mb-6 neon-glow">
-                        <span class="text-3xl">👁️</span>
+        <!-- Public Announcements Section -->
+        <section id="announcements" class="content-area py-12 md:py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-center mb-8">Public Announcements</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Announcement Card 1 -->
+                    <div class="card">
+                        <h3 class="mb-3">Important Update</h3>
+                        <p class="mb-4">Latest board meeting schedule and agenda items for the upcoming quarter. Please review the documents and prepare your questions.</p>
+                        <a href="#" class="font-bold">Read More →</a>
                     </div>
-                    <h2 class="text-3xl font-bold mb-4">Our Vision</h2>
-                    <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                        To create a seamless, transparent, and efficient platform that empowers board members to collaborate effectively and make informed decisions for the betterment of our organization.
-                    </p>
-                </div>
-                <!-- Mission -->
-                <div class="rounded-3xl p-8 bg-gradient-to-br from-[#10B981]/20 to-[#3B82F6]/20 border border-[#10B981]/30">
-                    <div class="w-16 h-16 rounded-full bg-[#10B981] flex items-center justify-center mb-6 neon-glow">
-                        <span class="text-3xl">🎯</span>
+                    <!-- Announcement Card 2 -->
+                    <div class="card">
+                        <h3 class="mb-3">Upcoming Events</h3>
+                        <p class="mb-4">Mark your calendars for the quarterly review meeting scheduled for next month. All board members are expected to attend.</p>
+                        <a href="#" class="font-bold">Read More →</a>
                     </div>
-                    <h2 class="text-3xl font-bold mb-4">Our Mission</h2>
-                    <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                        To provide a modern, secure, and user-friendly portal that streamlines board operations, enhances communication, and ensures all members have access to the information they need when they need it.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Us Section -->
-    <section id="about" class="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b] dark:to-[#0F172A]">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-[#A855F7] to-[#10B981] bg-clip-text text-transparent">
-                    About Us
-                </h2>
-                <p class="text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
-                    The Board Member Portal is a comprehensive digital platform designed to facilitate seamless communication, 
-                    collaboration, and management for board members. Our platform integrates modern technology with intuitive design 
-                    to create an exceptional user experience.
-                </p>
-                <div class="grid md:grid-cols-3 gap-8 mt-12">
-                    <div class="rounded-2xl p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
-                        <div class="text-4xl mb-4">🔒</div>
-                        <h3 class="text-xl font-bold mb-2">Secure</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Enterprise-grade security for all your data</p>
-                    </div>
-                    <div class="rounded-2xl p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
-                        <div class="text-4xl mb-4">⚡</div>
-                        <h3 class="text-xl font-bold mb-2">Fast</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Lightning-fast performance and reliability</p>
-                    </div>
-                    <div class="rounded-2xl p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
-                        <div class="text-4xl mb-4">🎨</div>
-                        <h3 class="text-xl font-bold mb-2">Modern</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Beautiful, intuitive interface design</p>
+                    <!-- Announcement Card 3 -->
+                    <div class="card">
+                        <h3 class="mb-3">New Features</h3>
+                        <p class="mb-4">Enhanced portal features for better collaboration and communication. Check out the latest updates and improvements.</p>
+                        <a href="#" class="font-bold">Read More →</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Contact Us Section -->
-    <section id="contact" class="py-16 md:py-24 bg-white dark:bg-[#0F172A]">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-[#3B82F6] to-[#A855F7] bg-clip-text text-transparent">
-                    Contact Us
-                </h2>
-                <div class="rounded-3xl p-8 md:p-12 bg-gradient-to-br from-[#A855F7]/10 to-[#3B82F6]/10 border border-[#A855F7]/20">
-                    <form id="contactForm" class="space-y-6">
-                        <div class="grid md:grid-cols-2 gap-6">
+        <!-- Public Meetings Section -->
+        <section id="meetings" class="content-area py-12 md:py-16" style="background-color: #F9F9F9;">
+            <div class="container mx-auto px-4">
+                <h2 class="text-center mb-8">Public Meetings</h2>
+                <div class="max-w-4xl mx-auto space-y-4">
+                    <!-- Meeting Card 1 -->
+                    <div class="card">
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent" placeholder="Your name">
+                                <div class="mb-2">
+                                    <span class="font-bold">Status:</span> <span class="italic">Upcoming</span> | 
+                                    <span class="font-bold">Date:</span> <span>December 15, 2024</span>
+                                </div>
+                                <h3 class="mb-2">Quarterly Board Meeting</h3>
+                                <p>Review of Q4 performance and strategic planning for next quarter. All board members are required to attend.</p>
+                            </div>
+                            <a href="#" class="btn-primary">View Details</a>
+                        </div>
+                    </div>
+                    <!-- Meeting Card 2 -->
+                    <div class="card">
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div>
+                                <div class="mb-2">
+                                    <span class="font-bold">Status:</span> <span class="italic">Scheduled</span> | 
+                                    <span class="font-bold">Date:</span> <span>December 20, 2024</span>
+                                </div>
+                                <h3 class="mb-2">Annual General Meeting</h3>
+                                <p>Annual review and election of board members. This is a mandatory meeting for all members.</p>
+                            </div>
+                            <a href="#" class="btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vision & Mission Section -->
+        <section id="vision" class="content-area py-12 md:py-16">
+            <div class="container mx-auto px-4">
+                <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+                    <!-- Vision -->
+                    <div class="card">
+                        <h2 class="mb-4">Our Vision</h2>
+                        <p class="leading-relaxed">
+                            To create a seamless, transparent, and efficient platform that empowers board members to collaborate effectively and make informed decisions for the betterment of our organization.
+                        </p>
+                    </div>
+                    <!-- Mission -->
+                    <div class="card">
+                        <h2 class="mb-4">Our Mission</h2>
+                        <p class="leading-relaxed">
+                            To provide a modern, secure, and user-friendly portal that streamlines board operations, enhances communication, and ensures all members have access to the information they need when they need it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="about" class="content-area py-12 md:py-16" style="background-color: #F9F9F9;">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-center mb-8">About Us</h2>
+                    <p class="mb-8 leading-relaxed">
+                        The Board Member Portal is a comprehensive digital platform designed to facilitate seamless communication, 
+                        collaboration, and management for board members. Our platform integrates modern technology with intuitive design 
+                        to create an exceptional user experience while maintaining compliance with government standards and accessibility requirements.
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="card text-center">
+                            <h3 class="mb-3">Secure</h3>
+                            <p>Enterprise-grade security for all your data and communications.</p>
+                        </div>
+                        <div class="card text-center">
+                            <h3 class="mb-3">Efficient</h3>
+                            <p>Streamlined processes for faster decision-making and collaboration.</p>
+                        </div>
+                        <div class="card text-center">
+                            <h3 class="mb-3">Accessible</h3>
+                            <p>Compliant with WCAG 2.0 accessibility standards for all users.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Us Section -->
+        <section id="contact" class="content-area py-12 md:py-16">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-center mb-8">Contact Us</h2>
+                    <div class="card">
+                        <form id="contactForm" class="space-y-6" aria-label="Contact form">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="contactName" class="block font-bold mb-2">Name <span class="text-red-600">*</span></label>
+                                    <input type="text" id="contactName" name="name" required 
+                                           class="w-full px-4 py-2 border border-gray-400 bg-white focus:outline-2 focus:outline-blue-600" 
+                                           placeholder="Your name" aria-required="true">
+                                </div>
+                                <div>
+                                    <label for="contactEmail" class="block font-bold mb-2">Email <span class="text-red-600">*</span></label>
+                                    <input type="email" id="contactEmail" name="email" required 
+                                           class="w-full px-4 py-2 border border-gray-400 bg-white focus:outline-2 focus:outline-blue-600" 
+                                           placeholder="your@email.com" aria-required="true">
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Email</label>
-                                <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent" placeholder="your@email.com">
+                                <label for="contactSubject" class="block font-bold mb-2">Subject <span class="text-red-600">*</span></label>
+                                <input type="text" id="contactSubject" name="subject" required 
+                                       class="w-full px-4 py-2 border border-gray-400 bg-white focus:outline-2 focus:outline-blue-600" 
+                                       placeholder="What's this about?" aria-required="true">
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Subject</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent" placeholder="What's this about?">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Message</label>
-                            <textarea rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent" placeholder="Your message..."></textarea>
-                        </div>
-                        <button type="submit" class="w-full md:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white font-bold hover:scale-105 transition transform shadow-lg">
-                            Send Message
-                        </button>
-                    </form>
+                            <div>
+                                <label for="contactMessage" class="block font-bold mb-2">Message <span class="text-red-600">*</span></label>
+                                <textarea id="contactMessage" name="message" rows="5" required 
+                                          class="w-full px-4 py-2 border border-gray-400 bg-white focus:outline-2 focus:outline-blue-600" 
+                                          placeholder="Your message..." aria-required="true"></textarea>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn-primary">Send Message</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-[#0F172A] text-[#F1F5F9] py-12">
+    <footer class="footer-bg py-8" role="contentinfo">
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4 bg-gradient-to-r from-[#A855F7] to-[#3B82F6] bg-clip-text text-transparent">Board Portal</h3>
-                    <p class="text-gray-400">Modern board management platform</p>
+                    <h3 class="font-bold mb-4">Board Portal</h3>
+                    <p>Modern board management platform</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#announcements" class="hover:text-[#A855F7] transition">Announcements</a></li>
-                        <li><a href="#meetings" class="hover:text-[#A855F7] transition">Meetings</a></li>
-                        <li><a href="#about" class="hover:text-[#A855F7] transition">About</a></li>
+                    <h4 class="font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#announcements" class="text-white hover:underline">Announcements</a></li>
+                        <li><a href="#meetings" class="text-white hover:underline">Meetings</a></li>
+                        <li><a href="#about" class="text-white hover:underline">About</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Account</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="/login" class="hover:text-[#A855F7] transition">Login</a></li>
-                        <li><a href="/register" class="hover:text-[#A855F7] transition">Register</a></li>
+                    <h4 class="font-bold mb-4">Account</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/login" class="text-white hover:underline">Login</a></li>
+                        <li><a href="/register" class="text-white hover:underline">Register</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Email: info@boardportal.com</li>
-                        <li>Phone: +1 (555) 123-4567</li>
+                    <h4 class="font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li>Email: info@boardportal.gov.ph</li>
+                        <li>Phone: +63 (2) 1234-5678</li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <div class="border-t border-gray-600 pt-4 text-center">
                 <p>&copy; 2024 Board Member Portal. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
+        // Mobile menu toggle with accessibility
         (function() {
             function initApp() {
                 if (typeof $ === 'undefined') {
@@ -307,10 +397,12 @@
                 $(document).ready(function() {
                     // Mobile menu toggle
                     $('#mobileMenuBtn').on('click', function() {
+                        const isExpanded = $(this).attr('aria-expanded') === 'true';
                         $('#mobileMenu').toggleClass('hidden');
+                        $(this).attr('aria-expanded', !isExpanded);
                     });
 
-                    // Smooth scroll
+                    // Smooth scroll for anchor links
                     $('a[href^="#"]').on('click', function(e) {
                         e.preventDefault();
                         const target = $(this.getAttribute('href'));
@@ -319,14 +411,27 @@
                                 scrollTop: target.offset().top - 80
                             }, 600);
                             $('#mobileMenu').addClass('hidden');
+                            $('#mobileMenuBtn').attr('aria-expanded', 'false');
+                            // Focus management for accessibility
+                            target.attr('tabindex', '-1').focus();
                         }
                     });
 
-                    // Contact form
+                    // Contact form submission
                     $('#contactForm').on('submit', function(e) {
                         e.preventDefault();
-                        // Form submission logic here
+                        // Form validation and submission logic here
                         alert('Thank you for your message! We will get back to you soon.');
+                        this.reset();
+                    });
+
+                    // Keyboard navigation support
+                    $(document).on('keydown', function(e) {
+                        // ESC key closes mobile menu
+                        if (e.key === 'Escape' && !$('#mobileMenu').hasClass('hidden')) {
+                            $('#mobileMenu').addClass('hidden');
+                            $('#mobileMenuBtn').attr('aria-expanded', 'false').focus();
+                        }
                     });
                 });
             }
@@ -340,4 +445,3 @@
     </script>
 </body>
 </html>
-
