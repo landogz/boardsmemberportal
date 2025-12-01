@@ -128,8 +128,8 @@
         }
         
         .standard-footer .republic-seal {
-            width: 36px;
-            height: 36px;
+            width: 200px;
+            height: 200px;
             margin-left: 13px;
             margin-top: 5px;
             margin-bottom: 5px;
@@ -202,11 +202,12 @@
         /* Menu styling */
         .main-menu {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             list-style: none;
             margin: 0;
             padding: 0;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .main-menu a {
@@ -214,9 +215,12 @@
             text-decoration: none;
             font-weight: 500;
             font-size: 14px;
-            padding: 5px 0;
+            padding: 8px 0;
             transition: color 0.3s;
             white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
         }
         
         .main-menu a:hover {
@@ -229,6 +233,121 @@
         
         .dark .main-menu a:hover {
             color: #60A5FA;
+        }
+        
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #003366;
+            padding: 8px;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dark .mobile-menu-btn {
+            color: #3B82F6;
+        }
+        
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding: 15px;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 50;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .mobile-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .mobile-menu li {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .mobile-menu li:last-child {
+            border-bottom: none;
+        }
+        
+        .mobile-menu a {
+            display: block;
+            padding: 12px 0;
+            color: #003366;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            min-height: 44px;
+            align-items: center;
+            display: flex;
+        }
+        
+        .mobile-menu a:hover {
+            color: #0066cc;
+        }
+        
+        .dark .mobile-menu {
+            background-color: #0F172A;
+            border-top-color: #374151;
+        }
+        
+        .dark .mobile-menu li {
+            border-bottom-color: #374151;
+        }
+        
+        .dark .mobile-menu a {
+            color: #3B82F6;
+        }
+        
+        .dark .mobile-menu a:hover {
+            color: #60A5FA;
+        }
+        
+        /* Responsive menu */
+        @media (max-width: 1024px) {
+            .main-menu {
+                gap: 10px;
+            }
+            
+            .main-menu a {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-menu {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .masthead {
+                position: relative;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .masthead .flex.items-center.gap-4.flex-1 {
+                flex-wrap: wrap;
+            }
         }
         
         /* Banner slideshow */
@@ -391,13 +510,13 @@
     </div>
 
     <!-- 2. MastHead - 1190x140px - Mandatory, Customizable -->
-    <div class="masthead">
+    <div class="masthead" style="position: relative;">
         <div class="gov-container flex items-center justify-between w-full flex-wrap gap-4">
             <div class="flex items-center gap-4 flex-1">
                 <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
                      alt="Agency Logo" 
                      class="h-12 sm:h-14 md:h-16 w-auto object-contain max-h-[70px]">
-                <!-- Main Menu -->
+                <!-- Main Menu - Desktop -->
                 <ul class="main-menu hidden md:flex">
                     <li><a href="#announcements">Announcements</a></li>
                     <li><a href="#meetings">Meetings</a></li>
@@ -405,15 +524,29 @@
                     <li><a href="#contact">Contact</a></li>
                     <li><a href="#vision">Vision & Mission</a></li>
                 </ul>
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="mobile-menu-btn md:hidden" aria-label="Toggle menu" aria-expanded="false">
+                    <span id="menuIcon">☰</span>
+                </button>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <!-- Dark Mode Toggle -->
                 <button id="themeToggle" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
                     <span id="themeIcon" class="text-xl">🌙</span>
                 </button>
-                <a href="/login" class="px-4 py-2 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition text-sm sm:text-base">Login</a>
-                <a href="/register" class="px-4 py-2 border-2 border-[#003366] dark:border-[#3B82F6] text-[#003366] dark:text-[#3B82F6] rounded hover:bg-[#003366] dark:hover:bg-[#3B82F6] hover:text-white transition text-sm sm:text-base">Register</a>
+                <a href="/login" class="px-3 sm:px-4 py-2 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition text-xs sm:text-sm md:text-base whitespace-nowrap">Login</a>
+                <a href="/register" class="px-3 sm:px-4 py-2 border-2 border-[#003366] dark:border-[#3B82F6] text-[#003366] dark:text-[#3B82F6] rounded hover:bg-[#003366] dark:hover:bg-[#3B82F6] hover:text-white transition text-xs sm:text-sm md:text-base whitespace-nowrap">Register</a>
             </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu">
+            <ul>
+                <li><a href="#announcements">Announcements</a></li>
+                <li><a href="#meetings">Meetings</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#vision">Vision & Mission</a></li>
+            </ul>
         </div>
     </div>
 
@@ -703,6 +836,24 @@
             }
 
             $(document).ready(function() {
+                // Mobile menu toggle
+                $('#mobileMenuBtn').on('click', function() {
+                    const menu = $('#mobileMenu');
+                    const isExpanded = $(this).attr('aria-expanded') === 'true';
+                    menu.toggleClass('active');
+                    $(this).attr('aria-expanded', !isExpanded);
+                    $('#menuIcon').text(menu.hasClass('active') ? '✕' : '☰');
+                });
+                
+                // Close mobile menu when clicking outside
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('.masthead').length) {
+                        $('#mobileMenu').removeClass('active');
+                        $('#mobileMenuBtn').attr('aria-expanded', 'false');
+                        $('#menuIcon').text('☰');
+                    }
+                });
+                
                 // Smooth scroll
                 $('a[href^="#"]').on('click', function(e) {
                     e.preventDefault();
@@ -711,6 +862,10 @@
                         $('html, body').animate({
                             scrollTop: target.offset().top - 100
                         }, 600);
+                        // Close mobile menu after clicking
+                        $('#mobileMenu').removeClass('active');
+                        $('#mobileMenuBtn').attr('aria-expanded', 'false');
+                        $('#menuIcon').text('☰');
                     }
                 });
 
