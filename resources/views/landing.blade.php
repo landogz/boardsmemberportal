@@ -58,7 +58,7 @@
         }
     </style>
 </head>
-<body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9]">
+<body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
     <!-- Navigation -->
     <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
         <div class="container mx-auto px-4 py-4">
@@ -71,10 +71,19 @@
                     <a href="#meetings" class="hover:text-[#A855F7] transition">Meetings</a>
                     <a href="#about" class="hover:text-[#A855F7] transition">About</a>
                     <a href="#contact" class="hover:text-[#A855F7] transition">Contact</a>
+                    <!-- Dark Mode Toggle -->
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
+                        <span id="themeIcon" class="text-2xl">🌙</span>
+                    </button>
                     <a href="/login" class="px-4 py-2 rounded-full border border-[#A855F7] hover:bg-[#A855F7] hover:text-white transition">Login</a>
                     <a href="/register" class="px-4 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white hover:shadow-lg transition">Register</a>
                 </div>
-                <button id="mobileMenuBtn" class="md:hidden text-2xl">☰</button>
+                <div class="flex items-center space-x-2 md:hidden">
+                    <button id="themeToggleMobile" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" aria-label="Toggle dark mode">
+                        <span id="themeIconMobile" class="text-2xl">🌙</span>
+                    </button>
+                    <button id="mobileMenuBtn" class="text-2xl">☰</button>
+                </div>
             </div>
         </div>
         <!-- Mobile Menu -->
@@ -338,8 +347,58 @@
     </footer>
 
     <script>
-        // Mobile menu toggle
+        // Dark Mode Toggle with localStorage
         (function() {
+            // Get theme from localStorage or default to light
+            function getTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    return savedTheme;
+                }
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            }
+
+            // Apply theme
+            function applyTheme(theme) {
+                const html = document.documentElement;
+                if (theme === 'dark') {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+                updateThemeIcons(theme);
+            }
+
+            // Update theme icons
+            function updateThemeIcons(theme) {
+                const icon = theme === 'dark' ? '☀️' : '🌙';
+                const themeIcon = document.getElementById('themeIcon');
+                const themeIconMobile = document.getElementById('themeIconMobile');
+                if (themeIcon) themeIcon.textContent = icon;
+                if (themeIconMobile) themeIconMobile.textContent = icon;
+            }
+
+            // Toggle theme
+            function toggleTheme() {
+                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            }
+
+            // Initialize theme on page load
+            function initTheme() {
+                const theme = getTheme();
+                applyTheme(theme);
+            }
+
+            // Initialize theme immediately (before DOM ready to prevent flash)
+            initTheme();
+
             function initApp() {
                 if (typeof $ === 'undefined') {
                     setTimeout(initApp, 100);
@@ -347,6 +406,11 @@
                 }
 
                 $(document).ready(function() {
+                    // Theme toggle buttons
+                    $('#themeToggle, #themeToggleMobile').on('click', function() {
+                        toggleTheme();
+                    });
+
                     // Mobile menu toggle
                     $('#mobileMenuBtn').on('click', function() {
                         $('#mobileMenu').toggleClass('hidden');
