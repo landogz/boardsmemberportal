@@ -319,6 +319,89 @@
             color: #60A5FA;
         }
         
+        /* Mobile menu buttons section */
+        .mobile-menu-actions {
+            padding: 15px 0;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .dark .mobile-menu-actions {
+            border-top-color: #374151;
+        }
+        
+        .mobile-menu-actions .theme-toggle-mobile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            background: none;
+            border: none;
+            color: #003366;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            min-height: 44px;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .dark .mobile-menu-actions .theme-toggle-mobile {
+            color: #3B82F6;
+        }
+        
+        .mobile-menu-actions .theme-toggle-mobile:hover {
+            color: #0066cc;
+        }
+        
+        .dark .mobile-menu-actions .theme-toggle-mobile:hover {
+            color: #60A5FA;
+        }
+        
+        .mobile-menu-actions .btn-login,
+        .mobile-menu-actions .btn-register {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 6px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-menu-actions .btn-login {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .dark .mobile-menu-actions .btn-login {
+            background-color: #3B82F6;
+        }
+        
+        .mobile-menu-actions .btn-register {
+            background-color: transparent;
+            border: 2px solid #003366;
+            color: #003366;
+        }
+        
+        .dark .mobile-menu-actions .btn-register {
+            border-color: #3B82F6;
+            color: #3B82F6;
+        }
+        
+        .mobile-menu-actions .btn-login:hover,
+        .mobile-menu-actions .btn-register:hover {
+            opacity: 0.9;
+        }
+        
         /* Responsive menu */
         @media (max-width: 1024px) {
             .main-menu {
@@ -547,6 +630,14 @@
                 <li><a href="#contact">Contact</a></li>
                 <li><a href="#vision">Vision & Mission</a></li>
             </ul>
+            <div class="mobile-menu-actions">
+                <button id="themeToggleMobile" type="button" class="theme-toggle-mobile" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
+                    <span>Dark Mode</span>
+                    <span id="themeIconMobile">🌙</span>
+                </button>
+                <a href="/login" class="btn-login">Login</a>
+                <a href="/register" class="btn-register">Register</a>
+            </div>
         </div>
     </div>
 
@@ -802,7 +893,9 @@
             function updateThemeIcons(theme) {
                 const icon = theme === 'dark' ? '☀️' : '🌙';
                 const themeIcon = document.getElementById('themeIcon');
+                const themeIconMobile = document.getElementById('themeIconMobile');
                 if (themeIcon) themeIcon.textContent = icon;
+                if (themeIconMobile) themeIconMobile.textContent = icon;
             }
 
             window.toggleTheme = function() {
