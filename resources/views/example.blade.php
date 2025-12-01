@@ -76,72 +76,89 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            // Set CSRF token for Axios
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+        // Wait for jQuery and other dependencies to load
+        (function() {
+            function initApp() {
+                if (typeof $ === 'undefined' || typeof axios === 'undefined' || typeof Swal === 'undefined') {
+                    setTimeout(initApp, 100);
+                    return;
+                }
 
-            // Handle form submission with Axios
-            $('#testForm').on('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    name: $('#name').val(),
-                    email: $('#email').val()
-                };
+                $(document).ready(function() {
+                    // Set CSRF token for Axios
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
 
-                axios.post('/api/test', formData)
-                    .then(function(response) {
+                    // Handle form submission with Axios
+                    $('#testForm').on('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = {
+                            name: $('#name').val(),
+                            email: $('#email').val()
+                        };
+
+                        axios.post('/api/test', formData)
+                            .then(function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Form submitted successfully',
+                                    confirmButtonColor: '#10b981'
+                                });
+                                
+                                $('#responseArea').removeClass('hidden');
+                                $('#responseContent').text(JSON.stringify(response.data, null, 2));
+                            })
+                            .catch(function(error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: error.response?.data?.message || 'Something went wrong',
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            });
+                    });
+
+                    // Success Alert Button
+                    $('#successBtn').on('click', function() {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
-                            text: 'Form submitted successfully',
+                            title: 'Great!',
+                            text: 'This is a success message using SweetAlert2',
                             confirmButtonColor: '#10b981'
                         });
-                        
-                        $('#responseArea').removeClass('hidden');
-                        $('#responseContent').text(JSON.stringify(response.data, null, 2));
-                    })
-                    .catch(function(error) {
+                    });
+
+                    // Error Alert Button
+                    $('#errorBtn').on('click', function() {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
-                            text: error.response?.data?.message || 'Something went wrong',
+                            title: 'Oops!',
+                            text: 'This is an error message using SweetAlert2',
                             confirmButtonColor: '#ef4444'
                         });
                     });
-            });
 
-            // Success Alert Button
-            $('#successBtn').on('click', function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Great!',
-                    text: 'This is a success message using SweetAlert2',
-                    confirmButtonColor: '#10b981'
-                });
-            });
-
-            // Error Alert Button
-            $('#errorBtn').on('click', function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops!',
-                    text: 'This is an error message using SweetAlert2',
-                    confirmButtonColor: '#ef4444'
-                });
-            });
-
-            // Info Alert Button
-            $('#infoBtn').on('click', function() {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Information',
-                    text: 'This is an info message using SweetAlert2',
-                    confirmButtonColor: '#3b82f6'
-                });
-            });
-        });
+                    // Info Alert Button
+                    $('#infoBtn').on('click', function() {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Information',
+                            text: 'This is an info message using SweetAlert2',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    });
+                }); // End of $(document).ready
+            } // End of initApp function
+            
+            // Start initialization
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
+            } else {
+                initApp();
+            }
+        })(); // End of IIFE
     </script>
 </body>
 </html>
