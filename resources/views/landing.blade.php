@@ -12,6 +12,9 @@
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -124,6 +127,22 @@
             width: 100%;
         }
         
+        /* Ensure sticky navigation works */
+        body {
+            position: relative;
+        }
+        
+        .top-bar.sticky,
+        nav.sticky {
+            position: -webkit-sticky;
+            position: sticky;
+        }
+        
+        /* Ensure parent containers don't interfere with sticky */
+        html {
+            overflow-x: hidden;
+        }
+        
         /* Responsive containers */
         .container {
             width: 100%;
@@ -181,183 +200,9 @@
                 -webkit-text-fill-color: #A855F7;
             }
         }
-        
-        /* Agency Footer - 1190 W, H varies - Mandatory, Customizable */
-        .agency-footer {
-            width: 100%;
-            min-height: 200px;
-            background-color: #f8f8f8;
-            border-top: 2px solid #003366;
-            padding: 20px 15px;
-        }
-        
-        .dark .agency-footer {
-            background-color: #1e293b;
-            border-top-color: #3B82F6;
-            color: #F1F5F9;
-        }
-        
-        /* Standard Footer - 1190 W, H varies - Mandatory, Locked */
-        .standard-footer {
-            width: 100%;
-            min-height: 150px;
-            background-color: #222222;
-            color: #ffffff;
-            padding: 20px 15px;
-            font-size: 12pt;
-            font-family: Arial, sans-serif;
-        }
-        
-        .standard-footer h4 {
-            font-family: Arial, sans-serif;
-            font-size: 12pt;
-            color: #ffffff;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        .standard-footer p,
-        .standard-footer li,
-        .standard-footer a {
-            font-family: Arial, sans-serif;
-            font-size: 12pt;
-            color: #ffffff;
-        }
-        
-        .standard-footer a {
-            color: #ffffff;
-            text-decoration: none;
-        }
-        
-        .standard-footer a:hover {
-            color: #cccccc;
-        }
-        
-        /* Republic Seal in footer - 36x36px with exact margins */
-        .standard-footer .republic-seal-container {
-            padding: 0;
-            margin: 0;
-        }
-        
-        .standard-footer .republic-seal {
-            width: 200px;
-            height: 200px;
-            margin-left: 13px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-            margin-right: 0;
-            object-fit: contain;
-            display: block;
-        }
-        
-        .dark .standard-footer {
-            background-color: #0a0a0a;
-        }
-        
-        /* Responsive adjustments for footers */
-        @media (max-width: 768px) {
-            .agency-footer,
-            .standard-footer {
-                padding: 15px 10px;
-            }
-            
-            .standard-footer .republic-seal {
-                width: 150px;
-                height: 150px;
-                margin: 10px auto;
-            }
-        }
-        
-        /* DICT/GWTD Layout Specifications */
-        .gov-container {
-            max-width: 1190px;
-            margin: 0 auto;
-            width: 100%;
-        }
-        
-        /* Top Bar - 1190x45px - Mandatory, Locked */
-        .top-bar {
-            width: 100%;
-            height: 45px;
-            background-color: #003366;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            font-size: 12px;
-            font-family: Arial, Verdana, Tahoma, sans-serif;
-        }
-        
-        .dark .top-bar {
-            background-color: #1a1a1a;
-        }
-        
-        /* Search bar styling */
-        .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .search-bar input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 12px;
-            width: 200px;
-        }
-        
-        .search-bar button {
-            padding: 5px 15px;
-            background-color: #003366;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            min-height: 32px;
-        }
-        
-        .search-bar button:hover {
-            background-color: #004488;
-        }
-        
-        .dark .search-bar input {
-            background-color: #1e293b;
-            color: white;
-            border-color: #374151;
-        }
-        
-        .dark .search-bar button {
-            background-color: #3B82F6;
-        }
-        
-        .dark .search-bar button:hover {
-            background-color: #2563EB;
-        }
-        
-        /* Responsive adjustments for top-bar */
-        @media (max-width: 768px) {
-            .top-bar {
-                height: auto;
-                min-height: 45px;
-                flex-direction: column;
-                padding: 8px 15px;
-                font-size: 11px;
-            }
-            
-            .search-bar {
-                width: 100%;
-                margin-top: 8px;
-            }
-            
-            .search-bar input {
-                flex: 1;
-                width: auto;
-            }
-        }
-        
+    </style>
+    @include('components.header-footer-styles')
+    <style>
         /* Banner - 1190x460px - Mandatory, Customizable */
         .banner {
             width: 100%;
@@ -591,63 +436,7 @@
     </script>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
-    <!-- Top Bar - 1190x45px - Mandatory, Locked -->
-    <div class="top-bar">
-        <div class="gov-container flex items-center justify-between w-full">
-            <div class="flex items-center gap-4">
-                <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
-                     alt="Republic of the Philippines" 
-                     class="h-8 w-auto object-contain">
-                <span class="hidden sm:inline">REPUBLIC OF THE PHILIPPINES</span>
-            </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
-                <button type="button" onclick="handleSearch()" class="dark:bg-blue-600">Search</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between w-full">
-                <div class="flex items-center">
-                    <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
-                         alt="Agency Logo" 
-                         class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
-                </div>
-                <div class="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-shrink-0">
-                    <a href="#announcements" class="text-sm xl:text-base hover:text-[#A855F7] transition whitespace-nowrap">Announcements</a>
-                    <a href="#meetings" class="text-sm xl:text-base hover:text-[#A855F7] transition whitespace-nowrap">Meetings</a>
-                    <a href="#about" class="text-sm xl:text-base hover:text-[#A855F7] transition whitespace-nowrap">About</a>
-                    <a href="#contact" class="text-sm xl:text-base hover:text-[#A855F7] transition whitespace-nowrap">Contact</a>
-                    <!-- Dark Mode Toggle -->
-                    <button id="themeToggle" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
-                        <span id="themeIcon" class="text-xl xl:text-2xl">🌙</span>
-                    </button>
-                    <a href="/login" class="px-3 xl:px-4 py-2 text-sm xl:text-base rounded-full border border-[#A855F7] hover:bg-[#A855F7] hover:text-white transition whitespace-nowrap">Login</a>
-                    <a href="/register" class="px-3 xl:px-4 py-2 text-sm xl:text-base rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white hover:shadow-lg transition whitespace-nowrap">Register</a>
-                </div>
-                <div class="flex items-center space-x-2 lg:hidden flex-shrink-0">
-                    <button id="themeToggleMobile" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
-                        <span id="themeIconMobile" class="text-xl">🌙</span>
-                    </button>
-                    <button id="mobileMenuBtn" class="text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">☰</button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden lg:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
-            <div class="container mx-auto px-4 py-4 space-y-3">
-                <a href="#announcements" class="block py-2 hover:text-[#A855F7] transition text-base min-h-[44px] flex items-center">Announcements</a>
-                <a href="#meetings" class="block py-2 hover:text-[#A855F7] transition text-base min-h-[44px] flex items-center">Meetings</a>
-                <a href="#about" class="block py-2 hover:text-[#A855F7] transition text-base min-h-[44px] flex items-center">About</a>
-                <a href="#contact" class="block py-2 hover:text-[#A855F7] transition text-base min-h-[44px] flex items-center">Contact</a>
-                <a href="/login" class="block px-4 py-3 rounded-full border border-[#A855F7] text-center min-h-[44px] flex items-center justify-center">Login</a>
-                <a href="/register" class="block px-4 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white text-center min-h-[44px] flex items-center justify-center">Register</a>
-            </div>
-        </div>
-    </nav>
+    @include('components.header')
 
     <!-- Banner - 1190x460px - Mandatory, Customizable -->
     <div class="banner">
@@ -890,77 +679,7 @@
         </div>
     </section>
 
-    <!-- Agency Footer - 1190 W, H varies - Mandatory, Customizable -->
-    <div class="agency-footer">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div>
-                    <h3 class="text-lg font-bold mb-4 text-[#003366] dark:text-[#3B82F6]">Board Portal</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">Modern board management platform for efficient collaboration and communication.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Quick Links</h4>
-                    <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="#announcements" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Announcements</a></li>
-                        <li><a href="#meetings" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Meetings</a></li>
-                        <li><a href="#about" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">About</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Account</h4>
-                    <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="/login" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Login</a></li>
-                        <li><a href="/register" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Register</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Contact</h4>
-                    <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li>Email: info@boardportal.gov.ph</li>
-                        <li>Phone: +63 (2) 1234-5678</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Standard Footer - 1190 W, H varies - Mandatory, Locked -->
-    <div class="standard-footer">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="republic-seal-container">
-                    <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/republika-ng-pilipinas-1.png" 
-                         alt="Republic of the Philippines" 
-                         class="republic-seal">
-                </div>
-                <div>
-                    <h4 class="mb-2">REPUBLIC OF THE PHILIPPINES</h4>
-                    <p>All content is in the public domain unless otherwise stated.</p>
-                </div>
-                <div>
-                    <h4 class="mb-2">ABOUT PORTAL</h4>
-                    <p class="mb-2">Learn more about the Board Member Portal, its features, and how it facilitates seamless board management.</p>
-                    <ul class="space-y-1" style="list-style: none; padding: 0;">
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#announcements">Announcements</a></li>
-                        <li><a href="#meetings">Public Meetings</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="mb-2">GOVERNMENT LINKS</h4>
-                    <ul class="space-y-1" style="list-style: none; padding: 0;">
-                        <li><a href="https://www.gov.ph" target="_blank" rel="noopener noreferrer">GOV.PH</a></li>
-                        <li><a href="https://data.gov.ph" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
-                        <li><a href="https://www.officialgazette.gov.ph" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
-                        <li><a href="https://www.president.gov.ph" target="_blank" rel="noopener noreferrer">Office of the President</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-600 pt-4 text-center">
-                <p>&copy; 2024 Board Member Portal. All rights reserved. | Republic of the Philippines</p>
-            </div>
-        </div>
-    </div>
+    @include('components.footer')
 
     <!-- Go to Top Floating Button -->
     <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="fixed bottom-8 right-8 z-50">
@@ -1210,12 +929,108 @@
                 });
             }
             
+            // Handle hash navigation on page load
+            function handleHashNavigation() {
+                if (window.location.hash) {
+                    const hash = window.location.hash.substring(1);
+                    const target = document.getElementById(hash);
+                    if (target) {
+                        setTimeout(() => {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                }
+            }
+            
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initApp);
+                document.addEventListener('DOMContentLoaded', function() {
+                    initApp();
+                    handleHashNavigation();
+                });
             } else {
                 initApp();
+                handleHashNavigation();
             }
         })();
+    </script>
+    @auth
+    <script>
+        // Set up axios defaults
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        // Handle logout
+        document.getElementById('logoutFormNav')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleLogout();
+        });
+
+        document.getElementById('logoutFormMobile')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleLogout();
+        });
+
+        async function handleLogout() {
+            try {
+                const response = await axios.post('/logout');
+                
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged Out',
+                        text: response.data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = response.data.redirect;
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during logout',
+                });
+            }
+        }
+
+        // Handle navigation links - ensure smooth scroll works on landing page
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                // Only prevent default if it's a hash link on the same page
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = href.substring(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Update URL without jumping
+                        history.pushState(null, null, href);
+                    }
+                }
+            });
+        });
+    </script>
+    @endauth
+    <script>
+        // Handle navigation links for non-authenticated users too
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                // Only prevent default if it's a hash link on the same page
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = href.substring(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Update URL without jumping
+                        history.pushState(null, null, href);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <title>Login - Board Member Portal</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Initialize theme immediately before page renders to prevent flash
+        (function() {
+            const theme = localStorage.getItem('theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <style>
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 8s ease infinite;
+        }
+    </style>
+    @include('components.header-footer-styles')
+</head>
+<body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
+    @include('components.header')
+    @include('components.theme-toggle-script')
+    
+    <div class="min-h-[50vh] flex items-center justify-center p-4 py-16">
+    <div class="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 space-y-6">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+            <p class="text-gray-600">Sign in to your account</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                    placeholder="Enter your email"
+                >
+                <span class="text-red-500 text-sm hidden" id="email-error"></span>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                    placeholder="Enter your password"
+                >
+                <span class="text-red-500 text-sm hidden" id="password-error"></span>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <label class="flex items-center">
+                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                </label>
+            </div>
+
+            <button 
+                type="submit" 
+                id="loginBtn"
+                class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+                <span id="loginBtnText">Sign In</span>
+                <span id="loginBtnLoader" class="hidden">Loading...</span>
+            </button>
+        </form>
+
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Don't have an account? 
+                <a href="{{ route('register') }}" class="text-purple-600 hover:text-purple-700 font-semibold">Register here</a>
+            </p>
+            <a href="{{ route('landing') }}" class="text-sm text-gray-500 hover:text-gray-700 mt-2 inline-block">Back to Home</a>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Set up axios defaults
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginBtnLoader = document.getElementById('loginBtnLoader');
+
+            // Clear previous errors
+            document.getElementById('email-error').classList.add('hidden');
+            document.getElementById('password-error').classList.add('hidden');
+
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtnText.classList.add('hidden');
+            loginBtnLoader.classList.remove('hidden');
+
+            try {
+                const response = await axios.post('/login', {
+                    email: email,
+                    password: password,
+                    remember: remember
+                });
+
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = response.data.redirect;
+                    });
+                }
+            } catch (error) {
+                loginBtn.disabled = false;
+                loginBtnText.classList.remove('hidden');
+                loginBtnLoader.classList.add('hidden');
+
+                if (error.response && error.response.status === 422) {
+                    const errors = error.response.data.errors;
+                    
+                    if (errors.email) {
+                        document.getElementById('email-error').textContent = errors.email[0];
+                        document.getElementById('email-error').classList.remove('hidden');
+                    }
+                    if (errors.password) {
+                        document.getElementById('password-error').textContent = errors.password[0];
+                        document.getElementById('password-error').classList.remove('hidden');
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: errors.email ? errors.email[0] : 'Please check your credentials',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.',
+                    });
+                }
+            }
+        });
+
+        // Handle navigation links to landing page sections
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href.includes('{{ route("landing") }}')) {
+                    e.preventDefault();
+                    window.location.href = href;
+                }
+            });
+        });
+    </script>
+    
+    @include('components.footer')
+</body>
+</html>
+
