@@ -13,6 +13,7 @@
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -32,7 +33,7 @@
             100% { background-position: 0% 50%; }
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+            background: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
@@ -85,13 +86,13 @@
             transition: all 0.3s;
         }
         .step-indicator .step-item.active .step-number {
-            background: linear-gradient(135deg, #A855F7, #3B82F6);
-            border-color: #A855F7;
+            background: linear-gradient(135deg, #055498, #123a60);
+            border-color: #055498;
             color: white;
         }
         .step-indicator .step-item.completed .step-number {
-            background: #10B981;
-            border-color: #10B981;
+            background: #055498;
+            border-color: #055498;
             color: white;
         }
         .step-indicator .step-label {
@@ -104,6 +105,24 @@
             color: #A855F7;
             font-weight: 600;
         }
+        .password-requirements {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .password-requirements ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .password-requirements li {
+            padding: 0.25rem 0;
+        }
+        .password-requirements li.valid {
+            color: #10B981;
+        }
+        .password-requirements li.invalid {
+            color: #ef4444;
+        }
     </style>
     @include('components.header-footer-styles')
 </head>
@@ -112,7 +131,7 @@
     @include('components.theme-toggle-script')
     
     <div class="min-h-[50vh] flex items-center justify-center p-4 py-16">
-        <div class="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+        <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Create Account</h1>
                 <p class="text-gray-600 dark:text-gray-400">Register as a board member</p>
@@ -122,28 +141,58 @@
             <div class="step-indicator">
                 <div class="step-item active" data-step="1">
                     <div class="step-number">1</div>
-                    <div class="step-label">Personal Info</div>
+                    <div class="step-label">Agency & Personal</div>
                 </div>
                 <div class="step-item" data-step="2">
                     <div class="step-number">2</div>
-                    <div class="step-label">Contact & Company</div>
+                    <div class="step-label">Office Address</div>
                 </div>
                 <div class="step-item" data-step="3">
                     <div class="step-number">3</div>
-                    <div class="step-label">Additional Info</div>
+                    <div class="step-label">Contact Info</div>
                 </div>
                 <div class="step-item" data-step="4">
                     <div class="step-number">4</div>
-                    <div class="step-label">Security</div>
+                    <div class="step-label">Account Security</div>
                 </div>
             </div>
 
             <form id="registerForm" class="space-y-4">
-                <!-- Step 1: Personal Information -->
+                <!-- Step 1: Government Agency & Personal Information -->
                 <div class="step active" id="step1">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Personal Information</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Government Agency & Personal Information</h2>
                     <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Government Agency -->
+                        <div>
+                            <label for="government_agency_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Government Agency *</label>
+                            <select 
+                                id="government_agency_id" 
+                                name="government_agency_id" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                                <option value="">Loading agencies...</option>
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="government_agency_id-error"></span>
+                        </div>
+
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="pre_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pre Nominal Title *</label>
+                                <select 
+                                    id="pre_nominal_title" 
+                                    name="pre_nominal_title" 
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                >
+                                    <option value="">Select Title</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Ms.">Ms.</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
+                            </div>
+
                             <div>
                                 <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
                                 <input 
@@ -158,6 +207,21 @@
                             </div>
 
                             <div>
+                                <label for="middle_initial" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Middle Initial</label>
+                                <input 
+                                    type="text" 
+                                    id="middle_initial" 
+                                    name="middle_initial" 
+                                    maxlength="10"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    placeholder="M.I."
+                                >
+                                <span class="text-red-500 text-sm hidden" id="middle_initial-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
                                 <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>
                                 <input 
                                     type="text" 
@@ -169,10 +233,226 @@
                                 >
                                 <span class="text-red-500 text-sm hidden" id="last_name-error"></span>
                             </div>
+
+                            <div>
+                                <label for="post_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post Nominal Title</label>
+                                <select 
+                                    id="post_nominal_title" 
+                                    name="post_nominal_title" 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                >
+                                    <option value="">Select Title</option>
+                                    <option value="Sr.">Sr.</option>
+                                    <option value="Jr.">Jr.</option>
+                                    <option value="I">I</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                                <input 
+                                    type="text" 
+                                    id="post_nominal_title_custom" 
+                                    name="post_nominal_title_custom" 
+                                    placeholder="Specify other title"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition mt-2 hidden"
+                                >
+                                <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                            </div>
+                        </div>
+
+                        <!-- Designation -->
+                        <div>
+                            <label for="designation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Designation *</label>
+                            <input 
+                                type="text" 
+                                id="designation" 
+                                name="designation" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                placeholder="Your designation"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="designation-error"></span>
+                        </div>
+
+                        <!-- Sex and Gender -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="sex" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sex *</label>
+                                <select 
+                                    id="sex" 
+                                    name="sex" 
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                >
+                                    <option value="">Select Sex</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="sex-error"></span>
+                            </div>
+
+                            <div>
+                                <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender *</label>
+                                <select 
+                                    id="gender" 
+                                    name="gender" 
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Non-Binary">Non-Binary</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="gender-error"></span>
+                            </div>
+                        </div>
+
+                        <!-- Birth Date -->
+                        <div>
+                            <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Birth Date *</label>
+                            <input 
+                                type="date" 
+                                id="birth_date" 
+                                name="birth_date" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Office Address (PSGC) -->
+                <div class="step" id="step2">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address (PSGC)</h2>
+                    <div class="space-y-4">
+                        <!-- Building/House/Street Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="office_building_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Building No.</label>
+                                <input 
+                                    type="text" 
+                                    id="office_building_no" 
+                                    name="office_building_no" 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    placeholder="Building No."
+                                >
+                            </div>
+
+                            <div>
+                                <label for="office_house_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">House No.</label>
+                                <input 
+                                    type="text" 
+                                    id="office_house_no" 
+                                    name="office_house_no" 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    placeholder="House No."
+                                >
+                            </div>
                         </div>
 
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
+                            <label for="office_street_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Street Name</label>
+                            <input 
+                                type="text" 
+                                id="office_street_name" 
+                                name="office_street_name" 
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                placeholder="Street Name"
+                            >
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="office_purok" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purok</label>
+                                <input 
+                                    type="text" 
+                                    id="office_purok" 
+                                    name="office_purok" 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    placeholder="Purok"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="office_sitio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sitio</label>
+                                <input 
+                                    type="text" 
+                                    id="office_sitio" 
+                                    name="office_sitio" 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    placeholder="Sitio"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- PSGC Dropdowns -->
+                        <div>
+                            <label for="office_region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Region *</label>
+                            <select 
+                                id="office_region" 
+                                name="office_region" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                                <option value="">Select Region</option>
+                                <!-- Regions will be populated via JavaScript -->
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="office_region-error"></span>
+                        </div>
+
+                        <div>
+                            <label for="office_province" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Province *</label>
+                            <select 
+                                id="office_province" 
+                                name="office_province" 
+                                required
+                                disabled
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                                <option value="">Select Province</option>
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="office_province-error"></span>
+                        </div>
+
+                        <div>
+                            <label for="office_city_municipality" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City/Municipality *</label>
+                            <select 
+                                id="office_city_municipality" 
+                                name="office_city_municipality" 
+                                required
+                                disabled
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                                <option value="">Select City/Municipality</option>
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="office_city_municipality-error"></span>
+                        </div>
+
+                        <div>
+                            <label for="office_barangay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Barangay *</label>
+                            <select 
+                                id="office_barangay" 
+                                name="office_barangay" 
+                                required
+                                disabled
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            >
+                                <option value="">Select Barangay</option>
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="office_barangay-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Contact Information -->
+                <div class="step" id="step3">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Contact Information</h2>
+                    <div class="space-y-4">
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address *</label>
                             <input 
                                 type="email" 
                                 id="email" 
@@ -182,75 +462,61 @@
                                 placeholder="Enter your email"
                             >
                             <span class="text-red-500 text-sm hidden" id="email-error"></span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Single device login for authorized users. 30 minutes idle time.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Step 2: Contact & Company -->
-                <div class="step" id="step2">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Contact & Company Information</h2>
-                    <div class="space-y-4">
+                        <!-- Username (System Generated) -->
                         <div>
-                            <label for="mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile</label>
+                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username *</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                required
+                                readonly
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition bg-gray-100 dark:bg-gray-600"
+                                placeholder="System generated username"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="username-error"></span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">System generated. Can be edited once registration has been approved.</p>
+                        </div>
+
+                        <!-- Mobile Number -->
+                        <div>
+                            <label for="mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile Number *</label>
                             <input 
                                 type="text" 
                                 id="mobile" 
-                                name="mobile"
+                                name="mobile" 
+                                required
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                placeholder="Mobile number"
+                                placeholder="+63 912 345 6789"
                             >
                             <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: +63</p>
                         </div>
 
+                        <!-- Landline -->
                         <div>
-                            <label for="company" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company</label>
+                            <label for="landline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Landline / Office Number</label>
                             <input 
                                 type="text" 
-                                id="company" 
-                                name="company"
+                                id="landline" 
+                                name="landline" 
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                placeholder="Company name"
+                                placeholder="(02) 8912-12345"
                             >
-                            <span class="text-red-500 text-sm hidden" id="company-error"></span>
-                        </div>
-
-                        <div>
-                            <label for="position" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
-                            <input 
-                                type="text" 
-                                id="position" 
-                                name="position"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                placeholder="Your position/title"
-                            >
-                            <span class="text-red-500 text-sm hidden" id="position-error"></span>
+                            <span class="text-red-500 text-sm hidden" id="landline-error"></span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: (02) 8912-12345 (Optional)</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 3: Additional Information -->
-                <div class="step" id="step3">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Additional Information</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="representative_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Representative Name</label>
-                            <input 
-                                type="text" 
-                                id="representative_name" 
-                                name="representative_name"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                placeholder="Representative name"
-                            >
-                            <span class="text-red-500 text-sm hidden" id="representative_name-error"></span>
-                        </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">You can skip this step if it doesn't apply to you.</p>
-                    </div>
-                </div>
-
-                <!-- Step 4: Security -->
+                <!-- Step 4: Account Security -->
                 <div class="step" id="step4">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Create Password</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Account Security</h2>
                     <div class="space-y-4">
+                        <!-- Password -->
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password *</label>
                             <input 
@@ -259,12 +525,21 @@
                                 name="password" 
                                 required
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                placeholder="Enter password (min 8 characters)"
+                                placeholder="Enter password"
                             >
                             <span class="text-red-500 text-sm hidden" id="password-error"></span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Password must be at least 8 characters long</p>
+                            <div class="password-requirements mt-2">
+                                <ul>
+                                    <li id="req-length" class="invalid">Minimum of 6 alphanumeric characters</li>
+                                    <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
+                                    <li id="req-lowercase" class="invalid">At least 1 small letter</li>
+                                    <li id="req-number" class="invalid">At least 1 number</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                </ul>
+                            </div>
                         </div>
 
+                        <!-- Confirm Password -->
                         <div>
                             <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
                             <input 
@@ -293,7 +568,10 @@
                         <button 
                             type="button" 
                             id="nextBtn"
-                            class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            class="px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                            onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'"
+                            onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'"
                         >
                             Next
                         </button>
@@ -302,7 +580,7 @@
                             id="registerBtn"
                             class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hidden"
                         >
-                            <span id="registerBtnText">Create Account</span>
+                            <span id="registerBtnText">Submit Registration</span>
                             <span id="registerBtnLoader" class="hidden">Loading...</span>
                         </button>
                     </div>
@@ -312,7 +590,7 @@
             <div class="text-center">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     Already have an account? 
-                    <a href="{{ route('login') }}" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">Login here</a>
+                    <a href="{{ route('login') }}" class="font-semibold" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">Login here</a>
                 </p>
                 <a href="{{ route('landing') }}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-2 inline-block">Back to Home</a>
             </div>
@@ -327,15 +605,214 @@
         let currentStep = 1;
         const totalSteps = 4;
 
+        // Store PSGC data
+        let regionsData = [];
+        let provincesData = [];
+        let citiesData = [];
+        let barangaysData = [];
+
+        // Populate Regions and Government Agencies
+        $(document).ready(function() {
+            // Load Government Agencies from API
+            $.ajax({
+                url: '/api/government-agencies',
+                method: 'GET',
+                success: function(agencies) {
+                    const agencySelect = $('#government_agency_id');
+                    agencySelect.html('<option value="">Select Agency</option>');
+                    agencies.forEach(agency => {
+                        agencySelect.append(`<option value="${agency.id}">${agency.name}${agency.code ? ' (' + agency.code + ')' : ''}</option>`);
+                    });
+                },
+                error: function() {
+                    $('#government_agency_id').html('<option value="">Error loading agencies</option>');
+                }
+            });
+
+            // Load PSGC data from JSON files
+            $.getJSON('/address/region.json', function(regions) {
+                regionsData = regions;
+                const regionSelect = $('#office_region');
+                regionSelect.html('<option value="">Select Region</option>');
+                regions.forEach(region => {
+                    regionSelect.append(`<option value="${region.region_code}" data-id="${region.id}">${region.region_name}</option>`);
+                });
+            }).fail(function() {
+                $('#office_region').html('<option value="">Error loading regions</option>');
+            });
+
+            $.getJSON('/address/province.json', function(provinces) {
+                provincesData = provinces;
+            }).fail(function() {
+                console.error('Failed to load provinces');
+            });
+
+            $.getJSON('/address/city.json', function(cities) {
+                citiesData = cities;
+            }).fail(function() {
+                console.error('Failed to load cities');
+            });
+
+            $.getJSON('/address/barangay.json', function(barangays) {
+                barangaysData = barangays;
+            }).fail(function() {
+                console.error('Failed to load barangays');
+            });
+
+            // Handle post nominal title "Others" option
+            $('#post_nominal_title').on('change', function() {
+                if ($(this).val() === 'Others') {
+                    $('#post_nominal_title_custom').removeClass('hidden').prop('required', true);
+                } else {
+                    $('#post_nominal_title_custom').addClass('hidden').prop('required', false);
+                }
+            });
+
+            // Generate username based on name and email
+            function generateUsername() {
+                const firstName = $('#first_name').val().trim();
+                const lastName = $('#last_name').val().trim();
+                const email = $('#email').val().trim();
+                
+                if (firstName && lastName && email) {
+                    const firstInitial = firstName.charAt(0).toLowerCase();
+                    const lastPart = lastName.toLowerCase().substring(0, 5);
+                    const emailPart = email.split('@')[0].substring(0, 3).toLowerCase();
+                    const randomNum = Math.floor(Math.random() * 1000);
+                    const username = `${firstInitial}${lastPart}${emailPart}${randomNum}`.substring(0, 20);
+                    $('#username').val(username);
+                }
+            }
+
+            // Auto-generate username when name or email changes
+            $('#first_name, #last_name, #email').on('blur', function() {
+                if ($('#first_name').val() && $('#last_name').val() && $('#email').val()) {
+                    generateUsername();
+                }
+            });
+
+            // Phone number formatting
+            $('#mobile').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.startsWith('63')) {
+                    value = '+' + value;
+                } else if (value.startsWith('0')) {
+                    value = '+63' + value.substring(1);
+                } else if (value && !value.startsWith('+63')) {
+                    value = '+63' + value;
+                }
+                $(this).val(value);
+            });
+
+            $('#landline').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length > 0) {
+                    if (value.startsWith('02')) {
+                        value = '(02) ' + value.substring(2, 6) + '-' + value.substring(6);
+                    } else if (value.length >= 7) {
+                        value = '(' + value.substring(0, 2) + ') ' + value.substring(2, 6) + '-' + value.substring(6);
+                    }
+                }
+                $(this).val(value);
+            });
+
+            // Password validation
+            $('#password').on('input', function() {
+                const password = $(this).val();
+                
+                // Check requirements
+                $('#req-length').toggleClass('valid invalid', password.length >= 6);
+                $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
+                $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
+                $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
+                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+            });
+
+            // PSGC Cascading Dropdowns using JSON data
+            $('#office_region').on('change', function() {
+                const regionCode = $(this).val();
+                const provinceSelect = $('#office_province');
+                const citySelect = $('#office_city_municipality');
+                const barangaySelect = $('#office_barangay');
+                
+                if (regionCode) {
+                    // Filter provinces by region_code
+                    const filteredProvinces = provincesData.filter(p => p.region_code === regionCode);
+                    provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
+                    filteredProvinces.forEach(province => {
+                        provinceSelect.append(`<option value="${province.province_code}">${province.province_name}</option>`);
+                    });
+                    
+                    // Reset city and barangay
+                    citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
+                    barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
+                } else {
+                    provinceSelect.prop('disabled', true).html('<option value="">Select Province</option>');
+                    citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
+                    barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
+                }
+            });
+
+            $('#office_province').on('change', function() {
+                const provinceCode = $(this).val();
+                const citySelect = $('#office_city_municipality');
+                const barangaySelect = $('#office_barangay');
+                
+                if (provinceCode) {
+                    // Filter cities by province_code
+                    const filteredCities = citiesData.filter(c => c.province_code === provinceCode);
+                    citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
+                    filteredCities.forEach(city => {
+                        citySelect.append(`<option value="${city.city_code}">${city.city_name}</option>`);
+                    });
+                    
+                    // Reset barangay
+                    barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
+                } else {
+                    citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
+                    barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
+                }
+            });
+
+            $('#office_city_municipality').on('change', function() {
+                const cityCode = $(this).val();
+                const barangaySelect = $('#office_barangay');
+                
+                if (cityCode) {
+                    // Filter barangays by city_code
+                    const filteredBarangays = barangaysData.filter(b => b.city_code === cityCode);
+                    barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
+                    filteredBarangays.forEach(barangay => {
+                        barangaySelect.append(`<option value="${barangay.brgy_code}">${barangay.brgy_name}</option>`);
+                    });
+                } else {
+                    barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
+                }
+            });
+        });
+
         // Step validation functions
         function validateStep(step) {
             let isValid = true;
             
             if (step === 1) {
-                const firstName = document.getElementById('first_name').value.trim();
-                const lastName = document.getElementById('last_name').value.trim();
-                const email = document.getElementById('email').value.trim();
+                const governmentAgencyId = $('#government_agency_id').val();
+                const preNominalTitle = $('#pre_nominal_title').val();
+                const firstName = $('#first_name').val().trim();
+                const lastName = $('#last_name').val().trim();
+                const designation = $('#designation').val().trim();
+                const sex = $('#sex').val();
+                const gender = $('#gender').val();
+                const birthDate = $('#birth_date').val();
                 
+                if (!governmentAgencyId) {
+                    showError('government_agency_id', 'Government agency is required');
+                    isValid = false;
+                }
+                if (!preNominalTitle) {
+                    showError('pre_nominal_title', 'Pre nominal title is required');
+                    isValid = false;
+                }
                 if (!firstName) {
                     showError('first_name', 'First name is required');
                     isValid = false;
@@ -344,6 +821,49 @@
                     showError('last_name', 'Last name is required');
                     isValid = false;
                 }
+                if (!designation) {
+                    showError('designation', 'Designation is required');
+                    isValid = false;
+                }
+                if (!sex) {
+                    showError('sex', 'Sex is required');
+                    isValid = false;
+                }
+                if (!gender) {
+                    showError('gender', 'Gender is required');
+                    isValid = false;
+                }
+                if (!birthDate) {
+                    showError('birth_date', 'Birth date is required');
+                    isValid = false;
+                }
+            } else if (step === 2) {
+                const region = $('#office_region').val();
+                const province = $('#office_province').val();
+                const city = $('#office_city_municipality').val();
+                const barangay = $('#office_barangay').val();
+                
+                if (!region) {
+                    showError('office_region', 'Region is required');
+                    isValid = false;
+                }
+                if (!province) {
+                    showError('office_province', 'Province is required');
+                    isValid = false;
+                }
+                if (!city) {
+                    showError('office_city_municipality', 'City/Municipality is required');
+                    isValid = false;
+                }
+                if (!barangay) {
+                    showError('office_barangay', 'Barangay is required');
+                    isValid = false;
+                }
+            } else if (step === 3) {
+                const email = $('#email').val().trim();
+                const username = $('#username').val().trim();
+                const mobile = $('#mobile').val().trim();
+                
                 if (!email) {
                     showError('email', 'Email is required');
                     isValid = false;
@@ -351,15 +871,26 @@
                     showError('email', 'Please enter a valid email address');
                     isValid = false;
                 }
+                if (!username) {
+                    showError('username', 'Username is required');
+                    isValid = false;
+                }
+                if (!mobile) {
+                    showError('mobile', 'Mobile number is required');
+                    isValid = false;
+                } else if (!mobile.startsWith('+63')) {
+                    showError('mobile', 'Mobile number must start with +63');
+                    isValid = false;
+                }
             } else if (step === 4) {
-                const password = document.getElementById('password').value;
-                const passwordConfirmation = document.getElementById('password_confirmation').value;
+                const password = $('#password').val();
+                const passwordConfirmation = $('#password_confirmation').val();
                 
                 if (!password) {
                     showError('password', 'Password is required');
                     isValid = false;
-                } else if (password.length < 8) {
-                    showError('password', 'Password must be at least 8 characters');
+                } else if (!validatePassword(password)) {
+                    showError('password', 'Password does not meet requirements');
                     isValid = false;
                 }
                 
@@ -375,57 +906,61 @@
             return isValid;
         }
 
+        function validatePassword(password) {
+            return password.length >= 6 &&
+                   /[A-Z]/.test(password) &&
+                   /[a-z]/.test(password) &&
+                   /[0-9]/.test(password) &&
+                   /[~!@#$%^&*|]/.test(password);
+        }
+
         function isValidEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
 
         function showError(fieldId, message) {
-            const errorElement = document.getElementById(fieldId + '-error');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.classList.remove('hidden');
+            const errorElement = $(`#${fieldId}-error`);
+            if (errorElement.length) {
+                errorElement.text(message);
+                errorElement.removeClass('hidden');
             }
         }
 
         function clearErrors() {
-            document.querySelectorAll('.text-red-500').forEach(el => {
-                el.classList.add('hidden');
-            });
+            $('.text-red-500').addClass('hidden');
         }
 
         function updateStepIndicator() {
-            document.querySelectorAll('.step-item').forEach((item, index) => {
+            $('.step-item').each(function(index) {
                 const stepNum = index + 1;
-                item.classList.remove('active', 'completed');
+                $(this).removeClass('active completed');
                 
                 if (stepNum < currentStep) {
-                    item.classList.add('completed');
+                    $(this).addClass('completed');
                 } else if (stepNum === currentStep) {
-                    item.classList.add('active');
+                    $(this).addClass('active');
                 }
             });
         }
 
         function showStep(step) {
             // Hide all steps
-            document.querySelectorAll('.step').forEach(s => {
-                s.classList.remove('active');
-            });
+            $('.step').removeClass('active');
             
             // Show current step
-            document.getElementById('step' + step).classList.add('active');
+            $(`#step${step}`).addClass('active');
             
             // Update buttons
-            document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
-            document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
-            document.getElementById('registerBtn').classList.toggle('hidden', step !== totalSteps);
+            $('#prevBtn').toggleClass('hidden', step === 1);
+            $('#nextBtn').toggleClass('hidden', step === totalSteps);
+            $('#registerBtn').toggleClass('hidden', step !== totalSteps);
             
             updateStepIndicator();
         }
 
         // Next button
-        document.getElementById('nextBtn').addEventListener('click', function() {
+        $('#nextBtn').on('click', function() {
             if (validateStep(currentStep)) {
                 clearErrors();
                 currentStep++;
@@ -434,14 +969,14 @@
         });
 
         // Previous button
-        document.getElementById('prevBtn').addEventListener('click', function() {
+        $('#prevBtn').on('click', function() {
             clearErrors();
             currentStep--;
             showStep(currentStep);
         });
 
         // Form submission
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        $('#registerForm').on('submit', async function(e) {
             e.preventDefault();
             
             // Validate final step
@@ -449,29 +984,66 @@
                 return;
             }
             
+            // Show confirmation dialog
+            const result = await Swal.fire({
+                title: 'Registration Review',
+                text: 'Please review your information carefully. Click “Confirm” to submit your registration or “Cancel” to make changes.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#7c3aed',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+            
+            // Prepare form data
+            const postNominalTitle = $('#post_nominal_title').val();
+            const finalPostNominal = postNominalTitle === 'Others' ? $('#post_nominal_title_custom').val() : postNominalTitle;
+            
             const formData = {
-                first_name: document.getElementById('first_name').value,
-                last_name: document.getElementById('last_name').value,
-                email: document.getElementById('email').value,
-                mobile: document.getElementById('mobile').value,
-                company: document.getElementById('company').value,
-                position: document.getElementById('position').value,
-                representative_name: document.getElementById('representative_name').value,
-                password: document.getElementById('password').value,
-                password_confirmation: document.getElementById('password_confirmation').value,
+                government_agency_id: $('#government_agency_id').val(),
+                pre_nominal_title: $('#pre_nominal_title').val(),
+                first_name: $('#first_name').val(),
+                middle_initial: $('#middle_initial').val(),
+                last_name: $('#last_name').val(),
+                post_nominal_title: finalPostNominal,
+                designation: $('#designation').val(),
+                sex: $('#sex').val(),
+                gender: $('#gender').val(),
+                birth_date: $('#birth_date').val(),
+                office_building_no: $('#office_building_no').val(),
+                office_house_no: $('#office_house_no').val(),
+                office_street_name: $('#office_street_name').val(),
+                office_purok: $('#office_purok').val(),
+                office_sitio: $('#office_sitio').val(),
+                office_region: $('#office_region').val(),
+                office_province: $('#office_province').val(),
+                office_city_municipality: $('#office_city_municipality').val(),
+                office_barangay: $('#office_barangay').val(),
+                email: $('#email').val(),
+                username: $('#username').val(),
+                mobile: $('#mobile').val(),
+                landline: $('#landline').val(),
+                password: $('#password').val(),
+                password_confirmation: $('#password_confirmation').val(),
             };
 
-            const registerBtn = document.getElementById('registerBtn');
-            const registerBtnText = document.getElementById('registerBtnText');
-            const registerBtnLoader = document.getElementById('registerBtnLoader');
+            const registerBtn = $('#registerBtn');
+            const registerBtnText = $('#registerBtnText');
+            const registerBtnLoader = $('#registerBtnLoader');
 
             // Clear previous errors
             clearErrors();
 
             // Disable button
-            registerBtn.disabled = true;
-            registerBtnText.classList.add('hidden');
-            registerBtnLoader.classList.remove('hidden');
+            registerBtn.prop('disabled', true);
+            registerBtnText.addClass('hidden');
+            registerBtnLoader.removeClass('hidden');
 
             try {
                 const response = await axios.post('/register', formData);
@@ -487,9 +1059,9 @@
                     });
                 }
             } catch (error) {
-                registerBtn.disabled = false;
-                registerBtnText.classList.remove('hidden');
-                registerBtnLoader.classList.add('hidden');
+                registerBtn.prop('disabled', false);
+                registerBtnText.removeClass('hidden');
+                registerBtnLoader.addClass('hidden');
 
                 if (error.response && error.response.status === 422) {
                     const errors = error.response.data.errors;
@@ -497,17 +1069,17 @@
                     // Find which step has errors and navigate to it
                     let errorStep = 1;
                     Object.keys(errors).forEach(field => {
-                        const errorElement = document.getElementById(field + '-error');
-                        if (errorElement) {
-                            errorElement.textContent = errors[field][0];
-                            errorElement.classList.remove('hidden');
+                        const errorElement = $(`#${field}-error`);
+                        if (errorElement.length) {
+                            errorElement.text(errors[field][0]);
+                            errorElement.removeClass('hidden');
                             
                             // Determine which step this field belongs to
-                            if (['first_name', 'last_name', 'email'].includes(field)) {
+                            if (['government_agency_id', 'pre_nominal_title', 'first_name', 'last_name', 'middle_initial', 'post_nominal_title', 'designation', 'sex', 'gender', 'birth_date'].includes(field)) {
                                 errorStep = 1;
-                            } else if (['mobile', 'company', 'position'].includes(field)) {
+                            } else if (field.startsWith('office_')) {
                                 errorStep = 2;
-                            } else if (['representative_name'].includes(field)) {
+                            } else if (['email', 'username', 'mobile', 'landline'].includes(field)) {
                                 errorStep = 3;
                             } else if (['password', 'password_confirmation'].includes(field)) {
                                 errorStep = 4;
@@ -533,19 +1105,9 @@
                 }
             }
         });
-
-        // Handle navigation links to landing page sections
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                if (href && href.includes('{{ route("landing") }}')) {
-                    e.preventDefault();
-                    window.location.href = href;
-                }
-            });
-        });
     </script>
     
     @include('components.footer')
 </body>
 </html>
+

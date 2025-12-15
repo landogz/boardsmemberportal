@@ -46,7 +46,7 @@
 
             <!-- Quick Stats Section -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="rounded-xl shadow-lg p-6 text-white" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-medium opacity-90">Announcements</h4>
                         <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +57,7 @@
                     <p class="text-sm opacity-75 mt-1">Active announcements</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="rounded-xl shadow-lg p-6 text-white" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-medium opacity-90">Upcoming Events</h4>
                         <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
                     <p class="text-sm opacity-75 mt-1">This month</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="rounded-xl shadow-lg p-6 text-white" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-medium opacity-90">Pending Notices</h4>
                         <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@
                     <p class="text-sm opacity-75 mt-1">Require attention</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="rounded-xl shadow-lg p-6 text-white" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-medium opacity-90">Resolutions</h4>
                         <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                                 </svg>
@@ -110,14 +110,14 @@
                     <!-- Sample Announcements -->
                     <div class="space-y-3 mb-4">
                         <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div class="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                            <div class="w-2 h-2 rounded-full mt-2" style="background-color: #055498;"></div>
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-800 dark:text-white">Quarterly Board Meeting Scheduled</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</p>
                             </div>
                         </div>
                         <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                            <div class="w-2 h-2 rounded-full mt-2" style="background-color: #055498;"></div>
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-800 dark:text-white">New Policy Update Available</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">1 day ago</p>
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     
-                    <a href="#" class="inline-flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold transition">
+                    <a href="#" class="inline-flex items-center font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
                         View All 
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -137,7 +137,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
@@ -152,7 +152,7 @@
                         <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <div class="flex-shrink-0 w-12 text-center">
                                 <div class="text-xs font-semibold text-gray-500 dark:text-gray-400">JAN</div>
-                                <div class="text-lg font-bold text-blue-600 dark:text-blue-400">15</div>
+                                <div class="text-lg font-bold" style="color: #055498;">15</div>
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-800 dark:text-white">Board Meeting</p>
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                     
-                    <a href="#" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition">
+                    <a href="#" class="inline-flex items-center font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
                         View Calendar 
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -183,32 +183,32 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 dark:text-white">Meeting Notices</h3>
                         </div>
-                        <span class="px-2 py-1 text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full">2 New</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: rgba(5, 84, 152, 0.2); color: #055498;">2 New</span>
                     </div>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">View meeting notices and confirm attendance</p>
                     
                     <!-- Sample Meeting Notices -->
                     <div class="space-y-3 mb-4">
-                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border-l-4 border-green-500">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg" style="border-left: 4px solid #055498;">
                             <p class="text-sm font-semibold text-gray-800 dark:text-white">Q1 2024 Board Meeting</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Scheduled for January 15, 2024</p>
-                            <span class="inline-block px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded">Pending Response</span>
+                            <span class="inline-block px-2 py-1 text-xs font-medium rounded" style="background-color: rgba(251, 209, 22, 0.2); color: #123a60;">Pending Response</span>
                         </div>
-                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border-l-4 border-blue-500">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg" style="border-left: 4px solid #055498;">
                             <p class="text-sm font-semibold text-gray-800 dark:text-white">Policy Review Session</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Scheduled for January 22, 2024</p>
-                            <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded">Confirmed</span>
+                            <span class="inline-block px-2 py-1 text-xs font-medium rounded" style="background-color: rgba(5, 84, 152, 0.2); color: #055498;">Confirmed</span>
                         </div>
                     </div>
                     
-                    <a href="#" class="inline-flex items-center text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-semibold transition">
+                    <a href="#" class="inline-flex items-center font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
                         View Notices 
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -234,7 +234,7 @@
                     <!-- Sample Messages -->
                     <div class="space-y-3 mb-4">
                         <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 JD
                             </div>
                             <div class="flex-1">
@@ -244,7 +244,7 @@
                             <span class="text-xs text-gray-400">2m</span>
                         </div>
                         <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 JS
                             </div>
                             <div class="flex-1">
@@ -255,7 +255,7 @@
                         </div>
                     </div>
                     
-                    <a href="#" class="inline-flex items-center text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-semibold transition">
+                    <a href="#" class="inline-flex items-center font-semibold transition" style="color: #FBD116;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#FBD116'">
                         Open Chat 
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -267,7 +267,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>

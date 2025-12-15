@@ -15,14 +15,16 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
     <style>
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
         }
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.5); }
+            0%, 100% { box-shadow: 0 0 20px rgba(5, 84, 152, 0.5), 0 0 40px rgba(5, 84, 152, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(5, 84, 152, 0.8), 0 0 60px rgba(5, 84, 152, 0.5); }
         }
         @keyframes slide-in-up {
             from { opacity: 0; transform: translateY(30px); }
@@ -43,22 +45,22 @@
             animation: slide-in-up 0.6s ease-out;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+            background: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
         .neon-glow {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 20px rgba(5, 84, 152, 0.5), 0 0 40px rgba(5, 84, 152, 0.3);
         }
         .card-hover {
             transition: all 0.3s ease;
         }
         .card-hover:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+            box-shadow: 0 20px 40px rgba(5, 84, 152, 0.2);
         }
         .gradient-text {
-            background: linear-gradient(135deg, #A855F7, #3B82F6, #10B981);
+            background: linear-gradient(135deg, #055498, #123a60, #055498);
             background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -73,7 +75,7 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #A855F7, #3B82F6);
+            background: linear-gradient(135deg, #055498, #123a60);
             color: white;
             border: none;
             cursor: pointer;
@@ -81,7 +83,7 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 4px 20px rgba(5, 84, 152, 0.4);
             z-index: 1000;
             transition: all 0.3s ease;
             opacity: 0;
@@ -94,8 +96,8 @@
         }
         #goToTop:hover {
             transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.6);
-            background: linear-gradient(135deg, #3B82F6, #10B981);
+            box-shadow: 0 8px 30px rgba(5, 84, 152, 0.6);
+            background: linear-gradient(135deg, #123a60, #055498);
         }
         #goToTop:active {
             transform: translateY(-2px) scale(1.05);
@@ -196,9 +198,23 @@
         /* Fix for older browsers */
         @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
             .gradient-text {
-                background: #A855F7;
-                -webkit-text-fill-color: #A855F7;
+                background: #055498;
+                -webkit-text-fill-color: #055498;
             }
+        }
+        
+        /* Line clamp utilities for text truncation */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
     @include('components.header-footer-styles')
@@ -442,45 +458,45 @@
     <div class="banner">
         <div class="banner-slideshow">
             <!-- Slide 1 -->
-            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);">
+            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);">
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="/login" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#A855F7] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="/login" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             Get Started
                         </a>
-                        <a href="#about" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#A855F7] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#about" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
                             Learn More
                         </a>
                     </div>
                 </div>
             </div>
             <!-- Slide 2 -->
-            <div class="banner-slide" style="background-image: linear-gradient(135deg, #003366 0%, #0066cc 100%);">
+            <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="#announcements" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#003366] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#announcements" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             View Announcements
                         </a>
-                        <a href="#meetings" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#003366] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
-                            Upcoming Meetings
+                        <a href="#calendar-activities" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
+                            Calendar Activities
                         </a>
                     </div>
                 </div>
             </div>
             <!-- Slide 3 -->
-            <div class="banner-slide" style="background-image: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);">
+            <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure & Modern Platform</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="/register" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white text-[#10B981] rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="/register" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             Register Now
                         </a>
-                        <a href="#contact" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-[#10B981] transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center">
+                        <a href="#contact" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
                             Contact Us
                         </a>
                     </div>
@@ -501,94 +517,150 @@
             <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 gradient-text px-2">
                 Public Announcements
             </h2>
+            
+            @auth
+            <!-- Logged-in User Design: News-style cards with images -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Announcement Card 1 -->
+                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                        <div class="text-white text-center px-4">
+                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm font-medium">Image Placeholder</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
+                            DDB Chairperson – Secretary Oscar Valenzuela shares his message for the 2025 Drug Abuse Prevention and Control (DAPC) Week
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 17, 2025</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                            Dangerous Drugs Board (DDB) Chairperson – Secretary Oscar Valenzuela shares his message for the 2025 Drug Abuse Prevention and Control (DAPC) Week. Guided by its mandate under Republic Act No. 9165,...
+                        </p>
+                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
+                            READ MORE
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Announcement Card 2 -->
+                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                        <div class="text-white text-center px-4">
+                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm font-medium">Image Placeholder</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
+                            READ: DDB UNVEILS WEEKLONG DAPC 2025 EVENTS TO PROMOTE MENTAL HEALTH, DRUG PREVENTION, AND COMMUNITY WELLNESS NATIONWIDE
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 12, 2025</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                            READ: DDB UNVEILS WEEKLONG DAPC 2025 EVENTS TO PROMOTE MENTAL HEALTH, DRUG PREVENTION, AND COMMUNITY WELLNESS NATIONWIDE
+                        </p>
+                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
+                            READ MORE
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Announcement Card 3 -->
+                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                        <div class="text-white text-center px-4">
+                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm font-medium">Image Placeholder</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
+                            DDB and PDEA Destroy P1.1 Billion Worth of Illegal Drugs in Zamboanga City
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 6, 2025</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                            In a powerful affirmation of justice and shared responsibility, Dangerous Drugs Board (DDB) Chairperson - Secretary Oscar Valenzuela joined Philippine Drug Enforcement Agency (PDEA) Director General...
+                        </p>
+                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
+                            READ MORE
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @else
+            <!-- Guest User Design: Simple cards with icons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <!-- Announcement Card 1 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#A855F7]/10 to-[#3B82F6]/10 border border-[#A855F7]/20 card-hover slide-in">
-                    <div class="w-12 h-12 rounded-full bg-[#A855F7] flex items-center justify-center mb-4 pulse-glow">
+                <div class="rounded-3xl p-6 card-hover slide-in" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="background-color: #055498;">
                         <span class="text-2xl">📢</span>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Important Update</h3>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">Latest board meeting schedule and agenda items...</p>
-                    <a href="#" class="text-[#A855F7] font-semibold hover:underline inline-flex items-center group">
+                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
                         Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                     </a>
                 </div>
                 <!-- Announcement Card 2 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#10B981]/10 to-[#3B82F6]/10 border border-[#10B981]/20 card-hover slide-in" style="animation-delay: 0.1s;">
-                    <div class="w-12 h-12 rounded-full bg-[#10B981] flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 0.5s;">
+                <div class="rounded-3xl p-6 card-hover slide-in" style="animation-delay: 0.1s; background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 0.5s; background-color: #055498;">
                         <span class="text-2xl">📅</span>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Upcoming Events</h3>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">Mark your calendars for the quarterly review meeting...</p>
-                    <a href="#" class="text-[#10B981] font-semibold hover:underline inline-flex items-center group">
+                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
                         Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                     </a>
                 </div>
                 <!-- Announcement Card 3 -->
-                <div class="rounded-3xl p-6 bg-gradient-to-br from-[#3B82F6]/10 to-[#A855F7]/10 border border-[#3B82F6]/20 card-hover slide-in" style="animation-delay: 0.2s;">
-                    <div class="w-12 h-12 rounded-full bg-[#3B82F6] flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 1s;">
+                <div class="rounded-3xl p-6 card-hover slide-in" style="animation-delay: 0.2s; background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 1s; background-color: #055498;">
                         <span class="text-2xl">🎯</span>
                     </div>
                     <h3 class="text-xl font-bold mb-2">New Features</h3>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">Enhanced portal features for better collaboration...</p>
-                    <a href="#" class="text-[#3B82F6] font-semibold hover:underline inline-flex items-center group">
+                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
                         Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                     </a>
                 </div>
             </div>
+            @endauth
         </div>
     </section>
 
-    <!-- Public Meetings Section -->
-    <section id="meetings" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-[#F9FAFB] to-gray-100 dark:from-[#0F172A] dark:to-[#1e293b]">
+    @auth
+    <!-- Activities Calendar Section (Logged In Users Only) -->
+    <section id="calendar-activities" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 gradient-text px-2">
-                Public Meetings
-            </h2>
-            <div class="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-                <!-- Meeting Card 1 -->
-                <div class="rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                                <span class="px-2 sm:px-3 py-1 rounded-full bg-[#A855F7] text-white text-xs sm:text-sm font-semibold whitespace-nowrap">Upcoming</span>
-                                <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">Dec 15, 2024</span>
-                            </div>
-                            <h3 class="text-xl sm:text-2xl font-bold mb-2">Quarterly Board Meeting</h3>
-                            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">Review of Q4 performance and strategic planning for next quarter.</p>
-                        </div>
-                        <a href="#" class="w-full lg:w-auto px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white font-semibold hover:scale-105 transition transform text-sm sm:text-base text-center min-h-[44px] flex items-center justify-center">
-                            View Details
-                        </a>
-                    </div>
-                </div>
-                <!-- Meeting Card 2 -->
-                <div class="rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                                <span class="px-2 sm:px-3 py-1 rounded-full bg-[#10B981] text-white text-xs sm:text-sm font-semibold whitespace-nowrap">Scheduled</span>
-                                <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">Dec 20, 2024</span>
-                            </div>
-                            <h3 class="text-xl sm:text-2xl font-bold mb-2">Annual General Meeting</h3>
-                            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">Annual review and election of board members.</p>
-                        </div>
-                        <a href="#" class="w-full lg:w-auto px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-[#10B981] to-[#3B82F6] text-white font-semibold hover:scale-105 transition transform text-sm sm:text-base text-center min-h-[44px] flex items-center justify-center">
-                            View Details
-                        </a>
-                    </div>
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 gradient-text px-2">
+                    Activities Calendar
+                </h2>
+                <p class="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-2">
+                    View meetings, announcements, and scheduled events
+                </p>
+                <div class="bg-white dark:bg-[#1e293b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div id="landingCalendar" class="calendar-container-landing"></div>
                 </div>
             </div>
         </div>
     </section>
+    @endauth
 
+    @guest
     <!-- Vision & Mission Section -->
     <section id="vision" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
                 <!-- Vision -->
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#A855F7]/20 to-[#3B82F6]/20 border border-[#A855F7]/30">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#A855F7] flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0">
+                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">👁️</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Our Vision</h2>
@@ -597,8 +669,8 @@
                     </p>
                 </div>
                 <!-- Mission -->
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#10B981]/20 to-[#3B82F6]/20 border border-[#10B981]/30">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#10B981] flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0">
+                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">🎯</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Our Mission</h2>
@@ -609,7 +681,6 @@
             </div>
         </div>
     </section>
-
     <!-- About Us Section -->
     <section id="about" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b] dark:to-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
@@ -650,27 +721,27 @@
                 <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 gradient-text px-2">
                     Contact Us
                 </h2>
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-[#A855F7]/10 to-[#3B82F6]/10 border border-[#A855F7]/20">
+                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
                     <form id="contactForm" class="space-y-4 sm:space-y-6">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label class="block text-sm font-semibold mb-2">Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent text-base" placeholder="Your name" required>
+                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="Your name" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold mb-2">Email</label>
-                                <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent text-base" placeholder="your@email.com" required>
+                                <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="your@email.com" required>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2">Subject</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent text-base" placeholder="What's this about?" required>
+                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="What's this about?" required>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2">Message</label>
-                            <textarea rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#A855F7] focus:border-transparent text-base resize-y" placeholder="Your message..." required></textarea>
+                            <textarea rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base resize-y" style="focus:ring-color: #055498;" placeholder="Your message..." required></textarea>
                         </div>
-                        <button type="submit" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-[#A855F7] to-[#3B82F6] text-white font-bold hover:scale-105 transition transform shadow-lg text-sm sm:text-base min-h-[44px]">
+                        <button type="submit" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-bold hover:scale-105 transition transform shadow-lg text-sm sm:text-base min-h-[44px]" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                             Send Message
                         </button>
                     </form>
@@ -678,11 +749,12 @@
             </div>
         </div>
     </section>
+    @endguest
 
     @include('components.footer')
 
     <!-- Go to Top Floating Button -->
-    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="fixed bottom-8 right-8 z-50">
+    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="hidden fixed bottom-8 right-8 z-50">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
         </svg>
@@ -753,7 +825,7 @@
                                 icon: 'info',
                                 title: 'Search',
                                 text: 'Searching for: ' + query,
-                                confirmButtonColor: '#A855F7'
+                                confirmButtonColor: '#055498'
                             });
                         } else {
                             alert('Searching for: ' + query);
@@ -1013,6 +1085,422 @@
         });
     </script>
     @endauth
+    
+    @auth
+    <!-- FullCalendar Script -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js"></script>
+    <script>
+        // Initialize Calendar for Landing Page
+        (function() {
+            function initLandingCalendar() {
+                const calendarEl = document.getElementById('landingCalendar');
+                
+                if (!calendarEl) {
+                    return;
+                }
+                
+                // Check for FullCalendar availability
+                let FC = null;
+                if (typeof FullCalendar !== 'undefined' && FullCalendar.Calendar) {
+                    FC = FullCalendar;
+                } else if (typeof window.FullCalendar !== 'undefined' && window.FullCalendar.Calendar) {
+                    FC = window.FullCalendar;
+                } else if (typeof window.FC !== 'undefined' && window.FC.Calendar) {
+                    FC = window.FC;
+                }
+                
+                if (!FC || typeof FC.Calendar === 'undefined') {
+                    setTimeout(initLandingCalendar, 200);
+                    return;
+                }
+                
+                try {
+                    const isMobile = window.innerWidth < 768;
+                    
+                    const calendar = new FC.Calendar(calendarEl, {
+                        initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+                        headerToolbar: {
+                            left: isMobile ? 'prev,next' : 'prev,next today',
+                            center: 'title',
+                            right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
+                        },
+                        height: 'auto',
+                        editable: false,
+                        selectable: false,
+                        views: {
+                            listWeek: {
+                                listDayFormat: { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' },
+                                listDaySideFormat: false
+                            }
+                        },
+                        events: [
+                            {
+                                title: 'Board Meeting - Q1 Review',
+                                start: new Date().toISOString().split('T')[0],
+                                backgroundColor: '#055498',
+                                borderColor: '#055498',
+                                textColor: '#ffffff',
+                                extendedProps: {
+                                    type: 'meeting',
+                                    description: 'Quarterly board meeting to review Q1 performance and discuss upcoming initiatives.'
+                                }
+                            },
+                            {
+                                title: 'New Announcement: Policy Update',
+                                start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                                backgroundColor: '#FBD116',
+                                borderColor: '#FBD116',
+                                textColor: '#123a60',
+                                extendedProps: {
+                                    type: 'announcement',
+                                    description: 'Important policy update announcement for all board members.'
+                                }
+                            },
+                            {
+                                title: 'Resolution Review Meeting',
+                                start: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+                                backgroundColor: '#CE2028',
+                                borderColor: '#CE2028',
+                                textColor: '#ffffff',
+                                extendedProps: {
+                                    type: 'meeting',
+                                    description: 'Review and approve pending board resolutions.'
+                                }
+                            },
+                            {
+                                title: 'Announcement: Annual Report',
+                                start: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+                                backgroundColor: '#FBD116',
+                                borderColor: '#FBD116',
+                                textColor: '#123a60',
+                                extendedProps: {
+                                    type: 'announcement',
+                                    description: 'Annual report publication announcement.'
+                                }
+                            },
+                            {
+                                title: 'Committee Meeting',
+                                start: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                                backgroundColor: '#055498',
+                                borderColor: '#055498',
+                                textColor: '#ffffff',
+                                extendedProps: {
+                                    type: 'meeting',
+                                    description: 'Scheduled committee meeting to discuss ongoing projects.'
+                                }
+                            }
+                        ],
+                        eventClick: function(info) {
+                            const eventType = info.event.extendedProps.type || 'event';
+                            const description = info.event.extendedProps.description || 'No description available.';
+                            const eventDate = info.event.start.toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            });
+                            
+                            Swal.fire({
+                                title: info.event.title,
+                                html: `
+                                    <div class="text-left">
+                                        <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${eventType}</span></p>
+                                        <p class="mb-2"><strong>Date:</strong> ${eventDate}</p>
+                                        ${info.event.start.toLocaleTimeString ? `<p class="mb-2"><strong>Time:</strong> ${info.event.start.toLocaleTimeString()}</p>` : ''}
+                                        <p class="mb-2"><strong>Description:</strong></p>
+                                        <p class="text-sm text-gray-600">${description}</p>
+                                    </div>
+                                `,
+                                icon: 'info',
+                                confirmButtonText: 'Close',
+                                confirmButtonColor: '#055498'
+                            });
+                        },
+                        eventDisplay: 'block',
+                        dayMaxEvents: true,
+                        moreLinkClick: 'popover'
+                    });
+                    
+                    calendar.render();
+                    
+                    // Handle window resize
+                    let resizeTimer;
+                    window.addEventListener('resize', function() {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(function() {
+                            const isMobile = window.innerWidth < 768;
+                            const currentView = calendar.view.type;
+                            
+                            if (isMobile && currentView === 'dayGridMonth') {
+                                calendar.changeView('listWeek');
+                            } else if (!isMobile && currentView === 'listWeek') {
+                                calendar.changeView('dayGridMonth');
+                            }
+                            
+                            calendar.setOption('headerToolbar', {
+                                left: isMobile ? 'prev,next' : 'prev,next today',
+                                center: 'title',
+                                right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
+                            });
+                        }, 250);
+                    });
+                } catch(error) {
+                    console.error('Error initializing landing calendar:', error);
+                }
+            }
+            
+            // Load FullCalendar script dynamically if not already loaded
+            if (typeof FullCalendar === 'undefined' && typeof window.FullCalendar === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js';
+                script.onload = function() {
+                    setTimeout(initLandingCalendar, 100);
+                };
+                script.onerror = function() {
+                    const altScript = document.createElement('script');
+                    altScript.src = 'https://unpkg.com/fullcalendar@6.1.10/index.global.min.js';
+                    altScript.onload = function() {
+                        setTimeout(initLandingCalendar, 100);
+                    };
+                    document.head.appendChild(altScript);
+                };
+                document.head.appendChild(script);
+            } else {
+                // FullCalendar already loaded, initialize immediately
+                setTimeout(initLandingCalendar, 100);
+            }
+        })();
+    </script>
+    <style>
+        /* Landing Page Calendar Styles */
+        .calendar-container-landing {
+            min-height: 500px;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* FullCalendar Custom Styling for Landing Page */
+        #landingCalendar .fc {
+            font-family: inherit;
+        }
+        
+        #landingCalendar .fc-header-toolbar {
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+        }
+        
+        #landingCalendar .fc-button {
+            background-color: #055498 !important;
+            border-color: #055498 !important;
+            color: white !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.375rem !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+        
+        #landingCalendar .fc-button:hover {
+            background-color: #123a60 !important;
+            border-color: #123a60 !important;
+        }
+        
+        #landingCalendar .fc-button-active {
+            background-color: #123a60 !important;
+            border-color: #123a60 !important;
+        }
+        
+        #landingCalendar .fc-today-button {
+            background-color: #FBD116 !important;
+            border-color: #FBD116 !important;
+            color: #123a60 !important;
+        }
+        
+        #landingCalendar .fc-today-button:hover {
+            background-color: #facc15 !important;
+            border-color: #facc15 !important;
+        }
+        
+        #landingCalendar .fc-day-today {
+            background-color: rgba(5, 84, 152, 0.1) !important;
+        }
+        
+        #landingCalendar .fc-event {
+            border-radius: 0.25rem !important;
+            padding: 0.25rem 0.5rem !important;
+            cursor: pointer !important;
+        }
+        
+        #landingCalendar .fc-event:hover {
+            opacity: 0.9 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        #landingCalendar .fc-daygrid-day-number {
+            color: #374151 !important;
+            font-weight: 500 !important;
+        }
+        
+        #landingCalendar .fc-col-header-cell {
+            background-color: #f9fafb !important;
+            padding: 0.75rem 0 !important;
+        }
+        
+        #landingCalendar .fc-col-header-cell-cushion {
+            color: #374151 !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            font-size: 0.75rem !important;
+        }
+        
+        #landingCalendar .fc-daygrid-day {
+            border-color: #e5e7eb !important;
+        }
+        
+        #landingCalendar .fc-daygrid-day-frame {
+            min-height: 100px !important;
+        }
+        
+        @media (max-width: 640px) {
+            .calendar-container-landing {
+                min-height: 400px;
+                padding: 0;
+            }
+            
+            #landingCalendar .fc-header-toolbar {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem 0;
+            }
+            
+            #landingCalendar .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            #landingCalendar .fc-button {
+                padding: 0.375rem 0.75rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            #landingCalendar .fc-toolbar-title {
+                font-size: 1rem !important;
+                margin: 0.5rem 0 !important;
+            }
+            
+            #landingCalendar .fc-col-header-cell-cushion {
+                font-size: 0.625rem !important;
+                padding: 0.5rem 0.25rem !important;
+            }
+            
+            #landingCalendar .fc-daygrid-day-number {
+                font-size: 0.75rem !important;
+                padding: 0.25rem !important;
+            }
+            
+            #landingCalendar .fc-event {
+                font-size: 0.75rem !important;
+                padding: 0.125rem 0.375rem !important;
+                margin: 0.125rem 0 !important;
+            }
+            
+            #landingCalendar .fc-daygrid-day-frame {
+                min-height: 60px !important;
+            }
+            
+            #landingCalendar .fc-list-event {
+                font-size: 0.875rem !important;
+            }
+            
+            #landingCalendar .fc-list-event-title {
+                font-size: 0.875rem !important;
+            }
+            
+            #landingCalendar .fc-list-day-text {
+                padding-left: 0.5rem !important;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .calendar-container-landing {
+                min-height: 450px;
+            }
+            
+            #landingCalendar .fc-header-toolbar {
+                padding: 0.75rem 0;
+            }
+            
+            #landingCalendar .fc-button {
+                padding: 0.5rem 0.875rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            #landingCalendar .fc-toolbar-title {
+                font-size: 1.125rem !important;
+            }
+            
+            #landingCalendar .fc-daygrid-day-frame {
+                min-height: 80px !important;
+            }
+            
+            #landingCalendar .fc-event {
+                font-size: 0.8125rem !important;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .calendar-container-landing {
+                min-height: 600px;
+            }
+            
+            #landingCalendar .fc-daygrid-day-frame {
+                min-height: 120px !important;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            #landingCalendar .fc-scroller {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #landingCalendar .fc-daygrid-body {
+                min-width: 100% !important;
+            }
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            #landingCalendar .fc-button {
+                min-height: 44px !important;
+                min-width: 44px !important;
+            }
+            
+            #landingCalendar .fc-event {
+                min-height: 32px !important;
+            }
+            
+            #landingCalendar .fc-daygrid-day-number {
+                min-height: 32px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            #landingCalendar .fc-more-link {
+                font-size: 0.75rem !important;
+            }
+            
+            #landingCalendar .fc-popover {
+                max-width: 90vw !important;
+            }
+        }
+    </style>
+    @endauth
+    
     <script>
         // Handle navigation links for non-authenticated users too
         document.querySelectorAll('.nav-link').forEach(link => {

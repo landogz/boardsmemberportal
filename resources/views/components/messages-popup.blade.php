@@ -256,6 +256,132 @@
                     emojiPicker.classList.toggle('hidden');
                 });
 
+                // Hide emoji picker when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (emojiPicker && !emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                        emojiPicker.classList.add('hidden');
+                    }
+                });
+
+                // Emoji search functionality
+                const emojiSearchInput = emojiPicker.querySelector('.emoji-search-input');
+                if (emojiSearchInput) {
+                    // Emoji search mapping (common emoji names/keywords)
+                    const emojiKeywords = {
+                        'smile': '😀😃😄😁😆😅😂🤣☺️😊😇🙂🙃😉😌😍',
+                        'happy': '😀😃😄😁😆😅😂🤣☺️😊😇🙂🙃😉😌😍🥰',
+                        'sad': '😞😔😟😕🙁☹️😣😖😫😩🥺😢😭',
+                        'love': '❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💘💝💟😍🥰😘',
+                        'angry': '😠😡🤬🤯😤',
+                        'wow': '😮😲😯😦😧🤯',
+                        'hand': '👋🤚🖐️✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆🖕👇☝️👍👎✊👊🤛🤜👏🙌👐🤲🤝🙏',
+                        'wave': '👋',
+                        'dog': '🐶',
+                        'cat': '🐱',
+                        'pizza': '🍕',
+                        'food': '🍕🍔🍟🌭🍿🧂🥓🥚🍳🥘🥗🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡',
+                        'soccer': '⚽',
+                        'ball': '⚽🏀🏈⚾🥎🎾🏐🏉🥏🎱🏓🏸🏒🏑🥍🏏',
+                        'car': '🚗',
+                        'vehicle': '🚗🚕🚙🚌🚎🏎️🚓🚑🚒🚐🛻🚚🚛🚜',
+                        'light': '💡',
+                        'bulb': '💡',
+                        'heart': '❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💘💝💟',
+                        'thumbs': '👍👎',
+                        'ok': '👌',
+                        'fire': '🔥',
+                        'star': '⭐🌟',
+                        'party': '🎉🎊🥳',
+                        'birthday': '🎂🎉🎊🥳',
+                        'cake': '🎂',
+                        'coffee': '☕',
+                        'drink': '☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🥤🧋🧃🧉🧊',
+                        'money': '💰💵💴💶💷💳',
+                        'clock': '🕛🕧🕐🕜🕑🕝🕒🕞🕓🕟🕔🕠🕕🕡🕖🕢🕗🕣🕘🕤🕙🕥🕚🕦',
+                        'time': '🕛🕧🕐🕜🕑🕝🕒🕞🕓🕟🕔🕠🕕🕡🕖🕢🕗🕣🕘🕤🕙🕥🕚🕦⏰⏲️⏱️⌛⏳⌚',
+                    };
+                    
+                    emojiSearchInput.addEventListener('input', function() {
+                        const searchTerm = this.value.toLowerCase().trim();
+                        const allEmojiItems = emojiPicker.querySelectorAll('.emoji-item');
+                        const allCategories = emojiPicker.querySelectorAll('.emoji-category');
+                        
+                        if (searchTerm === '') {
+                            // Show all categories and emojis when search is empty
+                            allCategories.forEach(cat => {
+                                cat.querySelectorAll('.emoji-item').forEach(item => {
+                                    item.style.display = '';
+                                });
+                            });
+                            // Show active category
+                            const activeCategory = emojiPicker.querySelector('.emoji-category.active');
+                            if (activeCategory) {
+                                allCategories.forEach(cat => cat.classList.add('hidden'));
+                                activeCategory.classList.remove('hidden');
+                            }
+                        } else {
+                            // Show all categories for search results
+                            allCategories.forEach(cat => {
+                                cat.classList.remove('hidden');
+                                const items = cat.querySelectorAll('.emoji-item');
+                                items.forEach(item => {
+                                    item.style.display = 'none';
+                                });
+                            });
+                            
+                            // Filter emojis based on search term
+                            let foundCount = 0;
+                            allEmojiItems.forEach(item => {
+                                const emoji = item.getAttribute('data-emoji');
+                                let shouldShow = false;
+                                
+                                // Check if search term matches any keyword
+                                for (const [keyword, emojiList] of Object.entries(emojiKeywords)) {
+                                    if (keyword.includes(searchTerm) || searchTerm.includes(keyword)) {
+                                        if (emojiList.includes(emoji)) {
+                                            shouldShow = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // Also show if emoji character itself matches
+                                if (emoji.toLowerCase().includes(searchTerm) || searchTerm.includes(emoji)) {
+                                    shouldShow = true;
+                                }
+                                
+                                if (shouldShow) {
+                                    item.style.display = '';
+                                    foundCount++;
+                                }
+                            });
+                            
+                            // If no results, show a message (optional)
+                            if (foundCount === 0) {
+                                // Could show "No emojis found" message
+                            }
+                        }
+                    });
+
+                    // Hide emoji picker when search input loses focus (but allow clicking emojis)
+                    emojiSearchInput.addEventListener('blur', function(e) {
+                        // Delay to allow emoji clicks
+                        setTimeout(function() {
+                            // Check if focus moved to an emoji item or category button
+                            const activeElement = document.activeElement;
+                            const isEmojiRelated = activeElement && (
+                                activeElement.classList.contains('emoji-item') ||
+                                activeElement.classList.contains('emoji-category-btn') ||
+                                emojiPicker.contains(activeElement)
+                            );
+                            
+                            if (!isEmojiRelated && !emojiPicker.contains(activeElement)) {
+                                emojiPicker.classList.add('hidden');
+                            }
+                        }, 200);
+                    });
+                }
+
                 // Emoji selection
                 const emojiItems = emojiPicker.querySelectorAll('.emoji-item');
                 emojiItems.forEach(item => {
@@ -266,16 +392,43 @@
                             input.value += emoji;
                             input.focus();
                         }
+                        // Clear search after selection
+                        if (emojiSearchInput) {
+                            emojiSearchInput.value = '';
+                            emojiSearchInput.dispatchEvent(new Event('input'));
+                        }
                     });
                 });
 
                 // Emoji category switching
                 const categoryBtns = emojiPicker.querySelectorAll('.emoji-category-btn');
+                const categoryDivs = emojiPicker.querySelectorAll('.emoji-category');
+                
                 categoryBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
+                        const category = this.getAttribute('data-category');
+                        
+                        // Remove active class from all buttons
                         categoryBtns.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
-                        // Category switching logic can be added here
+                        
+                        // Hide all categories
+                        categoryDivs.forEach(div => {
+                            div.classList.add('hidden');
+                            div.classList.remove('active');
+                        });
+                        
+                        // Show selected category
+                        const selectedCategory = emojiPicker.querySelector(`.emoji-category[data-category="${category}"]`);
+                        if (selectedCategory) {
+                            selectedCategory.classList.remove('hidden');
+                            selectedCategory.classList.add('active');
+                        }
+                        
+                        // Clear search when switching categories
+                        if (emojiSearchInput) {
+                            emojiSearchInput.value = '';
+                        }
                     });
                 });
             }

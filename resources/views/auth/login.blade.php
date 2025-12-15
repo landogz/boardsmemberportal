@@ -32,7 +32,7 @@
             100% { background-position: 0% 50%; }
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+            background: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
@@ -58,7 +58,8 @@
                     id="email" 
                     name="email" 
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                    style="focus:ring-color: #055498;"
                     placeholder="Enter your email"
                 >
                 <span class="text-red-500 text-sm hidden" id="email-error"></span>
@@ -71,7 +72,8 @@
                     id="password" 
                     name="password" 
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                    style="focus:ring-color: #055498;"
                     placeholder="Enter your password"
                 >
                 <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -79,7 +81,7 @@
 
             <div class="flex items-center justify-between">
                 <label class="flex items-center">
-                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 border-gray-300 rounded" style="color: #055498; focus:ring-color: #055498;">
                     <span class="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
             </div>
@@ -87,7 +89,10 @@
             <button 
                 type="submit" 
                 id="loginBtn"
-                class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                class="w-full text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'"
+                onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'"
             >
                 <span id="loginBtnText">Sign In</span>
                 <span id="loginBtnLoader" class="hidden">Loading...</span>
@@ -97,7 +102,7 @@
         <div class="text-center">
             <p class="text-sm text-gray-600">
                 Don't have an account? 
-                <a href="{{ route('register') }}" class="text-purple-600 hover:text-purple-700 font-semibold">Register here</a>
+                <a href="{{ route('register') }}" class="font-semibold" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">Register here</a>
             </p>
             <a href="{{ route('landing') }}" class="text-sm text-gray-500 hover:text-gray-700 mt-2 inline-block">Back to Home</a>
         </div>

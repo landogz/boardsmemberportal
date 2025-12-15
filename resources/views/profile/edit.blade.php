@@ -32,7 +32,7 @@
             100% { background-position: 0% 50%; }
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #A855F7 0%, #3B82F6 50%, #10B981 100%);
+            background: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
@@ -74,7 +74,7 @@
             <div class="mb-8 text-center">
                 <div class="profile-picture-container inline-block">
                     @php
-                        $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=200&background=A855F7&color=fff';
+                        $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=200&background=055498&color=fff';
                         if ($user->profile_picture) {
                             $media = \App\Models\MediaLibrary::find($user->profile_picture);
                             if ($media) {
@@ -82,7 +82,7 @@
                             }
                         }
                     @endphp
-                    <img id="profilePicturePreview" src="{{ $profilePic }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-purple-200 shadow-lg">
+                    <img id="profilePicturePreview" src="{{ $profilePic }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover shadow-lg" style="border: 4px solid #055498;">
                     <div class="profile-picture-overlay">
                         <span class="text-white font-semibold">Change</span>
                     </div>
@@ -101,7 +101,8 @@
                             name="first_name" 
                             value="{{ $user->first_name }}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                            style="focus:ring-color: #055498;"
                         >
                         <span class="text-red-500 text-sm hidden" id="first_name-error"></span>
                     </div>
@@ -114,7 +115,8 @@
                             name="last_name" 
                             value="{{ $user->last_name }}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                            style="focus:ring-color: #055498;"
                         >
                         <span class="text-red-500 text-sm hidden" id="last_name-error"></span>
                     </div>
@@ -191,7 +193,8 @@
                                 type="password" 
                                 id="current_password" 
                                 name="current_password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                            style="focus:ring-color: #055498;"
                             >
                         </div>
                         <div>
@@ -200,7 +203,8 @@
                                 type="password" 
                                 id="password" 
                                 name="password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                            style="focus:ring-color: #055498;"
                             >
                         </div>
                         <div>
@@ -209,7 +213,8 @@
                                 type="password" 
                                 id="password_confirmation" 
                                 name="password_confirmation"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
+                            style="focus:ring-color: #055498;"
                             >
                         </div>
                     </div>
@@ -222,7 +227,10 @@
                     <button 
                         type="submit" 
                         id="saveBtn"
-                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        class="px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                        onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'"
+                        onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'"
                     >
                         <span id="saveBtnText">Save Changes</span>
                         <span id="saveBtnLoader" class="hidden">Saving...</span>

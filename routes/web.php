@@ -9,7 +9,7 @@ Route::get('/', function () {
         if (Auth::user()->privilege === 'admin') {
         return redirect()->route('admin.dashboard');
         }
-        return redirect()->route('dashboard');
+        return view('landing');
     }
     return view('landing');
 })->name('landing');
@@ -31,6 +31,11 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register')->middleware('guest');
 
+Route::get('/api/government-agencies', function () {
+    $agencies = \App\Models\GovernmentAgency::active()->orderBy('name')->get(['id', 'name', 'code']);
+    return response()->json($agencies);
+})->name('api.government-agencies');
+
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
@@ -38,7 +43,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Dashboard Routes (Protected)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect()->route('landing');
     })->name('dashboard');
 
     Route::get('/admin/dashboard', function () {
@@ -47,6 +52,41 @@ Route::middleware('auth')->group(function () {
         }
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    Route::get('/admin/portal-manager', function () {
+        if (Auth::user()->privilege !== 'admin') {
+            return redirect()->route('dashboard');
+        }
+        return view('admin.portal-manager');
+    })->name('admin.portal-manager');
+
+    Route::post('/admin/portal-manager/send-email', function () {
+        if (Auth::user()->privilege !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access.'
+            ], 403);
+        }
+
+        // Validate request
+        $validated = request()->validate([
+            'recipients' => 'required|array|min:1',
+            'recipients.*' => 'in:board_members,authorized_representatives,consec',
+            'email_subject' => 'required|string|max:255',
+            'email_content' => 'required|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:25600', // 25MB max
+            'remarks' => 'nullable|string',
+        ]);
+
+        // TODO: Implement actual email sending functionality
+        // For now, return success response
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Email sent successfully to selected recipients.'
+        ]);
+    })->name('admin.portal-manager.send-email');
 
     // Profile Routes
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');

@@ -20,7 +20,7 @@
         .top-bar {
             width: 100%;
             height: 45px;
-            background-color: #003366;
+            background-color: #123a60;
             color: white;
             display: flex;
             align-items: center;
@@ -35,7 +35,7 @@
             width: 100%;
             height: 140px;
             background-color: #ffffff;
-            border-bottom: 2px solid #003366;
+            border-bottom: 2px solid #055498;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -81,7 +81,7 @@
             width: 100%;
             min-height: 200px;
             background-color: #f8f8f8;
-            border-top: 2px solid #003366;
+            border-top: 2px solid #055498;
             padding: 20px 15px;
         }
         
@@ -191,7 +191,7 @@
         
         .search-bar button {
             padding: 5px 15px;
-            background-color: #003366;
+            background-color: #055498;
             color: white;
             border: none;
             border-radius: 3px;
@@ -212,7 +212,7 @@
         
         .main-menu a,
         .main-menu button {
-            color: #003366;
+            color: #055498;
             text-decoration: none;
             font-weight: 500;
             font-size: 14px;
@@ -234,7 +234,7 @@
         }
         
         .main-menu .btn-login {
-            background-color: #003366;
+            background-color: #055498;
             color: white;
             border-radius: 6px;
             padding: 8px 16px;
@@ -247,42 +247,42 @@
         
         .main-menu .btn-register {
             background-color: transparent;
-            border: 2px solid #003366;
-            color: #003366;
+            border: 2px solid #055498;
+            color: #055498;
             border-radius: 6px;
             padding: 6px 16px;
         }
         
         .main-menu .btn-register:hover {
-            background-color: #003366;
+            background-color: #055498;
             color: white;
         }
         
         .dark .main-menu a,
         .dark .main-menu button {
-            color: #3B82F6;
+            color: #055498;
         }
         
         .dark .main-menu a:hover,
         .dark .main-menu button:hover {
-            color: #60A5FA;
+            color: #123a60;
         }
         
         .dark .main-menu .btn-login {
-            background-color: #3B82F6;
+            background-color: #055498;
         }
         
         .dark .main-menu .btn-login:hover {
-            background-color: #2563EB;
+            background-color: #123a60;
         }
         
         .dark .main-menu .btn-register {
-            border-color: #3B82F6;
-            color: #3B82F6;
+            border-color: #055498;
+            color: #055498;
         }
         
         .dark .main-menu .btn-register:hover {
-            background-color: #3B82F6;
+            background-color: #055498;
             color: white;
         }
         
@@ -293,7 +293,7 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #003366;
+            color: #055498;
             padding: 8px;
             min-width: 44px;
             min-height: 44px;
@@ -302,7 +302,7 @@
         }
         
         .dark .mobile-menu-btn {
-            color: #3B82F6;
+            color: #055498;
         }
         
         /* Mobile menu */
@@ -341,7 +341,7 @@
         .mobile-menu button {
             display: block;
             padding: 12px 0;
-            color: #003366;
+            color: #055498;
             text-decoration: none;
             font-weight: 500;
             font-size: 14px;
@@ -362,7 +362,7 @@
         }
         
         .mobile-menu .btn-login {
-            background-color: #003366;
+            background-color: #055498;
             color: white;
             border-radius: 6px;
             padding: 12px;
@@ -378,8 +378,8 @@
         
         .mobile-menu .btn-register {
             background-color: transparent;
-            border: 2px solid #003366;
-            color: #003366;
+            border: 2px solid #055498;
+            color: #055498;
             border-radius: 6px;
             padding: 10px;
             text-align: center;
@@ -388,7 +388,7 @@
         }
         
         .mobile-menu .btn-register:hover {
-            background-color: #003366;
+            background-color: #055498;
             color: white;
         }
         
@@ -403,29 +403,29 @@
         
         .dark .mobile-menu a,
         .dark .mobile-menu button {
-            color: #3B82F6;
+            color: #055498;
         }
         
         .dark .mobile-menu a:hover,
         .dark .mobile-menu button:hover {
-            color: #60A5FA;
+            color: #123a60;
         }
         
         .dark .mobile-menu .btn-login {
-            background-color: #3B82F6;
+            background-color: #055498;
         }
         
         .dark .mobile-menu .btn-login:hover {
-            background-color: #2563EB;
+            background-color: #123a60;
         }
         
         .dark .mobile-menu .btn-register {
-            border-color: #3B82F6;
-            color: #3B82F6;
+            border-color: #055498;
+            color: #055498;
         }
         
         .dark .mobile-menu .btn-register:hover {
-            background-color: #3B82F6;
+            background-color: #055498;
             color: white;
         }
         
@@ -506,7 +506,7 @@
         
         .dark .masthead {
             background-color: #0F172A;
-            border-bottom-color: #3B82F6;
+            border-bottom-color: #055498;
         }
         
         .dark .banner {
@@ -525,7 +525,7 @@
         
         .dark .agency-footer {
             background-color: #1e293b;
-            border-top-color: #3B82F6;
+            border-top-color: #055498;
             color: #F1F5F9;
         }
         
@@ -555,7 +555,7 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #A855F7, #3B82F6);
+            background: linear-gradient(135deg, #055498, #123a60);
             color: white;
             border: none;
             cursor: pointer;
@@ -615,7 +615,7 @@
             </div>
             <div class="search-bar">
                 <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
-                <button type="button" onclick="handleSearch()" class="dark:bg-blue-600">Search</button>
+                <button type="button" onclick="handleSearch()" style="background-color: #055498;">Search</button>
             </div>
         </div>
     </div>
@@ -624,7 +624,7 @@
     <div class="masthead" style="position: relative;">
         <div class="gov-container flex items-center justify-between w-full flex-wrap gap-4">
             <div class="flex items-center gap-4 flex-1">
-                <img src="https://ddb.gov.ph/wp-content/uploads/2021/08/DDB_Website_Header1.png" 
+                <img src="{{ asset('images/DDB_Website_Header1.png') }}" 
                      alt="Agency Logo" 
                      class="h-12 sm:h-14 md:h-16 w-auto object-contain max-h-[70px]">
                 <!-- Main Menu - Desktop -->
@@ -670,11 +670,11 @@
     <!-- 3. Banner - 1190x460px - Mandatory, Customizable -->
     <div class="banner">
         <div class="banner-slideshow">
-            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #003366 0%, #0066cc 100%); display: flex; align-items: center; justify-content: center; color: white;">
+            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%); display: flex; align-items: center; justify-content: center; color: white;">
                 <div class="text-center px-4">
                     <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Welcome to Board Member Portal</h1>
                     <p class="text-lg sm:text-xl mb-6">Your gateway to seamless board management and collaboration</p>
-                    <a href="#content" class="px-6 py-3 bg-white text-[#003366] rounded-lg font-semibold hover:opacity-90 transition inline-block">Get Started</a>
+                    <a href="#content" class="px-6 py-3 bg-white rounded-lg font-semibold hover:opacity-90 transition inline-block" style="color: #055498;">Get Started</a>
                 </div>
             </div>
         </div>
@@ -688,41 +688,41 @@
         <div class="gov-container">
             <!-- Public Announcements Section -->
             <section id="announcements" class="mb-12">
-                <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#003366] dark:text-[#3B82F6]">Public Announcements</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-6" style="color: #055498;">Public Announcements</h2>
                 <div class="content-columns">
                     <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="text-3xl mb-3">📢</div>
                         <h3 class="text-xl font-bold mb-2">Important Update</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">Latest board meeting schedule and agenda items...</p>
-                        <a href="#" class="text-[#003366] dark:text-[#3B82F6] font-semibold hover:underline">Read More →</a>
+                        <a href="#" class="font-semibold hover:underline" style="color: #055498;">Read More →</a>
                     </div>
                     <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="text-3xl mb-3">📅</div>
                         <h3 class="text-xl font-bold mb-2">Upcoming Events</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">Mark your calendars for the quarterly review meeting...</p>
-                        <a href="#" class="text-[#003366] dark:text-[#3B82F6] font-semibold hover:underline">Read More →</a>
+                        <a href="#" class="font-semibold hover:underline" style="color: #055498;">Read More →</a>
                     </div>
                     <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="text-3xl mb-3">🎯</div>
                         <h3 class="text-xl font-bold mb-2">New Features</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">Enhanced portal features for better collaboration...</p>
-                        <a href="#" class="text-[#003366] dark:text-[#3B82F6] font-semibold hover:underline">Read More →</a>
+                        <a href="#" class="font-semibold hover:underline" style="color: #055498;">Read More →</a>
                     </div>
                 </div>
             </section>
 
             <!-- Public Meetings Section -->
             <section id="meetings" class="mb-12">
-                <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#003366] dark:text-[#3B82F6]">Public Meetings</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-6" style="color: #055498;">Public Meetings</h2>
                 <div class="space-y-4">
                     <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
-                                <span class="px-3 py-1 bg-[#003366] dark:bg-[#3B82F6] text-white text-sm font-semibold rounded-full inline-block mb-2">Upcoming</span>
+                                <span class="px-3 py-1 text-white text-sm font-semibold rounded-full inline-block mb-2" style="background-color: #055498;">Upcoming</span>
                                 <h3 class="text-xl font-bold mb-2">Quarterly Board Meeting</h3>
                                 <p class="text-gray-600 dark:text-gray-400">Dec 15, 2024 - Review of Q4 performance</p>
                             </div>
-                            <a href="#" class="px-6 py-2 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition text-center">View Details</a>
+                            <a href="#" class="px-6 py-2 text-white rounded hover:opacity-90 transition text-center" style="background-color: #055498;">View Details</a>
                         </div>
                     </div>
                     <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -732,7 +732,7 @@
                                 <h3 class="text-xl font-bold mb-2">Annual General Meeting</h3>
                                 <p class="text-gray-600 dark:text-gray-400">Dec 20, 2024 - Annual review and elections</p>
                             </div>
-                            <a href="#" class="px-6 py-2 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition text-center">View Details</a>
+                            <a href="#" class="px-6 py-2 text-white rounded hover:opacity-90 transition text-center" style="background-color: #055498;">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -743,12 +743,12 @@
                 <div class="content-columns">
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
                         <div class="text-3xl mb-3">👁️</div>
-                        <h2 class="text-2xl font-bold mb-4 text-[#003366] dark:text-[#3B82F6]">Our Vision</h2>
+                        <h2 class="text-2xl font-bold mb-4" style="color: #055498;">Our Vision</h2>
                         <p class="text-gray-700 dark:text-gray-300">To create a seamless, transparent, and efficient platform that empowers board members to collaborate effectively.</p>
                     </div>
                     <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800">
                         <div class="text-3xl mb-3">🎯</div>
-                        <h2 class="text-2xl font-bold mb-4 text-[#003366] dark:text-[#3B82F6]">Our Mission</h2>
+                        <h2 class="text-2xl font-bold mb-4" style="color: #055498;">Our Mission</h2>
                         <p class="text-gray-700 dark:text-gray-300">To provide a modern, secure, and user-friendly portal that streamlines board operations and enhances communication.</p>
                     </div>
                 </div>
@@ -756,7 +756,7 @@
 
             <!-- About Us Section -->
             <section id="about" class="mb-12">
-                <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#003366] dark:text-[#3B82F6]">About Us</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-6" style="color: #055498;">About Us</h2>
                 <p class="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
                     The Board Member Portal is a comprehensive digital platform designed to facilitate seamless communication, 
                     collaboration, and management for board members. Our platform integrates modern technology with intuitive design 
@@ -783,28 +783,28 @@
 
             <!-- Contact Us Section -->
             <section id="contact" class="mb-12">
-                <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#003366] dark:text-[#3B82F6]">Contact Us</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-6" style="color: #055498;">Contact Us</h2>
                 <div class="bg-gray-50 dark:bg-[#1e293b] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                     <form id="contactForm" class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold mb-2">Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:ring-2 focus:ring-[#003366] dark:focus:ring-[#3B82F6] focus:border-transparent" placeholder="Your name" required>
+                                <input type="text" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:border-transparent" style="focus:ring-color: #055498;" placeholder="Your name" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold mb-2">Email</label>
-                                <input type="email" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:ring-2 focus:ring-[#003366] dark:focus:ring-[#3B82F6] focus:border-transparent" placeholder="your@email.com" required>
+                                <input type="email" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:border-transparent" style="focus:ring-color: #055498;" placeholder="your@email.com" required>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2">Subject</label>
-                            <input type="text" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:ring-2 focus:ring-[#003366] dark:focus:ring-[#3B82F6] focus:border-transparent" placeholder="What's this about?" required>
+                            <input type="text" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:border-transparent" style="focus:ring-color: #055498;" placeholder="What's this about?" required>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2">Message</label>
-                            <textarea rows="5" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:ring-2 focus:ring-[#003366] dark:focus:ring-[#3B82F6] focus:border-transparent resize-y" placeholder="Your message..." required></textarea>
+                            <textarea rows="5" class="w-full px-4 py-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0F172A] focus:border-transparent resize-y" style="focus:ring-color: #055498;" placeholder="Your message..." required></textarea>
                         </div>
-                        <button type="submit" class="px-8 py-3 bg-[#003366] dark:bg-[#3B82F6] text-white rounded hover:opacity-90 transition font-semibold min-h-[44px]">
+                        <button type="submit" class="px-8 py-3 text-white rounded hover:opacity-90 transition font-semibold min-h-[44px]" style="background-color: #055498;">
                             Send Message
                         </button>
                     </form>
@@ -818,26 +818,26 @@
         <div class="gov-container">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <div>
-                    <h3 class="text-lg font-bold mb-4 text-[#003366] dark:text-[#3B82F6]">Board Portal</h3>
+                    <h3 class="text-lg font-bold mb-4" style="color: #055498;">Board Portal</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Modern board management platform for efficient collaboration and communication.</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Quick Links</h4>
+                    <h4 class="font-semibold mb-4" style="color: #055498;">Quick Links</h4>
                     <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="#announcements" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Announcements</a></li>
-                        <li><a href="#meetings" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Meetings</a></li>
-                        <li><a href="#about" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">About</a></li>
+                        <li><a href="#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
+                        <li><a href="#meetings" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Meetings</a></li>
+                        <li><a href="#about" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Account</h4>
+                    <h4 class="font-semibold mb-4" style="color: #055498;">Account</h4>
                     <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="/login" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Login</a></li>
-                        <li><a href="/register" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Register</a></li>
+                        <li><a href="/login" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Login</a></li>
+                        <li><a href="/register" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Register</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Contact</h4>
+                    <h4 class="font-semibold mb-4" style="color: #055498;">Contact</h4>
                     <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                         <li>Email: info@boardportal.gov.ph</li>
                         <li>Phone: +63 (2) 1234-5678</li>
@@ -996,7 +996,7 @@
                             icon: 'success',
                             title: 'Thank you!',
                             text: 'Your message has been sent. We will get back to you soon.',
-                            confirmButtonColor: '#003366'
+                            confirmButtonColor: '#055498'
                         });
                     } else {
                         alert('Thank you for your message! We will get back to you soon.');

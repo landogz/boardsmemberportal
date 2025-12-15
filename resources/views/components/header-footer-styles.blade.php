@@ -10,7 +10,7 @@
     .top-bar {
         width: 100%;
         height: 45px;
-        background-color: #003366;
+        background-color: #123a60;
         color: white;
         display: flex;
         align-items: center;
@@ -23,7 +23,7 @@
     }
     
     .dark .top-bar {
-        background-color: #1a1a1a;
+        background-color: #0a1a2e;
     }
     
     /* Search bar styling */
@@ -43,7 +43,7 @@
     
     .search-bar button {
         padding: 5px 15px;
-        background-color: #003366;
+        background-color: #055498;
         color: white;
         border: none;
         border-radius: 3px;
@@ -53,7 +53,7 @@
     }
     
     .search-bar button:hover {
-        background-color: #004488;
+        background-color: #123a60;
     }
     
     .dark .search-bar input {
@@ -63,11 +63,11 @@
     }
     
     .dark .search-bar button {
-        background-color: #3B82F6;
+        background-color: #055498;
     }
     
     .dark .search-bar button:hover {
-        background-color: #2563EB;
+        background-color: #123a60;
     }
     
     /* Agency Footer - 1190 W, H varies - Mandatory, Customizable */
@@ -75,13 +75,13 @@
         width: 100%;
         min-height: 200px;
         background-color: #f8f8f8;
-        border-top: 2px solid #003366;
+        border-top: 2px solid #055498;
         padding: 20px 15px;
     }
     
     .dark .agency-footer {
         background-color: #1e293b;
-        border-top-color: #3B82F6;
+        border-top-color: #055498;
         color: #F1F5F9;
     }
     

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\MediaLibrary;
+use App\Models\GovernmentAgency;
 
 class User extends Authenticatable
 {
@@ -21,19 +22,41 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'first_name',
+        'middle_initial',
         'last_name',
+        'pre_nominal_title',
+        'post_nominal_title',
         'email',
+        'username',
+        'username_edited',
         'password_hash',
         'privilege',
+        'government_agency_id',
         'is_active',
         'mobile',
+        'landline',
         'representative_name',
         'company',
+        'office_building_no',
+        'office_house_no',
+        'office_street_name',
+        'office_purok',
+        'office_sitio',
+        'office_region',
+        'office_province',
+        'office_city_municipality',
+        'office_barangay',
         'position',
+        'designation',
+        'sex',
+        'gender',
+        'birth_date',
         'status',
         'profile_picture',
         'banner_image',
         'email_verified_at',
+        'current_session_id',
+        'last_activity',
     ];
 
     /**
@@ -56,6 +79,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'is_active' => 'boolean',
+            'username_edited' => 'boolean',
+            'birth_date' => 'date',
+            'last_activity' => 'datetime',
         ];
     }
 
@@ -89,5 +115,13 @@ class User extends Authenticatable
     public function bannerImageMedia()
     {
         return $this->belongsTo(MediaLibrary::class, 'banner_image');
+    }
+
+    /**
+     * Get the government agency for this user.
+     */
+    public function governmentAgency()
+    {
+        return $this->belongsTo(GovernmentAgency::class, 'government_agency_id');
     }
 }
