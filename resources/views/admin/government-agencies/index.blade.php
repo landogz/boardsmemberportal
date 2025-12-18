@@ -42,6 +42,22 @@
         object-fit: contain;
         border-radius: 4px;
     }
+    .action-dropdown-btn {
+        transition: all 0.2s ease;
+    }
+    .action-dropdown-btn:hover {
+        background-color: #f3f4f6;
+    }
+    .action-dropdown-menu {
+        min-width: 12rem;
+    }
+    .action-dropdown-menu button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .action-dropdown-menu button:disabled:hover {
+        background-color: transparent;
+    }
 </style>
 @endpush
 
@@ -123,33 +139,36 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center space-x-2">
-                                @can('edit government agencies')
-                                <button 
-                                    onclick="toggleStatus({{ $agency->id }})" 
-                                    class="px-3 py-1 text-xs rounded-lg transition-colors {{ $agency->is_active ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200' }}"
-                                    title="{{ $agency->is_active ? 'Deactivate' : 'Activate' }}"
-                                >
-                                    <i class="fas {{ $agency->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
+                            <div class="relative inline-block text-left" style="position: relative;">
+                                <button type="button" class="action-dropdown-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#055498]" data-agency-id="{{ $agency->id }}" title="Actions">
+                                    <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <a 
-                                    href="{{ route('admin.government-agencies.edit', $agency->id) }}" 
-                                    class="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors"
-                                    title="Edit"
-                                >
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                @endcan
-                                @can('delete government agencies')
-                                <button 
-                                    onclick="deleteAgency({{ $agency->id }})" 
-                                    class="px-3 py-1 text-xs bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors"
-                                    title="Delete"
-                                    {{ $agency->users()->count() > 0 ? 'disabled' : '' }}
-                                >
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                @endcan
+                                
+                                <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $agency->id }}">
+                                    <div class="py-1" role="menu">
+                                        @can('edit government agencies')
+                                        <a href="{{ route('admin.government-agencies.edit', $agency->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
+                                            <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
+                                            Edit Agency
+                                        </a>
+                                        @php
+                                            $toggleText = $agency->is_active ? 'Deactivate Agency' : 'Activate Agency';
+                                            $toggleIcon = $agency->is_active ? 'fa-ban' : 'fa-check-circle';
+                                            $toggleColor = $agency->is_active ? 'text-yellow-600' : 'text-green-600';
+                                        @endphp
+                                        <button type="button" class="toggle-status-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center" role="menuitem" data-agency-id="{{ $agency->id }}" data-is-active="{{ $agency->is_active ? 1 : 0 }}">
+                                            <i class="fas {{ $toggleIcon }} w-4 mr-3 {{ $toggleColor }}"></i>
+                                            {{ $toggleText }}
+                                        </button>
+                                        @endcan
+                                        @can('delete government agencies')
+                                        <button type="button" class="delete-agency-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-agency-id="{{ $agency->id }}" {{ $agency->users()->count() > 0 ? 'disabled' : '' }}>
+                                            <i class="fas fa-trash w-4 mr-3"></i>
+                                            Delete Agency
+                                        </button>
+                                        @endcan
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -275,25 +294,107 @@
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+    // Dropdown menu functionality
+    $(document).ready(function() {
+        // Close dropdowns when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.relative').length) {
+                $('.action-dropdown-menu').addClass('hidden');
+            }
+        });
+
+        // Toggle dropdown on button click
+        $('.action-dropdown-btn').on('click', function(e) {
+            e.stopPropagation();
+            const agencyId = $(this).data('agency-id');
+            const dropdown = $(`.action-dropdown-menu[data-dropdown-id="${agencyId}"]`);
+            
+            // Close all other dropdowns
+            $('.action-dropdown-menu').not(dropdown).addClass('hidden');
+            
+            // Toggle current dropdown
+            dropdown.toggleClass('hidden');
+            
+            // Position dropdown
+            if (!dropdown.hasClass('hidden')) {
+                positionDropdown($(this), dropdown);
+            }
+        });
+
+        // Position dropdown to prevent overflow
+        function positionDropdown(button, dropdown) {
+            const buttonOffset = button.offset();
+            const buttonWidth = button.outerWidth();
+            const buttonHeight = button.outerHeight();
+            const dropdownWidth = dropdown.outerWidth();
+            const dropdownHeight = dropdown.outerHeight();
+            const windowWidth = $(window).width();
+            const windowHeight = $(window).height();
+            const scrollTop = $(window).scrollTop();
+            const scrollLeft = $(window).scrollLeft();
+
+            let top = buttonOffset.top + buttonHeight + 5 - scrollTop;
+            let left = buttonOffset.left - scrollLeft;
+
+            // Check if dropdown would overflow right
+            if (left + dropdownWidth > windowWidth - 10) {
+                left = windowWidth - dropdownWidth - 10;
+            }
+
+            // Check if dropdown would overflow left
+            if (left < 10) {
+                left = 10;
+            }
+
+            // Check if dropdown would overflow bottom
+            if (top + dropdownHeight > windowHeight - 10) {
+                top = buttonOffset.top - dropdownHeight - 5 - scrollTop;
+            }
+
+            // Check if dropdown would overflow top
+            if (top < 10) {
+                top = 10;
+            }
+
+            dropdown.css({
+                'position': 'fixed',
+                'top': top + 'px',
+                'left': left + 'px',
+                'z-index': '1000'
+            });
+        }
+
+        // Handle window resize
+        $(window).on('resize', function() {
+            $('.action-dropdown-menu').addClass('hidden');
+        });
+    });
+
     // Toggle agency status
-    function toggleStatus(id) {
-        axios.post(`/admin/government-agencies/${id}/toggle-status`)
+    $(document).on('click', '.toggle-status-btn', function() {
+        const agencyId = $(this).data('agency-id');
+        const isActive = $(this).data('is-active');
+        
+        // Close dropdown
+        $(`.action-dropdown-menu[data-dropdown-id="${agencyId}"]`).addClass('hidden');
+        
+        axios.post(`/admin/government-agencies/${agencyId}/toggle-status`)
             .then(response => {
                 if (response.data.success) {
-                    const statusBadge = document.getElementById(`status-${id}`);
-                    const row = document.querySelector(`tr[data-id="${id}"]`);
-                    const toggleBtn = row.querySelector('button[onclick*="toggleStatus"]');
+                    const statusBadge = document.getElementById(`status-${agencyId}`);
+                    const row = document.querySelector(`tr[data-id="${agencyId}"]`);
+                    const toggleBtn = row.querySelector('.toggle-status-btn');
                     
                     if (response.data.is_active) {
                         statusBadge.className = 'status-badge status-active';
                         statusBadge.textContent = 'Active';
-                        toggleBtn.className = 'px-3 py-1 text-xs rounded-lg transition-colors bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
-                        toggleBtn.innerHTML = '<i class="fas fa-toggle-on"></i>';
+                        toggleBtn.innerHTML = '<i class="fas fa-ban w-4 mr-3 text-yellow-600"></i>Deactivate Agency';
+                        toggleBtn.setAttribute('data-is-active', '1');
                     } else {
                         statusBadge.className = 'status-badge status-inactive';
                         statusBadge.textContent = 'Inactive';
-                        toggleBtn.className = 'px-3 py-1 text-xs rounded-lg transition-colors bg-green-100 text-green-800 hover:bg-green-200';
-                        toggleBtn.innerHTML = '<i class="fas fa-toggle-off"></i>';
+                        toggleBtn.innerHTML = '<i class="fas fa-check-circle w-4 mr-3 text-green-600"></i>Activate Agency';
+                        toggleBtn.setAttribute('data-is-active', '0');
                     }
                     
                     Swal.fire({
@@ -312,10 +413,24 @@
                     text: error.response?.data?.message || 'An error occurred. Please try again.'
                 });
             });
-    }
+    });
 
     // Delete agency
-    function deleteAgency(id) {
+    $(document).on('click', '.delete-agency-btn', function() {
+        const agencyId = $(this).data('agency-id');
+        
+        // Close dropdown
+        $(`.action-dropdown-menu[data-dropdown-id="${agencyId}"]`).addClass('hidden');
+        
+        if ($(this).prop('disabled')) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cannot Delete',
+                text: 'This agency has users associated with it. Please remove all users before deleting.'
+            });
+            return;
+        }
+        
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -326,7 +441,7 @@
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`/admin/government-agencies/${id}`)
+                axios.delete(`/admin/government-agencies/${agencyId}`)
                     .then(response => {
                         if (response.data.success) {
                             Swal.fire({
@@ -349,6 +464,6 @@
                     });
             }
         });
-    }
+    });
 </script>
 @endpush
