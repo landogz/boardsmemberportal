@@ -127,6 +127,79 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 
 ## 1. SYSTEM WORKFLOW
 
+### System Flowchart
+
+```mermaid
+flowchart TD
+    Start([User Visits Portal]) --> Landing[Landing Page]
+    Landing --> AuthChoice{Authentication}
+    
+    AuthChoice -->|Login| Login[Login Form]
+    AuthChoice -->|Register| Register[Registration Form]
+    
+    Login --> ValidateCreds{Validate Credentials}
+    ValidateCreds -->|Invalid| LoginError[Show Error]
+    LoginError --> Login
+    ValidateCreds -->|Valid| CheckRole{Check Role & Permissions}
+    
+    Register --> FillForm[Fill Personal & Organization Details]
+    FillForm --> PSGC[Multi-step Form with PSGC Address]
+    PSGC --> PendingStatus[Status: Pending]
+    PendingStatus --> AdminReview[Admin Approval Required]
+    AdminReview --> Approve{Approve?}
+    Approve -->|Yes| ActivateAccount[Activate Account]
+    Approve -->|No| DeleteAccount[Delete Account]
+    ActivateAccount --> CheckRole
+    
+    CheckRole -->|Admin| AdminDash[Admin Dashboard]
+    CheckRole -->|User/CONSEC| UserDash[User Dashboard]
+    
+    AdminDash --> AdminFeatures{Admin Features}
+    AdminFeatures --> UserMgmt[User Management]
+    AdminFeatures --> DocMgmt[Document Management]
+    AdminFeatures --> RoleMgmt[Role & Permission Management]
+    AdminFeatures --> AuditLogs[Audit Logs]
+    AdminFeatures --> MediaLib[Media Library]
+    AdminFeatures --> GovAgencies[Government Agencies]
+    
+    UserMgmt --> CONSEC[CONSEC Accounts]
+    UserMgmt --> BoardMembers[Board Members]
+    UserMgmt --> PendingReg[Pending Registrations]
+    
+    DocMgmt --> Resolutions[Board Resolutions]
+    DocMgmt --> Regulations[Board Regulations]
+    Resolutions --> VersionHistory[Version History]
+    Regulations --> VersionHistory
+    
+    RoleMgmt --> CreateRole[Create/Edit Roles]
+    RoleMgmt --> PermMatrix[Permission Matrix]
+    
+    UserDash --> UserFeatures{User Features}
+    UserFeatures --> ViewAnnounce[View Announcements]
+    UserFeatures --> ViewCalendar[Activities Calendar]
+    UserFeatures --> Chat[Chat Facility]
+    UserFeatures --> MeetingNotices[Meeting Notices]
+    UserFeatures --> BoardIssuances[Board Issuances]
+    
+    BoardIssuances --> FilterDocs[Filter by Type]
+    FilterDocs --> ViewPDF[View/Download PDF]
+    
+    AdminDash --> AuditSystem[Audit System]
+    UserDash --> AuditSystem
+    UserMgmt --> AuditSystem
+    DocMgmt --> AuditSystem
+    RoleMgmt --> AuditSystem
+    
+    AuditSystem --> LogAction[Log Action]
+    LogAction --> StoreData[Store User, IP, Timestamp]
+    StoreData --> DisplayLogs[Display in Audit Logs]
+    
+    style Start fill:#055498,stroke:#123a60,color:#fff
+    style AdminDash fill:#CE2028,stroke:#8b1519,color:#fff
+    style UserDash fill:#055498,stroke:#123a60,color:#fff
+    style AuditSystem fill:#F9FAFB,stroke:#0F172A,stroke-width:2px
+```
+
 ### A. User Access Flow
 
 #### Landing Page Structure
