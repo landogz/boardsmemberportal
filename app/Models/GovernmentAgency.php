@@ -19,6 +19,7 @@ class GovernmentAgency extends Model
         'code',
         'description',
         'is_active',
+        'logo_id',
     ];
 
     /**
@@ -44,6 +45,14 @@ class GovernmentAgency extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Get the logo media for this agency.
+     */
+    public function logo()
+    {
+        return $this->belongsTo(MediaLibrary::class, 'logo_id');
     }
 }
 

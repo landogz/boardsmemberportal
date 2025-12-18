@@ -1,6 +1,6 @@
 # boardsmemberportal
 
-A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQuery. Features a GEN-Z inspired design with comprehensive content management, meeting management, and communication tools.
+A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQuery. Features a comprehensive role-based access control system, document management, user management, and real-time communication tools.
 
 ## 🚀 Tech Stack
 
@@ -9,326 +9,533 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **AJAX:** Axios, jQuery
 - **Notifications:** SweetAlert2
 - **Database:** MySQL
+- **RBAC:** Spatie Laravel Permission
+- **PDF Generation:** barryvdh/laravel-dompdf
+- **Icons:** Font Awesome
+
+## ✨ Key Features
+
+### 🔐 Authentication & Authorization
+- **Role-Based Access Control (RBAC)** using Spatie Laravel Permission
+- Dynamic role creation and permission management
+- Permission matrix interface for role assignment
+- Individual user permission override system
+- Single-device login enforcement
+- Online status tracking with auto-logout after 30 minutes of inactivity
+- Session management and activity tracking
+
+### 👥 User Management
+- **CONSEC Account Management** - Full CRUD for CONSEC accounts with individual permission control
+- **Board Member Management** - Complete management system for board members
+- **Pending Registrations** - Review and approve/disapprove new user registrations
+- Multi-step registration forms with PSGC (Philippine Standard Geographic Code) address fields
+- Profile picture upload and management
+- Account activation/deactivation with audit logging
+
+### 📄 Document Management
+- **Board Resolutions** - Create, edit, view, and manage board resolutions with version history
+- **Board Regulations** - Complete CRUD with versioning and change notes
+- **Board Issuances** - Public-facing page displaying both resolutions and regulations
+- PDF document viewer with full-screen modal
+- Document history tracking with version comparison
+- Change notes for document edits
+
+### 🏛️ Government Agencies
+- Government agency management with CRUD operations
+- Bulk operations (activate, deactivate, delete)
+- Status toggle functionality
+- DataTables with search and filtering
+
+### 📚 Media Library
+- Drag & drop file upload
+- Support for images, PDFs, audio, and video files
+- File preview and download
+- Attachment details modal
+- PDF preview with download and open in new tab options
+
+### 📊 Audit Trail
+- Comprehensive audit logging for all system actions
+- Searchable audit logs with DataTables
+- PDF export with filtered results
+- Detailed action tracking (create, update, delete, login, logout, etc.)
+- IP address and user agent tracking
+
+### 🔔 Notifications System
+- In-app notification system
+- Real-time notification badges
+- Notification dropdown in admin header
+- Unread notification count
+- Notification filtering (all, unread, read)
+- Auto-notification for pending registrations
+
+### 💬 Messaging & Chat
+- Real-time chat popup interface
+- Image sharing with full-screen viewer
+- Zoom and pan functionality for images
+- Download images from chat
+- Online status indicators
+- Voice clip support (UI ready)
+
+### 📋 Roles & Permissions
+- Dynamic role creation
+- Permission matrix interface with expand/collapse categories
+- Role-based permission assignment
+- Individual user permission management
+- Permission categories:
+  - User Management
+  - Board Member Management
+  - CONSEC Account Management
+  - Board Resolutions
+  - Board Regulations
+  - Government Agencies
+  - Media Library
+  - Audit Logs
+  - Roles & Permissions
+  - Content Management
+  - Attendance Confirmation
+  - Reference Materials
+  - Request for Inclusion in the Agenda
+  - Report Generation
+  - Referendum
+
+### 📱 Responsive Design
+- Fully responsive across all devices (mobile, tablet, desktop)
+- Mobile-first approach
+- Touch-friendly interfaces
+- Responsive DataTables
+- Mobile-optimized navigation
+- Adaptive layouts for all screen sizes
+
+### 🎨 UI/UX Features
+- Modern, clean design with brand colors
+- Smooth animations and transitions
+- Dropdown action menus for tables
+- Multi-step forms with progress indicators
+- Tooltips for action buttons
+- Loading states and feedback
+- Consistent branding throughout
 
 ## 📋 Table of Contents
 
-1. [System Workflow](#1-system-workflow-flowchart)
-2. [Database Structure](#2-database-structure-erd--tables)
-3. [Pages & Routes](#3-pages-needed-full-routes)
-4. [Design Guidelines](#4-design-guidelines-modern-gen-z-ui)
+1. [System Workflow](#1-system-workflow)
+2. [Database Structure](#2-database-structure)
+3. [Pages & Routes](#3-pages--routes)
+4. [Design Guidelines](#4-design-guidelines)
+5. [Installation](#installation)
 
 ---
 
-## 1. SYSTEM WORKFLOW (FLOWCHART)
+## 1. SYSTEM WORKFLOW
 
 ### A. User Access Flow
 
 #### Landing Page Structure
-
-```mermaid
-flowchart TD
-    Start((Start)) --> Landing[Landing Page Public Homepage]
-    
-    %% Landing Page Elements
-    Landing --> Login[Login Page]
-    Landing --> Register[Register Page]
-    
-    %% Public Sections On Landing
-    Landing --> AnnPub[Public Announcements]
-    Landing --> MeetPub[Public Meetings]
-    Landing --> Vision[Vision & Mission]
-    Landing --> About[About Us]
-    Landing --> Contact[Contact Us]
-```
+- Public homepage with announcements and activities calendar
+- Login and registration access
+- Public sections: Announcements, Activities Calendar, Vision & Mission, About Us, Contact Us
 
 #### Authentication Flow
-
 ```
 Start
-  └─► Landing Page (User / Admin)
+  └─► Landing Page
         ├─► Login
         │      ├─► Validate Credentials
-        │      ├─► Check Role (User / Admin / Manager)
-        │      └─► Redirect to Dashboard
-        └─► Register (Authorized Representatives only)
+        │      ├─► Check Role & Permissions
+        │      ├─► Track Activity
+        │      └─► Redirect to Dashboard (User/Admin)
+        └─► Register
                ├─► Fill Personal & Organization Details
-               ├─► Email Verification
-               └─► Account Activation
+               ├─► Multi-step Form with PSGC Address
+               ├─► Status: Pending
+               └─► Admin Approval Required
 ```
 
 ### B. Dashboard Flow
 
+#### User Dashboard
 ```
 Dashboard
-  ├─► Announcement (view, read more)
+  ├─► Announcements (view, read more)
   ├─► Calendar (events, meetings, schedules)
-  ├─► Chat Facility (direct or group)
+  ├─► Chat Facility (direct messages)
   ├─► Meeting Notices → View → Link / Attached Files
-  └─► Board Resolution Library → View / Download
+  └─► Board Issuances → View / Download (Resolutions & Regulations)
 ```
 
-### C. Content Management Flow
-
+#### Admin Dashboard
 ```
-Admin / Portal Manager
-   ├─► Create / Edit Templates
-   ├─► Upload Media (Drag & Drop)
-   │         ├─► Images
-   │         ├─► Audio / Video
-   │         └─► Galleries
-   ├─► Send Meeting Notices (email + dashboard)
-   └─► Manage Menu Items
+Admin Dashboard
+  ├─► Statistics & Overview
+  ├─► Quick Actions
+  ├─► Recent Activities
+  └─► System Notifications
 ```
 
-### D. Attendance Confirmation Flow
+### C. Document Management Flow
 
 ```
-Admin → Select Meeting
-   ├─► Send Attendance Request
-   │         ├─► Individual Email
-   │         └─► Bulk Email
-   └─► Users Click Link → Confirm / Decline
-             └─► Update Attendance Table
+Admin → Create/Edit Document
+   ├─► Board Resolution
+   │      ├─► Fill Details (Title, Number, Date, Version)
+   │      ├─► Upload PDF
+   │      ├─► Save → Create Version History
+   │      └─► Publish
+   │
+   └─► Board Regulation
+          ├─► Fill Details (Title, Number, Effective Date, Version)
+          ├─► Upload PDF
+          ├─► Save → Create Version History
+          └─► Publish
+
+User → View Board Issuances
+   ├─► Filter by Type (Resolution/Regulation)
+   ├─► View Details
+   ├─► Download PDF
+   └─► View in Modal
 ```
 
-### E. Board Resolution Library Flow
+### D. User Management Flow
 
 ```
-Admin → Upload Approved Resolution
-   ├─► Tag (Category, Date, Committee)
-   ├─► Upload PDF / Attachments
-   └─► Publish to Library
-
-User → View Resolutions → Filter / Download
+Admin → User Management
+   ├─► CONSEC Accounts
+   │      ├─► Create/Edit Account
+   │      ├─► Set Individual Permissions
+   │      ├─► Activate/Deactivate
+   │      └─► View Profile
+   │
+   ├─► Board Members
+   │      ├─► Create/Edit Account
+   │      ├─► Assign Government Agency
+   │      ├─► Set Representative Type
+   │      ├─► Activate/Deactivate
+   │      └─► View Profile
+   │
+   └─► Pending Registrations
+          ├─► Review Registration Details
+          ├─► Approve → Activate Account
+          └─► Disapprove → Delete Account
 ```
 
-### F. Administration Flow
+### E. Role & Permission Management Flow
 
 ```
-Admin Panel
-   ├─► User Management (create, edit, deactivate)
-   ├─► Access Control List (roles, permissions)
-   ├─► Code Library Maintenance
-   ├─► CMS Settings (SEO, SSL, menus)
-   └─► Browser Compatibility Checks
+Admin → Role & Permission Manager
+   ├─► Roles Tab
+   │      ├─► Create/Edit Role
+   │      ├─► Assign Permissions
+   │      └─► Delete Role
+   │
+   └─► Permissions Matrix Tab
+          ├─► View All Permissions by Category
+          ├─► Assign/Revoke Permissions per Role
+          └─► Expand/Collapse Categories
+```
+
+### F. Audit Trail Flow
+
+```
+System Actions → Audit Logger
+   ├─► Log Action (Create, Update, Delete, Login, etc.)
+   ├─► Store User, IP, URL, Method, Timestamp
+   └─► Display in Audit Logs Page
+          ├─► Search & Filter
+          ├─► View Details
+          └─► Export to PDF (with filters)
 ```
 
 ---
 
-## 2. DATABASE STRUCTURE (ERD + TABLES)
+## 2. DATABASE STRUCTURE
 
 ### A. Main Entities
 
-- Users
-- Roles & Permissions (ACL)
-- Announcements
-- Calendar Events
-- Chats
-- Registrations & Authorized Representatives
-- Notices / Email Templates
-- Attendances
-- Board Resolutions
+- Users (with UUID primary keys)
+- Roles & Permissions (Spatie Laravel Permission)
+- Board Resolutions & Versions
+- Board Regulations & Versions
+- Government Agencies
 - Media Library
 - Audit Logs
+- Notifications
+- Chats/Messages
 
-### B. ERD Structure (Relationships)
-
-```
-Users 1..* Notices
-Users 1..* Attendances
-Users 1..* Chat Messages
-Admin 1..* Announcements
-Admin 1..* Board Resolutions
-Media 1..* Attachments
-```
-
-### C. Tables & Important Fields
+### B. Key Tables
 
 #### 1. users
 ```sql
-id (uuid)
+id (uuid, primary key)
 first_name
 last_name
+middle_initial
 email (unique)
-password_hash
-role_id (fk)
-is_active (bool)
+username (unique)
+password
+privilege (admin, consec, user)
+government_agency_id (foreign key)
+representative_type (Board Member, Authorized Representative)
+pre_nominal_title (Mr., Ms.)
+post_nominal_title (Sr., Jr., I, II, III, Others)
+post_nominal_title_custom
+designation
+sex
+gender
+birth_date
+profile_picture
 mobile
+landline
+office_address (JSON - PSGC fields)
+home_address (JSON - PSGC fields)
+is_active (boolean)
+status (pending, approved, disapproved)
+last_activity (timestamp)
+is_online (boolean)
+session_id
+revoked_permissions (JSON)
 created_at
 updated_at
 ```
 
-#### 2. roles
+#### 2. roles (Spatie)
 ```sql
 id
-role_name (Admin, Portal Manager, Board Member, Representative)
-description
+name (unique)
+guard_name
+created_at
+updated_at
 ```
 
-#### 3. permissions
+#### 3. permissions (Spatie)
 ```sql
 id
-permission_code
-description
+name (unique)
+guard_name
+created_at
+updated_at
 ```
 
-#### 4. role_permissions
+#### 4. model_has_roles (Spatie)
 ```sql
 role_id
+model_type
+model_id
+```
+
+#### 5. role_has_permissions (Spatie)
+```sql
 permission_id
+role_id
 ```
 
-#### 5. announcements
+#### 6. model_has_permissions (Spatie)
 ```sql
-id
-title
-content
-created_by (user_id)
-publish_date
-attachments (media_ids)
-created_at
+permission_id
+model_type
+model_id
 ```
 
-#### 6. calendar_events
-```sql
-id
-title
-description
-event_date
-meeting_link
-created_by
-attachments
-```
-
-#### 7. chats
-```sql
-id
-sender_id
-receiver_id (or group_id)
-message
-attachments (media_id)
-timestamp
-```
-
-#### 8. registrations
-```sql
-id
-board_member_name
-representative_name
-email
-mobile
-company
-status (pending, approved)
-created_at
-```
-
-#### 9. notices
-```sql
-id
-subject
-content
-template_id
-sent_by
-sent_date
-is_bulk (bool)
-attachments
-```
-
-#### 10. attendance
-```sql
-id
-meeting_id
-user_id
-status (confirmed, declined, pending)
-confirmation_date
-```
-
-#### 11. board_resolutions
+#### 7. board_resolutions (official_documents)
 ```sql
 id
 resolution_number
 title
 description
-pdf_file (media_id)
-category
+version
+effective_date
 approved_date
-uploaded_by
+pdf_file_path
+change_notes (nullable)
+created_by
+updated_by
+created_at
+updated_at
+```
+
+#### 8. official_document_versions
+```sql
+id
+official_document_id
+version
+effective_date
+approved_date
+pdf_file_path
+change_notes (nullable)
+created_at
+```
+
+#### 9. board_regulations
+```sql
+id
+regulation_number
+title
+description
+version
+effective_date
+approved_date
+pdf_file_path
+created_by
+updated_by
+created_at
+updated_at
+```
+
+#### 10. board_regulation_versions
+```sql
+id
+board_regulation_id
+version
+effective_date
+approved_date
+pdf_file_path
+change_notes (nullable)
+created_at
+```
+
+#### 11. government_agencies
+```sql
+id
+name
+code
+description
+is_active
+created_at
+updated_at
 ```
 
 #### 12. media_library
 ```sql
 id
 file_name
+original_name
 file_type
+file_size
 file_path
+mime_type
 uploaded_by
-uploaded_at
+created_at
+updated_at
+```
+
+#### 13. audit_logs
+```sql
+id
+user_id (foreign key)
+action (string)
+description (text)
+model_type (nullable)
+model_id (nullable)
+ip_address
+url
+method
+metadata (JSON)
+created_at
+```
+
+#### 14. notifications
+```sql
+id
+user_id (foreign key)
+type (string)
+title (string)
+message (text)
+data (JSON)
+is_read (boolean)
+read_at (timestamp)
+created_at
+updated_at
 ```
 
 ---
 
-## 3. PAGES NEEDED (FULL ROUTES)
+## 3. PAGES & ROUTES
 
 ### A. Public Pages
 
-- `/` - Landing Page (Modern GEN-Z design)
-- `/about` - About
-- `/login` - Login
-- `/register` - Register
+- `/` - Landing Page (Public Announcements, Activities Calendar)
+- `/login` - Login Page
+- `/register` - Registration Page (Multi-step form)
 - `/forgot-password` - Forgot Password
 
-### B. User Dashboard
+### B. User Dashboard Pages
 
-- `/dashboard` - Dashboard (Announcements + Calendar + Chat)
-- `/profile` - My Profile
+- `/dashboard` - User Dashboard (redirects to landing)
+- `/profile/edit` - Edit Profile
+- `/profile/view/{id}` - View Profile
 - `/notifications` - Notifications Center
 - `/messages` - Messages / Chat Page
-- `/meeting-notices` - Meeting Notices
-- `/attendance/confirm` - Attendance Confirmation Page
-- `/resolutions` - Board Resolution Library
-- `/media/{id}` - Media Viewer
+- `/board-issuances` - Board Resolutions & Regulations (Public View)
 
-### C. Portal Manager / Admin Pages
+### C. Admin Pages
 
-#### Content Management
-- `/admin/announcements` - Announcements
-- `/admin/templates` - Templates
-- `/admin/notices` - Notices (Send individual / bulk)
-- `/admin/meetings` - Meeting links
-- `/admin/media` - Media library
+#### Dashboard
+- `/admin/dashboard` - Admin Dashboard
 
-#### Attendance Management
-- `/admin/meetings/create` - Create Meeting
-- `/admin/attendance/send` - Send Attendance Email
-- `/admin/attendance/status` - Attendance status table
+#### User Management
+- `/admin/consec` - CONSEC Account Management
+  - `/admin/consec/create` - Create CONSEC Account
+  - `/admin/consec/{id}/edit` - Edit CONSEC Account
+  - `/admin/consec/{id}/permissions` - Manage Individual Permissions
+  - `/admin/consec/{id}/toggle-status` - Activate/Deactivate
 
-#### Board Resolution Management
-- `/admin/resolutions/upload` - Upload resolution
-- `/admin/resolutions/categories` - Category management
-- `/admin/resolutions` - View / edit / archive
+- `/admin/board-members` - Board Member Management
+  - `/admin/board-members/create` - Create Board Member
+  - `/admin/board-members/{id}/edit` - Edit Board Member
+  - `/admin/board-members/{id}/toggle-status` - Activate/Deactivate
 
-#### Administration (ACL)
-- `/admin/users` - User management
-- `/admin/roles` - Role management
-- `/admin/permissions` - Permission settings
-- `/admin/code-library` - Code library maintenance
-- `/admin/menus` - Menu management
-- `/admin/settings` - CMS Settings (SEO, SSL, Metadata)
+- `/admin/pending-registrations` - Pending Registrations
+  - `/admin/pending-registrations/{id}` - View Registration Details
+  - `/admin/pending-registrations/{id}/approve` - Approve Registration
+  - `/admin/pending-registrations/{id}/disapprove` - Disapprove Registration
+
+#### Document Management
+- `/admin/board-resolutions` - Board Resolutions Management
+  - `/admin/board-resolutions/create` - Create Resolution
+  - `/admin/board-resolutions/{id}/edit` - Edit Resolution
+  - `/admin/board-resolutions/{id}/history` - View Version History
+  - `/admin/board-resolutions/{id}` - Delete Resolution
+
+- `/admin/board-regulations` - Board Regulations Management
+  - `/admin/board-regulations/create` - Create Regulation
+  - `/admin/board-regulations/{id}/edit` - Edit Regulation
+  - `/admin/board-regulations/{id}/history` - View Version History
+  - `/admin/board-regulations/{id}` - Delete Regulation
+
+#### System Management
+- `/admin/government-agencies` - Government Agencies Management
+  - `/admin/government-agencies/create` - Create Agency
+  - `/admin/government-agencies/{id}/edit` - Edit Agency
+  - `/admin/government-agencies/bulk-delete` - Bulk Delete
+  - `/admin/government-agencies/bulk/activate` - Bulk Activate
+  - `/admin/government-agencies/bulk/deactivate` - Bulk Deactivate
+
+- `/admin/media-library` - Media Library
+  - `/admin/media-library/upload` - Upload Media
+  - `/admin/media-library/{id}` - View/Download Media
+  - `/admin/media-library/{id}/update` - Update Media Details
+  - `/admin/media-library/bulk-delete` - Bulk Delete
+
+- `/admin/roles` - Role & Permission Management
+  - `/admin/roles/create` - Create Role
+  - `/admin/roles/{id}/edit` - Edit Role
+  - `/admin/roles/{id}/update-permission` - Update Role Permissions
+
+- `/admin/audit-logs` - Audit Logs
+  - `/admin/audit-logs/export-pdf` - Export to PDF (with filters)
+
+- `/admin/notifications` - Admin Notifications Page
+
+- `/admin/profile/edit` - Admin Profile Edit
 
 ---
 
-## 4. DESIGN GUIDELINES (MODERN GEN-Z UI)
+## 4. DESIGN GUIDELINES
 
-### Tone
-
-**Clean • Neon accents • Smooth gradients • Rounded cards • Micro-animations • Dark + Light Mode**
-
-### Color Palette (GEN-Z Inspired)
+### Color Palette (Brand Colors)
 
 ```css
-Primary: Electric Purple #A855F7
-Accent: Neon Blue #3B82F6
-Secondary: Mint #10B981
+Primary Blue: #055498
+Secondary Blue: #123a60
+Accent Red: #CE2028
 Background Light: #F9FAFB
 Background Dark: #0F172A
 Text: #0A0A0A / #F1F5F9
@@ -336,30 +543,31 @@ Text: #0A0A0A / #F1F5F9
 
 ### Layout Style
 
-- Full-width hero section with big headlines
-- Rounded tiles/cards (radius 16–24px)
-- Vertical rhythm spacing (8px scale)
-- Floating elements & subtle shadows
-- Sticky header + slide-out mobile menu
+- Clean, modern design
+- Rounded cards (border-radius: 8-16px)
+- Consistent spacing (8px scale)
+- Subtle shadows and hover effects
+- Sticky header with dropdown menus
+- Responsive grid layouts
 
 ### Components
 
-- Announcement cards with icons
-- Calendar with colored event tags
-- Chat UI similar to Messenger/Slack
-- Drag & drop media uploader with preview
-- Modal + drawer views
-- Breadcrumbs for admin pages
-- Data tables with filters + search
+- **DataTables** - Enhanced tables with search, filter, pagination
+- **Multi-step Forms** - Progress indicators and step navigation
+- **Modals** - Full-screen PDF viewer, image viewer, confirmation dialogs
+- **Dropdown Menus** - Action buttons, notifications, messages
+- **Tooltips** - Helpful hints on action buttons
+- **Badges** - Status indicators, notification counts
+- **Cards** - Content containers with consistent styling
 
-### Gen-Z Landing Page Styles
+### Responsive Design Principles
 
-- Oversized bold typography
-- Gradient backgrounds
-- Animated blobs or shapes
-- Subtle parallax
-- Floating neon elements
-- Call to action: solid rounded pill buttons
+- Mobile-first approach
+- Touch-friendly targets (minimum 44px)
+- Flexible grid layouts
+- Responsive typography
+- Scrollable tables on mobile
+- Adaptive navigation
 
 ---
 
@@ -370,7 +578,7 @@ Text: #0A0A0A / #F1F5F9
 - PHP 8.2+
 - Composer
 - Node.js & npm
-- MySQL
+- MySQL 8.0+
 - XAMPP (for local development)
 
 ### Setup Steps
@@ -417,28 +625,93 @@ Text: #0A0A0A / #F1F5F9
    php artisan migrate
    ```
 
-8. **Build assets**
+8. **Seed database (optional)**
+   ```bash
+   php artisan db:seed
+   # Or specific seeders:
+   php artisan db:seed --class=RolePermissionSeeder
+   ```
+
+9. **Build assets**
    ```bash
    npm run dev
    # or for production
    npm run build
    ```
 
-9. **Start development server**
-   ```bash
-   php artisan serve
-   ```
+10. **Start development server**
+    ```bash
+    php artisan serve
+    ```
 
-10. **Visit**
+11. **Set up scheduler (for auto-logout)**
+    Add to crontab:
+    ```bash
+    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+    ```
+
+12. **Visit**
     - Application: `http://localhost:8000`
-    - Example Page: `http://localhost:8000/example`
+    - Admin Dashboard: `http://localhost:8000/admin/dashboard`
+
+### Default Admin Account
+
+After seeding, you can create an admin account or use the default:
+- **Email:** admin@admin.com
+- **Password:** (set during registration or use password reset)
 
 ---
 
-## 📚 Documentation
+## 🔒 Security Features
+
+- **Role-Based Access Control** - Granular permission system
+- **Single-Device Login** - Prevents concurrent sessions
+- **Activity Tracking** - Monitors user activity and auto-logout
+- **Audit Logging** - Comprehensive action tracking
+- **CSRF Protection** - Laravel built-in CSRF tokens
+- **Password Hashing** - Bcrypt password encryption
+- **Session Management** - Secure session handling
+- **Input Validation** - Server-side validation for all forms
+
+---
+
+## 📚 Additional Documentation
 
 - [MySQL Setup Guide](README_MYSQL.md)
 - [Git Push Instructions](GIT_PUSH_INSTRUCTIONS.md)
+
+---
+
+## 🧪 Testing
+
+### Key Functionality to Test
+
+1. **Authentication**
+   - Login/Logout
+   - Registration and approval workflow
+   - Password reset
+
+2. **User Management**
+   - Create/Edit CONSEC accounts
+   - Create/Edit Board Members
+   - Approve/Disapprove pending registrations
+   - Permission management
+
+3. **Document Management**
+   - Create/Edit Board Resolutions
+   - Create/Edit Board Regulations
+   - Version history
+   - PDF viewing and download
+
+4. **RBAC**
+   - Role creation and assignment
+   - Permission matrix updates
+   - Individual permission overrides
+
+5. **Audit Trail**
+   - Action logging
+   - Search and filter
+   - PDF export
 
 ---
 
@@ -457,3 +730,20 @@ Thank you for considering contributing to the boardsmemberportal project!
 ## 🔒 Security Vulnerabilities
 
 If you discover a security vulnerability, please send an e-mail to the project maintainers. All security vulnerabilities will be promptly addressed.
+
+---
+
+## 📞 Support
+
+For support, please contact the development team or create an issue in the repository.
+
+---
+
+## 👨‍💻 Developer
+
+**Rolan Mondares Benavidez Jr**
+
+- **Company:** Landoogz Web Solutions
+- **Email:** rolan.benavidez@gmail.com
+- **Phone:** 09387077940
+- **Facebook:** [https://www.facebook.com/landogz](https://www.facebook.com/landogz)

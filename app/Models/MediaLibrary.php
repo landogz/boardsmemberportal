@@ -13,6 +13,10 @@ class MediaLibrary extends Model
 
     protected $fillable = [
         'file_name',
+        'title',
+        'alt_text',
+        'caption',
+        'description',
         'file_type',
         'file_path',
         'uploaded_by',

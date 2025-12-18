@@ -20,9 +20,9 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center">
                 <a href="{{ route('landing') }}" class="flex items-center">
-                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" 
-                         alt="Agency Logo" 
-                         class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
+                <img src="{{ asset('images/DDB_Website_Header1.png') }}" 
+                     alt="Agency Logo" 
+                     class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
                 </a>
             </div>
             <div class="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-shrink-0">
@@ -34,7 +34,10 @@
                 @endphp
                 <a href="{{ route('landing') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Home</a>
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#announcements' : '#announcements' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a>
+                @auth
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
+                <a href="{{ route('board-issuances') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
+                @endauth
                 @guest
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#contact' : '#contact' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a>
@@ -265,7 +268,7 @@
                 <button id="themeToggleMobile" type="button" class="hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
                     <span id="themeIconMobile" class="text-xl">🌙</span>
                 </button>
-                <button id="mobileMenuBtn" class="text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false" onclick="toggleMobileMenu(event)">☰</button>
+                <button id="mobileMenuBtn" class="text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">☰</button>
             </div>
         </div>
     </div>
@@ -280,7 +283,10 @@
             @endphp
             <a href="{{ route('landing') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Home</a>
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#announcements' : '#announcements' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a>
+            @auth
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
+            <a href="{{ route('board-issuances') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
+            @endauth
             @guest
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#contact' : '#contact' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a>
@@ -315,89 +321,42 @@
 </nav>
 
 <script>
-    // Mobile menu toggle functionality - works on all pages
-    // Define the function immediately so it's available for inline onclick
+    // Mobile menu toggle functionality - jQuery + fallback, works on all pages
     (function() {
-        // Global function that can be called from inline onclick or event listeners
-        window.toggleMobileMenu = function(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
+        function bindMobileMenu() {
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
-            
-            if (mobileMenuBtn && mobileMenu) {
-                const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
-                mobileMenu.classList.toggle('hidden');
-                mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
-            }
-        };
-        
-        // Initialize event listeners as backup (in case onclick doesn't work)
-        function setupMobileMenuListeners() {
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
+
             if (!mobileMenuBtn || !mobileMenu) {
-                return false; // Elements not found
+                return;
             }
-            
-            // Check if already set up
-            if (mobileMenuBtn.hasAttribute('data-listeners-setup')) {
-                return true; // Already set up
-            }
-            
-            // Mark as set up
-            mobileMenuBtn.setAttribute('data-listeners-setup', 'true');
-            
-            // Add vanilla JS event listener as backup
-            mobileMenuBtn.addEventListener('click', function(e) {
-                // Only handle if onclick didn't work
-                if (!e.defaultPrevented) {
-                    window.toggleMobileMenu(e);
-                }
-            });
-            
-            // Support jQuery if available (for pages that use it)
-            if (typeof $ !== 'undefined' && typeof jQuery !== 'undefined') {
-                // Wait for jQuery to be ready
-                if (document.readyState === 'loading') {
-                    $(document).ready(function() {
-                        $('#mobileMenuBtn').off('click.mobileMenu').on('click.mobileMenu', function(e) {
-                            window.toggleMobileMenu(e);
-                        });
-                    });
-                } else {
-                    // jQuery ready, set up immediately
-                    $(function() {
-                        $('#mobileMenuBtn').off('click.mobileMenu').on('click.mobileMenu', function(e) {
-                            window.toggleMobileMenu(e);
-                        });
-                    });
-                }
-            }
-            
-            return true;
-        }
-        
-        // Try to set up listeners immediately
-        if (!setupMobileMenuListeners()) {
-            // If elements not found, wait for DOM
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(setupMobileMenuListeners, 50);
+
+            // jQuery handler (preferred)
+            if (typeof $ !== 'undefined') {
+                $('#mobileMenuBtn').off('click.mobileMenu').on('click.mobileMenu', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isExpanded = $(this).attr('aria-expanded') === 'true';
+                    $('#mobileMenu').toggleClass('hidden');
+                    $(this).attr('aria-expanded', (!isExpanded).toString());
                 });
             } else {
-                setTimeout(setupMobileMenuListeners, 50);
+                // Vanilla JS fallback
+                mobileMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+                    mobileMenu.classList.toggle('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', (!isExpanded).toString());
+                });
             }
         }
-        
-        // Fallback on window load
-        window.addEventListener('load', function() {
-            setTimeout(setupMobileMenuListeners, 100);
-        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindMobileMenu);
+        } else {
+            bindMobileMenu();
+        }
     })();
 </script>
 

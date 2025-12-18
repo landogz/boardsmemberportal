@@ -19,6 +19,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register Blade directive for permission checks
+        // Use hasPermission() to ensure admin privilege has full access
+        \Blade::if('can', function ($permission) {
+            return auth()->check() && auth()->user()->hasPermission($permission);
+        });
+
+        \Blade::if('hasRole', function ($role) {
+            return auth()->check() && auth()->user()->hasRole($role);
+        });
+
+        \Blade::if('hasAnyRole', function ($roles) {
+            return auth()->check() && auth()->user()->hasAnyRole($roles);
+        });
     }
 }

@@ -227,6 +227,9 @@
     </script>
     
     @include('components.footer')
+    
+    <!-- Global PDF Modal - Available on all pages -->
+    @include('components.pdf-modal')
 </body>
 </html>
 

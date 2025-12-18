@@ -818,7 +818,5 @@
         });
     </script>
     
-    <!-- Messages Popup Component -->
-    @include('components.messages-popup')
 </body>
 </html>

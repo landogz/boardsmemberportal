@@ -272,7 +272,5 @@
     });
 </script>
 
-<!-- Messages Popup Component -->
-@include('components.messages-popup')
 @endpush
 

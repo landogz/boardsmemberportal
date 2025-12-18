@@ -39,144 +39,212 @@
                             <span class="ml-3">Dashboard</span>
                         </a>
                     </li>
+                    @can('view users')
                     <li>
-                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-users w-5" style="color: #FBD116;"></i>
                             <span class="ml-3 flex-1">User Management</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'rotate-180' : '' }}"></i>
                         </a>
-                        <ul class="hidden mt-2 ml-4 space-y-1 pl-4" style="border-left: 2px solid #055498;">
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                            @can('manage board members')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
-                                    <i class="fas fa-user-tie w-4 text-gray-500 transition-colors" style="color: #FBD116;"></i>
+                                <a href="{{ route('admin.board-members.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-members.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-members.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-user-tie w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Board Members</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view pending registrations')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
-                                    <i class="fas fa-user-shield w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">Authorized Representatives</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                <a href="{{ route('admin.pending-registrations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-clock w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Pending Registrations</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('manage consec accounts')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
-                                    <i class="fas fa-user-cog w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">User Roles</span>
+                                <a href="{{ route('admin.consec.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.consec.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.consec.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-users-cog w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">CONSEC</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view roles')
+                            <li>
+                                <a href="{{ route('admin.roles.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-shield-alt w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">Role Management</span>
+                                </a>
+                            </li>
+                            @endcan
                         </ul>
                     </li>
+                    @endcan
+                    @can('view media library')
                     <li>
-                        <a href="{{ route('admin.portal-manager') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('admin.portal-manager') ? 'text-white' : 'text-gray-300 hover:text-white' }} transition-colors" style="{{ request()->routeIs('admin.portal-manager') ? 'background-color: #055498;' : '' }}">
-                            <i class="fas fa-cog w-5" style="color: #FBD116;"></i>
-                            <span class="ml-3">Portal Manager</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors {{ request()->routeIs('admin.media-library.*') ? 'text-white' : '' }}" style="{{ request()->routeIs('admin.media-library.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-edit w-5" style="color: #FBD116;"></i>
                             <span class="ml-3 flex-1">Content Management</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.media-library.*') ? 'rotate-180' : '' }}"></i>
                         </a>
-                        <ul class="hidden mt-2 ml-4 space-y-1 pl-4" style="border-left: 2px solid #055498;">
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.media-library.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                            @can('view announcements')
                             <li>
                                 <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
                                     <i class="fas fa-bullhorn w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Announcements</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view notices')
                             <li>
                                 <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
                                     <i class="fas fa-bell w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Notices</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view calendar events')
                             <li>
                                 <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
-                                    <i class="fas fa-file-alt w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">Templates</span>
+                                    <i class="fas fa-calendar-alt w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">DDB Activities</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view media library')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                <a href="{{ route('admin.media-library.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.media-library.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.media-library.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-folder-open w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Media Library</span>
                                 </a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
+                    @endcan
+                    @can('view attendance confirmation')
                     <li>
                         <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
                             <i class="fas fa-check-circle w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Attendance Confirmation</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('view board regulations')
                     <li>
-                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') ? 'text-white' : '' }}" style="{{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-file-alt w-5" style="color: #FBD116;"></i>
                             <span class="ml-3 flex-1">Board Issuances</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') ? 'rotate-180' : '' }}"></i>
                         </a>
-                        <ul class="hidden mt-2 ml-4 space-y-1 pl-4" style="border-left: 2px solid #055498;">
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                            @can('view board regulations')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
-                                    <i class="fas fa-file-contract w-4 transition-colors" style="color: #FBD116;"></i>
+                                <a href="{{ route('admin.board-regulations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-regulations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-balance-scale w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">Board Regulations</span>
+                                </a>
+                            </li>
+                            @endcan
+                            @can('view board resolutions')
+                            <li>
+                                <a href="{{ route('admin.board-resolutions.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-resolutions.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-resolutions.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-file-signature w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Board Resolutions</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('view referendum')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group text-gray-300 hover:text-white">
+                                    <i class="fas fa-vote-yea w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">Referendum</span>
+                                </a>
+                            </li>
+                            @endcan
+                        </ul>
+                    </li>
+                    @else
+                    @can('view board resolutions')
+                    <li>
+                        <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors {{ request()->routeIs('admin.board-resolutions.*') ? 'text-white' : '' }}" style="{{ request()->routeIs('admin.board-resolutions.*') ? 'background-color: #055498;' : '' }}">
+                            <i class="fas fa-file-alt w-5" style="color: #FBD116;"></i>
+                            <span class="ml-3 flex-1">Board Issuances</span>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.board-resolutions.*') ? 'rotate-180' : '' }}"></i>
+                        </a>
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.board-resolutions.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                            <li>
+                                <a href="{{ route('admin.board-resolutions.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-resolutions.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-resolutions.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-file-signature w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">Official Documents</span>
+                                    <span class="ml-3">Board Resolutions</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    @endcan
+                    @endcan
+                    @can('view reference materials')
                     <li>
                         <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
                             <i class="fas fa-book w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Reference Materials</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('view agenda requests')
                     <li>
                         <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
                             <i class="fas fa-clipboard-list w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Request for Inclusion in the Agenda</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('view reports')
                     <li>
                         <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
                             <i class="fas fa-chart-bar w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Report Generation</span>
                         </a>
                     </li>
+                    @endcan
+                    @if(Auth::check() && Auth::user()->hasPermission('view audit logs'))
+                    <li>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.index') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.index') ? 'background-color:#055498;' : '' }}">
+                            <i class="fas fa-clipboard-check w-5" style="color: #FBD116;"></i>
+                            <span class="ml-3">Audit Logs</span>
+                        </a>
+                    </li>
+                    @endif
+                    @can('view government agencies')
                     <li>
                         <a href="#" class="menu-toggle flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
                             <i class="fas fa-building w-5" style="color: #FBD116;"></i>
                             <span class="ml-3 flex-1">Government Agency</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <i class="fas fa-chevron-down text-xs {{ request()->routeIs('admin.government-agencies.*') ? 'rotate-180' : '' }}"></i>
                         </a>
-                        <ul class="hidden mt-2 ml-4 space-y-1 pl-4" style="border-left: 2px solid #055498;">
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.government-agencies.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                            @can('view government agencies')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                <a href="{{ route('admin.government-agencies.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.index') || request()->routeIs('admin.government-agencies.create') || request()->routeIs('admin.government-agencies.edit') ? 'text-white' : '' }}">
                                     <i class="fas fa-building w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Manage Agencies</span>
                                 </a>
                             </li>
+                            @endcan
+                            @can('manage government agencies')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                <a href="{{ route('admin.government-agencies.settings') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.settings') ? 'text-white' : '' }}">
                                     <i class="fas fa-tools w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Agency Settings</span>
                                 </a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
+                    @endcan
                 </ul>
             </div>
         </div>

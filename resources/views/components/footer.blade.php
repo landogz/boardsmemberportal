@@ -3,30 +3,32 @@
     <div class="container mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div>
-                <h3 class="text-lg font-bold mb-4 text-[#003366] dark:text-[#3B82F6]">Board Portal</h3>
+                <h3 class="text-lg font-bold mb-4" style="color: #055498;">Board Portal</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Modern board management platform for efficient collaboration and communication.</p>
             </div>
             <div>
-                <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Quick Links</h4>
+                <h4 class="font-semibold mb-4" style="color: #055498;">Quick Links</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <li><a href="#announcements" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Announcements</a></li>
-                    <li><a href="#meetings" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Meetings</a></li>
-                    <li><a href="#about" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">About</a></li>
+                    <li><a href="#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
+                    <li><a href="#calendar-activities" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a></li>
+                    @guest
+                    <li><a href="#about" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a></li>
+                    @endguest
                 </ul>
             </div>
             <div>
-                <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Account</h4>
+                <h4 class="font-semibold mb-4" style="color: #055498;">Account</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     @auth
-                        <li><a href="{{ route('profile.edit') }}" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">My Profile</a></li>
+                        <li><a href="{{ route('profile.edit') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">My Profile</a></li>
                     @else
-                        <li><a href="/login" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Login</a></li>
-                        <li><a href="/register" class="hover:text-[#003366] dark:hover:text-[#3B82F6] transition">Register</a></li>
+                        <li><a href="/login" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Login</a></li>
+                        <li><a href="/register" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Register</a></li>
                     @endauth
                 </ul>
             </div>
             <div>
-                <h4 class="font-semibold mb-4 text-[#003366] dark:text-[#3B82F6]">Contact</h4>
+                <h4 class="font-semibold mb-4" style="color: #055498;">Contact</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li>Email: info@boardportal.gov.ph</li>
                     <li>Phone: +63 (2) 1234-5678</li>

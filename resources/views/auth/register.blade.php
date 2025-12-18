@@ -11,6 +11,12 @@
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Gotham Font -->
+    <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -27,6 +33,54 @@
         })();
     </script>
     <style>
+        /* Typography Standards */
+        
+        /* Body Text - Gotham or Montserrat, 14-16px, 1-1.5 line height */
+        body, p, span, div, li, td, th, label, input, textarea, select, button {
+            font-family: 'Gotham Rounded', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px; /* 14px digital (default) */
+            line-height: 1.5; /* 1.5 line height for readability */
+        }
+        
+        /* Titles/Headlines - Montserrat Bold (or Gotham Bold fallback), 28-32px, 1.2-1.3 line height */
+        h1, .title, .headline {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700; /* Bold */
+            font-size: 30px; /* 30px digital (middle of 28-32px range) */
+            line-height: 1.25; /* 1.25 (middle of 1.2-1.3 range) */
+        }
+        
+        /* Headers/Subheaders - Montserrat Semi-Bold, 20-24px, 1.3 line height */
+        h2, h3, h4, h5, h6, .header, .subheader {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600; /* Semi-Bold */
+            font-size: 22px; /* 22px digital (middle of 20-24px range) */
+            line-height: 1.3;
+        }
+        
+        /* Specific heading sizes */
+        h2 {
+            font-size: 24px;
+        }
+        
+        h3 {
+            font-size: 22px;
+        }
+        
+        h4 {
+            font-size: 20px;
+        }
+        
+        h5, h6 {
+            font-size: 18px;
+        }
+        
+        /* Small text adjustments */
+        small, .text-sm, .text-xs {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
         @keyframes gradient-shift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -130,7 +184,7 @@
     @include('components.header')
     @include('components.theme-toggle-script')
     
-    <div class="min-h-[50vh] flex items-center justify-center p-4 py-16">
+    <div class="min-h-[50vh] flex items-center justify-center p-4">
         <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Create Account</h1>
@@ -165,15 +219,38 @@
                         <!-- Government Agency -->
                         <div>
                             <label for="government_agency_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Government Agency *</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1">
+                                    <select 
+                                        id="government_agency_id" 
+                                        name="government_agency_id" 
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    >
+                                        <option value="">Loading agencies...</option>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="government_agency_id-error"></span>
+                                </div>
+                                <div id="agencyLogoPreview" class="hidden">
+                                    <img id="agencyLogoImg" src="" alt="Agency Logo" class="h-16 w-16 object-contain border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 p-2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Representative Type -->
+                        <div>
+                            <label for="representative_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Representative Type *</label>
                             <select 
-                                id="government_agency_id" 
-                                name="government_agency_id" 
+                                id="representative_type" 
+                                name="representative_type" 
                                 required
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
-                                <option value="">Loading agencies...</option>
+                                <option value="">Select Type</option>
+                                <option value="Board Member">Board Member</option>
+                                <option value="Authorized Representative">Authorized Representative</option>
                             </select>
-                            <span class="text-red-500 text-sm hidden" id="government_agency_id-error"></span>
+                            <span class="text-red-500 text-sm hidden" id="representative_type-error"></span>
                         </div>
 
                         <!-- Name Fields -->
@@ -249,13 +326,16 @@
                                     <option value="III">III</option>
                                     <option value="Others">Others</option>
                                 </select>
-                                <input 
-                                    type="text" 
-                                    id="post_nominal_title_custom" 
-                                    name="post_nominal_title_custom" 
-                                    placeholder="Specify other title"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition mt-2 hidden"
-                                >
+                                <div id="post_nominal_title_custom_wrapper" class="mt-2 hidden">
+                                    <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Others:</label>
+                                    <input 
+                                        type="text" 
+                                        id="post_nominal_title_custom" 
+                                        name="post_nominal_title_custom" 
+                                        placeholder="Specify other title"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    >
+                                </div>
                                 <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
                             </div>
                         </div>
@@ -578,7 +658,10 @@
                         <button 
                             type="submit" 
                             id="registerBtn"
-                            class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hidden"
+                            class="px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hidden"
+                            style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                            onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'"
+                            onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'"
                         >
                             <span id="registerBtnText">Submit Registration</span>
                             <span id="registerBtnLoader" class="hidden">Loading...</span>
@@ -612,6 +695,9 @@
         let barangaysData = [];
 
         // Populate Regions and Government Agencies
+        // Store agencies data with logos
+        let agenciesDataMap = {};
+
         $(document).ready(function() {
             // Load Government Agencies from API
             $.ajax({
@@ -621,11 +707,32 @@
                     const agencySelect = $('#government_agency_id');
                     agencySelect.html('<option value="">Select Agency</option>');
                     agencies.forEach(agency => {
+                        // Store logo URL in map
+                        agenciesDataMap[agency.id] = agency.logo_url || null;
                         agencySelect.append(`<option value="${agency.id}">${agency.name}${agency.code ? ' (' + agency.code + ')' : ''}</option>`);
                     });
                 },
                 error: function() {
                     $('#government_agency_id').html('<option value="">Error loading agencies</option>');
+                }
+            });
+
+            // Show agency logo when agency is selected
+            $('#government_agency_id').on('change', function() {
+                const selectedAgencyId = $(this).val();
+                const logoUrl = agenciesDataMap[selectedAgencyId];
+                const logoPreview = $('#agencyLogoPreview');
+                const logoImg = $('#agencyLogoImg');
+                
+                if (logoUrl && selectedAgencyId) {
+                    logoImg.attr('src', logoUrl);
+                    logoImg.on('error', function() {
+                        $(this).attr('src', '');
+                        logoPreview.addClass('hidden');
+                    });
+                    logoPreview.removeClass('hidden');
+                } else {
+                    logoPreview.addClass('hidden');
                 }
             });
 
@@ -662,9 +769,11 @@
             // Handle post nominal title "Others" option
             $('#post_nominal_title').on('change', function() {
                 if ($(this).val() === 'Others') {
-                    $('#post_nominal_title_custom').removeClass('hidden').prop('required', true);
+                    $('#post_nominal_title_custom_wrapper').removeClass('hidden');
+                    $('#post_nominal_title_custom').prop('required', true);
                 } else {
-                    $('#post_nominal_title_custom').addClass('hidden').prop('required', false);
+                    $('#post_nominal_title_custom_wrapper').addClass('hidden');
+                    $('#post_nominal_title_custom').prop('required', false).val('');
                 }
             });
 
@@ -797,6 +906,7 @@
             
             if (step === 1) {
                 const governmentAgencyId = $('#government_agency_id').val();
+                const representativeType = $('#representative_type').val();
                 const preNominalTitle = $('#pre_nominal_title').val();
                 const firstName = $('#first_name').val().trim();
                 const lastName = $('#last_name').val().trim();
@@ -807,6 +917,10 @@
                 
                 if (!governmentAgencyId) {
                     showError('government_agency_id', 'Government agency is required');
+                    isValid = false;
+                }
+                if (!representativeType) {
+                    showError('representative_type', 'Representative type is required');
                     isValid = false;
                 }
                 if (!preNominalTitle) {
@@ -1007,6 +1121,7 @@
             
             const formData = {
                 government_agency_id: $('#government_agency_id').val(),
+                representative_type: $('#representative_type').val(),
                 pre_nominal_title: $('#pre_nominal_title').val(),
                 first_name: $('#first_name').val(),
                 middle_initial: $('#middle_initial').val(),
@@ -1075,7 +1190,7 @@
                             errorElement.removeClass('hidden');
                             
                             // Determine which step this field belongs to
-                            if (['government_agency_id', 'pre_nominal_title', 'first_name', 'last_name', 'middle_initial', 'post_nominal_title', 'designation', 'sex', 'gender', 'birth_date'].includes(field)) {
+                            if (['government_agency_id', 'representative_type', 'pre_nominal_title', 'first_name', 'last_name', 'middle_initial', 'post_nominal_title', 'designation', 'sex', 'gender', 'birth_date'].includes(field)) {
                                 errorStep = 1;
                             } else if (field.startsWith('office_')) {
                                 errorStep = 2;

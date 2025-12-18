@@ -11,6 +11,12 @@
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Gotham Font -->
+    <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -18,6 +24,54 @@
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
     <style>
+        /* Typography Standards */
+        
+        /* Body Text - Gotham or Montserrat, 14-16px, 1-1.5 line height */
+        body, p, span, div, li, td, th, label, input, textarea, select, button {
+            font-family: 'Gotham Rounded', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px; /* 14px digital (default) */
+            line-height: 1.5; /* 1.5 line height for readability */
+        }
+        
+        /* Titles/Headlines - Montserrat Bold (or Gotham Bold fallback), 28-32px, 1.2-1.3 line height */
+        h1, .title, .headline {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700; /* Bold */
+            font-size: 30px; /* 30px digital (middle of 28-32px range) */
+            line-height: 1.25; /* 1.25 (middle of 1.2-1.3 range) */
+        }
+        
+        /* Headers/Subheaders - Montserrat Semi-Bold, 20-24px, 1.3 line height */
+        h2, h3, h4, h5, h6, .header, .subheader {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600; /* Semi-Bold */
+            font-size: 22px; /* 22px digital (middle of 20-24px range) */
+            line-height: 1.3;
+        }
+        
+        /* Specific heading sizes */
+        h2 {
+            font-size: 24px;
+        }
+        
+        h3 {
+            font-size: 22px;
+        }
+        
+        h4 {
+            font-size: 20px;
+        }
+        
+        h5, h6 {
+            font-size: 18px;
+        }
+        
+        /* Small text adjustments */
+        small, .text-sm, .text-xs {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
@@ -462,6 +516,7 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
+                    @guest
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
                         <a href="/login" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             Get Started
@@ -470,6 +525,7 @@
                             Learn More
                         </a>
                     </div>
+                    @endguest
                 </div>
             </div>
             <!-- Slide 2 -->
@@ -477,6 +533,7 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
+                    @guest
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
                         <a href="#announcements" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             View Announcements
@@ -485,6 +542,7 @@
                             Calendar Activities
                         </a>
                     </div>
+                    @endguest
                 </div>
             </div>
             <!-- Slide 3 -->
@@ -492,6 +550,7 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure & Modern Platform</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
+                    @guest
                     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
                         <a href="/register" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
                             Register Now
@@ -500,6 +559,7 @@
                             Contact Us
                         </a>
                     </div>
+                    @endguest
                 </div>
             </div>
             <!-- Navigation Dots -->
@@ -510,15 +570,33 @@
             </div>
         </div>
     </div>
+    
+    @auth
+    <!-- Activities Calendar Section (Logged In Users Only) -->
+    <section id="calendar-activities" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 gradient-text px-2">
+                    Activities Calendar
+            </h2>
+                <p class="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-2">
+                    View meetings, announcements, and scheduled events
+                </p>
+                <div class="bg-white dark:bg-[#1e293b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div id="landingCalendar" class="calendar-container-landing"></div>
+                            </div>
+            </div>
+        </div>
+    </section>
+    @endauth
 
-    <!-- Public Announcements Section -->
+    <!-- Public Announcements Section (Logged-in users only) -->
     <section id="announcements" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
             <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 gradient-text px-2">
                 Public Announcements
             </h2>
             
-            @auth
             <!-- Logged-in User Design: News-style cards with images -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 <!-- Announcement Card 1 -->
@@ -593,79 +671,22 @@
                     </div>
                 </div>
             </div>
-            @else
-            <!-- Guest User Design: Simple cards with icons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <!-- Announcement Card 1 -->
-                <div class="rounded-3xl p-6 card-hover slide-in" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="background-color: #055498;">
-                        <span class="text-2xl">📢</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Important Update</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Latest board meeting schedule and agenda items...</p>
-                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
-                        Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </a>
-                </div>
-                <!-- Announcement Card 2 -->
-                <div class="rounded-3xl p-6 card-hover slide-in" style="animation-delay: 0.1s; background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 0.5s; background-color: #055498;">
-                        <span class="text-2xl">📅</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Upcoming Events</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Mark your calendars for the quarterly review meeting...</p>
-                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
-                        Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </a>
-                </div>
-                <!-- Announcement Card 3 -->
-                <div class="rounded-3xl p-6 card-hover slide-in" style="animation-delay: 0.2s; background: linear-gradient(135deg, rgba(5, 84, 152, 0.1) 0%, rgba(18, 58, 96, 0.1) 100%); border: 1px solid rgba(5, 84, 152, 0.2);">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 pulse-glow" style="animation-delay: 1s; background-color: #055498;">
-                        <span class="text-2xl">🎯</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">New Features</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Enhanced portal features for better collaboration...</p>
-                    <a href="#" class="font-semibold hover:underline inline-flex items-center group" style="color: #055498;">
-                        Read More <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </a>
-                </div>
-            </div>
-            @endauth
         </div>
     </section>
-
-    @auth
-    <!-- Activities Calendar Section (Logged In Users Only) -->
-    <section id="calendar-activities" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 gradient-text px-2">
-                    Activities Calendar
-                </h2>
-                <p class="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-2">
-                    View meetings, announcements, and scheduled events
-                </p>
-                <div class="bg-white dark:bg-[#1e293b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                    <div id="landingCalendar" class="calendar-container-landing"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-    @endauth
 
     @guest
-    <!-- Vision & Mission Section -->
+    <!-- Vision, Mission & Mandate Section -->
     <section id="vision" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
-            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
                 <!-- Vision -->
                 <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">👁️</span>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Our Vision</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Vision</h2>
                     <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
-                        To create a seamless, transparent, and efficient platform that empowers board members to collaborate effectively and make informed decisions for the betterment of our organization.
+                        The DDB envisions “Drug-Free Communities”.
                     </p>
                 </div>
                 <!-- Mission -->
@@ -673,9 +694,25 @@
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">🎯</span>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Our Mission</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mission</h2>
                     <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
-                        To provide a modern, secure, and user-friendly portal that streamlines board operations, enhances communication, and ensures all members have access to the information they need when they need it.
+                        The Dangerous Drugs Board is committed to stamping out the illicit supply of and demand for dangerous drugs
+                        and precursor chemicals, and to promote regional and international cooperation in drug abuse prevention and control.
+                    </p>
+                </div>
+                <!-- Mandate -->
+                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
+                        <span class="text-2xl sm:text-3xl">📜</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mandate</h2>
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left mb-3">
+                        Republic Act No. 9165 or the Comprehensive Dangerous Drugs Act of 2002 mandates the DDB to be the
+                        policy-making and strategy-formulating body on drug prevention and control.
+                    </p>
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
+                        It shall develop and adopt a comprehensive, integrated, unified and balanced national drug abuse
+                        prevention and control strategy.
                     </p>
                 </div>
             </div>
@@ -769,10 +806,7 @@
                 if (savedTheme) {
                     return savedTheme;
                 }
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    return 'dark';
-                }
+                // Default to light mode (ignore system preference)
                 return 'light';
             }
 
@@ -936,13 +970,6 @@
                     $('#themeToggle, #themeToggleMobile').off('click').on('click', function(e) {
                         e.preventDefault();
                         window.toggleTheme();
-                    });
-
-                    // Mobile menu toggle
-                    $('#mobileMenuBtn').on('click', function() {
-                        const isExpanded = $(this).attr('aria-expanded') === 'true';
-                        $('#mobileMenu').toggleClass('hidden');
-                        $(this).attr('aria-expanded', !isExpanded);
                     });
 
                     // Smooth scroll
@@ -1519,7 +1546,97 @@
                 }
             });
         });
+
+        @auth
+        // User Activity Tracking for Online Status (for authenticated users)
+        (function() {
+            let activityTimeout;
+            let lastActivityTime = Date.now();
+            const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+            const PING_INTERVAL = 5 * 60 * 1000; // Ping server every 5 minutes
+
+            // Track user activity
+            function trackActivity() {
+                lastActivityTime = Date.now();
+                
+                // Clear existing timeout
+                clearTimeout(activityTimeout);
+                
+                // Set new timeout to check for idle
+                activityTimeout = setTimeout(function() {
+                    checkIdleStatus();
+                }, IDLE_TIMEOUT);
+            }
+
+            // Check if user is idle
+            function checkIdleStatus() {
+                const timeSinceLastActivity = Date.now() - lastActivityTime;
+                
+                if (timeSinceLastActivity >= IDLE_TIMEOUT) {
+                    // User has been idle for 30 minutes, show warning
+                    Swal.fire({
+                        title: 'Session Timeout',
+                        text: 'You have been idle for 30 minutes. You will be logged out for security.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then(() => {
+                        // Logout user
+                        axios.post('{{ route("logout") }}')
+                            .then(() => {
+                                window.location.href = '/';
+                            })
+                            .catch(() => {
+                                window.location.href = '/';
+                            });
+                    });
+                }
+            }
+
+            // Ping server to update activity
+            function pingServer() {
+                axios.post('{{ route("api.track-activity") }}')
+                    .then(response => {
+                        if (response.data.success) {
+                            lastActivityTime = Date.now();
+                        }
+                    })
+                    .catch(() => {
+                        console.log('Activity ping failed');
+                    });
+            }
+
+            // Track various user activities
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
+                document.addEventListener(event, trackActivity, { passive: true });
+            });
+
+            // Initial activity tracking
+            trackActivity();
+
+            // Ping server every 5 minutes
+            setInterval(pingServer, PING_INTERVAL);
+
+            // Ping server on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    pingServer();
+                    trackActivity();
+                }
+            });
+
+            // Ping server when window gains focus
+            window.addEventListener('focus', function() {
+                pingServer();
+                trackActivity();
+            });
+        })();
+        @endauth
     </script>
+    
+    <!-- Global PDF Modal - Available on all pages -->
+    @include('components.pdf-modal')
 </body>
 </html>
 

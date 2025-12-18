@@ -11,6 +11,12 @@
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Gotham Font -->
+    <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -26,6 +32,54 @@
         })();
     </script>
     <style>
+        /* Typography Standards */
+        
+        /* Body Text - Gotham or Montserrat, 14-16px, 1-1.5 line height */
+        body, p, span, div, li, td, th, label, input, textarea, select, button {
+            font-family: 'Gotham Rounded', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px; /* 14px digital (default) */
+            line-height: 1.5; /* 1.5 line height for readability */
+        }
+        
+        /* Titles/Headlines - Montserrat Bold (or Gotham Bold fallback), bumped sizes for clarity */
+        h1, .title, .headline {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700; /* Bold */
+            font-size: 34px; /* Larger headline */
+            line-height: 1.3; /* Slightly taller for readability */
+        }
+        
+        /* Headers/Subheaders - Montserrat Semi-Bold, bumped sizes for clarity */
+        h2, h3, h4, h5, h6, .header, .subheader {
+            font-family: 'Montserrat', 'Gotham Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600; /* Semi-Bold */
+            font-size: 24px; /* Larger default for headers/subheaders */
+            line-height: 1.3;
+        }
+        
+        /* Specific heading sizes */
+        h2 {
+            font-size: 28px;
+        }
+        
+        h3 {
+            font-size: 24px;
+        }
+        
+        h4 {
+            font-size: 22px;
+        }
+        
+        h5, h6 {
+            font-size: 20px;
+        }
+        
+        /* Small text adjustments */
+        small, .text-sm, .text-xs {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
         @keyframes gradient-shift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -43,7 +97,7 @@
     @include('components.header')
     @include('components.theme-toggle-script')
     
-    <div class="min-h-[50vh] flex items-center justify-center p-4 py-16">
+    <div class="min-h-[50vh] flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 space-y-6">
         <div class="text-center">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
@@ -52,28 +106,26 @@
 
         <form id="loginForm" class="space-y-4">
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email or Username</label>
                 <input 
-                    type="email" 
+                    type="text" 
                     id="email" 
                     name="email" 
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
-                    style="focus:ring-color: #055498;"
-                    placeholder="Enter your email"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    placeholder="Enter your email or username"
                 >
                 <span class="text-red-500 text-sm hidden" id="email-error"></span>
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
                 <input 
                     type="password" 
                     id="password" 
                     name="password" 
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-transparent outline-none transition"
-                    style="focus:ring-color: #055498;"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     placeholder="Enter your password"
                 >
                 <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -81,9 +133,10 @@
 
             <div class="flex items-center justify-between">
                 <label class="flex items-center">
-                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 border-gray-300 rounded" style="color: #055498; focus:ring-color: #055498;">
-                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-[#055498] accent-[#055498]">
+                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
                 </label>
+                <a href="{{ route('password.request') }}" class="text-sm font-semibold" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">Forgot password?</a>
             </div>
 
             <button 

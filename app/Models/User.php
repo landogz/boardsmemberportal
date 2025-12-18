@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use App\Models\MediaLibrary;
 use App\Models\GovernmentAgency;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids;
+    use HasFactory, Notifiable, HasUuids, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -31,8 +32,11 @@ class User extends Authenticatable
         'username_edited',
         'password_hash',
         'privilege',
+        'representative_type',
+        'revoked_permissions',
         'government_agency_id',
         'is_active',
+        'is_online',
         'mobile',
         'landline',
         'representative_name',
@@ -82,6 +86,7 @@ class User extends Authenticatable
             'username_edited' => 'boolean',
             'birth_date' => 'date',
             'last_activity' => 'datetime',
+            'revoked_permissions' => 'array',
         ];
     }
 
@@ -123,5 +128,54 @@ class User extends Authenticatable
     public function governmentAgency()
     {
         return $this->belongsTo(GovernmentAgency::class, 'government_agency_id');
+    }
+
+    /**
+     * Check if user has admin or consec privilege
+     */
+    public function isAdminOrConsec(): bool
+    {
+        return $this->privilege === 'admin' || $this->privilege === 'consec';
+    }
+
+    /**
+     * Override Spatie's can() method to ensure admin privilege has full access
+     */
+    public function can($permission, $guardName = null): bool
+    {
+        // Admin privilege always has full access to everything
+        if ($this->privilege === 'admin') {
+            return true;
+        }
+        
+        // Call parent can() method from Spatie
+        return parent::can($permission, $guardName);
+    }
+
+    /**
+     * Check if user has permission (admin privilege and admin role have all permissions automatically)
+     * But respect direct permission revocations
+     */
+    public function hasPermission($permission): bool
+    {
+        // Admin privilege always has full access to everything (cannot be revoked)
+        if ($this->privilege === 'admin') {
+            return true;
+        }
+        
+        // Admin role always has all permissions (cannot be revoked)
+        if ($this->hasRole('admin')) {
+            return true;
+        }
+        
+        // Check if permission is explicitly revoked
+        $revokedPermissions = $this->revoked_permissions ?? [];
+        if (in_array($permission, $revokedPermissions)) {
+            return false;
+        }
+        
+        // Check actual permissions from roles and direct assignments in the database
+        // This respects what's configured in Role & Permission Manager
+        return $this->can($permission);
     }
 }
