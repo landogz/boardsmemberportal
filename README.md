@@ -152,9 +152,10 @@ flowchart TD
     ActivateAccount --> CheckRole
     
     CheckRole -->|Admin| AdminDash[Admin Dashboard]
-    CheckRole -->|User/CONSEC| UserDash[User Dashboard]
+    CheckRole -->|CONSEC| CONSECDash[CONSEC Dashboard]
+    CheckRole -->|User| UserDash[User Dashboard]
     
-    AdminDash --> AdminFeatures{Admin Features}
+    AdminDash --> AdminFeatures{Admin Features<br/>Full Access}
     AdminFeatures --> UserMgmt[User Management]
     AdminFeatures --> DocMgmt[Document Management]
     AdminFeatures --> RoleMgmt[Role & Permission Management]
@@ -162,7 +163,14 @@ flowchart TD
     AdminFeatures --> MediaLib[Media Library]
     AdminFeatures --> GovAgencies[Government Agencies]
     
-    UserMgmt --> CONSEC[CONSEC Accounts]
+    CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
+    CONSECFeatures --> UserMgmt
+    CONSECFeatures --> DocMgmt
+    CONSECFeatures --> AuditLogs
+    CONSECFeatures --> MediaLib
+    CONSECFeatures --> GovAgencies
+    
+    UserMgmt --> CONSECAccounts[CONSEC Accounts]
     UserMgmt --> BoardMembers[Board Members]
     UserMgmt --> PendingReg[Pending Registrations]
     
@@ -185,6 +193,7 @@ flowchart TD
     FilterDocs --> ViewPDF[View/Download PDF]
     
     AdminDash --> AuditSystem[Audit System]
+    CONSECDash --> AuditSystem
     UserDash --> AuditSystem
     UserMgmt --> AuditSystem
     DocMgmt --> AuditSystem
@@ -196,6 +205,7 @@ flowchart TD
     
     style Start fill:#055498,stroke:#123a60,color:#fff
     style AdminDash fill:#CE2028,stroke:#8b1519,color:#fff
+    style CONSECDash fill:#FF9800,stroke:#F57C00,color:#fff
     style UserDash fill:#055498,stroke:#123a60,color:#fff
     style AuditSystem fill:#F9FAFB,stroke:#0F172A,stroke-width:2px
 ```
