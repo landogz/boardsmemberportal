@@ -743,7 +743,7 @@ For support, please contact the development team or create an issue in the repos
 
 **Rolan Mondares Benavidez Jr**
 
-- **Company:** Landoogz Web Solutions
+- **Company:** Landogz Web Solutions
 - **Email:** rolan.benavidez@gmail.com
 - **Phone:** 09387077940
 - **Facebook:** [https://www.facebook.com/landogz](https://www.facebook.com/landogz)
