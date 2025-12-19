@@ -76,6 +76,18 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Online status indicators
 - Voice clip support (UI ready)
 
+### 🗳️ Referendum System
+- **Referendum Posts** - Admin can create, edit, and delete referendum posts with title, content, attachments, and expiration date
+- **User Selection** - Admin can select specific users who can view and participate in referendums
+- **Voting System** - Users can vote "Accept" or "Decline" (one vote per user per referendum)
+- **Vote Analytics** - Admin can view total votes, accept/decline breakdown, and voter lists with profile pictures
+- **Comment System** - Users can comment on referendums with unlimited nested replies (reply to replies)
+- **Threaded Comments** - Facebook-style comment system with online indicators, edit/delete functionality
+- **Expiration Logic** - Automatic disabling of voting and commenting when expiration date is reached
+- **Access Control** - Only selected users can view, comment, and vote on referendums
+- **Real-time Updates** - AJAX-based comment submission without page refresh
+- **Attachment Support** - Support for images and PDFs in referendum posts
+
 ### 📋 Roles & Permissions
 - Dynamic role creation
 - Permission matrix interface with expand/collapse categories
@@ -162,6 +174,7 @@ flowchart TD
     AdminFeatures --> AuditLogs[Audit Logs]
     AdminFeatures --> MediaLib[Media Library]
     AdminFeatures --> GovAgencies[Government Agencies]
+    AdminFeatures --> ReferendumMgmt[Referendum Management]
     
     CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
     CONSECFeatures --> UserMgmt
@@ -169,6 +182,7 @@ flowchart TD
     CONSECFeatures --> AuditLogs
     CONSECFeatures --> MediaLib
     CONSECFeatures --> GovAgencies
+    CONSECFeatures --> ReferendumMgmt
     
     UserMgmt --> CONSECAccounts[CONSEC Accounts]
     UserMgmt --> BoardMembers[Board Members]
@@ -188,9 +202,21 @@ flowchart TD
     UserFeatures --> Chat[Chat Facility]
     UserFeatures --> MeetingNotices[Meeting Notices]
     UserFeatures --> BoardIssuances[Board Issuances]
+    UserFeatures --> Referendums[Referendums]
     
     BoardIssuances --> FilterDocs[Filter by Type]
     FilterDocs --> ViewPDF[View/Download PDF]
+    
+    Referendums --> ViewReferendum[View Referendum]
+    ViewReferendum --> Vote[Vote Accept/Decline]
+    ViewReferendum --> Comment[Comment & Reply]
+    ViewReferendum --> ViewAttachments[View Attachments]
+    
+    AdminDash --> ReferendumMgmt[Referendum Management]
+    ReferendumMgmt --> CreateReferendum[Create/Edit Referendum]
+    ReferendumMgmt --> SelectUsers[Select Allowed Users]
+    ReferendumMgmt --> ViewAnalytics[View Vote Analytics]
+    ReferendumMgmt --> ManageExpiration[Manage Expiration Date]
     
     AdminDash --> AuditSystem[Audit System]
     CONSECDash --> AuditSystem
@@ -315,7 +341,32 @@ Admin → Role & Permission Manager
           └─► Expand/Collapse Categories
 ```
 
-### F. Audit Trail Flow
+### F. Referendum Flow
+
+```
+Admin → Create Referendum
+   ├─► Fill Details (Title, Content, Expiration Date)
+   ├─► Upload Attachments (Images, PDFs)
+   ├─► Select Allowed Users
+   ├─► Save → Create Referendum
+   └─► Publish
+
+User → View Referendums
+   ├─► Filter by Access (Only allowed referendums visible)
+   ├─► View Referendum Details
+   ├─► Vote (Accept/Decline) - One vote per user
+   ├─► Comment & Reply (Unlimited nesting)
+   └─► View Attachments (Images, PDFs)
+
+Admin → Manage Referendum
+   ├─► View Vote Statistics (Accept/Decline counts)
+   ├─► View Voter List (with profile pictures)
+   ├─► View Comment Threads
+   ├─► Edit/Extend Expiration Date
+   └─► Delete Referendum
+```
+
+### G. Audit Trail Flow
 
 ```
 System Actions → Audit Logger
@@ -528,6 +579,50 @@ created_at
 updated_at
 ```
 
+#### 15. referendums
+```sql
+id (uuid, primary key)
+title
+content (text)
+attachments (JSON - array of media_library IDs)
+expires_at (datetime)
+created_by (foreign key to users)
+deleted_at (timestamp, soft deletes)
+created_at
+updated_at
+```
+
+#### 16. referendum_user_access
+```sql
+id
+referendum_id (foreign key)
+user_id (foreign key)
+created_at
+updated_at
+```
+
+#### 17. referendum_votes
+```sql
+id
+referendum_id (foreign key)
+user_id (foreign key)
+vote (accept, decline)
+created_at
+updated_at
+```
+
+#### 18. referendum_comments
+```sql
+id
+referendum_id (foreign key)
+user_id (foreign key)
+parent_id (nullable, foreign key to referendum_comments)
+content (text)
+deleted_at (timestamp, soft deletes)
+created_at
+updated_at
+```
+
 ---
 
 ## 3. PAGES & ROUTES
@@ -547,6 +642,13 @@ updated_at
 - `/notifications` - Notifications Center
 - `/messages` - Messages / Chat Page
 - `/board-issuances` - Board Resolutions & Regulations (Public View)
+- `/referendums` - Referendums List (User-facing)
+  - `/referendums/{id}` - View Referendum (with voting and comments)
+  - `/referendums/{id}/vote` - Submit Vote (POST)
+  - `/referendums/{id}/comments` - Get Comments (AJAX)
+  - `/referendums/{id}/comments` - Post Comment (POST)
+  - `/referendums/{id}/comments/{commentId}` - Update Comment (POST)
+  - `/referendums/{id}/comments/{commentId}` - Delete Comment (DELETE)
 
 ### C. Admin Pages
 
@@ -604,6 +706,13 @@ updated_at
 
 - `/admin/audit-logs` - Audit Logs
   - `/admin/audit-logs/export-pdf` - Export to PDF (with filters)
+
+- `/admin/referendums` - Referendums Management
+  - `/admin/referendums/create` - Create Referendum
+  - `/admin/referendums/{id}` - View Referendum (with analytics)
+  - `/admin/referendums/{id}/edit` - Edit Referendum
+  - `/admin/referendums/{id}/update` - Update Referendum (POST)
+  - `/admin/referendums/{id}` - Delete Referendum (DELETE)
 
 - `/admin/notifications` - Admin Notifications Page
 
