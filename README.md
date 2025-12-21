@@ -184,6 +184,7 @@ flowchart TD
     AdminFeatures --> MediaLib[Media Library]
     AdminFeatures --> GovAgencies[Government Agencies]
     AdminFeatures --> ReferendumMgmt[Referendum Management]
+    AdminFeatures --> Messaging[Messaging System]
     
     CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
     CONSECFeatures --> UserMgmt
@@ -192,6 +193,7 @@ flowchart TD
     CONSECFeatures --> MediaLib
     CONSECFeatures --> GovAgencies
     CONSECFeatures --> ReferendumMgmt
+    CONSECFeatures --> Messaging
     
     UserMgmt --> CONSECAccounts[CONSEC Accounts]
     UserMgmt --> BoardMembers[Board Members]
@@ -208,13 +210,13 @@ flowchart TD
     UserDash --> UserFeatures{User Features}
     UserFeatures --> ViewAnnounce[View Announcements]
     UserFeatures --> ViewCalendar[Activities Calendar]
-    UserFeatures --> Chat[Messaging System]
+    UserFeatures --> Messaging
     UserFeatures --> MeetingNotices[Meeting Notices]
     UserFeatures --> BoardIssuances[Board Issuances]
     UserFeatures --> Referendums[Referendums]
     
-    Chat --> DirectMsg[Direct Messages]
-    Chat --> GroupChat[Group Chats]
+    Messaging --> DirectMsg[Direct Messages]
+    Messaging --> GroupChat[Group Chats]
     DirectMsg --> SendMsg[Send Messages]
     DirectMsg --> VoiceMsg[Send Voice Clips]
     DirectMsg --> ShareFiles[Share Files]
@@ -247,6 +249,7 @@ flowchart TD
     UserMgmt --> AuditSystem
     DocMgmt --> AuditSystem
     RoleMgmt --> AuditSystem
+    Messaging --> AuditSystem
     
     AuditSystem --> LogAction[Log Action]
     LogAction --> StoreData[Store User, IP, Timestamp]
