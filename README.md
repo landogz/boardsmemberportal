@@ -69,12 +69,21 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Auto-notification for pending registrations
 
 ### 💬 Messaging & Chat
-- Real-time chat popup interface
-- Image sharing with full-screen viewer
-- Zoom and pan functionality for images
-- Download images from chat
-- Online status indicators
-- Voice clip support (UI ready)
+- **Real-time Chat System** - Full-featured messaging interface for both users and admins
+- **Direct Messages** - One-on-one conversations between users
+- **Group Chats** - Create and manage group conversations with multiple members
+- **Group Management** - Add/remove members, assign/revoke admin privileges, update group info
+- **Voice Messages** - Record and send voice clips with playback controls
+- **Voice Playback** - Play/pause controls, speed adjustment (1x, 1.25x, 1.5x, 2x), waveform visualization
+- **File Attachments** - Share images, videos, audio files, and documents
+- **Image Viewer** - Full-screen image viewer with zoom, pan, and download functionality
+- **Message Reactions** - React to messages with emojis (👍, ❤️, 😂, 😮, 😢, 😠)
+- **Message Replies** - Reply to specific messages with threaded conversations
+- **Online Status** - Real-time online/offline status indicators
+- **Unread Counts** - Track unread messages per conversation
+- **Conversation Search** - Search through conversations and messages
+- **Chat Popup** - Quick access chat popup interface
+- **Message Timestamps** - Display message timestamps and date separators
 
 ### 🗳️ Referendum System
 - **Referendum Posts** - Admin can create, edit, and delete referendum posts with title, content, attachments, and expiration date
@@ -199,10 +208,24 @@ flowchart TD
     UserDash --> UserFeatures{User Features}
     UserFeatures --> ViewAnnounce[View Announcements]
     UserFeatures --> ViewCalendar[Activities Calendar]
-    UserFeatures --> Chat[Chat Facility]
+    UserFeatures --> Chat[Messaging System]
     UserFeatures --> MeetingNotices[Meeting Notices]
     UserFeatures --> BoardIssuances[Board Issuances]
     UserFeatures --> Referendums[Referendums]
+    
+    Chat --> DirectMsg[Direct Messages]
+    Chat --> GroupChat[Group Chats]
+    DirectMsg --> SendMsg[Send Messages]
+    DirectMsg --> VoiceMsg[Send Voice Clips]
+    DirectMsg --> ShareFiles[Share Files]
+    DirectMsg --> ReactMsg[React to Messages]
+    DirectMsg --> ReplyMsg[Reply to Messages]
+    GroupChat --> CreateGroup[Create Group]
+    GroupChat --> ManageGroup[Manage Group Settings]
+    GroupChat --> AddMembers[Add/Remove Members]
+    GroupChat --> GroupAdmin[Assign Group Admins]
+    ManageGroup --> UpdateGroupInfo[Update Group Info]
+    ManageGroup --> ChangeAvatar[Change Group Avatar]
     
     BoardIssuances --> FilterDocs[Filter by Type]
     FilterDocs --> ViewPDF[View/Download PDF]
@@ -366,7 +389,39 @@ Admin → Manage Referendum
    └─► Delete Referendum
 ```
 
-### G. Audit Trail Flow
+### G. Messaging & Chat Flow
+
+```
+User/Admin → Messaging System
+   ├─► Direct Messages
+   │      ├─► Select User → Open Chat
+   │      ├─► Send Text Messages
+   │      ├─► Send Voice Messages (Record & Send)
+   │      ├─► Share Files (Images, Videos, Documents)
+   │      ├─► React to Messages (Emojis)
+   │      ├─► Reply to Messages
+   │      └─► View Message History
+   │
+   └─► Group Chats
+          ├─► Create Group → Select Members
+          ├─► Manage Group Settings
+          │      ├─► Update Group Name & Description
+          │      ├─► Change Group Avatar
+          │      ├─► Add/Remove Members
+          │      └─► Assign/Revoke Admin Privileges
+          ├─► Group Admin Features
+          │      ├─► Remove Members
+          │      ├─► Make Members Admin
+          │      └─► Update Group Info
+          └─► Group Chat Features
+                 ├─► Send Messages to Group
+                 ├─► Send Voice Messages
+                 ├─► Share Files
+                 ├─► React & Reply
+                 └─► View Group Members
+```
+
+### H. Audit Trail Flow
 
 ```
 System Actions → Audit Logger
@@ -623,6 +678,64 @@ created_at
 updated_at
 ```
 
+#### 19. group_chats
+```sql
+id (uuid, primary key)
+name
+description (nullable)
+avatar (nullable, foreign key to media_library)
+created_by (foreign key to users)
+created_at
+updated_at
+deleted_at (timestamp, soft deletes)
+```
+
+#### 20. group_chat_members
+```sql
+id
+group_chat_id (foreign key)
+user_id (foreign key)
+is_admin (boolean, default false)
+joined_at (timestamp)
+created_at
+updated_at
+```
+
+#### 21. messages
+```sql
+id
+sender_id (foreign key to users)
+receiver_id (nullable, foreign key to users)
+group_id (nullable, foreign key to group_chats)
+parent_id (nullable, foreign key to messages, for replies)
+message (text, nullable)
+is_read (boolean, default false)
+read_at (timestamp, nullable)
+created_at
+updated_at
+deleted_at (timestamp, soft deletes)
+```
+
+#### 22. message_attachments
+```sql
+id
+message_id (foreign key)
+media_library_id (foreign key)
+created_at
+updated_at
+```
+
+#### 23. message_reactions
+```sql
+id
+message_id (foreign key)
+user_id (foreign key)
+reaction_type (like, love, haha, wow, sad, angry)
+created_at
+updated_at
+unique(message_id, user_id)
+```
+
 ---
 
 ## 3. PAGES & ROUTES
@@ -640,7 +753,19 @@ updated_at
 - `/profile/edit` - Edit Profile
 - `/profile/view/{id}` - View Profile
 - `/notifications` - Notifications Center
-- `/messages` - Messages / Chat Page
+- `/messages` - Messages / Chat Page (User-facing)
+  - `/messages/send` - Send Message (POST)
+  - `/messages/conversation/{userId}` - Get Conversation (AJAX)
+  - `/messages/{messageId}/reactions` - Get Message Reactions (AJAX)
+  - `/messages/{messageId}/react` - Add Reaction (POST)
+  - `/messages/{messageId}/unreact` - Remove Reaction (POST)
+  - `/messages/groups` - Create Group Chat (POST)
+  - `/messages/groups/{id}` - Get Group Details (AJAX)
+  - `/messages/groups/{id}/update` - Update Group (PUT)
+  - `/messages/groups/{id}/members/add` - Add Members (POST)
+  - `/messages/groups/{id}/members/remove` - Remove Members (DELETE)
+  - `/messages/groups/{id}/admins/assign` - Assign Admin (POST)
+  - `/messages/groups/{id}/admins/revoke` - Revoke Admin (POST)
 - `/board-issuances` - Board Resolutions & Regulations (Public View)
 - `/referendums` - Referendums List (User-facing)
   - `/referendums/{id}` - View Referendum (with voting and comments)
@@ -715,6 +840,9 @@ updated_at
   - `/admin/referendums/{id}` - Delete Referendum (DELETE)
 
 - `/admin/notifications` - Admin Notifications Page
+
+- `/admin/messages` - Admin Messages / Chat Page
+  - Same messaging routes as user messages (see above)
 
 - `/admin/profile/edit` - Admin Profile Edit
 
