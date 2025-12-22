@@ -129,6 +129,7 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 
 ### 🎨 UI/UX Features
 - Modern, clean design with brand colors
+- Light mode only for admin panel (dark mode classes removed)
 - Smooth animations and transitions
 - Dropdown action menus for tables
 - Multi-step forms with progress indicators
@@ -860,9 +861,10 @@ Primary Blue: #055498
 Secondary Blue: #123a60
 Accent Red: #CE2028
 Background Light: #F9FAFB
-Background Dark: #0F172A
-Text: #0A0A0A / #F1F5F9
+Text: #0A0A0A
 ```
+
+**Note:** Admin panel uses light mode only. All dark mode classes have been removed from admin pages.
 
 ### Layout Style
 
