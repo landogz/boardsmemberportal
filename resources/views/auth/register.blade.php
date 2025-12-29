@@ -177,6 +177,48 @@
         .password-requirements li.invalid {
             color: #ef4444;
         }
+        
+        /* Fix Safari select height mismatch with inputs */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
+            height: auto;
+            min-height: 48px; /* Match input height (py-3 = 12px top + 12px bottom = 24px padding + 1px border top + 1px border bottom + ~22px content = ~48px) */
+        }
+        
+        /* Ensure inputs and selects have same height calculation */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="password"],
+        textarea,
+        select {
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        
+        /* Safari specific fix for select dropdown arrow */
+        select::-webkit-inner-spin-button,
+        select::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Custom dropdown arrow for Safari */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            padding-right: 40px !important;
+        }
+        
+        .dark select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%9ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
     </style>
     @include('components.header-footer-styles')
 </head>

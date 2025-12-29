@@ -71,9 +71,9 @@
                     
                     <!-- Replies Container (hidden by default) -->
                     <div class="replies-container hidden mt-1">
-                        @foreach($reply->replies as $nestedReply)
-                            @include('admin.referendums.partials.reply', ['reply' => $nestedReply])
-                        @endforeach
+                    @foreach($reply->replies as $nestedReply)
+                        @include('admin.referendums.partials.reply', ['reply' => $nestedReply])
+                    @endforeach
                     </div>
                 </div>
             @endif

@@ -274,6 +274,47 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        
+        /* Fix Safari select height mismatch with inputs */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
+            height: auto;
+        }
+        
+        /* Ensure inputs and selects have same height calculation */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="password"],
+        textarea,
+        select {
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        
+        /* Safari specific fix for select dropdown arrow */
+        select::-webkit-inner-spin-button,
+        select::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Custom dropdown arrow for Safari - adjust for py-2 (smaller padding) */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            padding-right: 36px !important;
+        }
+        
+        .dark select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%9ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
     </style>
     @include('components.header-footer-styles')
     <style>
@@ -609,10 +650,9 @@
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Event Type</label>
                                 <select id="filterEventTypeLanding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100">
                                     <option value="all">All Types</option>
-                                    <option value="meeting">Meetings</option>
                                     <option value="announcement">Announcements</option>
-                                    <option value="resolution">Resolutions</option>
-                                    <option value="other">Other</option>
+                                    <option value="resolution">Board Resolutions</option>
+                                    <option value="regulation">Board Regulations</option>
                                 </select>
                     </div>
                             
@@ -719,8 +759,10 @@
                         <!-- Author Info -->
                         <div class="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0" id="modalAuthorAvatar" style="font-size: 16px;">
-                                    <!-- Initials or avatar -->
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0 overflow-hidden" id="modalAuthorAvatar" style="font-size: 16px;">
+                                    <!-- Profile picture or initials will be inserted here -->
+                                    <img id="modalAuthorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden">
+                                    <span id="modalAuthorAvatarInitials"></span>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="font-bold text-gray-900 dark:text-white text-lg mb-1" id="modalAuthorName"></div>
@@ -1212,95 +1254,45 @@
     <script>
         // Initialize Calendar for Landing Page
         (function() {
-            // Store all events
-            const allEventsLanding = [
-                {
-                    title: 'Board Meeting - Q1 Review',
-                    start: new Date().toISOString().split('T')[0],
-                    backgroundColor: '#055498',
-                    borderColor: '#055498',
-                    textColor: '#ffffff',
-                    extendedProps: {
-                        type: 'meeting',
-                        description: 'Quarterly board meeting to review Q1 performance and discuss upcoming initiatives.'
-                    }
-                },
-                {
-                    title: 'New Announcement: Policy Update',
-                    start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#FBD116',
-                    borderColor: '#FBD116',
-                    textColor: '#123a60',
-                    extendedProps: {
-                        type: 'announcement',
-                        description: 'Important policy update announcement for all board members.'
-                    }
-                },
-                {
-                    title: 'Resolution Review Meeting',
-                    start: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#CE2028',
-                    borderColor: '#CE2028',
-                    textColor: '#ffffff',
-                    extendedProps: {
-                        type: 'meeting',
-                        description: 'Review and approve pending board resolutions.'
-                    }
-                },
-                {
-                    title: 'Announcement: Annual Report',
-                    start: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#FBD116',
-                    borderColor: '#FBD116',
-                    textColor: '#123a60',
-                    extendedProps: {
-                        type: 'announcement',
-                        description: 'Annual report publication announcement.'
-                    }
-                },
-                {
-                    title: 'Committee Meeting',
-                    start: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#055498',
-                    borderColor: '#055498',
-                    textColor: '#ffffff',
-                    extendedProps: {
-                        type: 'meeting',
-                        description: 'Scheduled committee meeting to discuss ongoing projects.'
-                    }
-                },
-                {
-                    title: 'Board Resolution #2024-001',
-                    start: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#CE2028',
-                    borderColor: '#CE2028',
-                    textColor: '#ffffff',
-                    extendedProps: {
-                        type: 'resolution',
-                        description: 'New board resolution for approval.'
-                    }
-                },
-                {
-                    title: 'Special Event',
-                    start: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
-                    backgroundColor: '#6B7280',
-                    borderColor: '#6B7280',
-                    textColor: '#ffffff',
-                    extendedProps: {
-                        type: 'other',
-                        description: 'Special event for board members.'
-                    }
-                }
-            ];
-            
+            // Store all events (will be loaded from API)
+            let allEventsLanding = [];
             let calendarLanding = null;
+            
+            // Load events from API
+            function loadCalendarEvents() {
+                if (typeof axios === 'undefined') {
+                    console.error('Axios is not loaded');
+                    return;
+                }
+                
+                axios.get('{{ route("api.calendar.events") }}')
+                    .then(response => {
+                        allEventsLanding = response.data.events || [];
+                        
+                        // Update calendar if already initialized
+                        if (calendarLanding) {
+                            calendarLanding.removeAllEvents();
+                            calendarLanding.addEventSource(allEventsLanding);
+                        } else {
+                            // Initialize calendar after events are loaded
+                            initLandingCalendar();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading calendar events:', error);
+                        // Initialize calendar with empty events if API fails
+                        if (!calendarLanding) {
+                            initLandingCalendar();
+                        }
+                    });
+            }
             
             // Filter events function
             function filterEventsLanding() {
                 const eventType = document.getElementById('filterEventTypeLanding').value;
                 const dateFrom = document.getElementById('filterDateFromLanding').value;
                 const dateTo = document.getElementById('filterDateToLanding').value;
-                const searchTerm = document.getElementById('filterSearchLanding').value.toLowerCase();
+                const searchTerm = document.getElementById('filterSearchLanding').value.toLowerCase().trim();
                 
                 return allEventsLanding.filter(event => {
                     // Filter by event type
@@ -1309,18 +1301,41 @@
                     }
                     
                     // Filter by date range
-                    const eventDate = new Date(event.start);
-                    if (dateFrom && eventDate < new Date(dateFrom)) {
-                        return false;
+                    // Handle both date string (YYYY-MM-DD) and Date object formats
+                    let eventDate;
+                    if (typeof event.start === 'string') {
+                        eventDate = new Date(event.start + 'T00:00:00');
+                    } else if (event.start instanceof Date) {
+                        eventDate = event.start;
+                    } else {
+                        // FullCalendar event object
+                        eventDate = event.start instanceof Date ? event.start : new Date(event.start);
                     }
-                    if (dateTo && eventDate > new Date(dateTo + 'T23:59:59')) {
-                        return false;
+                    
+                    if (dateFrom) {
+                        const fromDate = new Date(dateFrom + 'T00:00:00');
+                        if (eventDate < fromDate) {
+                            return false;
+                        }
+                    }
+                    
+                    if (dateTo) {
+                        const toDate = new Date(dateTo + 'T23:59:59');
+                        if (eventDate > toDate) {
+                            return false;
+                        }
                     }
                     
                     // Filter by search term
-                    if (searchTerm && !event.title.toLowerCase().includes(searchTerm) && 
-                        !event.extendedProps.description.toLowerCase().includes(searchTerm)) {
-                        return false;
+                    if (searchTerm) {
+                        const titleMatch = event.title ? event.title.toLowerCase().includes(searchTerm) : false;
+                        const descMatch = event.extendedProps && event.extendedProps.description 
+                            ? event.extendedProps.description.toLowerCase().includes(searchTerm) 
+                            : false;
+                        
+                        if (!titleMatch && !descMatch) {
+                            return false;
+                        }
                     }
                     
                     return true;
@@ -1460,21 +1475,57 @@
                                 month: 'long', 
                                 day: 'numeric' 
                             });
+                            const eventUrl = info.event.extendedProps.url || null;
+                            const effectiveDate = info.event.extendedProps.effective_date || null;
+                            const approvedDate = info.event.extendedProps.approved_date || null;
+                            
+                            // Build action buttons based on event type
+                            let actionButton = '';
+                            if (eventUrl) {
+                                if (eventType === 'announcement') {
+                                    actionButton = `<button onclick="window.openAnnouncementModal(${info.event.extendedProps.id}); Swal.close();" class="mt-3 px-4 py-2 bg-gradient-to-r from-[#055498] to-[#123a60] text-white rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all">
+                                        <i class="fas fa-eye mr-2"></i>View Announcement
+                                    </button>`;
+                                } else {
+                                    actionButton = `<a href="${eventUrl}" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-[#055498] to-[#123a60] text-white rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all">
+                                        <i class="fas fa-external-link-alt mr-2"></i>View Details
+                                    </a>`;
+                                }
+                            }
+                            
+                            // Build date fields for resolutions and regulations
+                            let dateFields = '';
+                            let showEventDate = true;
+                            if (eventType === 'resolution' || eventType === 'regulation') {
+                                showEventDate = false; // Don't show the generic "Date" field for resolutions/regulations
+                                if (effectiveDate) {
+                                    dateFields += `<p class="mb-2"><strong>Effective Date:</strong> ${effectiveDate}</p>`;
+                                }
+                                if (approvedDate) {
+                                    dateFields += `<p class="mb-2"><strong>Approved Date:</strong> ${approvedDate}</p>`;
+                                }
+                            }
                             
                             Swal.fire({
                                 title: info.event.title,
                                 html: `
                                     <div class="text-left">
                                         <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${eventType}</span></p>
-                                        <p class="mb-2"><strong>Date:</strong> ${eventDate}</p>
-                                        ${info.event.start.toLocaleTimeString ? `<p class="mb-2"><strong>Time:</strong> ${info.event.start.toLocaleTimeString()}</p>` : ''}
+                                        ${showEventDate ? `<p class="mb-2"><strong>Date:</strong> ${eventDate}</p>` : ''}
+                                        ${dateFields}
                                         <p class="mb-2"><strong>Description:</strong></p>
                                         <p class="text-sm text-gray-600">${description}</p>
+                                        ${actionButton}
                                     </div>
                                 `,
                                 icon: 'info',
                                 confirmButtonText: 'Close',
-                                confirmButtonColor: '#055498'
+                                confirmButtonColor: '#055498',
+                                showCloseButton: true,
+                                width: '600px',
+                                customClass: {
+                                    popup: 'swal-wide-popup'
+                                }
                             });
                         },
                         eventDisplay: 'block',
@@ -1557,25 +1608,35 @@
                 }
             }
             
+            // Load calendar events first, then initialize calendar
+            if (typeof axios !== 'undefined') {
+                loadCalendarEvents();
+            } else {
+                // Wait for axios to load
+                const checkAxios = setInterval(function() {
+                    if (typeof axios !== 'undefined') {
+                        clearInterval(checkAxios);
+                        loadCalendarEvents();
+                    }
+                }, 100);
+            }
+            
             // Load FullCalendar script dynamically if not already loaded
             if (typeof FullCalendar === 'undefined' && typeof window.FullCalendar === 'undefined') {
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js';
                 script.onload = function() {
-                    setTimeout(initLandingCalendar, 100);
+                    // Calendar will be initialized after events are loaded
                 };
                 script.onerror = function() {
                     const altScript = document.createElement('script');
                     altScript.src = 'https://unpkg.com/fullcalendar@6.1.10/index.global.min.js';
                     altScript.onload = function() {
-                        setTimeout(initLandingCalendar, 100);
+                        // Calendar will be initialized after events are loaded
                     };
                     document.head.appendChild(altScript);
                 };
                 document.head.appendChild(script);
-            } else {
-                // FullCalendar already loaded, initialize immediately
-                setTimeout(initLandingCalendar, 100);
             }
         })();
     </script>
@@ -1890,6 +1951,23 @@
                 font-size: 1.5rem !important;
             }
         }
+        
+        /* SweetAlert Calendar Modal - Wider */
+        .swal-wide-popup {
+            width: 600px !important;
+            max-width: 90vw !important;
+        }
+        
+        .swal-wide-popup .swal2-html-container {
+            text-align: left !important;
+        }
+        
+        @media (max-width: 640px) {
+            .swal-wide-popup {
+                width: 95vw !important;
+                padding: 1rem !important;
+            }
+        }
     </style>
     @endauth
     
@@ -2130,7 +2208,23 @@
                         // Set author info
                         const authorName = announcement.author;
                         const authorInitials = authorName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                        document.getElementById('modalAuthorAvatar').textContent = authorInitials;
+                        const authorAvatar = document.getElementById('modalAuthorAvatar');
+                        const authorAvatarImg = document.getElementById('modalAuthorAvatarImg');
+                        const authorAvatarInitials = document.getElementById('modalAuthorAvatarInitials');
+                        
+                        // Display profile picture if available, otherwise show initials
+                        if (announcement.author_profile_url) {
+                            authorAvatarImg.src = announcement.author_profile_url;
+                            authorAvatarImg.alt = authorName;
+                            authorAvatarImg.classList.remove('hidden');
+                            authorAvatarInitials.textContent = '';
+                            authorAvatarInitials.classList.add('hidden');
+                        } else {
+                            authorAvatarImg.classList.add('hidden');
+                            authorAvatarInitials.textContent = authorInitials;
+                            authorAvatarInitials.classList.remove('hidden');
+                        }
+                        
                         document.getElementById('modalAuthorName').textContent = authorName;
                         document.getElementById('modalDateText').textContent = announcement.created_at;
 

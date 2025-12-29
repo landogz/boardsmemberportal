@@ -184,8 +184,14 @@
                                 <!-- Meta Information -->
                                 <div class="flex flex-wrap items-center gap-4 mb-4 text-sm text-gray-500 dark:text-gray-400">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-semibold text-xs mr-2">
-                                            {{ strtoupper(substr($announcement->creator->first_name, 0, 1) . substr($announcement->creator->last_name, 0, 1)) }}
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-semibold text-xs mr-2 overflow-hidden flex-shrink-0">
+                                            @if($announcement->creator->profilePictureMedia)
+                                                <img src="{{ asset('storage/' . $announcement->creator->profilePictureMedia->file_path) }}" 
+                                                     alt="{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}" 
+                                                     class="w-full h-full object-cover">
+                                            @else
+                                                <span>{{ strtoupper(substr($announcement->creator->first_name, 0, 1) . substr($announcement->creator->last_name, 0, 1)) }}</span>
+                                            @endif
                                         </div>
                                         <span>{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
                                     </div>

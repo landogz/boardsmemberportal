@@ -264,6 +264,9 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/api/{id}/modal', [\App\Http\Controllers\AnnouncementController::class, 'getForModal'])->name('api.modal');
     });
 
+    // Calendar Events API
+    Route::get('/api/calendar/events', [\App\Http\Controllers\CalendarController::class, 'getEvents'])->name('api.calendar.events')->middleware('auth');
+
     // Referendum Voting and Comments (authenticated users)
     Route::prefix('referendums')->name('referendums.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\ReferendumController::class, 'index'])->name('index');

@@ -99,12 +99,23 @@ class AnnouncementController extends Controller
                 $bannerImageId = $media->id;
             }
 
+            // Determine status: if scheduled_at is in the future, set to draft
+            $scheduledAt = $validated['scheduled_at'] ? new \DateTime($validated['scheduled_at']) : null;
+            $requestedStatus = $validated['status'] ?? 'published';
+            
+            // If scheduled_at is in the future, force status to draft (will be auto-published by scheduler)
+            if ($scheduledAt && $scheduledAt > now()) {
+                $finalStatus = 'draft';
+            } else {
+                $finalStatus = $requestedStatus;
+            }
+
             $announcement = Announcement::create([
                 'title' => $validated['title'],
                 'content' => $validated['description'], // Map description to content
                 'banner_image_id' => $bannerImageId,
                 'created_by' => Auth::id(),
-                'status' => $validated['status'] ?? 'published',
+                'status' => $finalStatus,
                 'scheduled_at' => $validated['scheduled_at'] ?? null,
             ]);
 
@@ -263,12 +274,25 @@ class AnnouncementController extends Controller
 
             $oldStatus = $announcement->status;
             $oldScheduledAt = $announcement->scheduled_at;
+            
+            // Determine status: if scheduled_at is in the future, set to draft
+            $scheduledAt = isset($validated['scheduled_at']) && $validated['scheduled_at'] 
+                ? new \DateTime($validated['scheduled_at']) 
+                : ($announcement->scheduled_at ? new \DateTime($announcement->scheduled_at) : null);
+            $requestedStatus = $validated['status'] ?? $announcement->status;
+            
+            // If scheduled_at is in the future, force status to draft (will be auto-published by scheduler)
+            if ($scheduledAt && $scheduledAt > now()) {
+                $finalStatus = 'draft';
+            } else {
+                $finalStatus = $requestedStatus;
+            }
 
             $announcement->update([
                 'title' => $validated['title'],
                 'content' => $validated['description'], // Map description to content
                 'banner_image_id' => $bannerImageId,
-                'status' => $validated['status'] ?? $announcement->status,
+                'status' => $finalStatus,
                 'scheduled_at' => $validated['scheduled_at'] ?? $announcement->scheduled_at,
             ]);
 
@@ -308,7 +332,7 @@ class AnnouncementController extends Controller
                         }
                     }
                 }
-            }
+    }
 
             // If status changed from draft to published, notify all allowed users
             if ($oldStatus === 'draft' && $announcement->status === 'published') {

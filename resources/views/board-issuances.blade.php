@@ -29,6 +29,47 @@
         .issuance-card:hover {
             transform: translateY(-2px);
         }
+        
+        /* Fix Safari select height mismatch with inputs */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
+            height: auto;
+        }
+        
+        /* Ensure inputs and selects have same height calculation */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="password"],
+        textarea,
+        select {
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        
+        /* Safari specific fix for select dropdown arrow */
+        select::-webkit-inner-spin-button,
+        select::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Custom dropdown arrow for Safari */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            padding-right: 36px !important;
+        }
+        
+        .dark select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%9ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
     </style>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
@@ -95,7 +136,7 @@
                 </div>
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 space-y-4" id="regulationsList">
                     @forelse($regulations as $regulation)
-                        <div class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200" 
+                        <div id="regulation-{{ $regulation->id }}" class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 scroll-mt-20" 
                              data-type="regulation" 
                              data-year="{{ $regulation->year }}" 
                              data-keywords="{{ strtolower($regulation->title . ' ' . ($regulation->description ?? '') . ' ' . ($regulation->version ?? '')) }}">
@@ -171,7 +212,7 @@
             </div>
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 space-y-4" id="resolutionsList">
                 @forelse($documents as $document)
-                        <div class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200" 
+                        <div id="resolution-{{ $document->id }}" class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 scroll-mt-20" 
                          data-type="resolution" 
                          data-year="{{ $document->year }}" 
                          data-keywords="{{ strtolower($document->title . ' ' . ($document->description ?? '') . ' ' . ($document->version ?? '')) }}">
@@ -272,8 +313,28 @@
     </div>
 
     <script>
+        // Prevent automatic scroll to hash anchor and keep page at top
+        (function() {
+            // Scroll to top immediately
+            window.scrollTo(0, 0);
+            
+            // Remove hash from URL without scrolling
+            if (window.location.hash) {
+                history.replaceState(null, null, window.location.pathname + window.location.search);
+            }
+            
+            // Prevent scroll on hash change
+            window.addEventListener('hashchange', function(e) {
+                e.preventDefault();
+                window.scrollTo(0, 0);
+                history.replaceState(null, null, window.location.pathname + window.location.search);
+            }, false);
+        })();
+        
         // Simple client-side filtering for Board Issuances (using jQuery, no reload)
         $(document).ready(function() {
+            // Ensure page stays at top after filters are applied
+            window.scrollTo(0, 0);
             let filterTimeout = null;
 
             function applyIssuanceFilters() {
@@ -339,7 +400,37 @@
                     $resolutionsSection.show();
                 }
             }
+            
+            // Populate filters from URL parameters
+            function populateFiltersFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const type = urlParams.get('type');
+                const year = urlParams.get('year');
+                let keyword = urlParams.get('keyword');
+                
+                if (type) {
+                    $('#filterType').val(type);
+                }
+                
+                if (year) {
+                    $('#filterYear').val(year);
+                }
+                
+                if (keyword) {
+                    // Properly decode URL-encoded keyword (handle both + and %20 for spaces)
+                    keyword = decodeURIComponent(keyword.replace(/\+/g, ' '));
+                    $('#filterKeyword').val(keyword);
+                }
+                
+                // Apply filters after populating
+                if (type || year || keyword) {
+                    applyIssuanceFilters();
+                }
+            }
 
+            // Populate filters from URL parameters on page load
+            populateFiltersFromURL();
+            
             $('#filterType').on('change', function() {
                 applyIssuanceFilters();
             });

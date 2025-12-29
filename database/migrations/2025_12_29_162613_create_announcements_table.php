@@ -31,8 +31,8 @@ return new class extends Migration
                 }
             });
         } else {
-            Schema::create('announcements', function (Blueprint $table) {
-                $table->id();
+        Schema::create('announcements', function (Blueprint $table) {
+            $table->id();
                 $table->string('title');
                 $table->text('description'); // Rich text content
                 $table->unsignedBigInteger('banner_image_id')->nullable();
@@ -42,12 +42,12 @@ return new class extends Migration
                 $table->enum('status', ['draft', 'published'])->default('published');
                 $table->dateTime('scheduled_at')->nullable(); // For scheduled announcements
                 $table->softDeletes();
-                $table->timestamps();
+            $table->timestamps();
                 
                 $table->index('created_by');
                 $table->index('status');
                 $table->index('scheduled_at');
-            });
+        });
         }
     }
 
@@ -58,7 +58,7 @@ return new class extends Migration
     {
         // Only drop if we created it (not if it existed before)
         if (Schema::hasTable('announcements') && !Schema::hasColumn('announcements', 'publish_date')) {
-            Schema::dropIfExists('announcements');
+        Schema::dropIfExists('announcements');
         } else {
             // Remove added columns
             Schema::table('announcements', function (Blueprint $table) {

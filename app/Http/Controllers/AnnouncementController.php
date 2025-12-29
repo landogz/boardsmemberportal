@@ -19,13 +19,13 @@ class AnnouncementController extends Controller
         // Base query
         if ($user->hasRole('admin')) {
             $query = Announcement::published()
-                ->with(['creator', 'bannerImage']);
+                ->with(['creator.profilePictureMedia', 'bannerImage']);
         } else {
             $query = Announcement::published()
                 ->whereHas('allowedUsers', function($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })
-                ->with(['creator', 'bannerImage']);
+                ->with(['creator.profilePictureMedia', 'bannerImage']);
         }
         
         // Apply search filter
@@ -130,7 +130,7 @@ class AnnouncementController extends Controller
 
         $user = Auth::user();
         
-        $announcement = Announcement::with(['creator', 'bannerImage'])
+        $announcement = Announcement::with(['creator.profilePictureMedia', 'bannerImage'])
             ->findOrFail($id);
 
         // Check if user has access or is admin
@@ -148,13 +148,19 @@ class AnnouncementController extends Controller
             $bannerUrl = asset('storage/' . $announcement->bannerImage->file_path);
         }
 
+        // Get author profile picture URL
+        $authorProfileUrl = null;
+        if ($announcement->creator->profilePictureMedia) {
+            $authorProfileUrl = asset('storage/' . $announcement->creator->profilePictureMedia->file_path);
+        }
+
         $formatted = [
             'id' => $announcement->id,
             'title' => $announcement->title,
             'description' => $announcement->description,
             'banner_url' => $bannerUrl,
             'author' => $announcement->creator->first_name . ' ' . $announcement->creator->last_name,
-            'author_profile' => null, // Can be added if needed
+            'author_profile_url' => $authorProfileUrl,
             'created_at' => $announcement->created_at->format('F d, Y'),
             'created_at_human' => $announcement->created_at->diffForHumans(),
         ];

@@ -29,8 +29,10 @@
                     <!-- Author Info -->
                     <div class="px-6 pt-6 pb-4 border-b border-gray-200">
                         <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0" id="modalAuthorAvatar" style="font-size: 16px;">
-                                <!-- Initials or avatar -->
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0 overflow-hidden" id="modalAuthorAvatar" style="font-size: 16px;">
+                                <!-- Profile picture or initials will be inserted here -->
+                                <img id="modalAuthorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden">
+                                <span id="modalAuthorAvatarInitials"></span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold text-gray-900 text-lg mb-1" id="modalAuthorName"></div>
@@ -216,7 +218,23 @@
                     // Set author info
                     const authorName = announcement.author;
                     const authorInitials = authorName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                    document.getElementById('modalAuthorAvatar').textContent = authorInitials;
+                    const authorAvatar = document.getElementById('modalAuthorAvatar');
+                    const authorAvatarImg = document.getElementById('modalAuthorAvatarImg');
+                    const authorAvatarInitials = document.getElementById('modalAuthorAvatarInitials');
+                    
+                    // Display profile picture if available, otherwise show initials
+                    if (announcement.author_profile_url) {
+                        authorAvatarImg.src = announcement.author_profile_url;
+                        authorAvatarImg.alt = authorName;
+                        authorAvatarImg.classList.remove('hidden');
+                        authorAvatarInitials.textContent = '';
+                        authorAvatarInitials.classList.add('hidden');
+                    } else {
+                        authorAvatarImg.classList.add('hidden');
+                        authorAvatarInitials.textContent = authorInitials;
+                        authorAvatarInitials.classList.remove('hidden');
+                    }
+                    
                     document.getElementById('modalAuthorName').textContent = authorName;
                     document.getElementById('modalDateText').textContent = announcement.created_at;
 
