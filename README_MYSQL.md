@@ -1,3 +1,9 @@
+php artisan serve --port=8000
+ngrok http 8000
+
+
+
+
 # MySQL Setup Complete! ✅
 
 Your Laravel application is now configured to use MySQL instead of SQLite.

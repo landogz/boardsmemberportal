@@ -9,7 +9,7 @@
     <!-- Smileys & People -->
     <div class="emoji-category active" data-category="smileys">
         <div class="text-xs text-gray-500 mb-2 font-semibold">Smileys &amp; People</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $smileys = [
                     '😀','😃','😄','😁','😆','😅','😂','🤣',
@@ -33,7 +33,7 @@
     <!-- Gestures -->
     <div class="emoji-category hidden" data-category="gestures">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Gestures &amp; Body</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $gestures = [
                     '👋','🤚','🖐️','✋','🖖','👌','🤌','🤏',
@@ -54,7 +54,7 @@
     <!-- Animals & Nature -->
     <div class="emoji-category hidden" data-category="animals">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Animals &amp; Nature</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $animals = [
                     '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼',
@@ -87,7 +87,7 @@
     <!-- Food & Drink -->
     <div class="emoji-category hidden" data-category="food">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Food &amp; Drink</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $food = [
                     '🍕','🍔','🍟','🌭','🍿','🧂','🥓','🥚',
@@ -117,7 +117,7 @@
     <!-- Activities -->
     <div class="emoji-category hidden" data-category="activities">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Activities</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $activities = [
                     '⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉',
@@ -142,7 +142,7 @@
     <!-- Travel & Places -->
     <div class="emoji-category hidden" data-category="travel">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Travel &amp; Places</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $travel = [
                     '🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑',
@@ -177,7 +177,7 @@
     <!-- Objects -->
     <div class="emoji-category hidden" data-category="objects">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Objects</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $objects = [
                     '💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵',
@@ -213,7 +213,7 @@
     <!-- Symbols -->
     <div class="emoji-category hidden" data-category="symbols">
         <div class="text-xs text-gray-400 dark:text-gray-500 mb-2 font-semibold">Symbols</div>
-        <div class="grid grid-cols-8 gap-1">
+        <div class="flex flex-wrap gap-1">
             @php
                 $symbols = [
                     '❤️','🧡','💛','💚','💙','💜','🖤','🤍',

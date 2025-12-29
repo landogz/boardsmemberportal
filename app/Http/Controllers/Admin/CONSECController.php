@@ -19,7 +19,7 @@ class CONSECController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('view consec accounts')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view CONSEC accounts.');
         }
 
@@ -37,7 +37,7 @@ class CONSECController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('create consec accounts')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to create CONSEC accounts.');
         }
 
@@ -49,10 +49,10 @@ class CONSECController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('create consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to create CONSEC accounts.'
             ], 403);
         }
 
@@ -157,7 +157,7 @@ class CONSECController extends Controller
      */
     public function edit($id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('edit consec accounts')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to edit CONSEC accounts.');
         }
 
@@ -170,10 +170,10 @@ class CONSECController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('edit consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to edit CONSEC accounts.'
             ], 403);
         }
 
@@ -260,10 +260,10 @@ class CONSECController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('delete consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to delete CONSEC accounts.'
             ], 403);
         }
 
@@ -292,10 +292,10 @@ class CONSECController extends Controller
      */
     public function toggleStatus($id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('edit consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to edit CONSEC accounts.'
             ], 403);
         }
 
@@ -332,10 +332,10 @@ class CONSECController extends Controller
      */
     public function getPermissions($id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('edit consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to edit CONSEC accounts.'
             ], 403);
         }
 
@@ -416,10 +416,10 @@ class CONSECController extends Controller
      */
     public function updatePermissions(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission('manage consec accounts')) {
+        if (!Auth::user()->hasPermission('edit consec accounts')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage CONSEC accounts.'
+                'message' => 'You do not have permission to edit CONSEC accounts.'
             ], 403);
         }
 

@@ -315,7 +315,7 @@
                                     </a>
                                 </div>
                                 <div class="border-t border-gray-200">
-                                    <a href="{{ route('notifications') }}" class="block px-4 py-3 text-center text-sm font-semibold text-purple-600 hover:bg-gray-50">
+                                    <a href="{{ route('notifications.index') }}" class="block px-4 py-3 text-center text-sm font-semibold text-purple-600 hover:bg-gray-50">
                                         See All Notifications
                                     </a>
                                 </div>

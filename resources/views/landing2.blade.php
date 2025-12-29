@@ -940,7 +940,7 @@
     </div>
 
     <!-- Go to Top Floating Button -->
-    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top">
+    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" style="display: none !important;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
         </svg>

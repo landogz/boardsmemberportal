@@ -35,8 +35,8 @@ class BoardResolutionController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->hasPermission('view board resolutions')) {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view board resolutions.');
+        if (!Auth::user()->hasPermission('create board resolutions')) {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to create board resolutions.');
         }
 
         return view('admin.board-resolutions.create');
@@ -118,8 +118,8 @@ class BoardResolutionController extends Controller
      */
     public function edit($id)
     {
-        if (!Auth::user()->hasPermission('view board resolutions')) {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view board resolutions.');
+        if (!Auth::user()->hasPermission('edit board resolutions')) {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to edit board resolutions.');
         }
 
         $document = OfficialDocument::with(['pdf', 'uploader'])->findOrFail($id);

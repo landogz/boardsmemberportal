@@ -33,6 +33,63 @@
     
     @stack('styles')
     @include('admin.partials.styles')
+    <script>
+        // Force light mode for admin panel - run immediately and continuously
+        (function() {
+            // Function to enforce light mode
+            function enforceLightMode() {
+                // Remove dark class if present
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                }
+                // Ensure light mode is set in localStorage
+                localStorage.setItem('theme', 'light');
+            }
+            
+            // Run immediately (before DOM is ready)
+            enforceLightMode();
+            
+            // Use MutationObserver to watch for any attempts to add dark class
+            if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (document.documentElement.classList.contains('dark')) {
+                                enforceLightMode();
+                            }
+                        }
+                    });
+                });
+                
+                // Start observing when DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        observer.observe(document.documentElement, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+                        enforceLightMode();
+                    });
+                } else {
+                    observer.observe(document.documentElement, {
+                        attributes: true,
+                        attributeFilter: ['class']
+                    });
+                    enforceLightMode();
+                }
+            }
+            
+            // Also enforce on DOMContentLoaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', enforceLightMode);
+            } else {
+                enforceLightMode();
+            }
+            
+            // Enforce periodically to catch any late changes (every 500ms is sufficient)
+            setInterval(enforceLightMode, 500);
+        })();
+    </script>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
@@ -58,11 +115,16 @@
     <!-- Overlay for mobile sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
     
-    <!-- Messages Popup Container - Available on all admin pages -->
+    <!-- Messages Popup Container - Available on all admin pages except messages page -->
+    @if(request()->route()->getName() !== 'admin.messages')
     @include('components.messages-popup')
+    @endif
     
     <!-- Global PDF Modal - Available on all admin pages -->
     @include('components.pdf-modal')
+    
+    <!-- Announcement Modal - Available on all admin pages -->
+    @include('components.announcement-modal')
     
     @include('admin.partials.scripts')
     @stack('scripts')

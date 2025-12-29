@@ -4,6 +4,14 @@
 
 @php
     $pageTitle = 'Edit Board Member Account';
+    $headerActions = [];
+    $headerActions[] = [
+        'url' => route('admin.board-members.index'),
+        'text' => 'Back to Board Members',
+        'icon' => 'fas fa-arrow-left',
+        'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
+    ];
+    $hideDefaultActions = false;
     // Determine if post_nominal_title is in the standard list or custom
     $standardPostNominals = ['Sr.', 'Jr.', 'I', 'II', 'III'];
     $postNominalValue = $user->post_nominal_title ?? '';

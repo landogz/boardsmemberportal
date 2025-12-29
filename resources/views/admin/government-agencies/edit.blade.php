@@ -5,6 +5,12 @@
 @php
     $pageTitle = 'Edit Government Agency';
     $headerActions = [];
+    $headerActions[] = [
+        'url' => route('admin.government-agencies.index'),
+        'text' => 'Back to Government Agencies',
+        'icon' => 'fas fa-arrow-left',
+        'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
+    ];
     $hideDefaultActions = false;
 @endphp
 

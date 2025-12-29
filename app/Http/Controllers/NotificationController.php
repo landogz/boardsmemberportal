@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Events\NotificationUnreadCountUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -61,6 +62,36 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
+        // Broadcast unread count update
+        $count = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+        broadcast(new NotificationUnreadCountUpdated(Auth::id(), $count));
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Mark notification as unread
+     */
+    public function markAsUnread($id)
+    {
+        $notification = Notification::where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        $notification->update([
+            'is_read' => false,
+            'read_at' => null,
+        ]);
+
+        // Broadcast unread count update
+        $count = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+        broadcast(new NotificationUnreadCountUpdated(Auth::id(), $count));
+
         return response()->json([
             'success' => true,
         ]);
@@ -78,18 +109,20 @@ class NotificationController extends Controller
                 'read_at' => now(),
             ]);
 
+        // Broadcast unread count update (should be 0)
+        broadcast(new NotificationUnreadCountUpdated(Auth::id(), 0));
+
         return response()->json([
             'success' => true,
         ]);
     }
 
     /**
-     * Display all notifications for admin panel
+     * Display all notifications for public users
      */
     public function index(Request $request)
     {
         $filter = $request->get('filter', 'all'); // all, unread, read
-        $type = $request->get('type', 'all'); // all, pending_registration, announcement, etc.
 
         $query = Notification::where('user_id', Auth::id());
 
@@ -100,13 +133,55 @@ class NotificationController extends Controller
             $query->where('is_read', true);
         }
 
-        if ($type !== 'all') {
-            $query->where('type', $type);
+        $notifications = $query->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('notifications', compact('notifications', 'filter'));
+    }
+
+    /**
+     * Delete notification
+     */
+    public function destroy($id)
+    {
+        $notification = Notification::where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        $wasUnread = !$notification->is_read;
+        $notification->delete();
+
+        // Broadcast unread count update if deleted notification was unread
+        if ($wasUnread) {
+            $count = Notification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->count();
+            broadcast(new NotificationUnreadCountUpdated(Auth::id(), $count));
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Display all notifications for admin panel
+     */
+    public function adminIndex(Request $request)
+    {
+        $filter = $request->get('filter', 'all'); // all, unread, read
+
+        $query = Notification::where('user_id', Auth::id());
+
+        // Apply filters
+        if ($filter === 'unread') {
+            $query->where('is_read', false);
+        } elseif ($filter === 'read') {
+            $query->where('is_read', true);
         }
 
         $notifications = $query->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('admin.notifications.index', compact('notifications', 'filter', 'type'));
+        return view('admin.notifications.index', compact('notifications', 'filter'));
     }
 }

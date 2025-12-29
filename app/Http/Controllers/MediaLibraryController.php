@@ -461,5 +461,36 @@ class MediaLibraryController extends Controller
         
         return round($bytes, $precision) . ' ' . $units[$i];
     }
+
+    /**
+     * Browse media library for CKEditor file browser
+     */
+    public function browse(Request $request)
+    {
+        if (!Auth::user()->hasPermission('view media library')) {
+            abort(403, 'You do not have permission to view media library.');
+        }
+
+        $query = MediaLibrary::with('uploader')->orderBy('created_at', 'desc');
+
+        // Filter by type if specified (for Images)
+        if ($request->has('type') && $request->type === 'Images') {
+            $query->whereIn('file_type', ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml', 'image/webp']);
+        }
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $query->where('file_name', 'like', '%' . $request->search . '%');
+        }
+
+        $mediaFiles = $query->paginate(24);
+
+        // Get CKEditor parameters
+        $CKEditor = $request->get('CKEditor');
+        $CKEditorFuncNum = $request->get('CKEditorFuncNum');
+        $langCode = $request->get('langCode', 'en');
+
+        return view('admin.media-library.browse', compact('mediaFiles', 'CKEditor', 'CKEditorFuncNum', 'langCode'));
+    }
 }
 

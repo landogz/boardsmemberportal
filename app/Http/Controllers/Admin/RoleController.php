@@ -34,8 +34,10 @@ class RoleController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Get all permissions and group them by category
-        $allPermissions = Permission::orderBy('name')->get();
+        // Get all permissions and group them by category (excluding "manage" permissions)
+        $allPermissions = Permission::orderBy('name')->get()->filter(function($permission) {
+            return !str_contains(strtolower($permission->name), 'manage ');
+        });
         $groupedPermissions = $this->groupPermissionsByCategory($allPermissions);
 
         return view('admin.roles.index', compact('roles', 'groupedPermissions', 'allPermissions'));
@@ -168,7 +170,9 @@ class RoleController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view roles.');
         }
 
-        $permissions = Permission::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get()->filter(function($permission) {
+            return !str_contains(strtolower($permission->name), 'manage ');
+        });
         $groupedPermissions = $this->groupPermissionsByCategory($permissions);
         return view('admin.roles.create', compact('permissions', 'groupedPermissions'));
     }
@@ -231,7 +235,9 @@ class RoleController extends Controller
             return redirect()->route('admin.roles.index')->with('error', 'The admin role cannot be edited.');
         }
 
-        $permissions = Permission::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get()->filter(function($permission) {
+            return !str_contains(strtolower($permission->name), 'manage ');
+        });
         $groupedPermissions = $this->groupPermissionsByCategory($permissions);
         return view('admin.roles.edit', compact('role', 'permissions', 'groupedPermissions'));
     }

@@ -99,11 +99,16 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
             !$user->hasPermission('view audit logs') && 
             !$user->hasPermission('view roles') && 
             !$user->hasPermission('view permissions') && 
-            !$user->hasPermission('manage consec accounts')) {
+            !$user->hasPermission('view consec accounts')) {
             return redirect()->route('dashboard');
         }
         return view('admin.dashboard');
     })->name('admin.dashboard');
+    
+    // Admin Messages Route
+    Route::get('/admin/messages', function () {
+        return view('admin.messages');
+    })->name('admin.messages');
 
     // Government Agency Routes
     Route::prefix('admin/government-agencies')->name('admin.government-agencies.')->group(function () {
@@ -124,6 +129,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     // Media Library Routes
     Route::prefix('admin/media-library')->name('admin.media-library.')->group(function () {
         Route::get('/', [\App\Http\Controllers\MediaLibraryController::class, 'index'])->name('index');
+        Route::get('/browse', [\App\Http\Controllers\MediaLibraryController::class, 'browse'])->name('browse');
         Route::post('/upload', [\App\Http\Controllers\MediaLibraryController::class, 'store'])->name('store');
         Route::get('/{id}/download', [\App\Http\Controllers\MediaLibraryController::class, 'download'])->name('download');
         Route::get('/{id}', [\App\Http\Controllers\MediaLibraryController::class, 'show'])->name('show');
@@ -196,12 +202,14 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
         Route::get('/recent', [\App\Http\Controllers\NotificationController::class, 'getRecent'])->name('recent');
         Route::post('/{id}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/{id}/mark-as-unread', [\App\Http\Controllers\NotificationController::class, 'markAsUnread'])->name('mark-as-unread');
         Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+        Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     });
 
     // Admin Notifications
     Route::prefix('admin/notifications')->name('admin.notifications.')->middleware('auth')->group(function () {
-        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'adminIndex'])->name('index');
     });
 
     // Board Resolutions (admin)
@@ -226,6 +234,50 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'destroy'])->name('destroy');
     });
 
+    // Referendums (admin)
+    Route::prefix('admin/referendums')->name('admin.referendums.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ReferendumController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\ReferendumController::class, 'create'])->name('create');
+        Route::post('/store', [\App\Http\Controllers\Admin\ReferendumController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\ReferendumController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\ReferendumController::class, 'edit'])->name('edit');
+        Route::post('/{id}/update', [\App\Http\Controllers\Admin\ReferendumController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\ReferendumController::class, 'destroy'])->name('destroy');
+    });
+
+    // Announcements (admin)
+    Route::prefix('admin/announcements')->name('admin.announcements.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('create');
+        Route::post('/store', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('destroy');
+    });
+
+    // Announcements (authenticated users)
+    Route::prefix('announcements')->name('announcements.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\AnnouncementController::class, 'show'])->name('show');
+        Route::get('/api/landing', [\App\Http\Controllers\AnnouncementController::class, 'getForLanding'])->name('api.landing');
+        Route::get('/api/{id}/modal', [\App\Http\Controllers\AnnouncementController::class, 'getForModal'])->name('api.modal');
+    });
+
+    // Referendum Voting and Comments (authenticated users)
+    Route::prefix('referendums')->name('referendums.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReferendumController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\ReferendumController::class, 'show'])->name('show');
+        Route::get('/{id}/comments', [\App\Http\Controllers\ReferendumController::class, 'getComments'])->name('comments.get');
+        Route::get('/{id}/comments/new', [\App\Http\Controllers\ReferendumController::class, 'getNewComments'])->name('comments.new');
+        
+        Route::post('/{id}/vote', [\App\Http\Controllers\ReferendumVoteController::class, 'store'])->name('vote');
+        Route::get('/{id}/vote/statistics', [\App\Http\Controllers\ReferendumVoteController::class, 'statistics'])->name('vote.statistics');
+        Route::post('/{id}/comments', [\App\Http\Controllers\ReferendumCommentController::class, 'store'])->name('comments.store');
+        Route::post('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'update'])->name('comments.update');
+        Route::delete('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'destroy'])->name('comments.destroy');
+    });
+
     // Profile Routes
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/view/{id}', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
@@ -242,15 +294,50 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     // Board Issuances (only for authenticated users)
     Route::get('/board-issuances', [\App\Http\Controllers\BoardIssuanceController::class, 'index'])->name('board-issuances');
 
-    // Notifications Route
-    Route::get('/notifications', function () {
-        return view('notifications');
-    })->name('notifications');
+    // Notifications Route - handled by controller above
 
-    // Messages Route
+    // Messages Routes
     Route::get('/messages', function () {
         return view('messages');
     })->name('messages');
+    
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::post('/{id}/react', [\App\Http\Controllers\MessageController::class, 'react'])->name('react');
+        Route::get('/{id}/reactions', [\App\Http\Controllers\MessageController::class, 'getReactions'])->name('reactions');
+        Route::post('/reactions/batch', [\App\Http\Controllers\MessageController::class, 'getBatchReactions'])->name('reactions.batch');
+        Route::post('/{id}/reply', [\App\Http\Controllers\MessageController::class, 'reply'])->name('reply');
+        Route::delete('/{id}', [\App\Http\Controllers\MessageController::class, 'delete'])->name('delete');
+        
+        // Group chat routes
+        Route::prefix('groups')->name('groups.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\GroupChatController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\GroupChatController::class, 'create'])->name('create');
+            Route::get('/themes', [\App\Http\Controllers\GroupChatController::class, 'getThemes'])->name('themes');
+            Route::get('/{groupId}', [\App\Http\Controllers\GroupChatController::class, 'show'])->name('show');
+            Route::put('/{groupId}', [\App\Http\Controllers\GroupChatController::class, 'update'])->name('update');
+            Route::delete('/{groupId}', [\App\Http\Controllers\GroupChatController::class, 'destroy'])->name('destroy');
+            Route::post('/{groupId}/members', [\App\Http\Controllers\GroupChatController::class, 'addMembers'])->name('members.add');
+            Route::delete('/{groupId}/members', [\App\Http\Controllers\GroupChatController::class, 'removeMembers'])->name('members.remove');
+            Route::post('/{groupId}/admins', [\App\Http\Controllers\GroupChatController::class, 'assignAdmin'])->name('admins.assign');
+            Route::delete('/{groupId}/admins', [\App\Http\Controllers\GroupChatController::class, 'revokeAdmin'])->name('admins.revoke');
+            Route::post('/{groupId}/theme', [\App\Http\Controllers\GroupChatController::class, 'applyTheme'])->name('theme.apply');
+            Route::post('/{groupId}/leave', [\App\Http\Controllers\GroupChatController::class, 'leave'])->name('leave');
+        });
+        Route::get('/users', [\App\Http\Controllers\MessageController::class, 'getUsers'])->name('users');
+        Route::post('/send', [\App\Http\Controllers\MessageController::class, 'sendMessage'])->name('send');
+        Route::get('/conversation/{userId}', [\App\Http\Controllers\MessageController::class, 'getConversation'])->name('conversation');
+        Route::post('/decrypt', [\App\Http\Controllers\MessageController::class, 'decryptConversation'])->name('decrypt');
+        Route::get('/conversations', [\App\Http\Controllers\MessageController::class, 'getConversations'])->name('conversations');
+        Route::get('/recent', [\App\Http\Controllers\MessageController::class, 'getConversations'])->name('recent'); // Alias for dropdown
+        Route::get('/new/{userId}', [\App\Http\Controllers\MessageController::class, 'getNewMessages'])->name('new');
+        Route::post('/{userId}/mark-as-read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('mark-as-read');
+        Route::get('/unread-count', [\App\Http\Controllers\MessageController::class, 'getUnreadCount'])->name('unread-count');
+        
+        // Single chat theme routes
+        Route::get('/themes', [\App\Http\Controllers\MessageController::class, 'getThemes'])->name('themes');
+        Route::get('/conversation/{otherUserId}/theme', [\App\Http\Controllers\MessageController::class, 'getConversationTheme'])->name('conversation.theme');
+        Route::post('/conversation/{otherUserId}/theme', [\App\Http\Controllers\MessageController::class, 'applyConversationTheme'])->name('conversation.theme.apply');
+    });
 });
 
 Route::post('/api/test', function () {

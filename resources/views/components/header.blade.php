@@ -37,6 +37,7 @@
                 @auth
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
                 <a href="{{ route('board-issuances') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
+                <a href="{{ route('referendums.index') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
                 @endauth
                 @guest
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
@@ -48,181 +49,50 @@
                 </button>
                 @auth
                     <!-- Notifications Dropdown -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
-                            <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
-                            <span class="absolute top-1 right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800" style="background-color: #CE2028;"></span>
+                    <div class="relative dropdown" id="notificationsDropdown">
+                        <button class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center dropdown-toggle" data-toggle="dropdown" id="notificationsBtn" aria-label="Notifications">
+                            <i class="far fa-bell text-xl text-gray-700 dark:text-gray-300"></i>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full border-2 border-white dark:border-gray-800 text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028;"></span>
                         </button>
-                        <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden flex flex-col">
-                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                        <div class="dropdown-menu absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 flex flex-col" id="notificationsMenu" style="max-height: 400px; overflow-y: auto; overflow-x: visible;">
+                            <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between flex-shrink-0">
+                                <h6 class="text-sm font-semibold text-gray-800 dark:text-white">Notifications</h6>
+                                <button id="markAllReadBtn" class="text-xs text-[#055498] hover:underline hidden">Mark all as read</button>
                             </div>
-                            <div class="overflow-y-auto flex-1">
-                                <!-- Sample Notifications -->
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: rgba(5, 84, 152, 0.1);">
-                                            <svg class="w-5 h-5" style="color: #055498;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-white">New Announcement</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Quarterly Board Meeting Scheduled</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">2 hours ago</p>
-                                        </div>
+                            <div class="py-1 overflow-y-auto overflow-x-visible custom-scrollbar flex-1" id="notificationsList" style="overflow-x: visible !important;">
+                                <div class="px-4 py-8 text-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
                                     </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: rgba(5, 84, 152, 0.1);">
-                                            <svg class="w-5 h-5" style="color: #055498;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-white">Meeting Notice</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Q1 2024 Board Meeting - Please confirm attendance</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">1 day ago</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: rgba(5, 84, 152, 0.1);">
-                                            <svg class="w-5 h-5" style="color: #055498;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-white">Upcoming Event</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Committee Review scheduled for January 22</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">2 days ago</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: rgba(5, 84, 152, 0.1);">
-                                            <svg class="w-5 h-5" style="color: #055498;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-white">New Resolution</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Resolution #2024-001 has been published</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">3 days ago</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition" onclick="event.preventDefault(); window.openMessagesPopup && window.openMessagesPopup();">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: rgba(251, 209, 22, 0.1);">
-                                            <svg class="w-5 h-5" style="color: #FBD116;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-white">New Message</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">You have a new message from John Doe</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">5 days ago</p>
-                                        </div>
-                                    </div>
-                                </a>
                             </div>
-                            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                                <a href="{{ route('notifications') }}" class="block text-center text-sm font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
+                            <div class="border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                                <a href="{{ route('notifications.index') }}" class="block px-4 py-3 text-center text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition" style="color: #055498;">
                                     See All Notifications
                                 </a>
                             </div>
                         </div>
                     </div>
                     <!-- Messages Dropdown -->
-                    <div class="relative" x-data="{ open: false }">
+                    <div class="relative" x-data="{ open: false }" x-init="$watch('open', value => handleMessagesDropdownToggle(value, $el))">
                         <button @click="open = !open" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Messages">
                             <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                             </svg>
-                            <span class="absolute top-1 right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800" style="background-color: #055498;"></span>
+                            <span id="messagesBadgeCount" class="absolute -top-1 -right-1 h-[18px] min-w-[18px] px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028; border: 2px solid white; z-index: 10;">0</span>
                         </button>
                         <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden flex flex-col">
-                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Messages</h3>
+                                <button id="userHeaderNewMessageBtn" class="p-1.5 text-[#055498] dark:text-blue-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors" title="New Message">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
                             </div>
-                            <div class="overflow-y-auto flex-1">
-                                <!-- Sample Messages -->
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700" onclick="event.preventDefault(); if(window.openMessagesPopup) window.openMessagesPopup('jd', 'John Doe', 'JD');">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                            JD
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-white">John Doe</p>
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">2m</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Can we discuss the agenda for next week?</p>
-                                        </div>
+                            <div class="overflow-y-auto flex-1" id="messagesDropdownList">
+                                <!-- Messages will be loaded here -->
+                                <div class="px-4 py-8 text-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Loading messages...</p>
                                     </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700" onclick="event.preventDefault(); if(window.openMessagesPopup) window.openMessagesPopup('js', 'Jane Smith', 'JS');">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                            JS
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Jane Smith</p>
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">1h</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Thanks for the update on the resolution</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700" onclick="event.preventDefault(); if(window.openMessagesPopup) window.openMessagesPopup('mj', 'Michael Johnson', 'MJ');">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                            MJ
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Michael Johnson</p>
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">3h</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">I have a question about the meeting schedule</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700" onclick="event.preventDefault(); if(window.openMessagesPopup) window.openMessagesPopup('sw', 'Sarah Williams', 'SW');">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                            SW
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Sarah Williams</p>
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">5h</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Please review the document I shared</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition" onclick="event.preventDefault(); if(window.openMessagesPopup) window.openMessagesPopup('ab', 'Admin Board', 'AB');">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #FBD116 0%, #FBD116 100%); color: #123a60;">
-                                            AB
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Admin Board</p>
-                                                <span class="text-xs text-gray-400 dark:text-gray-500">1d</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">System maintenance scheduled for this weekend</p>
-                                        </div>
-                                    </div>
-                                </a>
                             </div>
                             <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                                 <a href="{{ route('messages') }}" class="block text-center text-sm font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
@@ -265,6 +135,20 @@
                 @endauth
             </div>
             <div class="flex items-center space-x-2 lg:hidden flex-shrink-0">
+                @auth
+                    <!-- Notifications Icon (Mobile) -->
+                    <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
+                        <i class="far fa-bell text-xl text-gray-700 dark:text-gray-300"></i>
+                        <span id="notificationBadgeMobile" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full border-2 border-white dark:border-gray-800 text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028;"></span>
+                    </a>
+                    <!-- Messages Icon (Mobile) -->
+                    <a href="{{ route('messages') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Messages">
+                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        <span id="messagesBadgeCountMobile" class="absolute -top-1 -right-1 h-[18px] min-w-[18px] px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028; border: 2px solid white; z-index: 10;">0</span>
+                    </a>
+                @endauth
                 <button id="themeToggleMobile" type="button" class="hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
                     <span id="themeIconMobile" class="text-xl">🌙</span>
                 </button>
@@ -286,28 +170,13 @@
             @auth
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
             <a href="{{ route('board-issuances') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
+            <a href="{{ route('referendums.index') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
             @endauth
             @guest
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#contact' : '#contact' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a>
             @endguest
             @auth
-                <a href="{{ route('notifications') }}" class="block px-4 py-3 rounded-full text-center min-h-[44px] flex items-center justify-center" style="border: 1px solid #055498; color: #055498;">
-                    <span class="flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <span>Notifications</span>
-                    </span>
-                </a>
-                <a href="{{ route('messages') }}" class="block px-4 py-3 rounded-full text-center min-h-[44px] flex items-center justify-center" style="border: 1px solid #055498; color: #055498;">
-                    <span class="flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span>Messages</span>
-                    </span>
-                </a>
                 <a href="{{ route('profile.edit') }}" class="block px-4 py-3 rounded-full text-center min-h-[44px] flex items-center justify-center" style="border: 1px solid #055498; color: #055498;">Edit Profile</a>
                 <form id="logoutFormMobile" class="inline w-full">
                     <button type="submit" class="w-full block px-4 py-3 rounded-full text-white text-center min-h-[44px] flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Logout</button>
@@ -361,7 +230,9 @@
 </script>
 
 @auth
+@if(request()->route()->getName() !== 'messages')
 @include('components.messages-popup')
+@endif
 
 <script>
     // Handle logout for both desktop and mobile
@@ -408,6 +279,560 @@
         });
     }
 
+    // ========== MESSAGES DROPDOWN SYSTEM ==========
+    function loadMessagesDropdown() {
+        const messagesList = document.getElementById('messagesDropdownList');
+        if (!messagesList) return;
+
+        // Check if already loaded (avoid multiple loads)
+        if (messagesList.dataset.loaded === 'true') return;
+
+        fetch('{{ route("messages.recent") }}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.conversations) {
+                renderMessagesDropdown(data.conversations);
+                messagesList.dataset.loaded = 'true';
+            } else {
+                messagesList.innerHTML = `
+                    <div class="px-4 py-8 text-center">
+                        <i class="fas fa-comment-slash text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No messages yet</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading messages:', error);
+            messagesList.innerHTML = `
+                <div class="px-4 py-8 text-center">
+                    <p class="text-sm text-red-500 dark:text-red-400">Error loading messages</p>
+                </div>
+            `;
+        });
+    }
+
+    function renderMessagesDropdown(conversations) {
+        const messagesList = document.getElementById('messagesDropdownList');
+        if (!messagesList) return;
+
+        if (conversations.length === 0) {
+            messagesList.innerHTML = `
+                <div class="px-4 py-8 text-center">
+                    <i class="fas fa-comment-slash text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No messages yet</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        let totalUnread = 0;
+        conversations.forEach(conv => {
+            const initials = conv.user_initials || 'U';
+            const userName = conv.user_name || 'User';
+            const lastMessage = conv.last_message || '';
+            const timeAgo = getTimeAgo(conv.last_message_time);
+            const unreadCount = conv.unread_count || 0;
+            totalUnread += unreadCount;
+            
+            // Get avatar HTML with badge
+            let avatarHtml = '';
+            if (conv.profile_picture_url) {
+                avatarHtml = `<div class="relative flex-shrink-0">
+                    <img src="${conv.profile_picture_url}" alt="${userName}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700">
+                    ${unreadCount > 0 ? `<span class="absolute top-0 left-0 h-5 min-w-[20px] px-1.5 rounded-full text-white text-[10px] font-bold flex items-center justify-center" style="background-color: #CE2028;">${unreadCount > 99 ? '99+' : unreadCount}</span>` : ''}
+                </div>`;
+            } else {
+                avatarHtml = `<div class="relative flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">${initials}</div>
+                    ${unreadCount > 0 ? `<span class="absolute top-0 left-0 h-5 min-w-[20px] px-1.5 rounded-full text-white text-[10px] font-bold flex items-center justify-center" style="background-color: #CE2028;">${unreadCount > 99 ? '99+' : unreadCount}</span>` : ''}
+                </div>`;
+            }
+
+            // Store conversation data in data attributes
+            const convDataJson = JSON.stringify({
+                user_id: conv.user_id,
+                profile_picture_url: conv.profile_picture_url || null,
+                user_initials: initials,
+                is_online: conv.is_online || false
+            });
+            
+            html += `
+                <a href="#" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700 relative" 
+                   data-user-id="${conv.user_id}" 
+                   data-user-name="${userName.replace(/"/g, '&quot;')}" 
+                   data-conv-data='${convDataJson.replace(/'/g, "&#39;")}'
+                   onclick="event.preventDefault(); 
+                    // Check if we're on messages page
+                    if (window.location.pathname === '/messages' || window.location.pathname === '/admin/messages') {
+                        // If on messages page, open chat and select conversation
+                        if (typeof window.openChat === 'function') {
+                            // Get conversation data from data attribute
+                            const convDataAttr = this.getAttribute('data-conv-data');
+                            const convData = convDataAttr ? JSON.parse(convDataAttr) : {user_id: this.getAttribute('data-user-id')};
+                            const userName = this.getAttribute('data-user-name');
+                            const userId = this.getAttribute('data-user-id');
+                            window.openChat(userId, userName, convData);
+                        } else {
+                            // Fallback: navigate to messages page
+                            window.location.href = window.location.pathname.includes('/admin') ? '/admin/messages' : '/messages';
+                        }
+                    } else {
+                        // If not on messages page, open popup
+                        if(window.openMessagesPopup) {
+                            const userId = this.getAttribute('data-user-id');
+                            const userName = this.getAttribute('data-user-name');
+                            const convDataAttr = this.getAttribute('data-conv-data');
+                            const convData = convDataAttr ? JSON.parse(convDataAttr) : {};
+                            window.openMessagesPopup(userId, userName, convData.user_initials || 'U');
+                        }
+                    }
+                    const dropdown = document.querySelector('[x-data*=\\'open\\']'); 
+                    if(dropdown && dropdown.__x) dropdown.__x.$data.open = false; 
+                    return false;">
+                    <div class="flex items-start space-x-3">
+                        ${avatarHtml}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1 gap-2">
+                                <p class="text-sm font-semibold text-gray-800 dark:text-white truncate flex-1 min-w-0">${userName}</p>
+                                <span class="text-xs text-gray-600 dark:text-gray-400 flex-shrink-0 whitespace-nowrap font-medium">${timeAgo}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">${escapeHtml(lastMessage)}</p>
+                        </div>
+                    </div>
+                </a>
+            `;
+        });
+
+        messagesList.innerHTML = html;
+        
+        // Update messages badge
+        updateMessagesBadge(totalUnread);
+    }
+
+    // Update messages badge count
+    function updateMessagesBadge(count) {
+        const badgeCount = document.getElementById('messagesBadgeCount');
+        const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
+        const badgeText = count > 99 ? '99+' : count;
+        
+        if (count > 0) {
+            if (badgeCount) {
+                badgeCount.textContent = badgeText;
+                badgeCount.classList.remove('hidden');
+            }
+            if (badgeCountMobile) {
+                badgeCountMobile.textContent = badgeText;
+                badgeCountMobile.classList.remove('hidden');
+            }
+        } else {
+            if (badgeCount) badgeCount.classList.add('hidden');
+            if (badgeCountMobile) badgeCountMobile.classList.add('hidden');
+        }
+    }
+
+    // Update dropdown item badge for a specific user
+    function updateDropdownItemBadge(userId, unreadCount, totalUnread) {
+        const messagesList = document.getElementById('messagesDropdownList');
+        if (!messagesList) {
+            // If dropdown list doesn't exist, just update header badge
+            if (typeof totalUnread !== 'undefined') {
+                updateMessagesBadge(totalUnread);
+            }
+            return;
+        }
+        
+        const dropdownItem = messagesList.querySelector(`[data-user-id="${userId}"]`);
+        if (!dropdownItem) {
+            // If item not found, reload dropdown to get fresh data
+            if (typeof window.reloadMessagesDropdown === 'function') {
+                window.reloadMessagesDropdown();
+            }
+            // Still update header badge
+            if (typeof totalUnread !== 'undefined') {
+                updateMessagesBadge(totalUnread);
+            }
+            return;
+        }
+        
+        const avatarContainer = dropdownItem.querySelector('.relative.flex-shrink-0');
+        if (!avatarContainer) {
+            if (typeof totalUnread !== 'undefined') {
+                updateMessagesBadge(totalUnread);
+            }
+            return;
+        }
+        
+        // Find existing badge - try multiple selectors
+        let badge = avatarContainer.querySelector('span[style*="#CE2028"]') || 
+                   avatarContainer.querySelector('span[style*="background-color: #CE2028"]') ||
+                   avatarContainer.querySelector('span[style*="background-color:#CE2028"]') ||
+                   avatarContainer.querySelector('span.absolute.top-0.left-0');
+        
+        // If still not found, check all spans in the container
+        if (!badge) {
+            const allSpans = avatarContainer.querySelectorAll('span');
+            allSpans.forEach(span => {
+                const bgColor = span.style.backgroundColor;
+                const styleAttr = span.getAttribute('style') || '';
+                if (bgColor === 'rgb(206, 32, 40)' || 
+                    bgColor === '#CE2028' ||
+                    styleAttr.includes('#CE2028') ||
+                    (span.classList.contains('absolute') && span.classList.contains('top-0') && span.classList.contains('left-0'))) {
+                    badge = span;
+                }
+            });
+        }
+        
+        if (unreadCount > 0) {
+            const badgeText = unreadCount > 99 ? '99+' : unreadCount;
+            if (badge) {
+                badge.textContent = badgeText;
+                badge.style.display = '';
+                badge.style.backgroundColor = '#CE2028';
+            } else {
+                // Create new badge
+                badge = document.createElement('span');
+                badge.className = 'absolute top-0 left-0 h-5 min-w-[20px] px-1.5 rounded-full text-white text-[10px] font-bold flex items-center justify-center';
+                badge.style.backgroundColor = '#CE2028';
+                badge.textContent = badgeText;
+                avatarContainer.appendChild(badge);
+            }
+        } else {
+            // Remove badge if count is 0
+            if (badge) {
+                badge.remove();
+            }
+        }
+        
+        // Update header badge if total is provided
+        if (typeof totalUnread !== 'undefined') {
+            updateMessagesBadge(totalUnread);
+        }
+    }
+    
+    // Make function globally accessible
+    window.updateDropdownItemBadge = updateDropdownItemBadge;
+
+    // Reload dropdown messages (make it globally accessible)
+    window.reloadMessagesDropdown = function() {
+        const messagesList = document.getElementById('messagesDropdownList');
+        if (messagesList) {
+            messagesList.dataset.loaded = 'false';
+            loadMessagesDropdown();
+        }
+    };
+
+    // Load unread count on page load
+    function loadUnreadCount() {
+        fetch('{{ route("messages.unread-count") }}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateMessagesBadge(data.count);
+            }
+        })
+        .catch(error => console.error('Error loading unread count:', error));
+    }
+    
+    // Make function globally accessible for real-time updates
+    window.loadUnreadCount = loadUnreadCount;
+
+    // Handle messages dropdown toggle with periodic refresh
+    function handleMessagesDropdownToggle(isOpen, dropdownElement) {
+        if (isOpen) {
+            setTimeout(() => loadMessagesDropdown(), 100);
+            // Set up periodic refresh when dropdown is open (every 10 seconds)
+            if (window.userMessagesDropdownInterval) {
+                clearInterval(window.userMessagesDropdownInterval);
+            }
+            window.userMessagesDropdownInterval = setInterval(function() {
+                // Check if dropdown is still open using the element reference
+                if (dropdownElement && dropdownElement.__x && dropdownElement.__x.$data && dropdownElement.__x.$data.open) {
+                    const messagesList = document.getElementById('messagesDropdownList');
+                    if (messagesList) {
+                        messagesList.dataset.loaded = 'false';
+                        loadMessagesDropdown();
+                    }
+                } else {
+                    clearInterval(window.userMessagesDropdownInterval);
+                    window.userMessagesDropdownInterval = null;
+                }
+            }, 10000); // Refresh every 10 seconds
+        } else {
+            const list = document.getElementById('messagesDropdownList');
+            if (list) {
+                list.dataset.loaded = 'false';
+            }
+            // Clear refresh interval when dropdown is closed
+            if (window.userMessagesDropdownInterval) {
+                clearInterval(window.userMessagesDropdownInterval);
+                window.userMessagesDropdownInterval = null;
+            }
+        }
+    }
+
+    // Handle new message button click from header dropdown
+    function handleHeaderNewMessageClick(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Check if we're on messages page
+        if (window.location.pathname === '/messages') {
+            // If on messages page, trigger new message modal
+            const newMessageBtn = document.getElementById('newMessageBtn');
+            if (newMessageBtn) {
+                newMessageBtn.click();
+            } else {
+                // Fallback: try to open user selection modal directly
+                const userModal = document.getElementById('userSelectionModal');
+                if (userModal) {
+                    userModal.classList.remove('hidden');
+                    if (typeof loadUsersForSelection === 'function') {
+                        loadUsersForSelection();
+                    }
+                }
+            }
+        } else {
+            // Navigate to messages page with hash to trigger new message
+            window.location.href = '{{ route('messages') }}#new-message';
+        }
+        
+        // Close dropdown
+        const dropdown = document.querySelector('[x-data]');
+        if (dropdown && dropdown.__x && dropdown.__x.$data && dropdown.__x.$data.open !== undefined) {
+            dropdown.__x.$data.open = false;
+        }
+        
+        return false;
+    }
+
+    // Attach event listener to new message button when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const newMessageBtn = document.getElementById('userHeaderNewMessageBtn');
+        if (newMessageBtn) {
+            newMessageBtn.addEventListener('click', handleHeaderNewMessageClick);
+        }
+    });
+
+    // ========== LARAVEL BROADCASTING + REVERB ==========
+    @auth
+    // Initialize Echo/Reverb connection
+    let echo = null;
+    
+    // Load Laravel Echo and Reverb
+    function loadBroadcastingScripts() {
+        // Load Pusher first (required by Echo)
+        if (typeof window.Pusher === 'undefined') {
+            const pusherScript = document.createElement('script');
+            pusherScript.src = 'https://js.pusher.com/8.2.0/pusher.min.js';
+            pusherScript.onload = function() {
+                // After Pusher loads, load Echo
+                loadEcho();
+            };
+            pusherScript.onerror = function() {
+                console.error('Failed to load Pusher');
+            };
+            document.head.appendChild(pusherScript);
+        } else {
+            loadEcho();
+        }
+    }
+
+    function loadEcho() {
+        if (typeof window.Echo === 'undefined') {
+            // Use cdnjs which provides UMD build for browsers
+            const echoScript = document.createElement('script');
+            echoScript.type = 'text/javascript';
+            echoScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.16.1/echo.iife.js';
+            echoScript.onload = function() {
+                initializeEcho();
+            };
+            echoScript.onerror = function() {
+                // Fallback to unpkg if cdnjs fails
+                console.warn('cdnjs failed, trying unpkg...');
+                const fallbackScript = document.createElement('script');
+                fallbackScript.type = 'text/javascript';
+                fallbackScript.src = 'https://unpkg.com/laravel-echo@1.16.1/dist/echo.iife.js';
+                fallbackScript.onload = function() {
+                    initializeEcho();
+                };
+                fallbackScript.onerror = function() {
+                    console.error('Failed to load Laravel Echo from all sources');
+                };
+                document.head.appendChild(fallbackScript);
+            };
+            document.head.appendChild(echoScript);
+        } else {
+            initializeEcho();
+        }
+    }
+
+    function initializeEcho() {
+        if (typeof window.Pusher === 'undefined') {
+            console.error('Pusher not loaded');
+            return;
+        }
+
+        if (typeof window.Echo === 'undefined') {
+            console.error('Echo not loaded');
+            return;
+        }
+
+        const userId = '{{ Auth::id() }}';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        // Initialize Echo with Reverb (only if not already initialized)
+        if (!window.echoInstance || !window.echoInstance.connector) {
+            try {
+                const reverbScheme = '{{ config("reverb.apps.apps.0.options.scheme", env("REVERB_SCHEME", "http")) }}';
+                const reverbHost = '{{ config("reverb.apps.apps.0.options.host", env("REVERB_HOST", "127.0.0.1")) }}';
+                const reverbPort = {{ config("reverb.apps.apps.0.options.port", env("REVERB_PORT", 8080)) }};
+                const useTLS = reverbScheme === 'https';
+                
+                window.echoInstance = new window.Echo({
+                    broadcaster: 'reverb',
+                    key: '{{ env("REVERB_APP_KEY") }}',
+                    wsHost: reverbHost,
+                    wsPort: reverbPort,
+                    wssPort: reverbPort,
+                    forceTLS: useTLS,
+                    enabledTransports: useTLS ? ['wss'] : ['ws'],
+                    disableStats: true,
+                    authEndpoint: '/broadcasting/auth',
+                    auth: {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                        }
+                    }
+                });
+
+                echo = window.echoInstance;
+
+                // Add connection event listeners
+                echo.connector.pusher.connection.bind('connected', function() {
+                    console.log('✅ Reverb WebSocket connected successfully');
+                });
+
+                echo.connector.pusher.connection.bind('disconnected', function() {
+                    console.warn('⚠️ Reverb WebSocket disconnected');
+                });
+
+                echo.connector.pusher.connection.bind('error', function(err) {
+                    console.error('❌ Reverb WebSocket error:', err);
+                });
+
+                echo.connector.pusher.connection.bind('state_change', function(states) {
+                    console.log('🔄 Reverb connection state:', states.current);
+                });
+
+                // Listen to message unread count updates
+                echo.private(`user.${userId}`)
+                    .listen('.message.unread-count.updated', (e) => {
+                        // Reload dropdown if it's currently open/visible
+                        const messagesDropdown = document.querySelector('[x-data*="open"]');
+                        if (messagesDropdown && messagesDropdown.__x && messagesDropdown.__x.$data.open) {
+                            // Reset loaded state and reload
+                            const messagesList = document.getElementById('messagesDropdownList');
+                            if (messagesList) {
+                                messagesList.dataset.loaded = 'false';
+                                loadMessagesDropdown();
+                            }
+                        }
+                        updateMessagesBadge(e.count);
+                    });
+
+                // Listen to notification unread count updates
+                echo.private(`user.${userId}`)
+                    .listen('.notification.unread-count.updated', (e) => {
+                        updateNotificationBadge(e.count);
+                    });
+
+                console.log('Laravel Echo initialized successfully');
+                console.log('Connecting to Reverb at:', reverbScheme + '://' + reverbHost + ':' + reverbPort);
+                
+                // Check connection status after 3 seconds
+                setTimeout(function() {
+                    const state = echo.connector.pusher.connection.state;
+                    if (state !== 'connected') {
+                        console.warn('⚠️ Reverb connection not established. Current state:', state);
+                        console.log('💡 Make sure:');
+                        console.log('   1. Reverb server is running: php artisan reverb:start');
+                        console.log('   2. Your .env has correct REVERB_APP_KEY, REVERB_APP_ID, REVERB_APP_SECRET');
+                        console.log('   3. REVERB_SCHEME=http for local development');
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error initializing Echo:', error);
+            }
+        } else {
+            echo = window.echoInstance;
+        }
+    }
+
+    // Start loading scripts when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadBroadcastingScripts);
+    } else {
+        loadBroadcastingScripts();
+    }
+
+    @endauth
+
+    // Update notification badge helper (available globally)
+    function updateNotificationBadge(count) {
+        const badge = $('#notificationBadge');
+        const badgeMobile = $('#notificationBadgeMobile');
+        const badgeText = count > 99 ? '99+' : count;
+        if (count > 0) {
+            badge.text(badgeText).removeClass('hidden');
+            badgeMobile.text(badgeText).removeClass('hidden');
+        } else {
+            badge.addClass('hidden');
+            badgeMobile.addClass('hidden');
+        }
+    }
+
+    function getTimeAgo(timestamp) {
+        if (!timestamp) return '';
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diffMs = now - time;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m`;
+        if (diffHours < 24) return `${diffHours}h`;
+        if (diffDays < 7) return `${diffDays}d`;
+        return time.toLocaleDateString();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     // Attach logout handlers when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         const logoutFormNav = document.getElementById('logoutFormNav');
@@ -419,7 +844,653 @@
         if (logoutFormMobile) {
             logoutFormMobile.addEventListener('submit', handleLogout);
         }
+        
+        // Load unread message count on initial page load (broadcasting will handle updates)
+        loadUnreadCount();
+    });
+
+    // ========== NOTIFICATIONS DROPDOWN SYSTEM ==========
+    $(document).ready(function() {
+        // Dropdown Toggle
+        $('.dropdown-toggle').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Check if mobile device (screen width <= 640px)
+            const isMobile = window.innerWidth <= 640;
+            
+            // Get the dropdown and check if it's notifications
+            const $dropdown = $(this).parent('.dropdown');
+            const isNotifications = $dropdown.attr('id') === 'notificationsDropdown';
+            
+            // On mobile, redirect to full page instead of opening dropdown
+            if (isMobile && isNotifications) {
+                window.location.href = '{{ route("notifications.index") }}';
+                return;
+            }
+            
+            // Desktop behavior: toggle dropdown
+            // Close all other dropdowns (both jQuery and Alpine.js)
+            $('.dropdown').not($dropdown).removeClass('show');
+            
+            // Close Alpine.js message dropdown if it's open
+            closeAlpineMessagesDropdown();
+            
+            // Toggle current dropdown
+            $dropdown.toggleClass('show');
+        });
+        
+        // Function to close Alpine.js messages dropdown
+        function closeAlpineMessagesDropdown() {
+            const messagesContainer = document.querySelector('[x-data*="open"]');
+            if (messagesContainer) {
+                try {
+                    // Try accessing Alpine data directly
+                    if (typeof Alpine !== 'undefined' && Alpine.$data) {
+                        const alpineData = Alpine.$data(messagesContainer);
+                        if (alpineData && typeof alpineData.open !== 'undefined') {
+                            alpineData.open = false;
+                            return;
+                        }
+                    }
+                    // Fallback: try accessing __x property
+                    if (messagesContainer.__x && messagesContainer.__x.$data) {
+                        messagesContainer.__x.$data.open = false;
+                    }
+                } catch (e) {
+                    console.log('Could not close Alpine dropdown:', e);
+                }
+            }
+        }
+        
+        // Close jQuery dropdowns when Alpine.js message dropdown button is clicked
+        $(document).on('click', '[x-data*="open"] button', function(e) {
+            // Close all jQuery dropdowns when message button is clicked
+            setTimeout(function() {
+                $('.dropdown').removeClass('show');
+            }, 10);
+        });
+        
+        // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown').length && !$(e.target).closest('[x-data*="open"]').length) {
+                $('.dropdown').removeClass('show');
+                closeAlpineMessagesDropdown();
+            }
+        });
+        
+        // Close dropdown on escape key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                $('.dropdown').removeClass('show');
+            }
+        });
+        
+        // Close dropdown when it loses focus
+        $(document).on('focusout', '.dropdown', function(e) {
+            const $dropdown = $(this);
+            const relatedTarget = e.relatedTarget;
+            
+            // Use setTimeout to allow click events to fire first
+            setTimeout(function() {
+                // Check if focus moved to an element outside the dropdown
+                if (relatedTarget && !$dropdown[0].contains(relatedTarget)) {
+                    $dropdown.removeClass('show');
+                } else {
+                    // Check current active element
+                    const activeElement = document.activeElement;
+                    if (activeElement && !$dropdown[0].contains(activeElement)) {
+                        $dropdown.removeClass('show');
+                    }
+                }
+            }, 150);
+        });
+        
+        // Also handle focusout on the dropdown menu content
+        $(document).on('focusout', '.dropdown-menu', function(e) {
+            const $menu = $(this);
+            const $dropdown = $menu.closest('.dropdown');
+            const relatedTarget = e.relatedTarget;
+            
+            setTimeout(function() {
+                // If focus moved outside the dropdown container, close it
+                if (relatedTarget && !$dropdown[0].contains(relatedTarget)) {
+                    $dropdown.removeClass('show');
+                } else {
+                    const activeElement = document.activeElement;
+                    if (activeElement && !$dropdown[0].contains(activeElement)) {
+                        $dropdown.removeClass('show');
+                    }
+                }
+            }, 150);
+        });
+
+        // Load axios if not already loaded
+        if (typeof axios === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+            document.head.appendChild(script);
+        }
+
+        // Set axios defaults
+        if (typeof axios !== 'undefined') {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        }
+
+        // Notification icon mapping
+        const notificationIcons = {
+            'pending_registration': 'fa-clock',
+            'announcement': 'fa-bullhorn',
+            'notice': 'fa-file-text',
+            'default': 'fa-bell'
+        };
+
+        // Load notifications
+        function loadNotifications() {
+            if (typeof axios === 'undefined') {
+                setTimeout(loadNotifications, 100);
+                return;
+            }
+
+            axios.get('{{ route("notifications.recent") }}', { params: { limit: 3 } })
+                .then(response => {
+                    const notifications = response.data.notifications.slice(0, 3); // Ensure max 3
+                    const notificationsList = $('#notificationsList');
+                    const notificationBadge = $('#notificationBadge');
+                    const markAllReadBtn = $('#markAllReadBtn');
+                    
+                    // Update badge count
+                    axios.get('{{ route("notifications.unread-count") }}')
+                        .then(countResponse => {
+                            const count = countResponse.data.count;
+                            const notificationBadgeMobile = $('#notificationBadgeMobile');
+                            const badgeText = count > 99 ? '99+' : count;
+                            if (count > 0) {
+                                notificationBadge.text(badgeText).removeClass('hidden');
+                                notificationBadgeMobile.text(badgeText).removeClass('hidden');
+                                markAllReadBtn.removeClass('hidden');
+                            } else {
+                                notificationBadge.addClass('hidden');
+                                notificationBadgeMobile.addClass('hidden');
+                                markAllReadBtn.addClass('hidden');
+                            }
+                        });
+                    
+                    // Render notifications (max 3)
+                    if (notifications.length === 0) {
+                        notificationsList.html(`
+                            <div class="px-4 py-8 text-center">
+                                <i class="fas fa-bell-slash text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+                            </div>
+                        `);
+                    } else {
+                        let html = '';
+                        notifications.forEach(notification => {
+                            const icon = notificationIcons[notification.type] || notificationIcons.default;
+                            const bgClass = notification.is_read ? '' : 'bg-blue-50 dark:bg-blue-900/20';
+                            const fontWeight = notification.is_read ? 'font-normal' : 'font-semibold';
+                            
+                            html += `
+                                <div class="notification-item flex items-start px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 ${bgClass} relative group" data-notification-id="${notification.id}">
+                                    <a href="${notification.url || '#'}" class="flex items-start flex-1 min-w-0" ${notification.url ? '' : 'onclick="event.preventDefault(); return false;"'}>
+                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(5, 84, 152, 0.15);">
+                                            <i class="fas ${icon}" style="color: #055498; font-size: 14px;"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm ${fontWeight} text-gray-800 dark:text-white mb-0.5 leading-tight">${notification.title}</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate leading-relaxed mt-0.5">${notification.message}</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5">${notification.created_at}</p>
+                                        </div>
+                                    </a>
+                                    ${!notification.is_read ? '<div class="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full"></div>' : ''}
+                                    <div class="notification-menu-container relative flex-shrink-0 ml-2">
+                                        <button type="button" class="notification-menu-btn w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100" data-notification-id="${notification.id}">
+                                            <i class="fas fa-ellipsis-h text-gray-600 dark:text-gray-400 text-sm"></i>
+                                        </button>
+                                        <div class="notification-menu-dropdown absolute right-0 top-8 bg-gray-800 dark:bg-gray-700 rounded-lg shadow-xl border border-gray-700 dark:border-gray-600 min-w-[180px]" data-menu-id="${notification.id}" style="z-index: 9999 !important; display: none;">
+                                            <div class="py-1">
+                                                ${!notification.is_read ? `
+                                                <button type="button" class="notification-mark-read-menu w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 dark:hover:bg-gray-600 flex items-center gap-2 whitespace-nowrap transition" data-notification-id="${notification.id}">
+                                                    <i class="fas fa-check text-sm"></i>
+                                                    Mark as read
+                                                </button>
+                                                ` : `
+                                                <button type="button" class="notification-mark-unread-menu w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 dark:hover:bg-gray-600 flex items-center gap-2 whitespace-nowrap transition" data-notification-id="${notification.id}">
+                                                    <i class="fas fa-check text-sm"></i>
+                                                    Mark as unread
+                                                </button>
+                                                `}
+                                                <button type="button" class="notification-delete-menu w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 dark:hover:bg-gray-600 flex items-center gap-2 whitespace-nowrap transition" data-notification-id="${notification.id}">
+                                                    <i class="fas fa-times text-sm"></i>
+                                                    Delete this notification
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        notificationsList.html(html);
+                        
+                        // Three-dot menu button click handler
+                        $(document).off('click', '.notification-menu-btn').on('click', '.notification-menu-btn', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            
+                            // Find the menu within the same notification item container
+                            const $btn = $(this);
+                            const $menuContainer = $btn.closest('.notification-menu-container');
+                            const $menu = $menuContainer.find('.notification-menu-dropdown');
+                            
+                            // Check if this menu is currently visible
+                            const isVisible = $menu.css('display') === 'block' || $menu.is(':visible');
+                            
+                            // Close ALL menus first
+                            $('.notification-menu-dropdown').css('display', 'none');
+                            
+                            // If this menu was not visible, show it. If it was visible, it will stay closed (toggled)
+                            if (!isVisible) {
+                                $menu.css('display', 'block');
+                            }
+                        });
+                        
+                        // Mark as read from menu
+                        $(document).off('click', '.notification-mark-read-menu').on('click', '.notification-mark-read-menu', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const $btn = $(this);
+                            const $menuContainer = $btn.closest('.notification-menu-container');
+                            const $menu = $menuContainer.find('.notification-menu-dropdown');
+                            $menu.css('display', 'none');
+                            
+                            const notificationId = $btn.data('notification-id');
+                            
+                            axios.post(`/notifications/${notificationId}/mark-as-read`)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        loadNotifications();
+                                        updateUnreadCount();
+                                        
+                                        // Trigger event to update notifications page if open (real-time sync)
+                                        window.dispatchEvent(new CustomEvent('notificationMarkedAsRead', { 
+                                            detail: { notificationId: notificationId } 
+                                        }));
+                                        
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                toast: true,
+                                                position: 'top-end',
+                                                icon: 'success',
+                                                title: 'Notification marked as read',
+                                                showConfirmButton: false,
+                                                timer: 2000
+                                            });
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error marking notification as read:', error);
+                                });
+                        });
+                        
+                        // Mark as unread from menu
+                        $(document).off('click', '.notification-mark-unread-menu').on('click', '.notification-mark-unread-menu', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const $btn = $(this);
+                            const $menuContainer = $btn.closest('.notification-menu-container');
+                            const $menu = $menuContainer.find('.notification-menu-dropdown');
+                            $menu.css('display', 'none');
+                            
+                            const notificationId = $btn.data('notification-id');
+                            
+                            axios.post(`/notifications/${notificationId}/mark-as-unread`)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        loadNotifications();
+                                        updateUnreadCount();
+                                        
+                                        // Trigger event to update notifications page if open (real-time sync)
+                                        window.dispatchEvent(new CustomEvent('notificationMarkedAsUnread', { 
+                                            detail: { notificationId: notificationId } 
+                                        }));
+                                        
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                toast: true,
+                                                position: 'top-end',
+                                                icon: 'success',
+                                                title: 'Notification marked as unread',
+                                                showConfirmButton: false,
+                                                timer: 2000
+                                            });
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error marking notification as unread:', error);
+                                });
+                        });
+                        
+                        // Delete notification from menu
+                        $(document).off('click', '.notification-delete-menu').on('click', '.notification-delete-menu', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const $btn = $(this);
+                            const $menuContainer = $btn.closest('.notification-menu-container');
+                            const $menu = $menuContainer.find('.notification-menu-dropdown');
+                            $menu.css('display', 'none');
+                            
+                            const notificationId = $btn.data('notification-id');
+                            
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    title: 'Delete notification?',
+                                    text: 'This action cannot be undone.',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#6b7280',
+                                    confirmButtonText: 'Yes, delete it',
+                                    cancelButtonText: 'Cancel'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        axios.delete(`/notifications/${notificationId}`)
+                                            .then(response => {
+                                                if (response.data.success) {
+                                                    // Remove the notification item from DOM immediately
+                                                    const $notificationItem = $(`.notification-item[data-notification-id="${notificationId}"]`);
+                                                    $notificationItem.fadeOut(300, function() {
+                                                        $(this).remove();
+                                                        
+                                                        // Reload notifications to refresh the list
+                                                        loadNotifications();
+                                                        updateUnreadCount();
+                                                        
+                                                        // Trigger a custom event that the notifications page can listen to (real-time sync)
+                                                        window.dispatchEvent(new CustomEvent('notificationDeleted', { 
+                                                            detail: { notificationId: notificationId } 
+                                                        }));
+                                                    });
+                                                    
+                                                    Swal.fire({
+                                                        toast: true,
+                                                        position: 'top-end',
+                                                        icon: 'success',
+                                                        title: 'Notification deleted',
+                                                        showConfirmButton: false,
+                                                        timer: 2000
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'Failed to delete notification.',
+                                                });
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                        
+                        // Close menu when clicking outside
+                        $(document).on('click', function(e) {
+                            if (!$(e.target).closest('.notification-menu-container').length) {
+                                $('.notification-menu-dropdown').css('display', 'none');
+                            }
+                        });
+                        
+                        // Mark as read when clicked and handle comment scrolling
+                        $('.notification-item a').off('click.notification').on('click.notification', function(e) {
+                            const $item = $(this).closest('.notification-item');
+                            const notificationId = $item.data('notification-id');
+                            const notificationUrl = $(this).attr('href');
+                            
+                            // If URL contains a comment hash, handle scrolling
+                            if (notificationUrl && notificationUrl.includes('#comment-')) {
+                                // Extract comment ID from URL
+                                const commentId = notificationUrl.split('#comment-')[1];
+                                
+                                // Close dropdown
+                                $('.dropdown').removeClass('show');
+                                
+                                // Navigate to the URL
+                                window.location.href = notificationUrl;
+                                
+                                // Mark as read
+                                if (notificationId && !$item.hasClass('bg-gray-50')) {
+                                    axios.post(`/notifications/${notificationId}/mark-as-read`)
+                                        .then(() => {
+                                            loadNotifications();
+                                            updateUnreadCount();
+                                            
+                                            // Trigger event to update notifications page if open (real-time sync)
+                                            window.dispatchEvent(new CustomEvent('notificationMarkedAsRead', { 
+                                                detail: { notificationId: notificationId } 
+                                            }));
+                                        });
+                                }
+                                
+                                // Scroll to comment after page loads
+                                setTimeout(() => {
+                                    const commentElement = document.getElementById('comment-' + commentId);
+                                    if (commentElement) {
+                                        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        // Highlight the comment briefly
+                                        commentElement.style.backgroundColor = 'rgba(24, 119, 242, 0.1)';
+                                        setTimeout(() => {
+                                            commentElement.style.backgroundColor = '';
+                                        }, 2000);
+                                    }
+                                }, 500);
+                                
+                                e.preventDefault();
+                                return false;
+                            } 
+                            // If URL is for an announcement, open modal instead
+                            else if (notificationUrl && notificationUrl.includes('/announcements/')) {
+                                e.preventDefault();
+                                
+                                // Extract announcement ID from URL
+                                const announcementIdMatch = notificationUrl.match(/\/announcements\/(\d+)/);
+                                if (announcementIdMatch && announcementIdMatch[1]) {
+                                    const announcementId = announcementIdMatch[1];
+                                    
+                                    // Close dropdown
+                                    $('.dropdown').removeClass('show');
+                                    
+                                    // Mark as read first
+                                    if (notificationId && !$item.hasClass('bg-gray-50')) {
+                                        axios.post(`/notifications/${notificationId}/mark-as-read`)
+                                            .then(() => {
+                                                loadNotifications();
+                                                updateUnreadCount();
+                                                
+                                                // Trigger event to update notifications page if open (real-time sync)
+                                                window.dispatchEvent(new CustomEvent('notificationMarkedAsRead', { 
+                                                    detail: { notificationId: notificationId } 
+                                                }));
+                                            });
+                                    }
+                                    
+                                    // Open announcement modal if function exists (on landing page)
+                                    if (typeof window.openAnnouncementModal === 'function') {
+                                        window.openAnnouncementModal(parseInt(announcementId));
+                                    } else {
+                                        // Fallback: navigate to announcement page
+                                        window.location.href = notificationUrl;
+                                    }
+                                }
+                                
+                                return false;
+                            } 
+                            else {
+                                // Normal notification click
+                                const $item = $(this).closest('.notification-item');
+                                if (notificationId && !$item.hasClass('bg-gray-50')) {
+                                    axios.post(`/notifications/${notificationId}/mark-as-read`)
+                                        .then(() => {
+                                            loadNotifications();
+                                            updateUnreadCount();
+                                            
+                                            // Trigger event to update notifications page if open (real-time sync)
+                                            window.dispatchEvent(new CustomEvent('notificationMarkedAsRead', { 
+                                                detail: { notificationId: notificationId } 
+                                            }));
+                                        });
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                });
+        }
+
+        // Listen for all notifications marked as read event
+        window.addEventListener('allNotificationsMarkedAsRead', function() {
+            // Reload notifications to refresh the popup
+            loadNotifications();
+            updateUnreadCount();
+        });
+        
+        // Update unread count (initial load only, broadcasting will handle updates)
+        function updateUnreadCount() {
+            if (typeof axios === 'undefined') {
+                setTimeout(updateUnreadCount, 100);
+                return;
+            }
+
+            axios.get('{{ route("notifications.unread-count") }}')
+                .then(response => {
+                    const count = response.data.count;
+                    updateNotificationBadge(count);
+                })
+                .catch(error => {
+                    console.error('Error updating unread count:', error);
+                });
+        }
+
+        // Mark all as read
+        $(document).on('click', '#markAllReadBtn', function(e) {
+            e.stopPropagation();
+            if (typeof axios === 'undefined') return;
+            
+            axios.post('{{ route("notifications.mark-all-read") }}')
+                .then(() => {
+                    loadNotifications();
+                    updateUnreadCount();
+                })
+                .catch(error => {
+                    console.error('Error marking all as read:', error);
+                });
+        });
+
+        // Load notifications on page load
+        setTimeout(function() {
+            loadNotifications();
+            updateUnreadCount();
+            
+            // Reload notifications when dropdown is opened
+            $('#notificationsBtn').on('click', function() {
+                setTimeout(() => {
+                    if ($('#notificationsDropdown').hasClass('show')) {
+                        loadNotifications();
+                    }
+                }, 100);
+            });
+        }, 500);
     });
 </script>
+
+<style>
+    /* Dropdown styles */
+    .dropdown-menu {
+        display: none !important;
+    }
+    
+    .dropdown.show .dropdown-menu {
+        display: flex !important;
+    }
+    
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Notification items */
+    .notification-menu-dropdown {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 9999 !important;
+    }
+    
+    .notification-menu-dropdown button {
+        cursor: pointer;
+    }
+    
+    .notification-menu-dropdown button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .notification-menu-container {
+        z-index: 100;
+        position: relative;
+    }
+    
+    .notification-menu-dropdown[style*="display: block"] {
+        display: block !important;
+    }
+    
+    #notificationsList .notification-item {
+        position: relative;
+        overflow: visible;
+    }
+    
+    .notification-item {
+        transition: background-color 0.2s ease;
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 640px) {
+        #notificationsMenu {
+            max-width: calc(100vw - 1rem) !important;
+            max-height: 60vh !important;
+            right: 0.5rem !important;
+        }
+    }
+</style>
 @endauth
+
+<!-- Announcement Modal - Available on all pages -->
+@include('components.announcement-modal')
 

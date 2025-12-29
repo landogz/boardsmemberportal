@@ -97,6 +97,19 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Real-time Updates** - AJAX-based comment submission without page refresh
 - **Attachment Support** - Support for images and PDFs in referendum posts
 
+### 📢 Announcements System
+- **Announcement Management** - Admin can create, edit, view, and delete announcements with rich text content
+- **Rich Text Editor** - CKEditor 4.19.1 integration for formatted content creation
+- **Banner Images** - Upload and display banner images for announcements
+- **User Access Control** - Select specific users or roles who can view each announcement
+- **Status Management** - Draft and Published status with scheduled publishing
+- **Notifications** - Automatic notifications sent to selected users when announcements are published
+- **Blog-Style Display** - Professional blog-style announcements page with search functionality
+- **Modal View** - Facebook-style modal for viewing full announcement details
+- **Landing Page Integration** - Display up to 3 latest announcements on landing page
+- **Search Functionality** - Search announcements by title and content
+- **Permission-Based Access** - Users only see announcements they are permitted to view
+
 ### 📋 Roles & Permissions
 - Dynamic role creation
 - Permission matrix interface with expand/collapse categories
@@ -185,6 +198,7 @@ flowchart TD
     AdminFeatures --> MediaLib[Media Library]
     AdminFeatures --> GovAgencies[Government Agencies]
     AdminFeatures --> ReferendumMgmt[Referendum Management]
+    AdminFeatures --> AnnouncementMgmt[Announcement Management]
     AdminFeatures --> Messaging[Messaging System]
     
     CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
@@ -194,6 +208,7 @@ flowchart TD
     CONSECFeatures --> MediaLib
     CONSECFeatures --> GovAgencies
     CONSECFeatures --> ReferendumMgmt
+    CONSECFeatures --> AnnouncementMgmt
     CONSECFeatures --> Messaging
     
     UserMgmt --> CONSECAccounts[CONSEC Accounts]
@@ -210,6 +225,9 @@ flowchart TD
     
     UserDash --> UserFeatures{User Features}
     UserFeatures --> ViewAnnounce[View Announcements]
+    ViewAnnounce --> AnnounceList[Announcements List Page]
+    ViewAnnounce --> AnnounceModal[View in Modal]
+    ViewAnnounce --> SearchAnnounce[Search Announcements]
     UserFeatures --> ViewCalendar[Activities Calendar]
     UserFeatures --> Messaging
     UserFeatures --> MeetingNotices[Meeting Notices]
@@ -243,6 +261,13 @@ flowchart TD
     ReferendumMgmt --> SelectUsers[Select Allowed Users]
     ReferendumMgmt --> ViewAnalytics[View Vote Analytics]
     ReferendumMgmt --> ManageExpiration[Manage Expiration Date]
+    
+    AnnouncementMgmt --> CreateAnnounce[Create/Edit Announcement]
+    CreateAnnounce --> RichTextEditor[Rich Text Editor CKEditor]
+    CreateAnnounce --> UploadBanner[Upload Banner Image]
+    CreateAnnounce --> SelectUsersAnnounce[Select Allowed Users]
+    CreateAnnounce --> SetStatus[Set Status & Schedule]
+    CreateAnnounce --> SendNotif[Send Notifications]
     
     AdminDash --> AuditSystem[Audit System]
     CONSECDash --> AuditSystem
@@ -393,7 +418,36 @@ Admin → Manage Referendum
    └─► Delete Referendum
 ```
 
-### G. Messaging & Chat Flow
+### G. Announcements Flow
+
+```
+Admin → Create Announcement
+   ├─► Fill Details (Title, Rich Text Description)
+   ├─► Upload Banner Image (Optional)
+   ├─► Set Status (Draft/Published)
+   ├─► Schedule Publish Date (Optional)
+   ├─► Select Allowed Users/Roles
+   ├─► Save → Create Announcement
+   └─► Send Notifications to Selected Users
+
+User → View Announcements
+   ├─► Landing Page (Max 3 Latest)
+   ├─► Announcements Page (All with Search)
+   ├─► Filter by Access (Only permitted announcements visible)
+   ├─► Search by Title/Content
+   ├─► View in Modal (Facebook-style)
+   └─► Click Notification → Open Modal & Mark as Read
+
+Admin → Manage Announcements
+   ├─► View All Announcements
+   ├─► Edit Announcement Details
+   ├─► Update Status & Schedule
+   ├─► Manage Allowed Users
+   ├─► Delete Announcement
+   └─► View Announcement Details
+```
+
+### H. Messaging & Chat Flow
 
 ```
 User/Admin → Messaging System
@@ -425,7 +479,7 @@ User/Admin → Messaging System
                  └─► View Group Members
 ```
 
-### H. Audit Trail Flow
+### I. Audit Trail Flow
 
 ```
 System Actions → Audit Logger
@@ -452,6 +506,7 @@ System Actions → Audit Logger
 - Audit Logs
 - Notifications
 - Chats/Messages
+- Announcements
 
 ### B. Key Tables
 
@@ -740,6 +795,29 @@ updated_at
 unique(message_id, user_id)
 ```
 
+#### 24. announcements
+```sql
+id
+title
+content (text, rich text from CKEditor)
+banner_image_id (nullable, foreign key to media_library)
+created_by (foreign key to users)
+status (enum: draft, published)
+scheduled_at (datetime, nullable)
+deleted_at (timestamp, soft deletes)
+created_at
+updated_at
+```
+
+#### 25. announcement_user_access
+```sql
+id
+announcement_id (foreign key)
+user_id (foreign key)
+created_at
+updated_at
+```
+
 ---
 
 ## 3. PAGES & ROUTES
@@ -771,6 +849,10 @@ unique(message_id, user_id)
   - `/messages/groups/{id}/admins/assign` - Assign Admin (POST)
   - `/messages/groups/{id}/admins/revoke` - Revoke Admin (POST)
 - `/board-issuances` - Board Resolutions & Regulations (Public View)
+- `/announcements` - Announcements List (User-facing, Blog-style with Search)
+  - `/announcements/{id}` - View Announcement
+  - `/announcements/api/landing` - Get Announcements for Landing Page (AJAX, max 3)
+  - `/announcements/api/{id}/modal` - Get Announcement for Modal (AJAX)
 - `/referendums` - Referendums List (User-facing)
   - `/referendums/{id}` - View Referendum (with voting and comments)
   - `/referendums/{id}/vote` - Submit Vote (POST)
@@ -842,6 +924,13 @@ unique(message_id, user_id)
   - `/admin/referendums/{id}/edit` - Edit Referendum
   - `/admin/referendums/{id}/update` - Update Referendum (POST)
   - `/admin/referendums/{id}` - Delete Referendum (DELETE)
+
+- `/admin/announcements` - Announcements Management
+  - `/admin/announcements/create` - Create Announcement
+  - `/admin/announcements/{id}` - View Announcement
+  - `/admin/announcements/{id}/edit` - Edit Announcement
+  - `/admin/announcements/{id}` - Update Announcement (PUT)
+  - `/admin/announcements/{id}` - Delete Announcement (DELETE)
 
 - `/admin/notifications` - Admin Notifications Page
 

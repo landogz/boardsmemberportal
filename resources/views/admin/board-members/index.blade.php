@@ -5,7 +5,7 @@
 @php
     $pageTitle = 'Board Members';
     $headerActions = [];
-    if (Auth::user()->hasPermission('manage board members')) {
+    if (Auth::user()->hasPermission('create board members')) {
         $headerActions[] = [
             'url' => route('admin.board-members.create'),
             'text' => 'Add New Board Member',
@@ -246,13 +246,17 @@
                                     
                                     <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $account->id }}">
                                         <div class="py-1" role="menu">
-                                            @can('manage board members')
-                                            <button type="button" class="setup-permission-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem" data-account-id="{{ $account->id }}" data-account-name="{{ $account->pre_nominal_title }} {{ $account->first_name }} {{ $account->middle_initial ? $account->middle_initial . '.' : '' }} {{ $account->last_name }} {{ $account->post_nominal_title ? ', ' . $account->post_nominal_title : '' }}" data-account-email="{{ $account->email }}">
+                                            @can('edit board members')
+                                            @php
+                                                $profileMedia = $account->profile_picture ? \App\Models\MediaLibrary::find($account->profile_picture) : null;
+                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->first_name . ' ' . $account->last_name) . '&size=48&background=055498&color=fff';
+                                            @endphp
+                                            <button type="button" class="setup-permission-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem" data-account-id="{{ $account->id }}" data-account-name="{{ $account->pre_nominal_title }} {{ $account->first_name }} {{ $account->middle_initial ? $account->middle_initial . '.' : '' }} {{ $account->last_name }} {{ $account->post_nominal_title ? ', ' . $account->post_nominal_title : '' }}" data-account-email="{{ $account->email }}" data-account-profile-picture="{{ $profileUrl }}">
                                                 <i class="fas fa-key w-4 mr-3 text-purple-600"></i>
                                                 Setup Permission
                                             </button>
                                             @endcan
-                                            @can('manage board members')
+                                            @can('edit board members')
                                             <a href="{{ route('admin.board-members.edit', $account->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                                 <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
                                                 Edit Account
@@ -267,7 +271,7 @@
                                                 {{ $toggleText }}
                                             </button>
                                             @endcan
-                                            @can('manage board members')
+                                            @can('delete board members')
                                             <button type="button" class="delete-account-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-account-id="{{ $account->id }}">
                                                 <i class="fas fa-trash w-4 mr-3"></i>
                                                 Delete Account
@@ -298,55 +302,76 @@
     </div>
 </div>
 
-<!-- Permission Setup Modal -->
-<div id="permissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-        <div class="flex items-center justify-between mb-4">
+<!-- Permission Setup Modal - Right Side Panel -->
+<div id="permissionModal" class="fixed inset-0 z-50 hidden overflow-hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 transition-opacity" id="permissionModalBackdrop"></div>
+    
+    <!-- Slide-in Panel -->
+    <div class="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl transform transition-transform duration-300 ease-in-out translate-x-full" id="permissionModalPanel">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b bg-gray-50">
             <h3 class="text-xl font-bold text-gray-800">User Permissions</h3>
-            <button type="button" id="closePermissionModal" class="text-gray-400 hover:text-gray-600">
+                <button type="button" id="closePermissionModal" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-times text-2xl"></i>
             </button>
         </div>
         
+            <!-- Content - Scrollable -->
+            <div class="flex-1 overflow-y-auto p-6">
         <!-- User Info -->
         <div class="flex items-center mb-6 pb-4 border-b">
-            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-4">
-                <i class="fas fa-user text-gray-600 text-xl"></i>
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 flex-shrink-0 mr-4" style="border-color: #055498;">
+                        <img id="modalUserProfilePicture" src="" alt="Profile Picture" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=User&size=48&background=055498&color=fff';">
             </div>
-            <div class="flex-1">
-                <h4 class="text-lg font-semibold text-gray-800" id="modalUserName"></h4>
-                <p class="text-sm text-gray-600" id="modalUserEmail"></p>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-lg font-semibold text-gray-800 truncate" id="modalUserName"></h4>
+                        <p class="text-sm text-gray-600 truncate" id="modalUserEmail"></p>
             </div>
-            <a href="#" id="modalViewProfile" class="text-blue-600 hover:text-blue-800 text-sm">
+                    <a href="#" id="modalViewProfile" class="text-blue-600 hover:text-blue-800 text-sm whitespace-nowrap ml-2">
                 View profile <i class="fas fa-external-link-alt ml-1"></i>
             </a>
         </div>
 
         <!-- Permissions List -->
-        <div class="mb-4 flex items-center justify-between">
-            <div class="text-sm text-gray-600">
+                <div class="mb-4">
+                    <div class="text-sm text-gray-600 flex items-center">
                 <i class="fas fa-info-circle mr-2"></i>
-                Check/uncheck boxes to grant or revoke permissions for this user
+                        <span>Check/uncheck boxes to grant or revoke permissions for this user</span>
             </div>
         </div>
         
-        <div class="overflow-x-auto border border-gray-300 rounded-lg">
-            <div class="max-h-96 overflow-y-auto" id="permissionsContainer">
+                <div class="border border-gray-300 rounded-lg">
+                    <div class="max-h-[calc(100vh-400px)] overflow-y-auto" id="permissionsContainer">
                 <div class="text-center py-8">
                     <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
                     <p class="text-gray-500">Loading permissions...</p>
+                        </div>
                 </div>
             </div>
         </div>
 
-        <!-- Save Button -->
-        <div class="flex justify-end pt-4 border-t">
+            <!-- Footer - Fixed -->
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-end">
             <button type="button" id="savePermissionsBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                 Save changes
             </button>
         </div>
     </div>
 </div>
+    </div>
+</div>
+
+<style>
+    #permissionModal.show #permissionModalPanel {
+        transform: translateX(0);
+    }
+    #permissionModal.show #permissionModalBackdrop {
+        opacity: 1;
+    }
+</style>
 @endsection
 
 @push('scripts')
@@ -524,26 +549,37 @@
         const accountId = $(this).data('account-id');
         const accountName = $(this).data('account-name');
         const accountEmail = $(this).data('account-email');
+        const profilePicture = $(this).data('account-profile-picture') || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(accountName) + '&size=48&background=055498&color=fff';
         
         currentUserId = accountId;
         $('#modalUserName').text(accountName);
         $('#modalUserEmail').text(accountEmail);
+        $('#modalUserProfilePicture').attr('src', profilePicture);
         $('#modalViewProfile').attr('href', '/admin/board-members/' + accountId + '/edit');
         $('#permissionModal').removeClass('hidden');
+        // Trigger slide-in animation
+        setTimeout(() => {
+            $('#permissionModal').addClass('show');
+        }, 10);
         
         // Load permissions
         loadUserPermissions(accountId);
     });
 
+    function closePermissionModal() {
+        $('#permissionModal').removeClass('show');
+        setTimeout(() => {
+            $('#permissionModal').addClass('hidden');
+        }, 300);
+    }
+
     $('#closePermissionModal').on('click', function() {
-        $('#permissionModal').addClass('hidden');
+        closePermissionModal();
     });
 
-    // Close modal when clicking outside
-    $('#permissionModal').on('click', function(e) {
-        if ($(e.target).attr('id') === 'permissionModal') {
-            $('#permissionModal').addClass('hidden');
-        }
+    // Close modal when clicking on backdrop
+    $('#permissionModalBackdrop').on('click', function() {
+        closePermissionModal();
     });
 
     function loadUserPermissions(userId) {
@@ -573,54 +609,43 @@
             'create users': 'Allows the user to create new user accounts',
             'edit users': 'Allows the user to edit existing user accounts',
             'delete users': 'Allows the user to delete user accounts',
-            'manage users': 'Allows the user to manage all user-related operations',
             'view roles': 'Allows the user to view roles',
             'create roles': 'Allows the user to create new roles',
             'edit roles': 'Allows the user to edit existing roles',
             'delete roles': 'Allows the user to delete roles',
-            'manage roles': 'Allows the user to manage all role-related operations',
             'view permissions': 'Allows the user to view permissions',
             'create permissions': 'Allows the user to create new permissions',
             'edit permissions': 'Allows the user to edit existing permissions',
             'delete permissions': 'Allows the user to delete permissions',
-            'manage permissions': 'Allows the user to manage all permission-related operations',
             'view board resolutions': 'Allows the user to view board resolutions',
             'create board resolutions': 'Allows the user to create new board resolutions',
             'edit board resolutions': 'Allows the user to edit existing board resolutions',
             'delete board resolutions': 'Allows the user to delete board resolutions',
-            'manage board resolutions': 'Allows the user to manage all board resolution operations',
             'view board regulations': 'Allows the user to view board regulations',
             'create board regulations': 'Allows the user to create new board regulations',
             'edit board regulations': 'Allows the user to edit existing board regulations',
             'delete board regulations': 'Allows the user to delete board regulations',
-            'manage board regulations': 'Allows the user to manage all board regulation operations',
             'view government agencies': 'Allows the user to view government agencies',
             'create government agencies': 'Allows the user to create new government agencies',
             'edit government agencies': 'Allows the user to edit existing government agencies',
             'delete government agencies': 'Allows the user to delete government agencies',
-            'manage government agencies': 'Allows the user to manage all government agency operations',
             'view media library': 'Allows the user to view media library items',
             'upload media': 'Allows the user to upload media files',
             'edit media': 'Allows the user to edit media library items',
             'delete media': 'Allows the user to delete media library items',
-            'manage media library': 'Allows the user to manage all media library operations',
             'view announcements': 'Allows the user to view announcements',
             'create announcements': 'Allows the user to create new announcements',
             'edit announcements': 'Allows the user to edit existing announcements',
             'delete announcements': 'Allows the user to delete announcements',
-            'manage announcements': 'Allows the user to manage all announcement operations',
             'view notices': 'Allows the user to view notices',
             'create notices': 'Allows the user to create new notices',
             'edit notices': 'Allows the user to edit existing notices',
             'delete notices': 'Allows the user to delete notices',
-            'manage notices': 'Allows the user to manage all notice operations',
             'view calendar events': 'Allows the user to view calendar events',
             'create calendar events': 'Allows the user to create new calendar events',
             'edit calendar events': 'Allows the user to edit existing calendar events',
             'delete calendar events': 'Allows the user to delete calendar events',
-            'manage calendar events': 'Allows the user to manage all calendar event operations',
             'view audit logs': 'Allows the user to view audit logs',
-            'manage board-member accounts': 'Allows the user to manage Board Member accounts',
         };
         
         return descriptions[permissionName.toLowerCase()] || 'Allows the user to perform this action';
@@ -646,6 +671,20 @@
             const group = groupedPermissions[category];
             const categoryId = md5(category);
             
+            // Filter out "manage", "create", "edit", and "delete" permissions
+            const filteredPermissions = group.permissions.filter(permission => {
+                const permissionName = permission.name.toLowerCase();
+                return !permissionName.startsWith('manage ') && 
+                       !permissionName.includes('create') && 
+                       !permissionName.includes('edit') && 
+                       !permissionName.includes('delete');
+            });
+            
+            // Skip categories with no filtered permissions
+            if (filteredPermissions.length === 0) {
+                return;
+            }
+            
             html += `
                 <tr class="category-header" data-category="${categoryId}">
                     <td colspan="2" class="py-3 px-4 cursor-pointer hover:bg-gray-100">
@@ -653,7 +692,7 @@
                             <div class="flex items-center">
                                 <i class="${group.icon} category-icon"></i>
                                 <span class="font-semibold">${category}</span>
-                                <span class="text-xs text-gray-500 ml-2">(${group.permissions.length} permission${group.permissions.length !== 1 ? 's' : ''})</span>
+                                <span class="text-xs text-gray-500 ml-2">(${filteredPermissions.length} permission${filteredPermissions.length !== 1 ? 's' : ''})</span>
                             </div>
                             <i class="fas fa-chevron-down expand-icon"></i>
                         </div>
@@ -661,7 +700,7 @@
                 </tr>
             `;
             
-            group.permissions.forEach(permission => {
+            filteredPermissions.forEach(permission => {
                 const permissionId = parseInt(permission.id);
                 const isChecked = userPermissions.includes(permissionId);
                 const permissionName = permission.name;
@@ -748,7 +787,7 @@
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
-                    $('#permissionModal').addClass('hidden');
+                    closePermissionModal();
                     window.location.reload();
                 });
             }

@@ -54,8 +54,7 @@ class RolePermissionSeeder extends Seeder
             'edit board regulations',
             'delete board regulations',
             
-            // Referendum
-            'manage referendum',
+            // Referendums
             'view referendum',
             'create referendum',
             'edit referendum',
@@ -101,6 +100,10 @@ class RolePermissionSeeder extends Seeder
             
             // CONSEC Account Management
             'manage consec accounts',
+            'view consec accounts',
+            'create consec accounts',
+            'edit consec accounts',
+            'delete consec accounts',
             
             // Board Member Management
             'manage board members',

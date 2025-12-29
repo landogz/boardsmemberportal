@@ -19,7 +19,7 @@ class BoardMemberController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('view board members')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view board members.');
         }
 
@@ -37,7 +37,7 @@ class BoardMemberController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('create board members')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to create board members.');
         }
 
@@ -49,10 +49,10 @@ class BoardMemberController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('create board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to create board members.'
             ], 403);
         }
 
@@ -163,7 +163,7 @@ class BoardMemberController extends Controller
      */
     public function edit($id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('edit board members')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to edit board members.');
         }
 
@@ -176,10 +176,10 @@ class BoardMemberController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('edit board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to edit board members.'
             ], 403);
         }
 
@@ -276,10 +276,10 @@ class BoardMemberController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('delete board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to delete board members.'
             ], 403);
         }
 
@@ -308,10 +308,10 @@ class BoardMemberController extends Controller
      */
     public function toggleStatus($id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('edit board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to edit board members.'
             ], 403);
         }
 
@@ -348,10 +348,10 @@ class BoardMemberController extends Controller
      */
     public function getPermissions($id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('edit board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to edit board members.'
             ], 403);
         }
 
@@ -430,10 +430,10 @@ class BoardMemberController extends Controller
      */
     public function updatePermissions(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission('manage board members')) {
+        if (!Auth::user()->hasPermission('edit board members')) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have permission to manage board members.'
+                'message' => 'You do not have permission to edit board members.'
             ], 403);
         }
 

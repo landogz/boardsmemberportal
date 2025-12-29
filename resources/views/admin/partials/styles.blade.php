@@ -88,11 +88,41 @@
     .notification-item,
     .message-item {
         transition: background-color 0.2s ease;
+        position: relative;
+        overflow: visible;
     }
     
     .notification-item:hover,
     .message-item:hover {
         background-color: #f9fafb !important;
+    }
+    
+    /* Notification menu dropdown styles */
+    .notification-menu-dropdown {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 9999 !important;
+    }
+    
+    .notification-menu-dropdown button {
+        cursor: pointer;
+    }
+    
+    .notification-menu-dropdown button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .notification-menu-container {
+        z-index: 100;
+        position: relative;
+    }
+    
+    .notification-menu-dropdown[style*="display: block"] {
+        display: block !important;
+    }
+    
+    #notificationsList .notification-item {
+        position: relative;
+        overflow: visible;
     }
     
     /* Notification icon container */
@@ -181,16 +211,6 @@
         border-width: 1.5px !important;
     }
     
-    /* Dark mode adjustment for form inputs */
-    .dark input[type="text"],
-    .dark input[type="email"],
-    .dark input[type="password"],
-    .dark input[type="date"],
-    .dark input[type="number"],
-    .dark textarea,
-    .dark select {
-        border-color: #9ca3af !important;
-    }
     
     /* Global Tooltip styles for action buttons */
     .action-btn {
@@ -510,9 +530,7 @@
     /* Responsive flex improvements */
     @media (max-width: 640px) {
         .flex.items-center.justify-between {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
+            flex-direction: row;
         }
         
         .flex.items-center.space-x-4 {
@@ -533,6 +551,118 @@
             width: 20px;
             height: 20px;
         }
+    }
+    
+    /* General DataTable row hover effect for all admin tables */
+    table.dataTable tbody tr {
+        transition: background-color 0.2s ease;
+        cursor: default;
+    }
+    
+    table.dataTable tbody tr:hover {
+        background-color: #f3f4f6;
+    }
+    
+    
+    /* Ensure action buttons and dropdowns are not affected by row hover */
+    table.dataTable tbody tr:hover .action-dropdown-btn,
+    table.dataTable tbody tr:hover button[class*="action"],
+    table.dataTable tbody tr:hover .btn {
+        background-color: white;
+        border-color: #d1d5db;
+    }
+    
+    
+    /* Keep dropdown menus styling independent */
+    .action-dropdown-menu,
+    .dropdown-menu {
+        background-color: white !important;
+    }
+    
+    
+    /* Ensure action cells don't change on row hover */
+    table.dataTable tbody tr td:last-child,
+    table.dataTable tbody tr td[class*="action"] {
+        background-color: transparent;
+    }
+    
+    table.dataTable tbody tr:hover td:last-child,
+    table.dataTable tbody tr:hover td[class*="action"] {
+        background-color: transparent;
+    }
+    
+    /* Hide messages popup container and chat heads on mobile devices globally */
+    @media (max-width: 767px) {
+        /* Hide the entire messages popup container on mobile */
+        #messagesPopupContainer {
+            display: none !important;
+        }
+        
+        /* Hide chat popup headers on mobile */
+        #messagesPopupContainer .messages-popup .flex.items-center.justify-between.p-4,
+        #messagesPopupContainer .messages-popup [class*="popup-header"],
+        #messagesPopupContainer .messages-popup [class*="chat-header"] {
+            display: none !important;
+        }
+    }
+    
+    /* Force light mode for reactions modal globally */
+    #reactionsModal,
+    #reactionsModal * {
+        background-color:rgba(255, 255, 255, 0) !important;
+    }
+    
+    #reactionsModal .bg-white {
+        background-color: #ffffff !important;
+    }
+    
+    #reactionsModal .bg-gray-100 {
+        background-color: #f3f4f6 !important;
+    }
+    
+    #reactionsModal .bg-gray-200 {
+        background-color: #e5e7eb !important;
+    }
+    
+    #reactionsModal .text-gray-900,
+    #reactionsModal .text-gray-800 {
+        color: #1f2937 !important;
+    }
+    
+    #reactionsModal .text-gray-500 {
+        color: #6b7280 !important;
+    }
+    
+    #reactionsModal .text-gray-700 {
+        color: #374151 !important;
+    }
+    
+    #reactionsModal .border-gray-200 {
+        border-color: #e5e7eb !important;
+    }
+    
+    #reactionsModal .border-gray-700 {
+        border-color: #374151 !important;
+    }
+    
+    
+    #reactionsModal [class*="bg-gray-800"],
+    #reactionsModal [class*="bg-gray-900"],
+    #reactionsModal [class*="bg-gray-700"] {
+        background-color: #ffffff !important;
+    }
+    
+    #reactionsModal [class*="text-white"],
+    #reactionsModal [class*="text-gray-400"] {
+        color: #1f2937 !important;
+    }
+    
+    #reactionsModal .hover\:bg-gray-100:hover {
+        background-color: #f3f4f6 !important;
+    }
+    
+    #reactionsModal .hover\:bg-gray-200:hover {
+        background-color: #e5e7eb !important;
     }
 </style>
 

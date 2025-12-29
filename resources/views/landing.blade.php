@@ -17,6 +17,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Gotham Font -->
     <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -570,7 +574,7 @@
             </div>
         </div>
     </div>
-    
+
     @auth
     <!-- Activities Calendar Section (Logged In Users Only) -->
     <section id="calendar-activities" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
@@ -583,96 +587,185 @@
                     View meetings, announcements, and scheduled events
                 </p>
                 <div class="bg-white dark:bg-[#1e293b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                    <div id="landingCalendar" class="calendar-container-landing"></div>
+                    <div class="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                <i class="fas fa-calendar-alt mr-2" style="color: #055498;"></i>
+                                Activities Calendar
+                            </h3>
+                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">View meetings, announcements, and scheduled events</p>
+                    </div>
+                        <button id="toggleFilterBtnLanding" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                            <i class="fas fa-filter mr-2"></i>
+                            <span>Filter</span>
+                        </button>
+                </div>
+
+                    <!-- Advanced Filter Panel -->
+                    <div id="filterPanelLanding" class="hidden mb-4 p-4 bg-gray-50 dark:bg-[#0F172A] rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Event Type Filter -->
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Event Type</label>
+                                <select id="filterEventTypeLanding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100">
+                                    <option value="all">All Types</option>
+                                    <option value="meeting">Meetings</option>
+                                    <option value="announcement">Announcements</option>
+                                    <option value="resolution">Resolutions</option>
+                                    <option value="other">Other</option>
+                                </select>
+                    </div>
+                            
+                            <!-- Date From Filter -->
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date</label>
+                                <input type="date" id="filterDateFromLanding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100">
+                </div>
+
+                            <!-- Date To Filter -->
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date</label>
+                                <input type="date" id="filterDateToLanding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100">
+                    </div>
+                            
+                            <!-- Search Filter -->
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
+                                <input type="text" id="filterSearchLanding" placeholder="Search events..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500">
                             </div>
+                        </div>
+
+                        <!-- Filter Actions -->
+                        <div class="flex flex-wrap items-center justify-end gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button id="clearFiltersBtnLanding" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1e293b] border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-[#0F172A] transition-colors">
+                                <i class="fas fa-times mr-2"></i>
+                                Clear Filters
+                            </button>
+                            <button id="applyFiltersBtnLanding" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                                <i class="fas fa-check mr-2"></i>
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="landingCalendar" class="calendar-container-landing"></div>
+                </div>
             </div>
         </div>
     </section>
     @endauth
 
     <!-- Public Announcements Section (Logged-in users only) -->
+    @auth
     <section id="announcements" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 gradient-text px-2">
-                Public Announcements
-            </h2>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center sm:text-left gradient-text px-2">
+                    Public Announcements
+                </h2>
+                <a href="{{ route('announcements.index') }}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Announcements
+                </a>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="announcementsLoading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-[#055498] mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400">Loading announcements...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="announcementsEmpty" class="hidden text-center py-12">
+                <i class="fas fa-bullhorn text-6xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">No announcements available at this time.</p>
+            </div>
             
             <!-- Logged-in User Design: News-style cards with images -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                <!-- Announcement Card 1 -->
-                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                        <div class="text-white text-center px-4">
-                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="text-sm font-medium">Image Placeholder</p>
+            <div id="announcementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
+                <!-- Announcements will be loaded here dynamically (max 3) -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Professional Announcement Modal -->
+    <div id="announcementModal" class="fixed inset-0 z-50 hidden overflow-y-auto" style="background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="fixed inset-0 transition-opacity" onclick="closeAnnouncementModal()">
+                <div class="absolute inset-0 bg-black opacity-60"></div>
+            </div>
+
+            <div class="relative bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl transform transition-all w-full max-w-4xl mx-auto" style="max-height: 90vh; display: flex; flex-direction: column;">
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-[#055498] to-[#123a60] px-6 py-4 rounded-t-2xl flex items-center justify-between flex-shrink-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <i class="fas fa-bullhorn text-white text-lg"></i>
                         </div>
+                        <h3 class="text-xl font-bold text-white">Announcement</h3>
                     </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
-                            DDB Chairperson – Secretary Oscar Valenzuela shares his message for the 2025 Drug Abuse Prevention and Control (DAPC) Week
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 17, 2025</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                            Dangerous Drugs Board (DDB) Chairperson – Secretary Oscar Valenzuela shares his message for the 2025 Drug Abuse Prevention and Control (DAPC) Week. Guided by its mandate under Republic Act No. 9165,...
-                        </p>
-                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
-                            READ MORE
-                        </a>
+                    <button onclick="closeAnnouncementModal()" class="w-9 h-9 rounded-full hover:bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200" aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="overflow-y-auto flex-1" style="max-height: calc(90vh - 80px);">
+                    <div id="modalLoading" class="text-center py-16">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#055498] border-t-transparent mb-4"></div>
+                        <p class="text-gray-600 dark:text-gray-400 text-lg">Loading announcement...</p>
+                    </div>
+                    <div id="modalContent" class="hidden">
+                        <!-- Author Info -->
+                        <div class="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0" id="modalAuthorAvatar" style="font-size: 16px;">
+                                    <!-- Initials or avatar -->
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-gray-900 dark:text-white text-lg mb-1" id="modalAuthorName"></div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-2" id="modalDate">
+                                        <i class="far fa-calendar-alt text-xs"></i>
+                                        <span id="modalDateText"></span>
+                                        <span class="mx-1">·</span>
+                                        <i class="fas fa-globe-americas text-xs"></i>
+                                        <span>Public</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="px-6 pt-6 pb-4">
+                            <h2 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight mb-2" id="modalAnnouncementTitle" style="color: #055498;"></h2>
+                        </div>
+
+                        <!-- Banner Image -->
+                        <div id="modalBanner" class="mb-6 hidden">
+                            <div class="relative overflow-hidden rounded-lg mx-6 shadow-lg">
+                                <img src="" alt="Banner" class="w-full h-auto" id="modalBannerImg" style="max-height: 500px; object-fit: cover; display: block;">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="px-6 pb-8">
+                            <div class="text-gray-700 dark:text-gray-300 text-base leading-relaxed prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:dark:text-white prose-p:text-gray-700 prose-p:dark:text-gray-300 prose-strong:text-gray-900 prose-strong:dark:text-white prose-a:text-[#055498] prose-a:no-underline hover:prose-a:underline prose-ul:text-gray-700 prose-ul:dark:text-gray-300 prose-ol:text-gray-700 prose-ol:dark:text-gray-300 prose-li:text-gray-700 prose-li:dark:text-gray-300" id="modalDescription" style="line-height: 1.8;"></div>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Announcement Card 2 -->
-                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                        <div class="text-white text-center px-4">
-                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="text-sm font-medium">Image Placeholder</p>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
-                            READ: DDB UNVEILS WEEKLONG DAPC 2025 EVENTS TO PROMOTE MENTAL HEALTH, DRUG PREVENTION, AND COMMUNITY WELLNESS NATIONWIDE
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 12, 2025</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                            READ: DDB UNVEILS WEEKLONG DAPC 2025 EVENTS TO PROMOTE MENTAL HEALTH, DRUG PREVENTION, AND COMMUNITY WELLNESS NATIONWIDE
-                        </p>
-                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
-                            READ MORE
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Announcement Card 3 -->
-                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                        <div class="text-white text-center px-4">
-                            <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="text-sm font-medium">Image Placeholder</p>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
-                            DDB and PDEA Destroy P1.1 Billion Worth of Illegal Drugs in Zamboanga City
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nov 6, 2025</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                            In a powerful affirmation of justice and shared responsibility, Dangerous Drugs Board (DDB) Chairperson - Secretary Oscar Valenzuela joined Philippine Drug Enforcement Agency (PDEA) Director General...
-                        </p>
-                        <a href="#" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
-                            READ MORE
-                        </a>
+
+                <!-- Modal Footer -->
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0F172A] rounded-b-2xl flex-shrink-0">
+                    <div class="flex items-center justify-end">
+                        <button onclick="closeAnnouncementModal()" class="px-6 py-2.5 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+                            Close
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+    @endauth
 
     @guest
     <!-- Vision, Mission & Mandate Section -->
@@ -791,7 +884,7 @@
     @include('components.footer')
 
     <!-- Go to Top Floating Button -->
-    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="hidden fixed bottom-8 right-8 z-50">
+    <button id="goToTop" type="button" aria-label="Go to top" title="Go to top" class="hidden fixed bottom-8 right-8 z-50" style="display: none !important;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
         </svg>
@@ -1119,6 +1212,203 @@
     <script>
         // Initialize Calendar for Landing Page
         (function() {
+            // Store all events
+            const allEventsLanding = [
+                {
+                    title: 'Board Meeting - Q1 Review',
+                    start: new Date().toISOString().split('T')[0],
+                    backgroundColor: '#055498',
+                    borderColor: '#055498',
+                    textColor: '#ffffff',
+                    extendedProps: {
+                        type: 'meeting',
+                        description: 'Quarterly board meeting to review Q1 performance and discuss upcoming initiatives.'
+                    }
+                },
+                {
+                    title: 'New Announcement: Policy Update',
+                    start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#FBD116',
+                    borderColor: '#FBD116',
+                    textColor: '#123a60',
+                    extendedProps: {
+                        type: 'announcement',
+                        description: 'Important policy update announcement for all board members.'
+                    }
+                },
+                {
+                    title: 'Resolution Review Meeting',
+                    start: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#CE2028',
+                    borderColor: '#CE2028',
+                    textColor: '#ffffff',
+                    extendedProps: {
+                        type: 'meeting',
+                        description: 'Review and approve pending board resolutions.'
+                    }
+                },
+                {
+                    title: 'Announcement: Annual Report',
+                    start: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#FBD116',
+                    borderColor: '#FBD116',
+                    textColor: '#123a60',
+                    extendedProps: {
+                        type: 'announcement',
+                        description: 'Annual report publication announcement.'
+                    }
+                },
+                {
+                    title: 'Committee Meeting',
+                    start: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#055498',
+                    borderColor: '#055498',
+                    textColor: '#ffffff',
+                    extendedProps: {
+                        type: 'meeting',
+                        description: 'Scheduled committee meeting to discuss ongoing projects.'
+                    }
+                },
+                {
+                    title: 'Board Resolution #2024-001',
+                    start: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#CE2028',
+                    borderColor: '#CE2028',
+                    textColor: '#ffffff',
+                    extendedProps: {
+                        type: 'resolution',
+                        description: 'New board resolution for approval.'
+                    }
+                },
+                {
+                    title: 'Special Event',
+                    start: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
+                    backgroundColor: '#6B7280',
+                    borderColor: '#6B7280',
+                    textColor: '#ffffff',
+                    extendedProps: {
+                        type: 'other',
+                        description: 'Special event for board members.'
+                    }
+                }
+            ];
+            
+            let calendarLanding = null;
+            
+            // Filter events function
+            function filterEventsLanding() {
+                const eventType = document.getElementById('filterEventTypeLanding').value;
+                const dateFrom = document.getElementById('filterDateFromLanding').value;
+                const dateTo = document.getElementById('filterDateToLanding').value;
+                const searchTerm = document.getElementById('filterSearchLanding').value.toLowerCase();
+                
+                return allEventsLanding.filter(event => {
+                    // Filter by event type
+                    if (eventType !== 'all' && event.extendedProps.type !== eventType) {
+                        return false;
+                    }
+                    
+                    // Filter by date range
+                    const eventDate = new Date(event.start);
+                    if (dateFrom && eventDate < new Date(dateFrom)) {
+                        return false;
+                    }
+                    if (dateTo && eventDate > new Date(dateTo + 'T23:59:59')) {
+                        return false;
+                    }
+                    
+                    // Filter by search term
+                    if (searchTerm && !event.title.toLowerCase().includes(searchTerm) && 
+                        !event.extendedProps.description.toLowerCase().includes(searchTerm)) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            // Apply filters to calendar
+            function applyFiltersLanding() {
+                if (calendarLanding) {
+                    const filteredEvents = filterEventsLanding();
+                    calendarLanding.removeAllEvents();
+                    calendarLanding.addEventSource(filteredEvents);
+                    
+                    // Navigate calendar to date range if dates are set
+                    const dateFrom = document.getElementById('filterDateFromLanding').value;
+                    const dateTo = document.getElementById('filterDateToLanding').value;
+                    
+                    if (dateFrom || dateTo) {
+                        // If both dates are set
+                        if (dateFrom && dateTo) {
+                            const fromDate = new Date(dateFrom);
+                            const toDate = new Date(dateTo);
+                            const daysDiff = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+                            
+                            // Navigate to the start date
+                            calendarLanding.gotoDate(dateFrom);
+                            
+                            // Adjust view based on date range
+                            const isMobile = window.innerWidth < 768;
+                            if (isMobile) {
+                                // On mobile, use listWeek view
+                                if (calendarLanding.view.type !== 'listWeek') {
+                                    calendarLanding.changeView('listWeek');
+                                }
+                            } else {
+                                // On desktop, adjust view based on range
+                                if (daysDiff <= 7) {
+                                    // For ranges up to a week, use week view
+                                    if (calendarLanding.view.type !== 'timeGridWeek' && calendarLanding.view.type !== 'timeGridDay') {
+                                        calendarLanding.changeView('timeGridWeek');
+                                    }
+                                } else if (daysDiff <= 31) {
+                                    // For ranges up to a month, use month view
+                                    if (calendarLanding.view.type !== 'dayGridMonth') {
+                                        calendarLanding.changeView('dayGridMonth');
+                                    }
+                                } else {
+                                    // For longer ranges, stay in month view
+                                    if (calendarLanding.view.type !== 'dayGridMonth') {
+                                        calendarLanding.changeView('dayGridMonth');
+                                    }
+                                }
+                            }
+                        } 
+                        // If only From Date is set
+                        else if (dateFrom) {
+                            calendarLanding.gotoDate(dateFrom);
+                        } 
+                        // If only To Date is set
+                        else if (dateTo) {
+                            calendarLanding.gotoDate(dateTo);
+                        }
+                    }
+                }
+            }
+            
+            // Clear all filters
+            function clearFiltersLanding() {
+                document.getElementById('filterEventTypeLanding').value = 'all';
+                document.getElementById('filterDateFromLanding').value = '';
+                document.getElementById('filterDateToLanding').value = '';
+                document.getElementById('filterSearchLanding').value = '';
+                
+                // Reset calendar to today's date
+                if (calendarLanding) {
+                    calendarLanding.gotoDate(new Date());
+                    // Reset to default view based on screen size
+                    const isMobile = window.innerWidth < 768;
+                    if (isMobile && calendarLanding.view.type !== 'listWeek') {
+                        calendarLanding.changeView('listWeek');
+                    } else if (!isMobile && calendarLanding.view.type === 'listWeek') {
+                        calendarLanding.changeView('dayGridMonth');
+                    }
+                }
+                
+                applyFiltersLanding();
+            }
+            
             function initLandingCalendar() {
                 const calendarEl = document.getElementById('landingCalendar');
                 
@@ -1144,7 +1434,7 @@
                 try {
                     const isMobile = window.innerWidth < 768;
                     
-                    const calendar = new FC.Calendar(calendarEl, {
+                    calendarLanding = new FC.Calendar(calendarEl, {
                         initialView: isMobile ? 'listWeek' : 'dayGridMonth',
                         headerToolbar: {
                             left: isMobile ? 'prev,next' : 'prev,next today',
@@ -1160,63 +1450,7 @@
                                 listDaySideFormat: false
                             }
                         },
-                        events: [
-                            {
-                                title: 'Board Meeting - Q1 Review',
-                                start: new Date().toISOString().split('T')[0],
-                                backgroundColor: '#055498',
-                                borderColor: '#055498',
-                                textColor: '#ffffff',
-                                extendedProps: {
-                                    type: 'meeting',
-                                    description: 'Quarterly board meeting to review Q1 performance and discuss upcoming initiatives.'
-                                }
-                            },
-                            {
-                                title: 'New Announcement: Policy Update',
-                                start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                                backgroundColor: '#FBD116',
-                                borderColor: '#FBD116',
-                                textColor: '#123a60',
-                                extendedProps: {
-                                    type: 'announcement',
-                                    description: 'Important policy update announcement for all board members.'
-                                }
-                            },
-                            {
-                                title: 'Resolution Review Meeting',
-                                start: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
-                                backgroundColor: '#CE2028',
-                                borderColor: '#CE2028',
-                                textColor: '#ffffff',
-                                extendedProps: {
-                                    type: 'meeting',
-                                    description: 'Review and approve pending board resolutions.'
-                                }
-                            },
-                            {
-                                title: 'Announcement: Annual Report',
-                                start: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
-                                backgroundColor: '#FBD116',
-                                borderColor: '#FBD116',
-                                textColor: '#123a60',
-                                extendedProps: {
-                                    type: 'announcement',
-                                    description: 'Annual report publication announcement.'
-                                }
-                            },
-                            {
-                                title: 'Committee Meeting',
-                                start: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-                                backgroundColor: '#055498',
-                                borderColor: '#055498',
-                                textColor: '#ffffff',
-                                extendedProps: {
-                                    type: 'meeting',
-                                    description: 'Scheduled committee meeting to discuss ongoing projects.'
-                                }
-                            }
-                        ],
+                        events: allEventsLanding,
                         eventClick: function(info) {
                             const eventType = info.event.extendedProps.type || 'event';
                             const description = info.event.extendedProps.description || 'No description available.';
@@ -1248,7 +1482,54 @@
                         moreLinkClick: 'popover'
                     });
                     
-                    calendar.render();
+                    calendarLanding.render();
+                    
+                    // Filter panel toggle
+                    const toggleFilterBtn = document.getElementById('toggleFilterBtnLanding');
+                    const filterPanel = document.getElementById('filterPanelLanding');
+                    
+                    if (toggleFilterBtn && filterPanel) {
+                        toggleFilterBtn.addEventListener('click', function() {
+                            filterPanel.classList.toggle('hidden');
+                            const icon = toggleFilterBtn.querySelector('i');
+                            if (filterPanel.classList.contains('hidden')) {
+                                icon.className = 'fas fa-filter mr-2';
+                            } else {
+                                icon.className = 'fas fa-filter mr-2';
+                            }
+                        });
+                    }
+                    
+                    // Apply filters button
+                    const applyFiltersBtn = document.getElementById('applyFiltersBtnLanding');
+                    if (applyFiltersBtn) {
+                        applyFiltersBtn.addEventListener('click', applyFiltersLanding);
+                    }
+                    
+                    // Clear filters button
+                    const clearFiltersBtn = document.getElementById('clearFiltersBtnLanding');
+                    if (clearFiltersBtn) {
+                        clearFiltersBtn.addEventListener('click', clearFiltersLanding);
+                    }
+                    
+                    // Auto-apply filters on input change (debounced)
+                    let filterTimeout;
+                    const filterInputs = ['filterEventTypeLanding', 'filterDateFromLanding', 'filterDateToLanding', 'filterSearchLanding'];
+                    filterInputs.forEach(inputId => {
+                        const input = document.getElementById(inputId);
+                        if (input) {
+                            input.addEventListener('change', function() {
+                                clearTimeout(filterTimeout);
+                                filterTimeout = setTimeout(applyFiltersLanding, 300);
+                            });
+                            input.addEventListener('input', function() {
+                                if (inputId === 'filterSearchLanding') {
+                                    clearTimeout(filterTimeout);
+                                    filterTimeout = setTimeout(applyFiltersLanding, 500);
+                                }
+                            });
+                        }
+                    });
                     
                     // Handle window resize
                     let resizeTimer;
@@ -1256,15 +1537,15 @@
                         clearTimeout(resizeTimer);
                         resizeTimer = setTimeout(function() {
                             const isMobile = window.innerWidth < 768;
-                            const currentView = calendar.view.type;
+                            const currentView = calendarLanding.view.type;
                             
                             if (isMobile && currentView === 'dayGridMonth') {
-                                calendar.changeView('listWeek');
+                                calendarLanding.changeView('listWeek');
                             } else if (!isMobile && currentView === 'listWeek') {
-                                calendar.changeView('dayGridMonth');
+                                calendarLanding.changeView('dayGridMonth');
                             }
                             
-                            calendar.setOption('headerToolbar', {
+                            calendarLanding.setOption('headerToolbar', {
                                 left: isMobile ? 'prev,next' : 'prev,next today',
                                 center: 'title',
                                 right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
@@ -1525,6 +1806,90 @@
                 max-width: 90vw !important;
             }
         }
+        
+        /* Professional Announcement Modal Styles */
+        #announcementModal {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        #announcementModal > div > div {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #announcementModal .prose {
+            font-size: 1rem;
+        }
+        
+        #announcementModal .prose p {
+            margin-bottom: 1.25rem;
+        }
+        
+        #announcementModal .prose ul,
+        #announcementModal .prose ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+        
+        #announcementModal .prose li {
+            margin-bottom: 0.5rem;
+        }
+        
+        #announcementModal .prose h1,
+        #announcementModal .prose h2,
+        #announcementModal .prose h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        #announcementModal .prose img {
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        #announcementModal .prose a {
+            color: #055498;
+            font-weight: 500;
+        }
+        
+        #announcementModal .prose a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 640px) {
+            #announcementModal > div > div {
+                max-width: 95vw;
+                margin: 1rem;
+            }
+            
+            #announcementModal .prose {
+                font-size: 0.9375rem;
+            }
+            
+            #modalAnnouncementTitle {
+                font-size: 1.5rem !important;
+            }
+        }
     </style>
     @endauth
     
@@ -1599,11 +1964,18 @@
                 axios.post('{{ route("api.track-activity") }}')
                     .then(response => {
                         if (response.data.success) {
-                            lastActivityTime = Date.now();
+                            // Reset activity tracking when ping succeeds
+                            trackActivity();
                         }
                     })
-                    .catch(() => {
-                        console.log('Activity ping failed');
+                    .catch(error => {
+                        // If ping fails with 401, user might be logged out
+                        if (error.response && error.response.status === 401) {
+                            console.log('User session expired');
+                            window.location.href = '/login';
+                        } else {
+                            console.log('Activity ping failed');
+                        }
                     });
             }
 
@@ -1621,6 +1993,7 @@
             // Ping server on page visibility change
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
+                    // User came back, immediately ping and track activity
                     pingServer();
                     trackActivity();
                 }
@@ -1628,15 +2001,204 @@
 
             // Ping server when window gains focus
             window.addEventListener('focus', function() {
+                // Window gained focus, immediately ping and track activity
                 pingServer();
                 trackActivity();
             });
+            
+            // Also track activity on page load/refresh
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    trackActivity();
+                    pingServer();
+                });
+            } else {
+                trackActivity();
+                pingServer();
+            }
         })();
         @endauth
     </script>
+
+    @auth
+    <!-- Announcements Loading Script -->
+    <script>
+        (function() {
+            // Set axios defaults
+            if (typeof axios !== 'undefined') {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            }
+
+            // Load announcements for landing page
+            function loadAnnouncements() {
+                const loadingEl = document.getElementById('announcementsLoading');
+                const emptyEl = document.getElementById('announcementsEmpty');
+                const gridEl = document.getElementById('announcementsGrid');
+
+                if (!loadingEl || !emptyEl || !gridEl) return;
+
+                axios.get('{{ route("announcements.api.landing") }}', { params: { limit: 3 } })
+                    .then(response => {
+                        const announcements = response.data.announcements || [];
+                        
+                        loadingEl.classList.add('hidden');
+                        
+                        if (announcements.length === 0) {
+                            emptyEl.classList.remove('hidden');
+                            return;
+                        }
+
+                        emptyEl.classList.add('hidden');
+                        gridEl.classList.remove('hidden');
+                        
+                        // Render announcements
+                        gridEl.innerHTML = announcements.map(announcement => {
+                            const bannerHtml = announcement.banner_url 
+                                ? `<img src="${announcement.banner_url}" alt="${escapeHtml(announcement.title)}" class="w-full h-full object-cover">`
+                                : `<div class="text-white text-center px-4">
+                                    <svg class="w-16 h-16 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-sm font-medium">No Image</p>
+                                </div>`;
+
+                            return `
+                                <div class="bg-white dark:bg-[#1e293b] rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                    <div class="w-full h-48 overflow-hidden flex items-center justify-center" style="background: ${announcement.banner_url ? 'transparent' : 'linear-gradient(135deg, #055498 0%, #123a60 100%)'};">
+                                        ${bannerHtml}
+                                    </div>
+                                    <div class="p-5">
+                                        <h3 class="text-lg font-bold mb-2 line-clamp-2" style="color: #055498;">
+                                            ${escapeHtml(announcement.title)}
+                                        </h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">${announcement.created_at}</p>
+                                        <div class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 prose prose-sm max-w-none">
+                                            ${announcement.description_short || ''}
+                                        </div>
+                                        <button onclick="openAnnouncementModal(${announcement.id})" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md read-more-btn" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
+                                            READ MORE
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    })
+                    .catch(error => {
+                        console.error('Error loading announcements:', error);
+                        loadingEl.classList.add('hidden');
+                        emptyEl.classList.remove('hidden');
+                    });
+            }
+
+            // Escape HTML helper
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+            }
+
+            // Open announcement modal
+            window.openAnnouncementModal = function(announcementId) {
+                const modal = document.getElementById('announcementModal');
+                const modalLoading = document.getElementById('modalLoading');
+                const modalContent = document.getElementById('modalContent');
+                
+                if (!modal) return;
+
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                
+                // Scroll to top of modal content
+                const modalScrollContainer = modal.querySelector('.overflow-y-auto');
+                if (modalScrollContainer) {
+                    modalScrollContainer.scrollTop = 0;
+                }
+                
+                modalLoading.classList.remove('hidden');
+                modalContent.classList.add('hidden');
+
+                axios.get(`{{ url('/announcements/api') }}/${announcementId}/modal`)
+                    .then(response => {
+                        const announcement = response.data.announcement;
+                        
+                        // Set author info
+                        const authorName = announcement.author;
+                        const authorInitials = authorName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        document.getElementById('modalAuthorAvatar').textContent = authorInitials;
+                        document.getElementById('modalAuthorName').textContent = authorName;
+                        document.getElementById('modalDateText').textContent = announcement.created_at;
+
+                        // Set banner
+                        const bannerEl = document.getElementById('modalBanner');
+                        if (announcement.banner_url) {
+                            document.getElementById('modalBannerImg').src = announcement.banner_url;
+                            bannerEl.classList.remove('hidden');
+                        } else {
+                            bannerEl.classList.add('hidden');
+                        }
+
+                        // Set title and description
+                        document.getElementById('modalAnnouncementTitle').textContent = announcement.title;
+                        // Render HTML description directly (from CKEditor, already sanitized)
+                        const description = announcement.description || '';
+                        document.getElementById('modalDescription').innerHTML = description;
+
+                        modalLoading.classList.add('hidden');
+                        modalContent.classList.remove('hidden');
+                        
+                        // Ensure scroll is at top after content loads
+                        setTimeout(() => {
+                            if (modalScrollContainer) {
+                                modalScrollContainer.scrollTop = 0;
+                            }
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Error loading announcement:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load announcement details.',
+                        });
+                        closeAnnouncementModal();
+                    });
+            };
+
+            // Close announcement modal
+            window.closeAnnouncementModal = function() {
+                const modal = document.getElementById('announcementModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            };
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAnnouncementModal();
+                }
+            });
+
+            // Load announcements on page load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadAnnouncements);
+            } else {
+                loadAnnouncements();
+            }
+        })();
+    </script>
+    @endauth
     
     <!-- Global PDF Modal - Available on all pages -->
     @include('components.pdf-modal')
 </body>
 </html>
+
 

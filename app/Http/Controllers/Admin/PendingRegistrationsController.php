@@ -16,7 +16,7 @@ class PendingRegistrationsController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->hasPermission('manage pending registrations')) {
+        if (!Auth::user()->hasPermission('view pending registrations')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view pending registrations.');
         }
 

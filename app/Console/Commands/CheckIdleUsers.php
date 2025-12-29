@@ -42,6 +42,7 @@ class CheckIdleUsers extends Command
         foreach ($idleUsers as $user) {
             // Store session ID before clearing
             $sessionId = $user->current_session_id;
+            $lastActivity = $user->last_activity ? $user->last_activity->toDateTimeString() : null;
             
             // Set user as offline
             $user->is_online = false;
@@ -57,7 +58,7 @@ class CheckIdleUsers extends Command
                 'User automatically logged out due to inactivity (30 minutes)',
                 $user,
                 [
-                    'last_activity' => $user->last_activity ? $user->last_activity->toDateTimeString() : null,
+                    'last_activity' => $lastActivity,
                     'idle_minutes' => $idleMinutes,
                     'session_id' => $sessionId,
                     'sessions_destroyed' => $sessionsDestroyed,
@@ -67,7 +68,7 @@ class CheckIdleUsers extends Command
 
             $loggedOutCount++;
             
-            $this->info("Logged out idle user: {$user->email} (Last activity: {$user->last_activity})");
+            $this->info("Logged out idle user: {$user->email} (Last activity: {$lastActivity})");
         }
 
         if ($loggedOutCount > 0) {

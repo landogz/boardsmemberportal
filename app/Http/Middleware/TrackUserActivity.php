@@ -21,6 +21,16 @@ class TrackUserActivity
             $user = Auth::user();
             $currentSessionId = session()->getId();
             
+            // Check if user was marked offline by scheduled task (idle timeout)
+            if (!$user->is_online && !$user->current_session_id) {
+                // User was auto-logged out due to inactivity
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return redirect()->route('login')->with('error', 'Your session has expired due to inactivity. Please log in again.');
+            }
+            
             // Check if the current session matches the user's active session
             if ($user->current_session_id && $user->current_session_id !== $currentSessionId) {
                 // Log the session invalidation before logging out

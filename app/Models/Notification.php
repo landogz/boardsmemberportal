@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\NotificationUnreadCountUpdated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,6 +24,22 @@ class Notification extends Model
         'read_at' => 'datetime',
         'data' => 'array',
     ];
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Broadcast when a new notification is created
+        static::created(function ($notification) {
+            $count = static::where('user_id', $notification->user_id)
+                ->where('is_read', false)
+                ->count();
+            broadcast(new NotificationUnreadCountUpdated($notification->user_id, $count));
+        });
+    }
 
     /**
      * Get the user that owns the notification

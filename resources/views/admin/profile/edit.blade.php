@@ -463,14 +463,106 @@
         $('#profilePictureInput').click();
     });
 
-    $('#profilePictureInput').on('change', function(e) {
+    $('#profilePictureInput').on('change', async function(e) {
         const file = e.target.files[0];
-        if (file) {
+        if (!file) {
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF)',
+            });
+            $(this).val(''); // Clear the input
+            return;
+        }
+
+        // Validate file size (2MB = 2048 KB)
+        if (file.size > 2048 * 1024) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Image size must not exceed 2MB',
+            });
+            $(this).val(''); // Clear the input
+            return;
+        }
+
+        // Store original image source
+        const originalSrc = $('#profilePicturePreview').attr('src');
+        
+        // Show preview immediately
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#profilePicturePreview').attr('src', e.target.result);
             };
             reader.readAsDataURL(file);
+
+        // Show loading overlay
+        const $container = $('.profile-picture-container');
+        const loadingOverlay = $('<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full z-10" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%;"><i class="fas fa-spinner fa-spin text-white text-2xl"></i></div>');
+        $container.append(loadingOverlay);
+
+        // Upload the file immediately
+        try {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+
+            const response = await axios.post('{{ route("profile.upload-picture") }}', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.success) {
+                // Update preview with the uploaded image URL
+                $('#profilePicturePreview').attr('src', response.data.profile_picture_url);
+                loadingOverlay.remove();
+                
+                // Update header and sidebar profile pictures
+                const newProfilePicUrl = response.data.profile_picture_url;
+                $('#headerProfilePicture').attr('src', newProfilePicUrl);
+                $('#sidebarProfilePicture').attr('src', newProfilePicUrl);
+                
+                // Trigger custom event for other components that might need to update
+                $(document).trigger('profilePictureUpdated', [newProfilePicUrl]);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.data.message || 'Profile picture uploaded successfully.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            } else {
+                throw new Error(response.data.message || 'Upload failed');
+            }
+        } catch (error) {
+            // Revert to original image on error
+            $('#profilePicturePreview').attr('src', originalSrc);
+            loadingOverlay.remove();
+            $(this).val(''); // Clear the input
+
+            let errorMessage = 'Failed to upload profile picture.';
+            if (error.response && error.response.data) {
+                if (error.response.data.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response.data.errors && error.response.data.errors.profile_picture) {
+                    errorMessage = error.response.data.errors.profile_picture[0];
+                }
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: errorMessage,
+            });
         }
     });
 

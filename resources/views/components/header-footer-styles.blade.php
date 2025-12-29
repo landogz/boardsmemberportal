@@ -221,5 +221,85 @@
             margin: 10px auto;
         }
     }
+    
+    /* Hide messages popup container and chat heads on mobile devices globally */
+    @media (max-width: 767px) {
+        /* Hide the entire messages popup container on mobile */
+        #messagesPopupContainer {
+            display: none !important;
+        }
+        
+        /* Hide chat popup headers on mobile */
+        #messagesPopupContainer .messages-popup .flex.items-center.justify-between.p-4,
+        #messagesPopupContainer .messages-popup [class*="popup-header"],
+        #messagesPopupContainer .messages-popup [class*="chat-header"] {
+            display: none !important;
+        }
+    }
+    
+    /* Force light mode for reactions modal globally */
+    #reactionsModal,
+    #reactionsModal * {
+        background-color:rgba(255, 255, 255, 0) !important;
+    }
+    
+    #reactionsModal .bg-white {
+        background-color: #ffffff !important;
+    }
+    
+    #reactionsModal .bg-gray-100 {
+        background-color: #f3f4f6 !important;
+    }
+    
+    #reactionsModal .bg-gray-200 {
+        background-color: #e5e7eb !important;
+    }
+    
+    #reactionsModal .text-gray-900,
+    #reactionsModal .text-gray-800 {
+        color: #1f2937 !important;
+    }
+    
+    #reactionsModal .text-gray-500 {
+        color: #6b7280 !important;
+    }
+    
+    #reactionsModal .text-gray-700 {
+        color: #374151 !important;
+    }
+    
+    #reactionsModal .border-gray-200 {
+        border-color: #e5e7eb !important;
+    }
+    
+    #reactionsModal .border-gray-700 {
+        border-color: #374151 !important;
+    }
+    
+    #reactionsModal [class*="dark:"] {
+        /* Override all dark mode classes */
+        background-color: inherit !important;
+        color: inherit !important;
+        border-color: inherit !important;
+    }
+    
+    #reactionsModal [class*="bg-gray-800"],
+    #reactionsModal [class*="bg-gray-900"],
+    #reactionsModal [class*="bg-gray-700"] {
+        background-color: #ffffff !important;
+    }
+    
+    #reactionsModal [class*="text-white"],
+    #reactionsModal [class*="text-gray-400"] {
+        color: #1f2937 !important;
+    }
+    
+    #reactionsModal .hover\:bg-gray-100:hover {
+        background-color: #f3f4f6 !important;
+    }
+    
+    #reactionsModal .hover\:bg-gray-200:hover {
+        background-color: #e5e7eb !important;
+    }
 </style>
 
