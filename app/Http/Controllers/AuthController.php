@@ -268,6 +268,20 @@ class AuthController extends Controller
             ]);
         }
 
+        // Send emails to all admin users
+        // Reload user with governmentAgency relationship for email
+        $user->load('governmentAgency');
+        $adminUsers = User::where('privilege', 'admin')->get();
+        foreach ($adminUsers as $adminUser) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($adminUser->email)->send(
+                    new \App\Mail\PendingRegistrationEmail($user, $adminUser)
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send pending registration email to admin ' . $adminUser->id . ': ' . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Registration successful! Your account is pending approval by CONSEC.',
@@ -319,7 +333,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle forgot password request (placeholder flow)
+     * Handle forgot password request
      */
     public function forgotPassword(Request $request)
     {
@@ -344,10 +358,158 @@ class AuthController extends Controller
             $meta
         );
 
-        // In a full implementation, send an email with reset instructions.
+        // Only send email if user exists (security: don't reveal if email exists)
+        if ($user) {
+            // Generate password reset token
+            $token = Str::random(64);
+            
+            // Store token in password_reset_tokens table
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'token' => Hash::make($token),
+                    'created_at' => now(),
+                ]
+            );
+
+            // Send password reset email
+            try {
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                    new \App\Mail\PasswordResetEmail($user, $token)
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send password reset email to user ' . $user->id . ': ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to send password reset email. Please try again later.',
+                ], 500);
+            }
+        }
+
+        // Always return success message (security: don't reveal if email exists)
         return response()->json([
             'success' => true,
             'message' => 'If the account exists, password reset instructions have been sent to the registered email.',
+        ]);
+    }
+
+    /**
+     * Show reset password form
+     */
+    public function showResetPasswordForm(Request $request)
+    {
+        $token = $request->query('token');
+        $email = $request->query('email');
+
+        if (!$token || !$email) {
+            return redirect()->route('password.request')
+                ->with('error', 'Invalid reset link.');
+        }
+
+        // Decode URL-encoded email
+        $email = urldecode($email);
+
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $email,
+        ]);
+    }
+
+    /**
+     * Handle password reset
+     */
+    public function resetPassword(Request $request)
+    {
+        // Custom password validation
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed',
+                function ($attribute, $value, $fail) {
+                    if (strlen($value) < 6) {
+                        $fail('The password must be at least 6 characters long.');
+                    }
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $fail('The password must contain at least one capital letter.');
+                    }
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $fail('The password must contain at least one small letter.');
+                    }
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $fail('The password must contain at least one number.');
+                    }
+                    if (!preg_match('/[~!@#$%^&*|]/', $value)) {
+                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |, etc.).');
+                    }
+                },
+            ],
+        ]);
+
+        // Decode URL-encoded email if needed
+        $email = urldecode($request->email);
+
+        // Check if token exists and is valid
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (!$resetRecord) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 400);
+        }
+
+        // Check if token matches
+        if (!Hash::check($request->token, $resetRecord->token)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 400);
+        }
+
+        // Check if token is expired (60 minutes)
+        $createdAt = \Carbon\Carbon::parse($resetRecord->created_at);
+        if ($createdAt->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'Reset token has expired. Please request a new one.',
+            ], 400);
+        }
+
+        // Find user
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Update password
+        $user->password_hash = Hash::make($request->password);
+        $user->save();
+
+        // Delete reset token
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        AuditLogger::log(
+            'auth.password_reset',
+            'Password reset successfully',
+            $user,
+            [
+                'ip_address' => $request->ip(),
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password has been reset successfully. You can now login with your new password.',
         ]);
     }
 }

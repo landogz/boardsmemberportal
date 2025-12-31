@@ -34,6 +34,161 @@
     
     // Calculate Today's Activities count
     $todayActivitiesCount = \App\Models\AuditLog::whereDate('created_at', \Carbon\Carbon::today())->count();
+    
+    // Widget Data - Announcements
+    $recentAnnouncements = \App\Models\Announcement::where('status', 'published')
+        ->with(['creator'])
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+    $totalAnnouncements = \App\Models\Announcement::where('status', 'published')->count();
+    $draftAnnouncements = \App\Models\Announcement::where('status', 'draft')->count();
+    
+    // Widget Data - Messages/Chats (connected to admin account)
+    $currentUserId = Auth::id();
+    
+    // Get recent messages where admin is sender or receiver (individual chats)
+    $recentIndividualMessages = \App\Models\Chat::with(['sender', 'receiver'])
+        ->where(function($query) use ($currentUserId) {
+            $query->where('sender_id', $currentUserId)
+                  ->orWhere('receiver_id', $currentUserId);
+        })
+        ->whereNull('group_id')
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    
+    // Get recent group messages where admin is a member
+    $recentGroupMessages = \App\Models\Chat::with(['sender', 'group'])
+        ->whereNotNull('group_id')
+        ->whereHas('group.members', function($query) use ($currentUserId) {
+            $query->where('user_id', $currentUserId);
+        })
+        ->orderBy('created_at', 'desc')
+        ->limit(2)
+        ->get();
+    
+    // Combine and sort by created_at
+    $recentMessages = $recentIndividualMessages->merge($recentGroupMessages)
+        ->sortByDesc('created_at')
+        ->take(5)
+        ->values();
+    
+    // Count total messages
+    $totalMessages = \App\Models\Chat::where(function($query) use ($currentUserId) {
+        $query->where('sender_id', $currentUserId)
+              ->orWhere('receiver_id', $currentUserId)
+              ->orWhereHas('group.members', function($q) use ($currentUserId) {
+                  $q->where('user_id', $currentUserId);
+              });
+    })->count();
+    
+    // Count unread messages
+    $unreadMessages = \App\Models\Chat::where(function($query) use ($currentUserId) {
+        $query->where('receiver_id', $currentUserId)
+              ->where('is_read', false)
+              ->whereNull('group_id');
+    })->orWhere(function($query) use ($currentUserId) {
+        $query->whereHas('group.members', function($q) use ($currentUserId) {
+            $q->where('user_id', $currentUserId);
+        })
+        ->where('is_read', false)
+        ->whereNotNull('group_id');
+    })->count();
+    
+    // Count group chats
+    $groupChatsCount = \App\Models\GroupChat::whereHas('members', function($query) use ($currentUserId) {
+        $query->where('user_id', $currentUserId);
+    })->count();
+    
+    // Widget Data - Board Resolutions & Regulations
+    $totalResolutions = \App\Models\OfficialDocument::count();
+    $totalRegulations = \App\Models\BoardRegulation::count();
+    $recentResolutions = \App\Models\OfficialDocument::with(['uploader'])
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    $recentRegulations = \App\Models\BoardRegulation::with(['uploader'])
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    
+    // Widget Data - Referendums
+    $activeReferendums = \App\Models\Referendum::where('expires_at', '>', now())->count();
+    $totalReferendums = \App\Models\Referendum::count();
+    $recentReferendums = \App\Models\Referendum::with(['creator'])
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    
+    // Widget Data - Online Users
+    $onlineUsers = \App\Models\User::where('is_online', true)->count();
+    $totalUsers = \App\Models\User::count();
+    $activeUsers = \App\Models\User::where('is_active', true)->count();
+    
+    // Widget Data - Recent Activities
+    $recentActivities = \App\Models\AuditLog::with(['user'])
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // Widget Data - Government Agencies
+    $activeAgencies = \App\Models\GovernmentAgency::where('is_active', true)->count();
+    $totalAgencies = \App\Models\GovernmentAgency::count();
+    
+    // Chart Data - Activity Over Time (Last 30 days)
+    $activityChartLabels = [];
+    $activityChartData = [];
+    for ($i = 29; $i >= 0; $i--) {
+        $date = \Carbon\Carbon::now()->subDays($i);
+        $activityChartLabels[] = $date->format('M d');
+        $activityChartData[] = \App\Models\AuditLog::whereDate('created_at', $date->toDateString())->count();
+    }
+    
+    // Chart Data - User Distribution
+    $userDistribution = [
+        'admin' => \App\Models\User::where('privilege', 'admin')->count(),
+        'consec' => \App\Models\User::where('privilege', 'consec')->count(),
+        'board_members' => \App\Models\User::where(function($query) {
+            $query->where('privilege', 'user')
+                  ->orWhere('representative_type', 'Board Member');
+        })->count(),
+        'authorized_reps' => \App\Models\User::where('representative_type', 'Authorized Representative')->count(),
+    ];
+    
+    // Chart Data - Messages Over Time (Last 7 days)
+    $messagesChartLabels = [];
+    $messagesChartData = [];
+    for ($i = 6; $i >= 0; $i--) {
+        $date = \Carbon\Carbon::now()->subDays($i);
+        $messagesChartLabels[] = $date->format('M d');
+        $messagesChartData[] = \App\Models\Chat::whereDate('created_at', $date->toDateString())->count();
+    }
+    
+    // Chart Data - Announcements Status
+    $announcementsStatus = [
+        'published' => \App\Models\Announcement::where('status', 'published')->count(),
+        'draft' => \App\Models\Announcement::where('status', 'draft')->count(),
+    ];
+    
+    // Chart Data - Content Creation (Last 6 months)
+    $contentChartLabels = [];
+    $resolutionsData = [];
+    $regulationsData = [];
+    $announcementsData = [];
+    for ($i = 5; $i >= 0; $i--) {
+        $date = \Carbon\Carbon::now()->subMonths($i);
+        $contentChartLabels[] = $date->format('M Y');
+        $resolutionsData[] = \App\Models\OfficialDocument::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+        $regulationsData[] = \App\Models\BoardRegulation::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+        $announcementsData[] = \App\Models\Announcement::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+    }
 @endphp
 
 @section('content')
@@ -109,705 +264,578 @@
             </div>
                     </div>
                 </div>
-                
-    <!-- Activities Calendar Section -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
-        <div class="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                            <div>
-                                <h3 class="text-base sm:text-lg font-semibold text-gray-800">
-                    <i class="fas fa-calendar-alt mr-2" style="color: #055498;"></i>
-                    Activities Calendar
-                                </h3>
-                <p class="text-xs sm:text-sm text-gray-600 mt-1">View meetings, announcements, and scheduled events</p>
-                            </div>
-                            <button id="toggleFilterBtn" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                <i class="fas fa-filter mr-2"></i>
-                                <span>Filter</span>
-                            </button>
-            </div>
 
-        <!-- Advanced Filter Panel -->
-        <div id="filterPanel" class="hidden mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Event Type Filter -->
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Event Type</label>
-                    <select id="filterEventType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm">
-                        <option value="all">All Types</option>
-                        <option value="meeting">Meetings</option>
-                        <option value="announcement">Announcements</option>
-                        <option value="resolution">Resolutions</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <!-- Date From Filter -->
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">From Date</label>
-                    <input type="date" id="filterDateFrom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm">
-            </div>
-
-                <!-- Date To Filter -->
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">To Date</label>
-                    <input type="date" id="filterDateTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm">
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        <!-- Activity Over Time Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg" style="background-color: rgba(251, 209, 22, 0.1);">
+                        <i class="fas fa-chart-line text-lg" style="color: #FBD116;"></i>
                     </div>
-                
-                <!-- Search Filter -->
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search</label>
-                    <input type="text" id="filterSearch" placeholder="Search events..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity Over Time</h3>
                 </div>
+                <span class="text-xs text-gray-500">Last 30 Days</span>
             </div>
-
-            <!-- Filter Actions -->
-            <div class="flex flex-wrap items-center justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
-                <button id="clearFiltersBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-times mr-2"></i>
-                    Clear Filters
-                </button>
-                <button id="applyFiltersBtn" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                    <i class="fas fa-check mr-2"></i>
-                    Apply Filters
-                </button>
+            <div class="relative" style="height: 250px;">
+                <canvas id="activityChart"></canvas>
             </div>
         </div>
-        
-        <div id="calendar" class="calendar-container"></div>
+
+        <!-- User Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg" style="background-color: rgba(5, 84, 152, 0.1);">
+                        <i class="fas fa-chart-pie text-lg" style="color: #055498;"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">User Distribution</h3>
+                </div>
+            </div>
+            <div class="relative" style="height: 250px;">
+                <canvas id="userDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Messages Activity Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg" style="background-color: rgba(5, 84, 152, 0.1);">
+                        <i class="fas fa-chart-bar text-lg" style="color: #055498;"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Messages Activity</h3>
+                </div>
+                <span class="text-xs text-gray-500">Last 7 Days</span>
+            </div>
+            <div class="relative" style="height: 250px;">
+                <canvas id="messagesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Announcements Status Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg" style="background-color: rgba(251, 209, 22, 0.1);">
+                        <i class="fas fa-chart-pie text-lg" style="color: #FBD116;"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Announcements Status</h3>
+                </div>
+            </div>
+            <div class="relative" style="height: 250px;">
+                <canvas id="announcementsChart"></canvas>
+            </div>
+        </div>
     </div>
 
-    <!-- Bottom Section removed (Today Tasks and Updates cards) -->
+    <!-- Content Creation Chart (Full Width) -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget mb-4 sm:mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="p-2 rounded-lg" style="background-color: rgba(206, 32, 40, 0.1);">
+                    <i class="fas fa-chart-area text-lg" style="color: #CE2028;"></i>
+                </div>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Content Creation Overview</h3>
+            </div>
+            <span class="text-xs text-gray-500">Last 6 Months</span>
+        </div>
+        <div class="relative" style="height: 300px;">
+            <canvas id="contentChart"></canvas>
+        </div>
+    </div>
 </div>
 @endsection
     
-@push('scripts')
-<!-- FullCalendar -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js"></script>
-    <script>
-    // Initialize Calendar
-    (function() {
-        // Store all events
-        const allEvents = [
-            {
-                title: 'Board Meeting - Q1 Review',
-                start: new Date().toISOString().split('T')[0],
-                backgroundColor: '#055498',
-                borderColor: '#055498',
-                textColor: '#ffffff',
-                extendedProps: {
-                    type: 'meeting',
-                    description: 'Quarterly board meeting to review Q1 performance and discuss upcoming initiatives.'
-                }
-            },
-            {
-                title: 'New Announcement: Policy Update',
-                start: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                backgroundColor: '#FBD116',
-                borderColor: '#FBD116',
-                textColor: '#123a60',
-                extendedProps: {
-                    type: 'announcement',
-                    description: 'Important policy update announcement for all board members.'
-                }
-            },
-            {
-                title: 'Resolution Review Meeting',
-                start: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
-                backgroundColor: '#CE2028',
-                borderColor: '#CE2028',
-                textColor: '#ffffff',
-                extendedProps: {
-                    type: 'meeting',
-                    description: 'Review and approve pending board resolutions.'
-                }
-            },
-            {
-                title: 'Announcement: Annual Report',
-                start: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
-                backgroundColor: '#FBD116',
-                borderColor: '#FBD116',
-                textColor: '#123a60',
-                extendedProps: {
-                    type: 'announcement',
-                    description: 'Annual report publication announcement.'
-                }
-            },
-            {
-                title: 'Committee Meeting',
-                start: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-                backgroundColor: '#055498',
-                borderColor: '#055498',
-                textColor: '#ffffff',
-                extendedProps: {
-                    type: 'meeting',
-                    description: 'Scheduled committee meeting to discuss ongoing projects.'
-                }
-            },
-            {
-                title: 'Board Resolution #2024-001',
-                start: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
-                backgroundColor: '#CE2028',
-                borderColor: '#CE2028',
-                textColor: '#ffffff',
-                extendedProps: {
-                    type: 'resolution',
-                    description: 'New board resolution for approval.'
-                }
-            },
-            {
-                title: 'Special Event',
-                start: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
-                backgroundColor: '#6B7280',
-                borderColor: '#6B7280',
-                textColor: '#ffffff',
-                extendedProps: {
-                    type: 'other',
-                    description: 'Special event for board members.'
-                }
-            }
-        ];
-        
-        let calendar = null;
-        
-        // Filter events function
-        function filterEvents() {
-            const eventType = document.getElementById('filterEventType').value;
-            const dateFrom = document.getElementById('filterDateFrom').value;
-            const dateTo = document.getElementById('filterDateTo').value;
-            const searchTerm = document.getElementById('filterSearch').value.toLowerCase();
-            
-            return allEvents.filter(event => {
-                // Filter by event type
-                if (eventType !== 'all' && event.extendedProps.type !== eventType) {
-                    return false;
-                }
-                
-                // Filter by date range
-                const eventDate = new Date(event.start);
-                if (dateFrom && eventDate < new Date(dateFrom)) {
-                    return false;
-                }
-                if (dateTo && eventDate > new Date(dateTo + 'T23:59:59')) {
-                    return false;
-                }
-                
-                // Filter by search term
-                if (searchTerm && !event.title.toLowerCase().includes(searchTerm) && 
-                    !event.extendedProps.description.toLowerCase().includes(searchTerm)) {
-                    return false;
-                }
-                
-                return true;
-            });
-        }
-        
-        // Apply filters to calendar
-        function applyFilters() {
-            if (calendar) {
-                const filteredEvents = filterEvents();
-                calendar.removeAllEvents();
-                calendar.addEventSource(filteredEvents);
-                
-                // Navigate calendar to date range if dates are set
-                const dateFrom = document.getElementById('filterDateFrom').value;
-                const dateTo = document.getElementById('filterDateTo').value;
-                
-                if (dateFrom || dateTo) {
-                    // If both dates are set
-                    if (dateFrom && dateTo) {
-                        const fromDate = new Date(dateFrom);
-                        const toDate = new Date(dateTo);
-                        const daysDiff = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-                        
-                        // Navigate to the start date
-                        calendar.gotoDate(dateFrom);
-                        
-                        // Adjust view based on date range
-                        const isMobile = window.innerWidth < 768;
-                        if (isMobile) {
-                            // On mobile, use listWeek view
-                            if (calendar.view.type !== 'listWeek') {
-                                calendar.changeView('listWeek');
-                            }
-                        } else {
-                            // On desktop, adjust view based on range
-                            if (daysDiff <= 7) {
-                                // For ranges up to a week, use week view
-                                if (calendar.view.type !== 'timeGridWeek' && calendar.view.type !== 'timeGridDay') {
-                                    calendar.changeView('timeGridWeek');
-                                }
-                            } else if (daysDiff <= 31) {
-                                // For ranges up to a month, use month view
-                                if (calendar.view.type !== 'dayGridMonth') {
-                                    calendar.changeView('dayGridMonth');
-                                }
-                            } else {
-                                // For longer ranges, stay in month view
-                                if (calendar.view.type !== 'dayGridMonth') {
-                                    calendar.changeView('dayGridMonth');
-                                }
-                            }
-                        }
-                    } 
-                    // If only From Date is set
-                    else if (dateFrom) {
-                        calendar.gotoDate(dateFrom);
-                    } 
-                    // If only To Date is set
-                    else if (dateTo) {
-                        calendar.gotoDate(dateTo);
-                    }
-                }
-            }
-        }
-        
-        // Clear all filters
-        function clearFilters() {
-            document.getElementById('filterEventType').value = 'all';
-            document.getElementById('filterDateFrom').value = '';
-            document.getElementById('filterDateTo').value = '';
-            document.getElementById('filterSearch').value = '';
-            
-            // Reset calendar to today's date
-            if (calendar) {
-                calendar.gotoDate(new Date());
-                // Reset to default view based on screen size
-                const isMobile = window.innerWidth < 768;
-                if (isMobile && calendar.view.type !== 'listWeek') {
-                    calendar.changeView('listWeek');
-                } else if (!isMobile && calendar.view.type === 'listWeek') {
-                    calendar.changeView('dayGridMonth');
-                }
-            }
-            
-            applyFilters();
-        }
-        
-        function initCalendar() {
-            const calendarEl = document.getElementById('calendar');
-            if (!calendarEl) {
-                return;
-            }
-            
-            // Check for FullCalendar availability
-            let FC = null;
-            if (typeof FullCalendar !== 'undefined' && FullCalendar.Calendar) {
-                FC = FullCalendar;
-            } else if (typeof window.FullCalendar !== 'undefined' && window.FullCalendar.Calendar) {
-                FC = window.FullCalendar;
-            } else if (typeof window.FC !== 'undefined' && window.FC.Calendar) {
-                FC = window.FC;
-            }
-            
-            if (!FC || typeof FC.Calendar === 'undefined') {
-                setTimeout(initCalendar, 200);
-                return;
-            }
-            
-            try {
-                const isMobile = window.innerWidth < 768;
-                
-                calendar = new FC.Calendar(calendarEl, {
-                    initialView: isMobile ? 'listWeek' : 'dayGridMonth',
-                    headerToolbar: {
-                        left: isMobile ? 'prev,next' : 'prev,next today',
-                        center: 'title',
-                        right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
-                    },
-                    height: 'auto',
-                    editable: false,
-                    selectable: false,
-                    views: {
-                        listWeek: {
-                            listDayFormat: { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' },
-                            listDaySideFormat: false
-                        }
-                    },
-                    events: allEvents,
-                    eventClick: function(info) {
-                        const eventType = info.event.extendedProps.type || 'event';
-                        const description = info.event.extendedProps.description || 'No description available.';
-                        const eventDate = info.event.start.toLocaleDateString('en-US', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                        });
-                        
-                    Swal.fire({
-                            title: info.event.title,
-                            html: `
-                                <div class="text-left">
-                                    <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${eventType}</span></p>
-                                    <p class="mb-2"><strong>Date:</strong> ${eventDate}</p>
-                                    ${info.event.start.toLocaleTimeString ? `<p class="mb-2"><strong>Time:</strong> ${info.event.start.toLocaleTimeString()}</p>` : ''}
-                                    <p class="mb-2"><strong>Description:</strong></p>
-                                    <p class="text-sm text-gray-600">${description}</p>
-                                </div>
-                            `,
-                            icon: 'info',
-                            confirmButtonText: 'Close',
-                            confirmButtonColor: '#055498'
-                    });
-                    },
-                    eventDisplay: 'block',
-                    dayMaxEvents: true,
-                    moreLinkClick: 'popover'
-                });
-                
-                calendar.render();
-                
-                // Handle window resize
-                let resizeTimer;
-                window.addEventListener('resize', function() {
-                    clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(function() {
-                        const isMobile = window.innerWidth < 768;
-                        const currentView = calendar.view.type;
-                        
-                        if (isMobile && currentView === 'dayGridMonth') {
-                            calendar.changeView('listWeek');
-                        } else if (!isMobile && currentView === 'listWeek') {
-                            calendar.changeView('dayGridMonth');
-                        }
-                        
-                        calendar.setOption('headerToolbar', {
-                            left: isMobile ? 'prev,next' : 'prev,next today',
-                            center: 'title',
-                            right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
-                        });
-                    }, 250);
-                });
-                
-                // Filter panel toggle
-                const toggleFilterBtn = document.getElementById('toggleFilterBtn');
-                const filterPanel = document.getElementById('filterPanel');
-                
-                if (toggleFilterBtn && filterPanel) {
-                    toggleFilterBtn.addEventListener('click', function() {
-                        filterPanel.classList.toggle('hidden');
-                        const icon = toggleFilterBtn.querySelector('i');
-                        if (filterPanel.classList.contains('hidden')) {
-                            icon.className = 'fas fa-filter mr-2';
-                        } else {
-                            icon.className = 'fas fa-filter mr-2';
-                        }
-                    });
-                }
-                
-                // Apply filters button
-                const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-                if (applyFiltersBtn) {
-                    applyFiltersBtn.addEventListener('click', applyFilters);
-                }
-                
-                // Clear filters button
-                const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-                if (clearFiltersBtn) {
-                    clearFiltersBtn.addEventListener('click', clearFilters);
-                }
-                
-                // Auto-apply filters on input change (debounced)
-                let filterTimeout;
-                const filterInputs = ['filterEventType', 'filterDateFrom', 'filterDateTo', 'filterSearch'];
-                filterInputs.forEach(inputId => {
-                    const input = document.getElementById(inputId);
-                    if (input) {
-                        input.addEventListener('change', function() {
-                            clearTimeout(filterTimeout);
-                            filterTimeout = setTimeout(applyFilters, 300);
-                        });
-                        input.addEventListener('input', function() {
-                            if (inputId === 'filterSearch') {
-                                clearTimeout(filterTimeout);
-                                filterTimeout = setTimeout(applyFilters, 500);
-                            }
-                        });
-                    }
-                });
-            } catch(error) {
-                console.error('Error initializing calendar:', error);
-            }
-        }
-        
-        // Load FullCalendar script dynamically if not already loaded
-        if (typeof FullCalendar === 'undefined' && typeof window.FullCalendar === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js';
-            script.onload = function() {
-                setTimeout(initCalendar, 100);
-            };
-            script.onerror = function() {
-                const altScript = document.createElement('script');
-                altScript.src = 'https://unpkg.com/fullcalendar@6.1.10/index.global.min.js';
-                altScript.onload = function() {
-                    setTimeout(initCalendar, 100);
-                };
-                document.head.appendChild(altScript);
-            };
-            document.head.appendChild(script);
-                } else {
-            // FullCalendar already loaded, initialize immediately
-            setTimeout(initCalendar, 100);
-        }
-    })();
-</script>
-
+@push('styles')
 <style>
-    /* FullCalendar Custom Styling */
-    .calendar-container {
-        min-height: 500px;
-        width: 100%;
-        overflow-x: auto;
-                }
-    
-    #calendar .fc {
-        font-family: inherit;
+    /* Dashboard Widget Styles */
+    .dashboard-widget {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
-    #calendar .fc-header-toolbar {
-        margin-bottom: 1.5rem;
-        padding: 0.5rem;
+    .dashboard-widget:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
-    #calendar .fc-button {
-        background-color: #055498 !important;
-        border-color: #055498 !important;
-        color: white !important;
-        padding: 0.5rem 1rem !important;
-        border-radius: 0.375rem !important;
-        font-weight: 500 !important;
-        transition: all 0.2s !important;
+    /* Custom Scrollbar for Widget Lists */
+    .widget-scroll::-webkit-scrollbar {
+        width: 6px;
     }
     
-    #calendar .fc-button:hover {
-        background-color: #123a60 !important;
-        border-color: #123a60 !important;
+    .widget-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
     }
     
-    #calendar .fc-button-active {
-        background-color: #123a60 !important;
-        border-color: #123a60 !important;
+    .widget-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
     }
     
-    #calendar .fc-today-button {
-        background-color: #FBD116 !important;
-        border-color: #FBD116 !important;
-        color: #123a60 !important;
+    .widget-scroll::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
     }
     
-    #calendar .fc-today-button:hover {
-        background-color: #facc15 !important;
-        border-color: #facc15 !important;
+    /* Clickable items */
+    .widget-item-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        -webkit-tap-highlight-color: transparent;
     }
     
-    #calendar .fc-day-today {
-        background-color: rgba(5, 84, 152, 0.1) !important;
+    .widget-item-link:active {
+        background-color: #f3f4f6;
     }
     
-    #calendar .fc-event {
-        border-radius: 0.25rem !important;
-        padding: 0.25rem 0.5rem !important;
-        cursor: pointer !important;
-    }
-    
-    #calendar .fc-event:hover {
-        opacity: 0.9 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    #calendar .fc-daygrid-day-number {
-        color: #374151 !important;
-        font-weight: 500 !important;
-    }
-    
-    #calendar .fc-col-header-cell {
-        background-color: #f9fafb !important;
-        padding: 0.75rem 0 !important;
-    }
-    
-    #calendar .fc-col-header-cell-cushion {
-        color: #374151 !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        font-size: 0.75rem !important;
-    }
-    
-    #calendar .fc-daygrid-day {
-        border-color: #e5e7eb !important;
-    }
-    
-    #calendar .fc-daygrid-day-frame {
-        min-height: 100px !important;
-    }
-    
+    /* Touch-friendly targets */
     @media (max-width: 640px) {
-        .calendar-container {
-            min-height: 400px;
-            padding: 0;
-        }
-        
-        #calendar .fc-header-toolbar {
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-        }
-        
-        #calendar .fc-toolbar-chunk {
+        .widget-item-link {
+            min-height: 48px;
             display: flex;
-            justify-content: center;
-            width: 100%;
-            flex-wrap: wrap;
-                }
-        
-        #calendar .fc-button {
-            padding: 0.375rem 0.75rem !important;
-            font-size: 0.75rem !important;
-        }
-        
-        #calendar .fc-toolbar-title {
-            font-size: 1rem !important;
-            margin: 0.5rem 0 !important;
-        }
-        
-        #calendar .fc-col-header-cell-cushion {
-            font-size: 0.625rem !important;
-            padding: 0.5rem 0.25rem !important;
-        }
-        
-        #calendar .fc-daygrid-day-number {
-            font-size: 0.75rem !important;
-            padding: 0.25rem !important;
-        }
-        
-        #calendar .fc-event {
-            font-size: 0.75rem !important;
-            padding: 0.125rem 0.375rem !important;
-            margin: 0.125rem 0 !important;
-        }
-        
-        #calendar .fc-daygrid-day-frame {
-            min-height: 60px !important;
-        }
-        
-        #calendar .fc-list-event {
-            font-size: 0.875rem !important;
-        }
-        
-        #calendar .fc-list-event-title {
-            font-size: 0.875rem !important;
-        }
-        
-        #calendar .fc-list-day-text {
-            padding-left: 0.5rem !important;
+            align-items: center;
         }
     }
     
-    @media (min-width: 641px) and (max-width: 1024px) {
-        .calendar-container {
-            min-height: 450px;
-                }
-        
-        #calendar .fc-header-toolbar {
-            padding: 0.75rem 0;
-        }
-        
-        #calendar .fc-button {
-            padding: 0.5rem 0.875rem !important;
-            font-size: 0.875rem !important;
-        }
-        
-        #calendar .fc-toolbar-title {
-            font-size: 1.125rem !important;
-        }
-        
-        #calendar .fc-daygrid-day-frame {
-            min-height: 80px !important;
-        }
-        
-        #calendar .fc-event {
-            font-size: 0.8125rem !important;
-        }
+    /* Chart Container Styles */
+    canvas {
+        max-width: 100%;
     }
     
-    @media (min-width: 1025px) {
-        .calendar-container {
-            min-height: 600px;
-        }
-        
-        #calendar .fc-daygrid-day-frame {
-            min-height: 120px !important;
-        }
-    }
-    
+    /* Responsive adjustments */
     @media (max-width: 1024px) {
-        #calendar .fc-scroller {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
+        .dashboard-widget {
+            min-height: auto;
         }
         
-        #calendar .fc-daygrid-body {
-            min-width: 100% !important;
+        .dashboard-widget canvas {
+            max-height: 200px;
         }
-    }
-    
-    @media (hover: none) and (pointer: coarse) {
-        #calendar .fc-button {
-            min-height: 44px !important;
-            min-width: 44px !important;
-        }
-        
-        #calendar .fc-event {
-            min-height: 32px !important;
-        }
-        
-        #calendar .fc-daygrid-day-number {
-            min-height: 32px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-                }
     }
     
     @media (max-width: 640px) {
-        #calendar .fc-more-link {
+        .dashboard-widget {
+            padding: 1rem !important;
+        }
+        
+        .dashboard-widget h3 {
+            font-size: 0.875rem !important;
+        }
+        
+        .dashboard-widget .text-sm {
             font-size: 0.75rem !important;
         }
         
-        #calendar .fc-popover {
-            max-width: 90vw !important;
+        .dashboard-widget .text-xs {
+            font-size: 0.7rem !important;
+        }
+        
+        .widget-scroll {
+            max-height: 120px !important;
+        }
+        
+        .dashboard-widget canvas {
+            max-height: 180px;
+        }
+        
+        /* Adjust chart container heights on mobile */
+        .dashboard-widget .relative[style*="height: 250px"] {
+            height: 200px !important;
+        }
+        
+        .dashboard-widget .relative[style*="height: 300px"] {
+            height: 220px !important;
+        }
+    }
+    
+    @media (max-width: 375px) {
+        .dashboard-widget {
+            padding: 0.75rem !important;
+        }
+        
+        .widget-scroll {
+            max-height: 100px !important;
+        }
+        
+        .dashboard-widget canvas {
+            max-height: 150px;
+        }
+        
+        .dashboard-widget .relative[style*="height: 250px"] {
+            height: 180px !important;
+        }
+        
+        .dashboard-widget .relative[style*="height: 300px"] {
+            height: 200px !important;
+        }
+    }
+    
+    /* Improve readability on small screens */
+    @media (max-width: 640px) {
+        .dashboard-widget p {
+            line-height: 1.4;
         }
     }
 </style>
+@endpush
 
+@push('scripts')
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     $(document).ready(function() {
-            // Menu item handlers
-            $('.manage-users, .manage-roles, .manage-announcements, .manage-meetings, .manage-attendance, .manage-resolutions, .manage-media, .manage-audit').on('click', function(e) {
-                e.preventDefault();
-                const title = $(this).closest('li').find('a').first().text().trim() || 'Feature';
-                Swal.fire({
-                    title: title,
-                    html: '<p>This feature will be available soon.</p>',
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                });
-            });
-
-            // Task item handlers
-            $('.task-item').on('click', function(e) {
-                e.preventDefault();
-                const taskText = $(this).find('a').text();
-                Swal.fire({
-                    title: 'Task Details',
-                    html: '<p>' + taskText + '</p><p>This feature will be available soon.</p>',
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                });
+        // Menu item handlers
+        $('.manage-users, .manage-roles, .manage-announcements, .manage-meetings, .manage-attendance, .manage-resolutions, .manage-media, .manage-audit').on('click', function(e) {
+            e.preventDefault();
+            const title = $(this).closest('li').find('a').first().text().trim() || 'Feature';
+            Swal.fire({
+                title: title,
+                html: '<p>This feature will be available soon.</p>',
+                icon: 'info',
+                confirmButtonText: 'OK'
             });
         });
-    </script>
-    
+
+        // Task item handlers
+        $('.task-item').on('click', function(e) {
+            e.preventDefault();
+            const taskText = $(this).find('a').text();
+            Swal.fire({
+                title: 'Task Details',
+                html: '<p>' + taskText + '</p><p>This feature will be available soon.</p>',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        });
+
+        // Initialize Charts
+        initializeCharts();
+    });
+
+    function initializeCharts() {
+        // Chart.js default configuration
+        Chart.defaults.font.family = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#6B7280';
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+
+        // Activity Over Time Chart (Line Chart)
+        const activityCtx = document.getElementById('activityChart');
+        if (activityCtx) {
+            new Chart(activityCtx, {
+                type: 'line',
+                data: {
+                    labels: @json($activityChartLabels),
+                    datasets: [{
+                        label: 'Activities',
+                        data: @json($activityChartData),
+                        borderColor: '#FBD116',
+                        backgroundColor: 'rgba(251, 209, 22, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#FBD116',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // User Distribution Chart (Doughnut Chart)
+        const userDistCtx = document.getElementById('userDistributionChart');
+        if (userDistCtx) {
+            new Chart(userDistCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Admin', 'CONSEC', 'Board Members', 'Authorized Reps'],
+                    datasets: [{
+                        data: [
+                            {{ $userDistribution['admin'] }},
+                            {{ $userDistribution['consec'] }},
+                            {{ $userDistribution['board_members'] }},
+                            {{ $userDistribution['authorized_reps'] }}
+                        ],
+                        backgroundColor: [
+                            '#055498',
+                            '#123a60',
+                            '#FBD116',
+                            '#CE2028'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 11 },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 6
+                        }
+                    }
+                }
+            });
+        }
+
+        // Messages Activity Chart (Bar Chart)
+        const messagesCtx = document.getElementById('messagesChart');
+        if (messagesCtx) {
+            new Chart(messagesCtx, {
+                type: 'bar',
+                data: {
+                    labels: @json($messagesChartLabels),
+                    datasets: [{
+                        label: 'Messages',
+                        data: @json($messagesChartData),
+                        backgroundColor: 'rgba(5, 84, 152, 0.8)',
+                        borderColor: '#055498',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Announcements Status Chart (Doughnut Chart)
+        const announcementsCtx = document.getElementById('announcementsChart');
+        if (announcementsCtx) {
+            new Chart(announcementsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Published', 'Draft'],
+                    datasets: [{
+                        data: [
+                            {{ $announcementsStatus['published'] }},
+                            {{ $announcementsStatus['draft'] }}
+                        ],
+                        backgroundColor: [
+                            '#10B981',
+                            '#6B7280'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 11 },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 6
+                        }
+                    }
+                }
+            });
+        }
+
+        // Content Creation Chart (Line Chart with Multiple Datasets)
+        const contentCtx = document.getElementById('contentChart');
+        if (contentCtx) {
+            new Chart(contentCtx, {
+                type: 'line',
+                data: {
+                    labels: @json($contentChartLabels),
+                    datasets: [
+                        {
+                            label: 'Resolutions',
+                            data: @json($resolutionsData),
+                            borderColor: '#CE2028',
+                            backgroundColor: 'rgba(206, 32, 40, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#CE2028',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Regulations',
+                            data: @json($regulationsData),
+                            borderColor: '#055498',
+                            backgroundColor: 'rgba(5, 84, 152, 0.15)',
+                            borderWidth: 3,
+                            borderDash: [8, 4],
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#055498',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointStyle: 'circle'
+                        },
+                        {
+                            label: 'Announcements',
+                            data: @json($announcementsData),
+                            borderColor: '#FBD116',
+                            backgroundColor: 'rgba(251, 209, 22, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#FBD116',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            display: true,
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 },
+                                usePointStyle: true,
+                                boxWidth: 12,
+                                boxHeight: 12
+                            },
+                            onClick: function(e, legendItem) {
+                                // Prevent hiding datasets on click to ensure all are visible
+                                const index = legendItem.datasetIndex;
+                                const chart = this.chart;
+                                const meta = chart.getDatasetMeta(index);
+                                meta.hidden = false;
+                                chart.update();
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 6,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+    }
+</script>
 @endpush
 

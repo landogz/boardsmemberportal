@@ -199,7 +199,7 @@
                     const isOnline = user.is_online || false;
                     const statusText = isOnline ? 'Active now' : (user.last_activity ? getTimeAgo(user.last_activity) : 'Offline');
                     const statusColor = isOnline ? 'text-green-500' : 'text-gray-400';
-                    const indicatorColor = isOnline ? 'bg-green-500' : 'bg-gray-400';
+                    const indicatorColor = isOnline ? '#3fbb46' : '#9ca3af';
                     
                     // Get profile picture
                     let avatarHtml = '';
@@ -237,7 +237,7 @@
                         <div class="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition border-b border-gray-100 dark:border-gray-700 message-user-item" data-user-id="${user.id}" data-user-name="${fullName}" data-user-initials="${initials}">
                             <div class="relative flex-shrink-0">
                                 ${avatarHtml}
-                                <div class="absolute bottom-0 right-0 w-3 h-3 ${indicatorColor} rounded-full border-2 border-white dark:border-gray-800"></div>
+                                <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800" style="background-color: ${indicatorColor};"></div>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-800 dark:text-white truncate">${fullName}</p>

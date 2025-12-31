@@ -671,13 +671,46 @@
             const group = groupedPermissions[category];
             const categoryId = md5(category);
             
-            // Filter out "manage", "create", "edit", and "delete" permissions
+            // Filter out unnecessary permissions - only show "view" permissions, hide all CRUD operations and admin-specific functions
             const filteredPermissions = group.permissions.filter(permission => {
                 const permissionName = permission.name.toLowerCase();
-                return !permissionName.startsWith('manage ') && 
-                       !permissionName.includes('create') && 
-                       !permissionName.includes('edit') && 
-                       !permissionName.includes('delete');
+                // Only show permissions that start with "view", hide create, edit, delete, manage, upload, etc.
+                if (!permissionName.startsWith('view ')) {
+                    return false;
+                }
+                // Hide admin-specific permissions
+                const adminPermissions = [
+                    'view users',
+                    'view roles',
+                    'view permissions',
+                    'view board members',
+                    'view audit logs',
+                    'view government agencies',
+                    'view consec',
+                    'view consec accounts',
+                    'view consec account',
+                    'view attendance',
+                    'view attendance confirmation',
+                    'view reference materials',
+                    'view agenda requests',
+                    'view agenda request',
+                    'view reports',
+                    'view report',
+                    'view media library',
+                    'view pending registrations'
+                ];
+                // Only show board member relevant permissions (announcements, resolutions, regulations, notices, calendar, referendum)
+                // Check if permission contains any admin-specific keywords
+                const isAdminPermission = adminPermissions.includes(permissionName) ||
+                    permissionName.includes('consec') ||
+                    permissionName.includes('attendance') ||
+                    permissionName.includes('reference material') ||
+                    permissionName.includes('agenda') ||
+                    permissionName.includes('report') ||
+                    permissionName.includes('media library') ||
+                    permissionName.includes('pending registration');
+                
+                return !isAdminPermission;
             });
             
             // Skip categories with no filtered permissions

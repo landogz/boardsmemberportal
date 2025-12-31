@@ -7,10 +7,12 @@ use App\Models\Announcement;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\MediaLibrary;
+use App\Mail\AnnouncementEmail;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -122,22 +124,25 @@ class AnnouncementController extends Controller
             // Attach allowed users
             $announcement->allowedUsers()->attach($validated['allowed_users']);
 
-            // Send notifications to all allowed users (only if published)
+            // Send notifications and emails to all allowed users (only if published)
             if ($announcement->status === 'published') {
                 // Check if scheduled for future
                 $shouldNotifyNow = $announcement->scheduled_at === null || $announcement->scheduled_at <= now();
                 
                 if ($shouldNotifyNow) {
-                    foreach ($validated['allowed_users'] as $userId) {
+                    // Reload announcement with allowed users
+                    $announcement->load('allowedUsers');
+                    
+                    foreach ($announcement->allowedUsers as $user) {
                         // Check if notification already exists to avoid duplicates
-                        $existingNotification = Notification::where('user_id', $userId)
+                        $existingNotification = Notification::where('user_id', $user->id)
                             ->where('type', 'announcement')
                             ->where('data->announcement_id', $announcement->id)
                             ->first();
                         
                         if (!$existingNotification) {
                             Notification::create([
-                                'user_id' => $userId,
+                                'user_id' => $user->id,
                                 'type' => 'announcement',
                                 'title' => 'New Announcement',
                                 'message' => 'A new announcement "' . $announcement->title . '" has been published.',
@@ -147,6 +152,13 @@ class AnnouncementController extends Controller
                                     'announcement_title' => $announcement->title,
                                 ],
                             ]);
+                        }
+                        
+                        // Send email to user
+                        try {
+                            Mail::to($user->email)->send(new AnnouncementEmail($announcement, $user));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send announcement email to user ' . $user->id . ': ' . $e->getMessage());
                         }
                     }
                 }
@@ -305,21 +317,24 @@ class AnnouncementController extends Controller
             // Get newly added users
             $newlyAddedUsers = array_diff($validated['allowed_users'], $previousAllowedUsers);
             
-            // Send notifications to newly added users if published
+            // Send notifications and emails to newly added users if published
             if ($announcement->status === 'published') {
                 $shouldNotifyNow = $announcement->scheduled_at === null || $announcement->scheduled_at <= now();
                 
                 if ($shouldNotifyNow && !empty($newlyAddedUsers)) {
-                    foreach ($newlyAddedUsers as $userId) {
+                    // Reload announcement with allowed users
+                    $announcement->load('allowedUsers');
+                    
+                    foreach ($announcement->allowedUsers->whereIn('id', $newlyAddedUsers) as $user) {
                         // Check if notification already exists to avoid duplicates
-                        $existingNotification = Notification::where('user_id', $userId)
+                        $existingNotification = Notification::where('user_id', $user->id)
                             ->where('type', 'announcement')
                             ->where('data->announcement_id', $announcement->id)
                             ->first();
                         
                         if (!$existingNotification) {
                             Notification::create([
-                                'user_id' => $userId,
+                                'user_id' => $user->id,
                                 'type' => 'announcement',
                                 'title' => 'New Announcement',
                                 'message' => 'A new announcement "' . $announcement->title . '" has been published.',
@@ -330,6 +345,13 @@ class AnnouncementController extends Controller
                                 ],
                             ]);
                         }
+                        
+                        // Send email to newly added user
+                        try {
+                            Mail::to($user->email)->send(new AnnouncementEmail($announcement, $user));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send announcement email to user ' . $user->id . ': ' . $e->getMessage());
+                        }
                     }
                 }
     }
@@ -339,16 +361,19 @@ class AnnouncementController extends Controller
                 $shouldNotifyNow = $announcement->scheduled_at === null || $announcement->scheduled_at <= now();
                 
                 if ($shouldNotifyNow) {
-                    foreach ($validated['allowed_users'] as $userId) {
+                    // Reload announcement with allowed users
+                    $announcement->load('allowedUsers');
+                    
+                    foreach ($announcement->allowedUsers as $user) {
                         // Check if notification already exists to avoid duplicates
-                        $existingNotification = Notification::where('user_id', $userId)
+                        $existingNotification = Notification::where('user_id', $user->id)
                             ->where('type', 'announcement')
                             ->where('data->announcement_id', $announcement->id)
                             ->first();
                         
                         if (!$existingNotification) {
                             Notification::create([
-                                'user_id' => $userId,
+                                'user_id' => $user->id,
                                 'type' => 'announcement',
                                 'title' => 'New Announcement',
                                 'message' => 'A new announcement "' . $announcement->title . '" has been published.',
@@ -358,6 +383,13 @@ class AnnouncementController extends Controller
                                     'announcement_title' => $announcement->title,
                                 ],
                             ]);
+                        }
+                        
+                        // Send email to user
+                        try {
+                            Mail::to($user->email)->send(new AnnouncementEmail($announcement, $user));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send announcement email to user ' . $user->id . ': ' . $e->getMessage());
                         }
                     }
                 }
@@ -390,6 +422,12 @@ class AnnouncementController extends Controller
     public function destroy($id)
     {
         if (!Auth::user()->hasPermission('delete announcements')) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to delete announcements.'
+                ], 403);
+            }
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to delete announcements.');
         }
 
@@ -417,11 +455,26 @@ class AnnouncementController extends Controller
 
             DB::commit();
 
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Announcement deleted successfully.'
+                ]);
+            }
+
             return redirect()->route('admin.announcements.index')
                 ->with('success', 'Announcement deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error deleting announcement: ' . $e->getMessage());
+            
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete announcement: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return back()->with('error', 'Failed to delete announcement: ' . $e->getMessage());
         }
     }

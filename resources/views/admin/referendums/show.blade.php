@@ -92,7 +92,7 @@
         right: 0;
         width: 12px;
         height: 12px;
-        background-color: #10B981;
+        background-color: #3fbb46;
         border: 2px solid white;
         border-radius: 50%;
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);

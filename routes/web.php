@@ -35,6 +35,8 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request')->middleware('guest');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email')->middleware('guest');
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset')->middleware('guest');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update')->middleware('guest');
 
 Route::get('/api/government-agencies', function () {
     $agencies = \App\Models\GovernmentAgency::active()->with('logo')->orderBy('name')->get(['id', 'name', 'code', 'logo_id']);
@@ -109,6 +111,16 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     Route::get('/admin/messages', function () {
         return view('admin.messages');
     })->name('admin.messages');
+
+    // Admin Calendar Route
+    Route::get('/admin/calendar', function () {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->hasPermission('view calendar events')) {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('admin.calendar');
+    })->name('admin.calendar');
+
 
     // Government Agency Routes
     Route::prefix('admin/government-agencies')->name('admin.government-agencies.')->group(function () {

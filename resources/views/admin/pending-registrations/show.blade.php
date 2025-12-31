@@ -332,6 +332,18 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Please wait while we approve the registration.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     axios.post(`/admin/pending-registrations/${registrationId}/approve`)
                         .then(response => {
                             if (response.data.success) {
@@ -383,6 +395,18 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const rejectionReason = result.value || '';
+
+                    // Show loading
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Please wait while we process the disapproval.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
                     axios.post(`/admin/pending-registrations/${registrationId}/disapprove`, {
                         rejection_reason: rejectionReason

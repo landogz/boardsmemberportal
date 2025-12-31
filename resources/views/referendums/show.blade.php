@@ -225,7 +225,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: #10b981;
+            background-color: #3fbb46;
             border: 2px solid white;
             box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
             z-index: 10;
@@ -1391,12 +1391,32 @@
                         replies: comment.replies || []
                     };
                     const commentHtml = renderComment(formattedComment);
+                    
+                    // Check if commentsList exists, if not create it
+                    let $commentsList = $('#commentsList');
+                    if ($commentsList.length === 0) {
+                        // Find the parent container that has #commentsCount
+                        const $commentsSection = $('#commentsCount').closest('.bg-gradient-to-br');
                         
-                    // Remove "No comments yet" message if it exists
-                    $('#commentsList').find('.text-center').remove();
+                        // Find and remove "No comments yet" message
+                        const $noCommentsDiv = $commentsSection.find('.text-center');
+                        if ($noCommentsDiv.length > 0) {
+                            // Replace the "No comments yet" div with commentsList
+                            $commentsList = $('<div id="commentsList" class="space-y-4"></div>');
+                            $noCommentsDiv.replaceWith($commentsList);
+                        } else {
+                            // If no "No comments yet" div found, just create commentsList after the header
+                            $commentsList = $('<div id="commentsList" class="space-y-4"></div>');
+                            $commentsSection.find('.flex.items-center').parent().after($commentsList);
+                        }
+                    } else {
+                        // Remove "No comments yet" message if it exists (sibling element)
+                        $commentsList.siblings('.text-center').remove();
+                        $commentsList.find('.text-center').remove();
+                    }
                     
                     // Append new comment to the bottom of the list
-                    $('#commentsList').append(commentHtml);
+                    $commentsList.append(commentHtml);
                     
                     // Update comment count
                     const $commentsCount = $('#commentsCount');

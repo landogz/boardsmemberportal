@@ -103,13 +103,9 @@
                                 </a>
                                 @endif
                                 @if(Auth::user()->hasPermission('delete announcements'))
-                                <form action="{{ route('admin.announcements.destroy', $announcement->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this announcement?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" onclick="deleteAnnouncement({{ $announcement->id }}, '{{ addslashes($announcement->title) }}')" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                                 @endif
                             </div>
                         </td>
@@ -146,6 +142,76 @@
         });
         @endif
     });
+
+    function deleteAnnouncement(id, title) {
+        Swal.fire({
+            title: 'Delete Announcement?',
+            html: `Are you sure you want to delete <strong>"${title}"</strong>?<br><br>This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Submit delete request via AJAX
+                const formData = new FormData();
+                formData.append('_method', 'DELETE');
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                fetch(`{{ url('admin/announcements') }}/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json().catch(() => ({ success: true }));
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Failed to delete announcement');
+                        });
+                    }
+                })
+                .then(data => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'The announcement has been deleted successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page
+                        window.location.reload();
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to delete announcement. Please try again.',
+                    });
+                });
+            }
+        });
+    }
 </script>
 @endpush
 

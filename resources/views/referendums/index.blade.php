@@ -161,7 +161,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: #10b981;
+            background-color: #3fbb46;
             border: 2px solid white;
             box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
             z-index: 10;

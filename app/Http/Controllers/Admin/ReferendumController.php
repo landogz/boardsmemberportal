@@ -10,6 +10,7 @@ use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ReferendumController extends Controller
 {
@@ -89,19 +90,30 @@ class ReferendumController extends Controller
             // Attach allowed users
             $referendum->allowedUsers()->attach($validated['allowed_users']);
 
-            // Send notifications to all allowed users
+            // Send notifications and emails to all allowed users
             foreach ($validated['allowed_users'] as $userId) {
-                Notification::create([
-                    'user_id' => $userId,
-                    'type' => 'announcement',
-                    'title' => 'New Referendum Available',
-                    'message' => 'A new referendum "' . $referendum->title . '" has been created and is now available for your review and vote.',
-                    'url' => route('referendums.show', $referendum->id),
-                    'data' => [
-                        'referendum_id' => $referendum->id,
-                        'referendum_title' => $referendum->title,
-                    ],
-                ]);
+                $user = User::find($userId);
+                if ($user) {
+                    // Create in-app notification
+                    Notification::create([
+                        'user_id' => $userId,
+                        'type' => 'announcement',
+                        'title' => 'New Referendum Available',
+                        'message' => 'A new referendum "' . $referendum->title . '" has been created and is now available for your review and vote.',
+                        'url' => route('referendums.show', $referendum->id),
+                        'data' => [
+                            'referendum_id' => $referendum->id,
+                            'referendum_title' => $referendum->title,
+                        ],
+                    ]);
+                    
+                    // Send email
+                    try {
+                        Mail::to($user->email)->send(new \App\Mail\ReferendumEmail($user, $referendum));
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to send referendum email to user ' . $userId . ': ' . $e->getMessage());
+                    }
+                }
             }
 
             AuditLogger::log(

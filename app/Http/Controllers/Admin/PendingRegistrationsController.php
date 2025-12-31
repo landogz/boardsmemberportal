@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\ApprovedRegistrationEmail;
+use App\Mail\DisapprovedRegistrationEmail;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PendingRegistrationsController extends Controller
 {
@@ -81,6 +84,13 @@ class PendingRegistrationsController extends Controller
             ]
         );
 
+        // Send approval email to user
+        try {
+            Mail::to($user->email)->send(new ApprovedRegistrationEmail($user));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send approval email to user ' . $user->id . ': ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Registration approved successfully. User can now login.',
@@ -105,10 +115,17 @@ class PendingRegistrationsController extends Controller
 
         $user = User::where('status', 'pending')->findOrFail($id);
 
-        // Store user data for audit log before deletion
+        // Store user data for audit log and email before deletion
         $userEmail = $user->email;
         $userName = trim(($user->pre_nominal_title ?? '') . ' ' . $user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . '.' : '') . ' ' . $user->last_name . ' ' . ($user->post_nominal_title ?? ''));
         $rejectionReason = $validated['rejection_reason'] ?? 'No reason provided';
+
+        // Send disapproval email to user before deletion
+        try {
+            Mail::to($userEmail)->send(new DisapprovedRegistrationEmail($userName, $userEmail, $rejectionReason));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send disapproval email to user ' . $user->id . ': ' . $e->getMessage());
+        }
 
         // Log the rejection before deletion
         AuditLogger::log(

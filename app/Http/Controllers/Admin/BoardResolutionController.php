@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\OfficialDocument;
 use App\Models\OfficialDocumentVersion;
 use App\Models\MediaLibrary;
+use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -105,6 +107,16 @@ class BoardResolutionController extends Controller
             'Created official document: ' . $document->title,
             $document
         );
+
+        // Send email to all users and consec
+        $recipients = User::whereIn('privilege', ['user', 'consec'])->get();
+        foreach ($recipients as $recipient) {
+            try {
+                Mail::to($recipient->email)->send(new \App\Mail\BoardResolutionEmail($recipient, $document));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send board resolution email to user ' . $recipient->id . ': ' . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,

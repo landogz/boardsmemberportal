@@ -23,23 +23,37 @@ class CalendarController extends Controller
         $user = Auth::user();
         $events = [];
 
-        // Get Board Resolutions (Official Documents)
-        $resolutions = OfficialDocument::with(['pdf', 'uploader'])
-            ->whereNotNull('effective_date')
-            ->get();
+        // Get Board Resolutions (Official Documents) - Display all resolutions
+        $resolutions = OfficialDocument::with(['pdf', 'uploader'])->get();
 
         foreach ($resolutions as $resolution) {
-            $year = $resolution->effective_date ? $resolution->effective_date->format('Y') : null;
+            // Use effective_date if available, otherwise use approved_date, otherwise use created_at
+            $eventDate = $resolution->effective_date 
+                ?? $resolution->approved_date 
+                ?? $resolution->created_at;
+            
+            // Skip if no date is available
+            if (!$eventDate) {
+                continue;
+            }
+            
+            $year = $eventDate ? $eventDate->format('Y') : null;
             $url = route('board-issuances', [
                 'type' => 'resolution',
                 'year' => $year,
                 'keyword' => urlencode($resolution->title),
             ]) . '#resolution-' . $resolution->id;
             
+            // Get PDF URL if available
+            $pdfUrl = null;
+            if ($resolution->pdf && $resolution->pdf->file_path) {
+                $pdfUrl = asset('storage/' . $resolution->pdf->file_path);
+            }
+            
             $events[] = [
                 'id' => 'resolution_' . $resolution->id,
                 'title' => $resolution->title,
-                'start' => $resolution->effective_date->format('Y-m-d'),
+                'start' => $eventDate->format('Y-m-d'),
                 'backgroundColor' => '#CE2028',
                 'borderColor' => '#CE2028',
                 'textColor' => '#ffffff',
@@ -51,29 +65,44 @@ class CalendarController extends Controller
                     'effective_date' => $resolution->effective_date ? $resolution->effective_date->format('F d, Y') : null,
                     'approved_date' => $resolution->approved_date ? $resolution->approved_date->format('F d, Y') : null,
                     'url' => $url,
+                    'pdf_url' => $pdfUrl,
                 ],
             ];
         }
 
-        // Get Board Regulations
-        $regulations = BoardRegulation::with(['pdf', 'uploader'])
-            ->whereNotNull('effective_date')
-            ->get();
+        // Get Board Regulations - Display all regulations
+        $regulations = BoardRegulation::with(['pdf', 'uploader'])->get();
 
         foreach ($regulations as $regulation) {
-            $year = $regulation->effective_date ? $regulation->effective_date->format('Y') : null;
+            // Use effective_date if available, otherwise use approved_date, otherwise use created_at
+            $eventDate = $regulation->effective_date 
+                ?? $regulation->approved_date 
+                ?? $regulation->created_at;
+            
+            // Skip if no date is available
+            if (!$eventDate) {
+                continue;
+            }
+            
+            $year = $eventDate ? $eventDate->format('Y') : null;
             $url = route('board-issuances', [
                 'type' => 'regulation',
                 'year' => $year,
                 'keyword' => urlencode($regulation->title),
             ]) . '#regulation-' . $regulation->id;
             
+            // Get PDF URL if available
+            $pdfUrl = null;
+            if ($regulation->pdf && $regulation->pdf->file_path) {
+                $pdfUrl = asset('storage/' . $regulation->pdf->file_path);
+            }
+            
             $events[] = [
                 'id' => 'regulation_' . $regulation->id,
                 'title' => $regulation->title,
-                'start' => $regulation->effective_date->format('Y-m-d'),
-                'backgroundColor' => '#CE2028',
-                'borderColor' => '#CE2028',
+                'start' => $eventDate->format('Y-m-d'),
+                'backgroundColor' => '#055498',
+                'borderColor' => '#055498',
                 'textColor' => '#ffffff',
                 'extendedProps' => [
                     'type' => 'regulation',
@@ -83,6 +112,7 @@ class CalendarController extends Controller
                     'effective_date' => $regulation->effective_date ? $regulation->effective_date->format('F d, Y') : null,
                     'approved_date' => $regulation->approved_date ? $regulation->approved_date->format('F d, Y') : null,
                     'url' => $url,
+                    'pdf_url' => $pdfUrl,
                 ],
             ];
         }

@@ -636,10 +636,16 @@
                             </h3>
                             <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">View meetings, announcements, and scheduled events</p>
                     </div>
-                        <button id="toggleFilterBtnLanding" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                            <i class="fas fa-filter mr-2"></i>
-                            <span>Filter</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button id="printCalendarBtn" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                                <i class="fas fa-print mr-2"></i>
+                                <span>Print</span>
+                            </button>
+                            <button id="toggleFilterBtnLanding" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                                <i class="fas fa-filter mr-2"></i>
+                                <span>Filter</span>
+                            </button>
+                        </div>
                 </div>
 
                     <!-- Advanced Filter Panel -->
@@ -1563,6 +1569,12 @@
                         clearFiltersBtn.addEventListener('click', clearFiltersLanding);
                     }
                     
+                    // Print calendar button
+                    const printCalendarBtn = document.getElementById('printCalendarBtn');
+                    if (printCalendarBtn) {
+                        printCalendarBtn.addEventListener('click', printCalendarEvents);
+                    }
+                    
                     // Auto-apply filters on input change (debounced)
                     let filterTimeout;
                     const filterInputs = ['filterEventTypeLanding', 'filterDateFromLanding', 'filterDateToLanding', 'filterSearchLanding'];
@@ -1606,6 +1618,455 @@
                 } catch(error) {
                     console.error('Error initializing landing calendar:', error);
                 }
+            }
+            
+            // Get current user information for print report
+            @auth
+            const currentUserInfo = {
+                firstName: @json(Auth::user()->first_name ?? ''),
+                lastName: @json(Auth::user()->last_name ?? ''),
+                email: @json(Auth::user()->email ?? '')
+            };
+            @else
+            const currentUserInfo = {
+                firstName: 'Guest',
+                lastName: '',
+                email: 'guest@example.com'
+            };
+            @endauth
+            
+            // Print calendar events function
+            function printCalendarEvents() {
+                if (!calendarLanding) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Calendar Not Ready',
+                        text: 'Please wait for the calendar to load.',
+                        confirmButtonColor: '#055498'
+                    });
+                    return;
+                }
+                
+                // Get all currently visible events from the calendar
+                const visibleEvents = calendarLanding.getEvents();
+                
+                if (visibleEvents.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'No Events',
+                        text: 'There are no events to print. Please adjust your filters.',
+                        confirmButtonColor: '#055498'
+                    });
+                    return;
+                }
+                
+                // Get current filter values for the report header
+                const eventType = document.getElementById('filterEventTypeLanding').value;
+                const dateFrom = document.getElementById('filterDateFromLanding').value;
+                const dateTo = document.getElementById('filterDateToLanding').value;
+                const searchTerm = document.getElementById('filterSearchLanding').value;
+                
+                // Format events for printing
+                const eventsData = visibleEvents.map(event => {
+                    const eventType = event.extendedProps.type || 'event';
+                    const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+                    const formattedDate = startDate.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    
+                    return {
+                        title: event.title,
+                        type: eventType.charAt(0).toUpperCase() + eventType.slice(1),
+                        date: formattedDate,
+                        startDate: startDate.toISOString().split('T')[0],
+                        description: event.extendedProps.description || 'No description available.',
+                        effectiveDate: event.extendedProps.effective_date || null,
+                        approvedDate: event.extendedProps.approved_date || null,
+                        url: event.extendedProps.url || null,
+                        id: event.extendedProps.id || null
+                    };
+                });
+                
+                // Sort events by date
+                eventsData.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                
+                // Create print window
+                const printWindow = window.open('', '_blank');
+                const printContent = generatePrintContent(eventsData, eventType, dateFrom, dateTo, searchTerm);
+                
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                
+                // Wait for content to load, then print
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 250);
+                };
+            }
+            
+            // Generate print content HTML
+            function generatePrintContent(events, eventTypeFilter, dateFrom, dateTo, searchTerm) {
+                const currentDate = new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                const currentTime = new Date().toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                let filterInfo = '<div class="info-section">';
+                filterInfo += '<div class="info-row"><span class="info-label">Generated On:</span><span class="info-value">' + currentDate + ' at ' + currentTime + '</span></div>';
+                filterInfo += '<div class="info-row"><span class="info-label">Generated By:</span><span class="info-value">' + (currentUserInfo.firstName + ' ' + currentUserInfo.lastName).trim() + ' (' + currentUserInfo.email + ')</span></div>';
+                filterInfo += '<div class="info-row"><span class="info-label">Total Events:</span><span class="info-value">' + events.length + '</span></div>';
+                if (eventTypeFilter !== 'all' || dateFrom || dateTo || searchTerm) {
+                    filterInfo += '<div class="info-row" style="margin-top: 10px;"><span class="info-label" style="font-weight: bold; color: #055498;">Applied Filters:</span><span class="info-value"></span></div>';
+                    filterInfo += '<div class="info-row"><span class="info-label">Event Type:</span><span class="info-value">' + (eventTypeFilter === 'all' ? 'All Types' : eventTypeFilter.charAt(0).toUpperCase() + eventTypeFilter.slice(1)) + '</span></div>';
+                    if (dateFrom) {
+                        filterInfo += '<div class="info-row"><span class="info-label">From Date:</span><span class="info-value">' + new Date(dateFrom).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span></div>';
+                    }
+                    if (dateTo) {
+                        filterInfo += '<div class="info-row"><span class="info-label">To Date:</span><span class="info-value">' + new Date(dateTo).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span></div>';
+                    }
+                    if (searchTerm) {
+                        filterInfo += '<div class="info-row"><span class="info-label">Search Term:</span><span class="info-value">' + escapeHtml(searchTerm) + '</span></div>';
+                    }
+                }
+                filterInfo += '</div>';
+                
+                let eventsTable = '';
+                if (events.length > 0) {
+                    eventsTable = '<table><thead><tr>';
+                    eventsTable += '<th style="width: 15%;">Date</th>';
+                    eventsTable += '<th style="width: 12%;">Type</th>';
+                    eventsTable += '<th style="width: 25%;">Title</th>';
+                    eventsTable += '<th style="width: 38%;">Description</th>';
+                    eventsTable += '<th style="width: 10%;">Details</th>';
+                    eventsTable += '</tr></thead><tbody>';
+                    
+                    events.forEach(event => {
+                        eventsTable += '<tr>';
+                        eventsTable += '<td>' + event.date + '</td>';
+                        eventsTable += '<td><span class="badge">' + event.type + '</span></td>';
+                        eventsTable += '<td style="font-weight: bold; color: #333;">' + escapeHtml(event.title) + '</td>';
+                        // Clean description - remove HTML tags but preserve text content
+                        let cleanDescription = event.description || 'No description available.';
+                        // Remove HTML tags but keep text content
+                        cleanDescription = cleanDescription.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                        // If description is empty after cleaning, use fallback
+                        if (!cleanDescription || cleanDescription === '') {
+                            cleanDescription = 'No description available.';
+                        }
+                        eventsTable += '<td style="font-size: 9px; color: #666; line-height: 1.6; text-align: justify; white-space: normal; word-wrap: break-word;">' + escapeHtml(cleanDescription) + '</td>';
+                        
+                        // Details column
+                        let detailsHtml = '';
+                        if (event.effectiveDate) {
+                            detailsHtml += '<div style="margin-bottom: 4px;"><strong style="font-size: 8px; color: #055498;">Effective:</strong><br><span style="font-size: 8px;">' + event.effectiveDate + '</span></div>';
+                        }
+                        if (event.approvedDate) {
+                            detailsHtml += '<div><strong style="font-size: 8px; color: #055498;">Approved:</strong><br><span style="font-size: 8px;">' + event.approvedDate + '</span></div>';
+                        }
+                        if (!detailsHtml) {
+                            detailsHtml = '<span style="color: #999; font-size: 8px;">—</span>';
+                        }
+                        eventsTable += '<td>' + detailsHtml + '</td>';
+                        eventsTable += '</tr>';
+                    });
+                    
+                    eventsTable += '</tbody></table>';
+                } else {
+                    eventsTable = '<div class="no-data"><p>No events found.</p></div>';
+                }
+                
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Events Report</title>
+    <style>
+        @page {
+            size: landscape;
+            margin: 15mm;
+            margin-header: 0;
+            margin-footer: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            color: #333;
+            line-height: 1.4;
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+        
+        .header {
+            color: #000000 !important;
+            padding: 0 20px 20px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .header img {
+            max-width: 400px;
+            height: auto;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #000000 !important;
+        }
+        
+        .header p {
+            font-size: 11px;
+            opacity: 1;
+            margin-bottom: 5px;
+            color: #000000 !important;
+        }
+        
+        .info-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #055498;
+        }
+        
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            display: table-cell;
+            font-weight: bold;
+            width: 150px;
+            color: #555;
+        }
+        
+        .info-value {
+            display: table-cell;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        
+        thead {
+            background-color: #055498;
+            color: white;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        thead th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+            border: 1px solid #044080;
+            background-color: #055498 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        tbody td {
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 9px;
+            vertical-align: top;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+        
+        tbody td:nth-child(4) {
+            /* Description column - ensure full text is visible */
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tbody tr:hover {
+            background-color: #e8f4f8;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: bold;
+            background-color: rgba(5, 84, 152, 0.1);
+            color: #055498;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 9px;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .no-data {
+            padding: 30px;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+        }
+        
+        @media print {
+            @page {
+                size: landscape;
+                margin: 15mm;
+                margin-header: 0;
+                margin-footer: 0;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            .header {
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .header img {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            table {
+                page-break-inside: auto;
+            }
+            
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            
+            tbody td {
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+            
+            tbody td:nth-child(4) {
+                /* Description column - ensure full text wraps on print */
+                white-space: normal !important;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            thead {
+                display: table-header-group;
+                background-color: #055498 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            thead th {
+                background-color: #055498 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            tfoot {
+                display: table-footer-group;
+            }
+            
+            /* Ensure all colors print correctly */
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
+        <h1>Activities Calendar Report</h1>
+        <p>Board Member Portal - Calendar Events</p>
+    </div>
+    
+    ${filterInfo}
+    
+    ${eventsTable}
+    
+    <div class="footer">
+        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Member Portal System</p>
+        <p style="margin-top: 5px;">Report contains ${events.length} event(s) based on current calendar filters</p>
+    </div>
+</body>
+</html>`;
+            }
+            
+            // Escape HTML helper
+            function escapeHtml(text) {
+                if (!text) return '';
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
             }
             
             // Load calendar events first, then initialize calendar

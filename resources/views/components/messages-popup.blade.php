@@ -149,7 +149,7 @@
                                     }
                                     ${user.isGroup ? 
                                         `<i class="fas fa-users text-xs text-gray-500 absolute -top-1 -right-1 bg-white rounded-full p-1"></i>` :
-                                        `<div class="absolute bottom-0 right-0 w-3 h-3 ${user.status === 'Active now' ? 'bg-green-500' : 'bg-gray-400'} rounded-full border-2 border-white"></div>`
+                                        `<div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white" style="background-color: ${user.status === 'Active now' ? '#3fbb46' : '#9ca3af'};"></div>`
                                     }
                                 </div>
                                 <div>
@@ -1754,8 +1754,8 @@
                 const senderIsOnline = msg.sender?.is_online || false;
                 
                 // Create avatar with online indicator
-                const onlineIndicatorColor = senderIsOnline ? 'bg-green-500' : 'bg-gray-400';
-                const onlineIndicator = `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 ${onlineIndicatorColor} rounded-full border-2 border-white"></div>`;
+                const onlineIndicatorColor = senderIsOnline ? '#3fbb46' : '#9ca3af';
+                const onlineIndicator = `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white" style="background-color: ${onlineIndicatorColor};"></div>`;
                 
                 const receiverAvatar = senderProfilePicture
                     ? `<div class="relative flex-shrink-0">${onlineIndicator}<img src="${senderProfilePicture}" alt="${senderName}" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200"></div>`

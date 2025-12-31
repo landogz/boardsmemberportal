@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>Forgot Password - Board Member Portal</title>
+    <title>Reset Password - Board Member Portal</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -65,6 +65,24 @@
             background-size: 200% 200%;
             animation: gradient-shift 8s ease infinite;
         }
+        .password-requirements {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .password-requirements ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .password-requirements li {
+            padding: 0.25rem 0;
+        }
+        .password-requirements li.valid {
+            color: #10B981;
+        }
+        .password-requirements li.invalid {
+            color: #ef4444;
+        }
     </style>
     @include('components.header-footer-styles')
 </head>
@@ -75,22 +93,49 @@
     <div class="min-h-[50vh] flex items-center justify-center p-4 py-16">
         <div class="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 space-y-6">
             <div class="text-center">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Forgot Password</h1>
-                <p class="text-gray-600">Enter your email or username to request a reset.</p>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Reset Password</h1>
+                <p class="text-gray-600 dark:text-gray-400">Enter your new password below.</p>
             </div>
 
-            <form id="forgotPasswordForm" class="space-y-4">
+            <form id="resetPasswordForm" class="space-y-4">
+                <input type="hidden" name="token" value="{{ $token }}">
+                <input type="hidden" name="email" value="{{ $email }}">
+
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email or Username</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
                     <input
-                        type="text"
-                        id="email"
-                        name="email"
+                        type="password"
+                        id="password"
+                        name="password"
                         required
+                        minlength="6"
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                        placeholder="Enter your email or username"
+                        placeholder="Enter new password"
                     >
-                    <span class="text-red-500 text-sm hidden" id="email-error"></span>
+                    <span class="text-red-500 text-sm hidden" id="password-error"></span>
+                    <div class="password-requirements mt-2">
+                        <ul>
+                            <li id="req-length" class="invalid">Minimum of 6 alphanumeric characters</li>
+                            <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
+                            <li id="req-lowercase" class="invalid">At least 1 small letter</li>
+                            <li id="req-number" class="invalid">At least 1 number</li>
+                            <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
+                    <input
+                        type="password"
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        required
+                        minlength="6"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        placeholder="Confirm new password"
+                    >
+                    <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
                 </div>
 
                 <button
@@ -101,8 +146,8 @@
                     onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'"
                     onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'"
                 >
-                    <span id="resetBtnText">Send Reset Link</span>
-                    <span id="resetBtnLoader" class="hidden">Sending...</span>
+                    <span id="resetBtnText">Reset Password</span>
+                    <span id="resetBtnLoader" class="hidden">Resetting...</span>
                 </button>
             </form>
 
@@ -110,9 +155,6 @@
                 <a href="{{ route('login') }}" class="text-sm font-semibold" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
                     Back to Login
                 </a>
-                <div>
-                    <a href="{{ route('landing') }}" class="text-sm text-gray-500 hover:text-gray-700 inline-block">Back to Home</a>
-                </div>
             </div>
         </div>
     </div>
@@ -127,23 +169,58 @@
                 }
             });
 
-            $('#forgotPasswordForm').on('submit', function(e) {
+            // Password validation
+            $('#password').on('input', function() {
+                const password = $(this).val();
+                
+                // Check requirements
+                $('#req-length').toggleClass('valid invalid', password.length >= 6);
+                $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
+                $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
+                $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
+                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+            });
+
+            function validatePassword(password) {
+                return password.length >= 6 &&
+                       /[A-Z]/.test(password) &&
+                       /[a-z]/.test(password) &&
+                       /[0-9]/.test(password) &&
+                       /[~!@#$%^&*|]/.test(password);
+            }
+
+            $('#resetPasswordForm').on('submit', function(e) {
                 e.preventDefault();
 
-                const login = $('#email').val();
+                const password = $('#password').val();
+                const passwordConfirmation = $('#password_confirmation').val();
                 const resetBtn = $('#resetBtn');
                 const resetBtnText = $('#resetBtnText');
                 const resetBtnLoader = $('#resetBtnLoader');
 
-                $('#email-error').addClass('hidden').text('');
+                // Clear previous errors
+                $('#password-error, #password_confirmation-error').addClass('hidden').text('');
+
+                // Validate passwords match
+                if (password !== passwordConfirmation) {
+                    $('#password_confirmation-error').removeClass('hidden').text('Passwords do not match.');
+                    return;
+                }
+
+            // Validate password requirements
+            if (!validatePassword(password)) {
+                $('#password-error').removeClass('hidden').text('Password does not meet all requirements.');
+                return;
+            }
+
                 resetBtn.prop('disabled', true);
                 resetBtnText.addClass('hidden');
                 resetBtnLoader.removeClass('hidden');
 
                 // Show loading
                 Swal.fire({
-                    title: 'Sending...',
-                    text: 'Please wait while we send the reset link.',
+                    title: 'Resetting Password...',
+                    text: 'Please wait while we reset your password.',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showConfirmButton: false,
@@ -153,30 +230,38 @@
                 });
 
                 $.ajax({
-                    url: '{{ route("password.email") }}',
+                    url: '{{ route("password.update") }}',
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': token,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    data: { 
-                        email: login,
+                    data: {
+                        token: $('input[name="token"]').val(),
+                        email: $('input[name="email"]').val(),
+                        password: password,
+                        password_confirmation: passwordConfirmation,
                         _token: token
                     },
                 success: function(response) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Request Sent',
+                        title: 'Password Reset!',
                         text: response.message,
-                        timer: 2000,
-                        showConfirmButton: false
+                        confirmButtonText: 'Go to Login'
+                    }).then(() => {
+                        window.location.href = '{{ route("login") }}';
                     });
                 },
                 error: function(xhr) {
+                    Swal.close();
                     if (xhr.status === 422 && xhr.responseJSON?.errors) {
                         const errors = xhr.responseJSON.errors;
-                        if (errors.email) {
-                            $('#email-error').removeClass('hidden').text(errors.email[0]);
+                        if (errors.password) {
+                            $('#password-error').removeClass('hidden').text(errors.password[0]);
+                        }
+                        if (errors.password_confirmation) {
+                            $('#password_confirmation-error').removeClass('hidden').text(errors.password_confirmation[0]);
                         }
                     } else {
                         Swal.fire({

@@ -71,7 +71,7 @@
             </div>
         </div>
         <div class="border-t border-gray-600 pt-4 text-center">
-            <p>&copy; 2024 Board Member Portal. All rights reserved. | Republic of the Philippines</p>
+            <p>&copy; {{ date('Y') }} Board Member Portal. All rights reserved. | Republic of the Philippines</p>
         </div>
     </div>
 </div>

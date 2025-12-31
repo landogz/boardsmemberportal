@@ -2711,7 +2711,7 @@
                 }
                 
                 // Online indicator color (only for non-groups)
-                const indicatorColor = isGroup ? '' : (isOnline ? 'bg-green-500' : 'bg-gray-400');
+                const indicatorColor = isGroup ? '' : (isOnline ? '#3fbb46' : '#9ca3af');
                 
                 let avatarHtml = '';
                 if (profilePictureUrl) {
@@ -2779,20 +2779,57 @@
             if (messageText && messageText.trim()) {
                 lastMessageText = messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText;
             } else if (message && message.attachments && message.attachments.length > 0) {
-                // Check attachment type
+                // Check attachment type - check for voice/audio messages first
                 const attachment = message.attachments[0];
+                
+                // Check if it's explicitly a voice/audio message (by name or explicit audio type)
+                const isVoiceMessage = (attachment.name && (
+                    attachment.name.includes('voice-message') || 
+                    attachment.name.includes('voice_') ||
+                    attachment.name.includes('recording') ||
+                    /\.mp3$/i.test(attachment.name)
+                )) || (attachment.type && (
+                    attachment.type.startsWith('audio/') ||
+                    attachment.type === 'audio/mpeg'
+                )) || (attachment.url && /\.mp3(\?|$|#)/i.test(attachment.url));
+                
+                // Check if it's an audio file (not voice message, but still audio)
+                const isAudio = !isVoiceMessage && (
+                    (attachment.type && attachment.type.startsWith('audio/')) ||
+                    (attachment.name && /\.(mp3|wav|ogg|m4a|aac)$/i.test(attachment.name)) ||
+                    (attachment.url && /\.(mp3|wav|ogg|m4a|aac)(\?|$|#)/i.test(attachment.url))
+                );
+                
+                // Check if it's a video file (but exclude voice messages which might be video/mp4)
+                const isVideo = !isVoiceMessage && (
+                    (attachment.type && attachment.type.startsWith('video/')) || 
+                    (attachment.name && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)$/i.test(attachment.name)) ||
+                    (attachment.url && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)(\?|$|#)/i.test(attachment.url))
+                );
+                
                 if (attachment.type) {
                     if (attachment.type.startsWith('image/')) {
                         lastMessageText = '📷 Image';
-                    } else if (attachment.type.startsWith('video/')) {
-                        lastMessageText = '🎥 Video';
-                    } else if (attachment.type.startsWith('audio/')) {
+                    } else if (isVoiceMessage) {
                         lastMessageText = '🎤 Voice message';
+                    } else if (isAudio) {
+                        lastMessageText = '🎵 Audio';
+                    } else if (isVideo) {
+                        lastMessageText = '🎥 Video';
                     } else {
                         lastMessageText = '📎 Attachment';
                     }
                 } else {
-                    lastMessageText = '📎 Attachment';
+                    // Fallback to name/url checking if type is not available
+                    if (isVoiceMessage) {
+                        lastMessageText = '🎤 Voice message';
+                    } else if (isAudio) {
+                        lastMessageText = '🎵 Audio';
+                    } else if (isVideo) {
+                        lastMessageText = '🎥 Video';
+                    } else {
+                        lastMessageText = '📎 Attachment';
+                    }
                 }
             } else {
                 lastMessageText = 'No messages yet';
@@ -3048,8 +3085,8 @@
             }
             
             // Add online status indicator (only for non-groups)
-            const indicatorColor = isGroup ? '' : (isOnline ? 'bg-green-500' : 'bg-gray-400');
-            const indicatorHtml = !isGroup ? `<div class="absolute bottom-0 right-0 w-3 h-3 ${indicatorColor} rounded-full border-2 border-white dark:border-gray-800"></div>` : '';
+            const indicatorColor = isGroup ? '' : (isOnline ? '#3fbb46' : '#9ca3af');
+            const indicatorHtml = !isGroup ? `<div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800" style="background-color: ${indicatorColor};"></div>` : '';
             
             // Add group icon for groups
             const groupIcon = isGroup ? '<i class="fas fa-users text-xs text-gray-500 dark:text-gray-400 absolute -top-1 -right-1 bg-white dark:bg-gray-800 rounded-full p-1"></i>' : '';
@@ -3854,8 +3891,8 @@
                 const senderIsOnline = msg.sender?.is_online || false;
                 
                 // Create avatar with online indicator
-                const onlineIndicatorColor = senderIsOnline ? 'bg-green-500' : 'bg-gray-400';
-                const onlineIndicator = `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 ${onlineIndicatorColor} rounded-full border-2 border-white dark:border-gray-800"></div>`;
+                const onlineIndicatorColor = senderIsOnline ? '#3fbb46' : '#9ca3af';
+                const onlineIndicator = `<div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-gray-800" style="background-color: ${onlineIndicatorColor};"></div>`;
                 
                 const receiverAvatar = senderProfilePicture
                     ? `<div class="relative flex-shrink-0">${onlineIndicator}<img src="${senderProfilePicture}" alt="${senderName}" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"></div>`
@@ -4817,7 +4854,7 @@
                         const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                         const initials = (user.first_name?.[0] || '') + (user.last_name?.[0] || '');
                         const isOnline = user.is_online || false;
-                        const indicatorColor = isOnline ? 'bg-green-500' : 'bg-gray-400';
+                        const indicatorColor = isOnline ? '#3fbb46' : '#9ca3af';
                         
                         let avatarHtml = '';
                         if (user.profile_picture_url) {

@@ -112,7 +112,10 @@
                             @endcan
                             @can('view calendar events')
                             <li>
-                                <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group">
+                                @php
+                                    $isCalendarActive = request()->routeIs('admin.calendar') || request()->is('admin/calendar');
+                                @endphp
+                                <a href="{{ route('admin.calendar') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ $isCalendarActive ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ $isCalendarActive ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-calendar-alt w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Calendar of Activities</span>
                                 </a>

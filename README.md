@@ -36,9 +36,11 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Board Resolutions** - Create, edit, view, and manage board resolutions with version history
 - **Board Regulations** - Complete CRUD with versioning and change notes
 - **Board Issuances** - Public-facing page displaying both resolutions and regulations
+- **Activities Calendar** - Display all resolutions and regulations in calendar view with color coding
 - PDF document viewer with full-screen modal
 - Document history tracking with version comparison
 - Change notes for document edits
+- Email notifications sent to all users and CONSEC when new resolutions/regulations are created
 
 ### 🏛️ Government Agencies
 - Government agency management with CRUD operations
@@ -67,6 +69,20 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Unread notification count
 - Notification filtering (all, unread, read)
 - Auto-notification for pending registrations
+
+### 📧 Email Notification System
+- **Announcement Emails** - Professional email templates sent to invited users when announcements are published
+- **Board Regulation Emails** - Automatic email notifications sent to all users and CONSEC when new regulations are created
+- **Board Resolution Emails** - Automatic email notifications sent to all users and CONSEC when new resolutions are created
+- **Referendum Emails** - Email notifications sent to invited users when new referendums are created
+- **Registration Emails** - Email notifications for:
+  - New registration pending approval (sent to admins)
+  - Registration approved (sent to users)
+  - Registration disapproved with reason (sent to users)
+- **Password Reset Emails** - Secure password reset functionality with email verification
+- **Unread Message Reminders** - Automated hourly reminders for messages unread for 24+ hours
+- **Professional Email Templates** - Responsive, branded email templates with proper HTML entity handling
+- **Privilege-Based URLs** - Email links redirect to appropriate pages based on user privilege (admin/consec vs regular users)
 
 ### 💬 Messaging & Chat
 - **Real-time Chat System** - Full-featured messaging interface for both users and admins
@@ -103,7 +119,8 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Banner Images** - Upload and display banner images for announcements
 - **User Access Control** - Select specific users or roles who can view each announcement
 - **Status Management** - Draft and Published status with scheduled publishing
-- **Notifications** - Automatic notifications sent to selected users when announcements are published
+- **Notifications** - Automatic in-app notifications sent to selected users when announcements are published
+- **Email Notifications** - Professional email templates sent to invited users when announcements are published or scheduled
 - **Blog-Style Display** - Professional blog-style announcements page with search functionality
 - **Modal View** - Facebook-style modal for viewing full announcement details
 - **Landing Page Integration** - Display up to 3 latest announcements on landing page
@@ -229,6 +246,10 @@ flowchart TD
     ViewAnnounce --> AnnounceModal[View in Modal]
     ViewAnnounce --> SearchAnnounce[Search Announcements]
     UserFeatures --> ViewCalendar[Activities Calendar]
+    ViewCalendar --> ViewAllEvents[View All Events]
+    ViewAllEvents --> ViewResolutions[Board Resolutions]
+    ViewAllEvents --> ViewRegulations[Board Regulations]
+    ViewAllEvents --> ViewAnnouncements[Announcements]
     UserFeatures --> Messaging
     UserFeatures --> MeetingNotices[Meeting Notices]
     UserFeatures --> BoardIssuances[Board Issuances]
@@ -268,6 +289,31 @@ flowchart TD
     CreateAnnounce --> SelectUsersAnnounce[Select Allowed Users]
     CreateAnnounce --> SetStatus[Set Status & Schedule]
     CreateAnnounce --> SendNotif[Send Notifications]
+    CreateAnnounce --> SendEmail[Send Email Notifications]
+    
+    DocMgmt --> CreateResolution[Create Board Resolution]
+    CreateResolution --> SendResolutionEmail[Send Email to All Users & CONSEC]
+    DocMgmt --> CreateRegulation[Create Board Regulation]
+    CreateRegulation --> SendRegulationEmail[Send Email to All Users & CONSEC]
+    
+    ReferendumMgmt --> CreateReferendum[Create/Edit Referendum]
+    CreateReferendum --> SelectUsers[Select Allowed Users]
+    CreateReferendum --> SendReferendumEmail[Send Email to Invited Users]
+    
+    UserMgmt --> PendingReg[Pending Registrations]
+    PendingReg --> ApproveReg{Approve Registration?}
+    ApproveReg -->|Yes| SendApprovalEmail[Send Approval Email]
+    ApproveReg -->|No| SendRejectionEmail[Send Rejection Email with Reason]
+    PendingReg --> SendPendingEmail[Send Pending Email to Admins]
+    
+    AuthChoice -->|Forgot Password| ForgotPassword[Forgot Password Form]
+    ForgotPassword --> SendResetEmail[Send Password Reset Email]
+    SendResetEmail --> ResetPassword[Reset Password Form]
+    ResetPassword --> UpdatePassword[Update Password]
+    
+    Messaging --> UnreadReminder[Unread Message Reminder]
+    UnreadReminder -->|24+ Hours| CheckUnread[Check Unread Messages]
+    CheckUnread --> SendReminderEmail[Send Reminder Email]
     
     AdminDash --> AuditSystem[Audit System]
     CONSECDash --> AuditSystem
@@ -286,6 +332,10 @@ flowchart TD
     style CONSECDash fill:#FF9800,stroke:#F57C00,color:#fff
     style UserDash fill:#055498,stroke:#123a60,color:#fff
     style AuditSystem fill:#F9FAFB,stroke:#0F172A,stroke-width:2px
+    style SendEmail fill:#FBD116,stroke:#d4a017,color:#000
+    style SendResolutionEmail fill:#CE2028,stroke:#a01a1f,color:#fff
+    style SendRegulationEmail fill:#055498,stroke:#044080,color:#fff
+    style SendReferendumEmail fill:#10B981,stroke:#059669,color:#fff
 ```
 
 ### A. User Access Flow

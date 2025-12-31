@@ -185,7 +185,7 @@
         display: inline-block;
         width: 8px;
         height: 8px;
-        background-color: #055498;
+        background-color: #3fbb46;
         border-radius: 50%;
         animation: pulse 2s infinite;
     }

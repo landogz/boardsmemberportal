@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Announcement;
 use App\Models\Notification;
+use App\Mail\AnnouncementEmail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PublishScheduledAnnouncements extends Command
 {
@@ -45,7 +47,7 @@ class PublishScheduledAnnouncements extends Command
                 $announcement->status = 'published';
                 $announcement->save();
 
-                // Send notifications to all allowed users
+                // Send notifications and emails to all allowed users
                 foreach ($announcement->allowedUsers as $user) {
                     Notification::create([
                         'user_id' => $user->id,
@@ -59,6 +61,14 @@ class PublishScheduledAnnouncements extends Command
                         'url' => route('announcements.show', $announcement->id),
                         'is_read' => false,
                     ]);
+                    
+                    // Send email to user
+                    try {
+                        Mail::to($user->email)->send(new AnnouncementEmail($announcement, $user));
+                    } catch (\Exception $e) {
+                        $this->error("Failed to send email to user {$user->id}: " . $e->getMessage());
+                        \Log::error('Failed to send announcement email to user ' . $user->id . ': ' . $e->getMessage());
+                    }
                 }
 
                 DB::commit();
