@@ -930,6 +930,60 @@ created_at
 updated_at
 ```
 
+#### 26. notices
+```sql
+id
+notice_type (enum: Notice of Meeting, Agenda, Other Matters)
+title
+related_notice_id (nullable, foreign key to notices)
+meeting_type (enum: online, onsite, hybrid)
+meeting_link (nullable)
+meeting_date (date, nullable)
+meeting_time (time, nullable)
+description (text, nullable)
+attachments (JSON - array of media_library IDs)
+cc_emails (JSON - array of objects with name, email, position, agency)
+created_by (foreign key to users)
+created_at
+updated_at
+```
+
+#### 27. notice_user_access
+```sql
+id
+notice_id (foreign key)
+user_id (foreign key)
+created_at
+updated_at
+```
+
+#### 28. attendance_confirmations
+```sql
+id
+notice_id (foreign key)
+user_id (foreign key)
+status (enum: pending, accepted, declined)
+declined_reason (text, nullable)
+created_at
+updated_at
+```
+
+#### 29. agenda_inclusion_requests
+```sql
+id
+notice_id (foreign key)
+user_id (foreign key)
+attendance_confirmation_id (foreign key)
+description (text)
+attachments (JSON - array of media_library IDs)
+status (enum: pending, approved, rejected)
+rejection_reason (text, nullable)
+reviewed_by (nullable, foreign key to users)
+reviewed_at (timestamp, nullable)
+created_at
+updated_at
+```
+
 ---
 
 ## 3. PAGES & ROUTES
