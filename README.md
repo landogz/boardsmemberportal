@@ -36,7 +36,7 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Board Resolutions** - Create, edit, view, and manage board resolutions with version history
 - **Board Regulations** - Complete CRUD with versioning and change notes
 - **Board Issuances** - Public-facing page displaying both resolutions and regulations
-- **Activities Calendar** - Display all resolutions and regulations in calendar view with color coding
+- **Activities Calendar** - Display all resolutions, regulations, announcements, and notices in calendar view with color coding
 - PDF document viewer with full-screen modal
 - Document history tracking with version comparison
 - Change notes for document edits
@@ -81,6 +81,12 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
   - Registration disapproved with reason (sent to users)
 - **Password Reset Emails** - Secure password reset functionality with email verification
 - **Unread Message Reminders** - Automated hourly reminders for messages unread for 24+ hours
+- **Notice Emails** - Professional email templates sent to:
+  - Allowed users when notices are created/updated (with accept/decline buttons)
+  - CC users when notices are created/updated
+  - Notice creator when users accept/decline invitations
+  - Notice creator when agenda inclusion requests are submitted
+  - Users when agenda requests are approved/rejected (with rejection reason)
 - **Professional Email Templates** - Responsive, branded email templates with proper HTML entity handling
 - **Privilege-Based URLs** - Email links redirect to appropriate pages based on user privilege (admin/consec vs regular users)
 
@@ -126,6 +132,28 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Landing Page Integration** - Display up to 3 latest announcements on landing page
 - **Search Functionality** - Search announcements by title and content
 - **Permission-Based Access** - Users only see announcements they are permitted to view
+
+### 📋 Notices System
+- **Notice Management** - Admin can create, edit, view, and delete meeting notices with comprehensive details
+- **Notice Types** - Support for "Notice of Meeting", "Agenda", and "Other Matters"
+- **Meeting Details** - Meeting type (online, onsite, hybrid), date, time, and meeting links
+- **User Access Control** - Select specific board members who can view each notice
+- **CC Emails** - Add non-registered users with structured data (name, email, position, agency)
+- **Multiple Attachments** - Support for multiple file attachments (images, PDFs, documents)
+- **Attendance Confirmations** - Users can accept or decline meeting invitations
+- **Agenda Inclusion Requests** - Users can submit requests to include items in meeting agenda
+- **Request Management** - Admin can approve or reject agenda inclusion requests with reasons
+- **Calendar Integration** - Notices displayed on activities calendar with color coding
+- **Email Notifications** - Professional email templates sent to:
+  - Allowed users when notices are created/updated
+  - CC users when notices are created/updated
+  - Notice creator when users accept/decline invitations
+  - Notice creator when agenda inclusion requests are submitted
+  - Users when agenda requests are approved/rejected
+- **In-App Notifications** - Real-time notifications for all notice-related actions
+- **Status Tracking** - Track attendance confirmations and agenda request statuses
+- **PDF Viewer** - Integrated PDF viewer for notice attachments
+- **Professional UI** - Clean, modern design for both admin and user-facing pages
 
 ### 📋 Roles & Permissions
 - Dynamic role creation
@@ -216,6 +244,9 @@ flowchart TD
     AdminFeatures --> GovAgencies[Government Agencies]
     AdminFeatures --> ReferendumMgmt[Referendum Management]
     AdminFeatures --> AnnouncementMgmt[Announcement Management]
+    AdminFeatures --> NoticeMgmt[Notice Management]
+    AdminFeatures --> AttendanceMgmt[Attendance Confirmation Management]
+    AdminFeatures --> AgendaRequestMgmt[Agenda Request Management]
     AdminFeatures --> Messaging[Messaging System]
     
     CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
@@ -226,6 +257,9 @@ flowchart TD
     CONSECFeatures --> GovAgencies
     CONSECFeatures --> ReferendumMgmt
     CONSECFeatures --> AnnouncementMgmt
+    CONSECFeatures --> NoticeMgmt
+    CONSECFeatures --> AttendanceMgmt
+    CONSECFeatures --> AgendaRequestMgmt
     CONSECFeatures --> Messaging
     
     UserMgmt --> CONSECAccounts[CONSEC Accounts]
@@ -250,8 +284,17 @@ flowchart TD
     ViewAllEvents --> ViewResolutions[Board Resolutions]
     ViewAllEvents --> ViewRegulations[Board Regulations]
     ViewAllEvents --> ViewAnnouncements[Announcements]
+    ViewAllEvents --> ViewNotices[Notices]
     UserFeatures --> Messaging
     UserFeatures --> MeetingNotices[Meeting Notices]
+    MeetingNotices --> ViewNotice[View Notice Details]
+    ViewNotice --> AcceptDecline[Accept/Decline Invitation]
+    AcceptDecline -->|Accepted| RequestAgenda[Request Agenda Inclusion]
+    RequestAgenda --> SubmitRequest[Submit Request with Description & Attachments]
+    SubmitRequest --> AdminReview[Admin Reviews Request]
+    AdminReview --> ApproveReject{Approve/Reject?}
+    ApproveReject -->|Approved| ShowOnAgenda[Show on Notice Agenda]
+    ApproveReject -->|Rejected| SendRejectionEmail[Send Rejection Email with Reason]
     UserFeatures --> BoardIssuances[Board Issuances]
     UserFeatures --> Referendums[Referendums]
     
@@ -299,6 +342,25 @@ flowchart TD
     ReferendumMgmt --> CreateReferendum[Create/Edit Referendum]
     CreateReferendum --> SelectUsers[Select Allowed Users]
     CreateReferendum --> SendReferendumEmail[Send Email to Invited Users]
+    
+    NoticeMgmt --> CreateNotice[Create/Edit Notice]
+    CreateNotice --> SelectBoardMembers[Select Allowed Board Members]
+    CreateNotice --> AddCCEmails[Add CC Emails with Details]
+    CreateNotice --> UploadAttachments[Upload Multiple Attachments]
+    CreateNotice --> SendNoticeEmail[Send Email to Allowed Users & CC]
+    NoticeMgmt --> ViewNotices[View All Notices]
+    ViewNotices --> ViewNoticeDetails[View Notice Details]
+    ViewNoticeDetails --> ViewAgendaRequests[View Approved Agenda Requests]
+    
+    AttendanceMgmt --> ViewConfirmations[View Attendance Confirmations]
+    ViewConfirmations --> ViewStatus[View Accept/Decline Status]
+    
+    AgendaRequestMgmt --> ReviewRequests[Review Agenda Requests]
+    ReviewRequests --> ViewRequestDetails[View Request Details & Attachments]
+    ReviewRequests --> ApproveRejectRequest{Approve/Reject Request}
+    ApproveRejectRequest -->|Approve| ShowOnNotice[Show on Notice Agenda]
+    ApproveRejectRequest -->|Reject| AddRejectionReason[Add Rejection Reason]
+    ApproveRejectRequest --> SendRequestEmail[Send Email to User]
     
     UserMgmt --> PendingReg[Pending Registrations]
     PendingReg --> ApproveReg{Approve Registration?}
@@ -497,7 +559,7 @@ Admin → Manage Announcements
    └─► View Announcement Details
 ```
 
-### H. Messaging & Chat Flow
+### I. Messaging & Chat Flow
 
 ```
 User/Admin → Messaging System
@@ -529,7 +591,7 @@ User/Admin → Messaging System
                  └─► View Group Members
 ```
 
-### I. Audit Trail Flow
+### J. Audit Trail Flow
 
 ```
 System Actions → Audit Logger
@@ -981,6 +1043,24 @@ updated_at
   - `/admin/announcements/{id}/edit` - Edit Announcement
   - `/admin/announcements/{id}` - Update Announcement (PUT)
   - `/admin/announcements/{id}` - Delete Announcement (DELETE)
+
+- `/admin/notices` - Notices Management
+  - `/admin/notices` - List All Notices
+  - `/admin/notices/create` - Create Notice
+  - `/admin/notices/{id}` - View Notice Details
+  - `/admin/notices/{id}/edit` - Edit Notice
+  - `/admin/notices/{id}` - Update Notice (PUT)
+  - `/admin/notices/{id}` - Delete Notice (DELETE)
+
+- `/admin/attendance-confirmations` - Attendance Confirmation Management
+  - `/admin/attendance-confirmations` - List All Attendance Confirmations
+  - `/admin/attendance-confirmations/{id}` - View Attendance Confirmation Details
+
+- `/admin/agenda-inclusion-requests` - Agenda Inclusion Request Management
+  - `/admin/agenda-inclusion-requests` - List All Agenda Requests
+  - `/admin/agenda-inclusion-requests/{id}` - View Agenda Request Details
+  - `/admin/agenda-inclusion-requests/{id}/approve` - Approve Request (POST)
+  - `/admin/agenda-inclusion-requests/{id}/reject` - Reject Request (POST)
 
 - `/admin/notifications` - Admin Notifications Page
 
