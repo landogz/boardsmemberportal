@@ -48,7 +48,11 @@ class ReferendumController extends Controller
         }
 
         $users = User::where('privilege', '!=', 'admin')
+            ->with('governmentAgency')
+            ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
+            ->select('users.*')
             ->orderBy('privilege')
+            ->orderBy('government_agencies.name')
             ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')
             ->orderBy('last_name')
@@ -280,7 +284,11 @@ class ReferendumController extends Controller
 
         $referendum = Referendum::with('allowedUsers')->findOrFail($id);
         $users = User::where('privilege', '!=', 'admin')
+            ->with('governmentAgency')
+            ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
+            ->select('users.*')
             ->orderBy('privilege')
+            ->orderBy('government_agencies.name')
             ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')
             ->orderBy('last_name')

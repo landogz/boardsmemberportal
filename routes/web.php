@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +24,21 @@ Route::get('/example', function () {
 });
 
 // Authentication Routes
-Route::get('/login', function () {
+Route::get('/login', function (Request $request) {
+    // If user is already logged in, redirect to the intended page or dashboard
+    if (Auth::check()) {
+        $redirect = $request->query('redirect');
+        if ($redirect) {
+            return redirect(urldecode($redirect));
+        }
+        // Default redirect based on privilege
+        if (Auth::user()->privilege === 'admin' || Auth::user()->privilege === 'consec') {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('landing');
+    }
     return view('auth.login');
-})->name('login')->middleware('guest');
+})->name('login');
 
 Route::get('/register', function () {
     return view('auth.register');
@@ -258,6 +271,30 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     });
 
     // Announcements (admin)
+    Route::prefix('admin/notices')->name('admin.notices.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NoticeController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\NoticeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\NoticeController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\NoticeController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'destroy'])->name('destroy');
+    });
+
+    // Agenda Inclusion Requests (admin)
+    Route::prefix('admin/agenda-inclusion-requests')->name('admin.agenda-inclusion-requests.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'reject'])->name('reject');
+    });
+
+    // Attendance Confirmations (admin)
+    Route::prefix('admin/attendance-confirmations')->name('admin.attendance-confirmations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'show'])->name('show');
+    });
+
     Route::prefix('admin/announcements')->name('admin.announcements.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('create');
@@ -291,6 +328,15 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/comments', [\App\Http\Controllers\ReferendumCommentController::class, 'store'])->name('comments.store');
         Route::post('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'update'])->name('comments.update');
         Route::delete('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'destroy'])->name('comments.destroy');
+    });
+
+    // Notices (authenticated users)
+    Route::prefix('notices')->name('notices.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NoticeController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\NoticeController::class, 'show'])->name('show');
+        Route::post('/{id}/accept', [\App\Http\Controllers\NoticeController::class, 'accept'])->name('accept');
+        Route::post('/{id}/decline', [\App\Http\Controllers\NoticeController::class, 'decline'])->name('decline');
+        Route::post('/{id}/agenda-inclusion', [\App\Http\Controllers\NoticeController::class, 'submitAgendaInclusion'])->name('agenda-inclusion');
     });
 
     // Profile Routes

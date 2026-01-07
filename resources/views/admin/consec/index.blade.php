@@ -659,12 +659,15 @@
             const group = groupedPermissions[category];
             const categoryId = md5(category);
             
-            // Filter out "manage" permissions
-            const filteredPermissions = group.permissions.filter(permission => {
-                return !permission.name.toLowerCase().startsWith('manage ');
-            });
+            // Show "manage" permissions for "Request for Inclusion in the Agenda" and "Media Library" categories
+            // Filter out "manage" permissions for all other categories
+            const filteredPermissions = (category === 'Request for Inclusion in the Agenda' || category === 'Media Library')
+                ? group.permissions  // Show all permissions including "manage" for these categories
+                : group.permissions.filter(permission => {
+                    return !permission.name.toLowerCase().startsWith('manage ');
+                });
             
-            // Skip categories with no filtered permissions
+            // Skip categories with no permissions
             if (filteredPermissions.length === 0) {
                 return;
             }

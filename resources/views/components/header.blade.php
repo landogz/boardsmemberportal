@@ -38,6 +38,7 @@
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
                 <a href="{{ route('board-issuances') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
                 <a href="{{ route('referendums.index') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
+                <a href="{{ route('notices.index') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a>
                 @endauth
                 @guest
                 <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
@@ -171,6 +172,7 @@
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a>
             <a href="{{ route('board-issuances') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
             <a href="{{ route('referendums.index') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
+            <a href="{{ route('notices.index') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a>
             @endauth
             @guest
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>

@@ -34,10 +34,9 @@ class RoleController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Get all permissions and group them by category (excluding "manage" permissions)
-        $allPermissions = Permission::orderBy('name')->get()->filter(function($permission) {
-            return !str_contains(strtolower($permission->name), 'manage ');
-        });
+        // Get all permissions and group them by category
+        // Note: "manage" permissions are filtered in the view, except for "Request for Inclusion in the Agenda" and "Media Library" categories
+        $allPermissions = Permission::orderBy('name')->get();
         $groupedPermissions = $this->groupPermissionsByCategory($allPermissions);
 
         return view('admin.roles.index', compact('roles', 'groupedPermissions', 'allPermissions'));

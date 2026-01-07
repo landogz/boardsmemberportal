@@ -187,7 +187,11 @@
             loginBtnLoader.classList.remove('hidden');
 
             try {
-                const response = await axios.post('/login', {
+                // Get redirect parameter from URL if present
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectParam = urlParams.get('redirect');
+                
+                const response = await axios.post('/login' + (redirectParam ? '?redirect=' + encodeURIComponent(redirectParam) : ''), {
                     email: email,
                     password: password,
                     remember: remember

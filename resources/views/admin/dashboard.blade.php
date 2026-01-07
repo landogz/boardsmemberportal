@@ -176,6 +176,7 @@
     $resolutionsData = [];
     $regulationsData = [];
     $announcementsData = [];
+    $noticesData = [];
     for ($i = 5; $i >= 0; $i--) {
         $date = \Carbon\Carbon::now()->subMonths($i);
         $contentChartLabels[] = $date->format('M Y');
@@ -186,6 +187,9 @@
             ->whereMonth('created_at', $date->month)
             ->count();
         $announcementsData[] = \App\Models\Announcement::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+        $noticesData[] = \App\Models\Notice::whereYear('created_at', $date->year)
             ->whereMonth('created_at', $date->month)
             ->count();
     }
@@ -199,6 +203,7 @@
                 </div>
                 
                 <!-- Secondary Stats -->
+                @if(Auth::user()->privilege === 'admin')
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 sm:mb-6">
         <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onclick="window.location.href='{{ route('admin.board-members.index') }}'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
@@ -264,6 +269,7 @@
             </div>
                     </div>
                 </div>
+                @endif
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -775,6 +781,21 @@
                             pointBackgroundColor: '#FBD116',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Notices',
+                            data: @json($noticesData),
+                            borderColor: '#7C3AED',
+                            backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#7C3AED',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointStyle: 'triangle'
                         }
                     ]
                 },

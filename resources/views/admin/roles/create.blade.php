@@ -141,19 +141,28 @@
                         </thead>
                         <tbody>
                             @foreach($groupedPermissions as $category => $group)
+                            @php
+                                // Show "manage" permissions for "Request for Inclusion in the Agenda" and "Media Library" categories
+                                $filteredPermissions = ($category === 'Request for Inclusion in the Agenda' || $category === 'Media Library')
+                                    ? collect($group['permissions'])  // Show all permissions including "manage" for these categories
+                                    : collect($group['permissions'])->filter(function($permission) {
+                                        return !str_starts_with(strtolower($permission->name), 'manage ');
+                                    })->values();
+                            @endphp
+                            @if($filteredPermissions->count() > 0)
                             <tr class="category-header" data-category="{{ md5($category) }}">
                                 <td colspan="2" class="py-3 px-4 cursor-pointer hover:bg-gray-100">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
                                             <i class="{{ $group['icon'] }} category-icon"></i>
                                             <span class="font-semibold">{{ $category }}</span>
-                                            <span class="text-xs text-gray-500 ml-2">({{ count($group['permissions']) }} permission{{ count($group['permissions']) !== 1 ? 's' : '' }})</span>
+                                            <span class="text-xs text-gray-500 ml-2">({{ $filteredPermissions->count() }} permission{{ $filteredPermissions->count() !== 1 ? 's' : '' }})</span>
                                         </div>
                                         <i class="fas fa-chevron-down expand-icon"></i>
                                     </div>
                                 </td>
                             </tr>
-                            @foreach($group['permissions'] as $permission)
+                            @foreach($filteredPermissions as $permission)
                             <tr class="permission-row" data-category="{{ md5($category) }}">
                                 <td class="action-cell">
                                     <div class="permission-name pl-6">{{ ucwords($permission->name) }}</div>
@@ -168,6 +177,7 @@
                                 </td>
                             </tr>
                             @endforeach
+                            @endif
                             @endforeach
                         </tbody>
                     </table>

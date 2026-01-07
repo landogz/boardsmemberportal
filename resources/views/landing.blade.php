@@ -657,6 +657,7 @@
                                 <select id="filterEventTypeLanding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-sm bg-white dark:bg-[#1e293b] text-gray-900 dark:text-gray-100">
                                     <option value="all">All Types</option>
                                     <option value="announcement">Announcements</option>
+                                    <option value="notice">Notices</option>
                                     <option value="resolution">Board Resolutions</option>
                                     <option value="regulation">Board Regulations</option>
                                 </select>
@@ -1485,6 +1486,13 @@
                             const effectiveDate = info.event.extendedProps.effective_date || null;
                             const approvedDate = info.event.extendedProps.approved_date || null;
                             
+                            // Notice-specific details
+                            const noticeType = info.event.extendedProps.notice_type || null;
+                            const meetingType = info.event.extendedProps.meeting_type || null;
+                            const meetingDate = info.event.extendedProps.meeting_date || null;
+                            const meetingTime = info.event.extendedProps.meeting_time || null;
+                            const meetingLink = info.event.extendedProps.meeting_link || null;
+                            
                             // Build action buttons based on event type
                             let actionButton = '';
                             if (eventUrl) {
@@ -1512,6 +1520,30 @@
                                 }
                             }
                             
+                            // Build notice-specific fields
+                            let noticeFields = '';
+                            if (eventType === 'notice') {
+                                noticeFields = '<div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">';
+                                noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Notice Details</p>';
+                                if (noticeType) {
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Notice Type:</strong> <span class="text-purple-700">${noticeType}</span></p>`;
+                                }
+                                if (meetingType) {
+                                    const meetingTypeLabel = meetingType.charAt(0).toUpperCase() + meetingType.slice(1);
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Type:</strong> <span class="text-purple-700">${meetingTypeLabel}</span></p>`;
+                                }
+                                if (meetingDate) {
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Date:</strong> <span class="text-purple-700">${meetingDate}</span></p>`;
+                                }
+                                if (meetingTime) {
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Time:</strong> <span class="text-purple-700">${meetingTime}</span></p>`;
+                                }
+                                if (meetingLink && (meetingType === 'online' || meetingType === 'hybrid')) {
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Link:</strong> <a href="${meetingLink}" target="_blank" class="text-purple-700 hover:text-purple-900 underline break-all"><i class="fas fa-link mr-1"></i>${meetingLink}</a></p>`;
+                                }
+                                noticeFields += '</div>';
+                            }
+                            
                             Swal.fire({
                                 title: info.event.title,
                                 html: `
@@ -1519,8 +1551,9 @@
                                         <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${eventType}</span></p>
                                         ${showEventDate ? `<p class="mb-2"><strong>Date:</strong> ${eventDate}</p>` : ''}
                                         ${dateFields}
-                                        <p class="mb-2"><strong>Description:</strong></p>
-                                        <p class="text-sm text-gray-600">${description}</p>
+                                        ${noticeFields}
+                                        <p class="mb-2 mt-3"><strong>Description:</strong></p>
+                                        <p class="text-sm text-gray-600 mb-3">${description}</p>
                                         ${actionButton}
                                     </div>
                                 `,
@@ -1528,7 +1561,7 @@
                                 confirmButtonText: 'Close',
                                 confirmButtonColor: '#055498',
                                 showCloseButton: true,
-                                width: '600px',
+                                width: '700px',
                                 customClass: {
                                     popup: 'swal-wide-popup'
                                 }
@@ -1690,8 +1723,8 @@
                     };
                 });
                 
-                // Sort events by date
-                eventsData.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                // Sort events by date (descending - newest first)
+                eventsData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
                 
                 // Create print window
                 const printWindow = window.open('', '_blank');

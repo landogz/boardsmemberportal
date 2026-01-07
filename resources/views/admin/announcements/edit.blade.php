@@ -240,6 +240,9 @@
                                                 {{ $user->first_name }} {{ $user->last_name }}
                                             </span>
                                             <span class="text-xs text-gray-500 block truncate">{{ $user->email }}</span>
+                                            @if($user->governmentAgency)
+                                                <span class="text-xs text-gray-400 block truncate">{{ $user->governmentAgency->name }}</span>
+                                            @endif
                                         </div>
                                         @if($user->privilege === 'consec')
                                             <span class="ml-auto px-2 py-0.5 text-xs rounded font-medium flex-shrink-0" style="background-color: #055498; color: #ffffff;">CONSEC</span>

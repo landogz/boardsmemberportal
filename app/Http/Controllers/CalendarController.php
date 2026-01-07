@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OfficialDocument;
 use App\Models\BoardRegulation;
 use App\Models\Announcement;
+use App\Models\Notice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -149,6 +150,58 @@ class CalendarController extends Controller
                     'description' => Str::limit(strip_tags($announcement->description), 150),
                     'id' => $announcement->id,
                     'url' => route('announcements.show', $announcement->id),
+                ],
+            ];
+        }
+
+        // Get Notices
+        // For admin/consec: show all notices
+        // For regular users: only show notices where they are invited/allowed
+        if ($user->privilege === 'admin' || $user->privilege === 'consec') {
+            $notices = Notice::with(['creator', 'allowedUsers'])->get();
+        } else {
+            $notices = Notice::whereHas('allowedUsers', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with(['creator', 'allowedUsers'])
+            ->get();
+        }
+
+        foreach ($notices as $notice) {
+            // Use meeting_date if available, otherwise use created_at
+            // Parse meeting_date if it's a string
+            if ($notice->meeting_date) {
+                $eventDate = is_string($notice->meeting_date) 
+                    ? \Carbon\Carbon::parse($notice->meeting_date)
+                    : $notice->meeting_date;
+            } else {
+                $eventDate = $notice->created_at;
+            }
+            
+            $eventDateFormatted = $eventDate->format('Y-m-d');
+
+            // Determine URL based on user privilege
+            $url = ($user->privilege === 'admin' || $user->privilege === 'consec') 
+                ? route('admin.notices.show', $notice->id)
+                : route('notices.show', $notice->id);
+
+            $events[] = [
+                'id' => 'notice_' . $notice->id,
+                'title' => $notice->title,
+                'start' => $eventDateFormatted,
+                'backgroundColor' => '#7C3AED',
+                'borderColor' => '#7C3AED',
+                'textColor' => '#ffffff',
+                'extendedProps' => [
+                    'type' => 'notice',
+                    'description' => Str::limit(strip_tags($notice->description ?? ''), 150),
+                    'id' => $notice->id,
+                    'notice_type' => $notice->notice_type,
+                    'meeting_type' => $notice->meeting_type,
+                    'meeting_date' => $notice->meeting_date ? (is_string($notice->meeting_date) ? \Carbon\Carbon::parse($notice->meeting_date)->format('F d, Y') : $notice->meeting_date->format('F d, Y')) : null,
+                    'meeting_time' => $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') : null,
+                    'meeting_link' => $notice->meeting_link,
+                    'url' => $url,
                 ],
             ];
         }

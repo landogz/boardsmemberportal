@@ -257,7 +257,11 @@ class MediaLibraryController extends Controller
      */
     public function download($id)
     {
-        if (!Auth::user()->hasPermission('view media library')) {
+        // Clear permission cache to ensure fresh permission check
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        
+        // Check for either manage or view permission
+        if (!Auth::user()->hasPermission('manage media library') && !Auth::user()->hasPermission('view media library')) {
             abort(403, 'You do not have permission to download media.');
         }
 
