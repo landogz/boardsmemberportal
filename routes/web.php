@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    // Check if coming soon mode is enabled
+    if (config('app.coming_soon_enabled', false)) {
+        return view('coming-soon');
+    }
+    
     if (Auth::check()) {
         if (Auth::user()->privilege === 'admin' || Auth::user()->privilege === 'consec') {
             return redirect()->route('admin.dashboard');

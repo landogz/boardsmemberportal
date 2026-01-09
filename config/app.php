@@ -69,6 +69,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Coming Soon Mode
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the application will display a "Coming Soon" page instead
+    | of the normal landing page. Set COMING_SOON_ENABLED=true in .env to enable.
+    | Set COMING_SOON_LAUNCH_DATE to the launch date (format: YYYY-MM-DD).
+    |
+    */
+
+    'coming_soon_enabled' => env('COMING_SOON_ENABLED', false),
+    'launch_date' => env('COMING_SOON_LAUNCH_DATE', '2026-01-20'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
