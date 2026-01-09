@@ -17,21 +17,19 @@ class ComingSoonMiddleware
     {
         // Check if coming soon mode is enabled
         if (config('app.coming_soon_enabled', false)) {
-            $path = $request->path();
-            
             // Allow access to:
             // - Root path (where coming soon page is shown)
             // - API routes (for any API calls)
             // - Health check route
-            if ($path === '/' || 
+            if ($request->is('/') || 
                 $request->is('api/*') || 
                 $request->is('up') ||
                 $request->is('health')) {
                 return $next($request);
             }
             
-            // Redirect all other pages to coming soon
-            return redirect('/');
+            // Redirect all other pages to coming soon (use 302 to avoid caching issues)
+            return redirect('/', 302);
         }
 
         return $next($request);
