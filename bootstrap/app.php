@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust all proxies (needed for AlwaysData hosting)
         $middleware->trustProxies(at: '*');
         
+        // Add coming soon middleware globally
+        $middleware->append(\App\Http\Middleware\ComingSoonMiddleware::class);
+        
         $middleware->alias([
             'track.activity' => \App\Http\Middleware\TrackUserActivity::class,
         ]);

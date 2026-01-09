@@ -18,7 +18,7 @@ Route::get('/', function () {
         return view('landing');
     }
     return view('landing');
-})->name('landing');
+})->name('landing')->middleware('web');
 
 Route::get('/2', function () {
     return view('landing2');
