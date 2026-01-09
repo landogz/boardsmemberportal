@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // Check if maintenance mode is enabled (priority over coming soon)
-    if (config('app.maintenance_mode_enabled', false)) {
-        return view('maintenance');
-    }
-    
     // Check if coming soon mode is enabled
     if (config('app.coming_soon_enabled', false)) {
         return view('coming-soon');

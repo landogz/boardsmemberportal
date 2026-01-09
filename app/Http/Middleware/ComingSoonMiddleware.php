@@ -15,11 +15,6 @@ class ComingSoonMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Don't apply coming soon if maintenance mode is enabled (maintenance takes priority)
-        if (config('app.maintenance_mode_enabled', false)) {
-            return $next($request);
-        }
-        
         // Check if coming soon mode is enabled
         if (config('app.coming_soon_enabled', false)) {
             $path = $request->path();

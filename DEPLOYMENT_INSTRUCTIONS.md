@@ -83,11 +83,11 @@ LOG_CHANNEL=stack
 LOG_LEVEL=error
 
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=mysql-landogz.alwaysdata.net
 DB_PORT=3306
-DB_DATABASE=your_database_name
-DB_USERNAME=your_database_user
-DB_PASSWORD=your_database_password
+DB_DATABASE=landogz_bmp
+DB_USERNAME=landogz
+DB_PASSWORD=dianamarcia2
 
 BROADCAST_DRIVER=reverb
 REVERB_APP_ID=your-app-id
@@ -103,13 +103,13 @@ SESSION_DRIVER=file
 SESSION_LIFETIME=120
 
 MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=your-email@domain.com
-MAIL_PASSWORD=your-email-password
+MAIL_USERNAME=dianamarcia123@gmail.com
+MAIL_PASSWORD="whkc xkyt hduj zfje"
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@your-domain.com
-MAIL_FROM_NAME="${APP_NAME}"
+MAIL_FROM_ADDRESS=dianamarcia123@gmail.com
+MAIL_FROM_NAME="Board Member Portal"
 
 FILESYSTEM_DISK=local
 ```
@@ -138,7 +138,8 @@ php artisan db:seed --class=GovernmentAgencySeeder
 
 ```bash
 # Create symbolic link for storage
-php artisan storage:link
+
+
 
 # Clear and cache configuration
 php artisan config:cache
