@@ -804,10 +804,12 @@
                 // Listen to message unread count updates
                 echo.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
-                        // Play sound if count increased (new message received)
-                        // Only play if not on messages page (to avoid duplicate sounds)
+                        // Play sound only if:
+                        // 1. Count increased (new message received)
+                        // 2. There are unseen messages (count > 0)
+                        // 3. Not on messages page (to avoid duplicate sounds)
                         const isOnMessagesPage = window.location.pathname === '/messages' || window.location.pathname.includes('/admin/messages');
-                        if (e.count > previousGlobalMessageCount && previousGlobalMessageCount >= 0 && !isOnMessagesPage) {
+                        if (e.count > previousGlobalMessageCount && previousGlobalMessageCount >= 0 && e.count > 0 && !isOnMessagesPage) {
                             playMessageSound();
                         }
                         previousGlobalMessageCount = e.count;
