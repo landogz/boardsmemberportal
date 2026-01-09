@@ -192,33 +192,6 @@
 </nav>
 
 <script>
-    // Global error handler to suppress browser extension errors
-    if (!window.browserExtensionErrorHandlerAdded) {
-        window.addEventListener('error', function(event) {
-            // Suppress browser extension connection errors (harmless)
-            if (event.message && event.message.includes('Could not establish connection')) {
-                event.preventDefault();
-                return false;
-            }
-        }, true);
-        
-        // Handle unhandled promise rejections
-        window.addEventListener('unhandledrejection', function(event) {
-            // Suppress browser extension connection errors (harmless)
-            if (event.reason && typeof event.reason === 'string' && event.reason.includes('Could not establish connection')) {
-                event.preventDefault();
-                return false;
-            }
-            // Suppress if it's an Error object with the message
-            if (event.reason && event.reason.message && event.reason.message.includes('Could not establish connection')) {
-                event.preventDefault();
-                return false;
-            }
-        });
-        
-        window.browserExtensionErrorHandlerAdded = true;
-    }
-    
     // Mobile menu toggle functionality - jQuery + fallback, works on all pages
     (function() {
         function bindMobileMenu() {
@@ -449,30 +422,6 @@
     }
 
     // Update messages badge count
-    // Global sound notification for new messages
-    let globalMessageSound = null;
-    let previousGlobalMessageCount = 0;
-    
-    function playMessageSound() {
-        try {
-            if (!globalMessageSound) {
-                globalMessageSound = new Audio('{{ asset("images/message.wav") }}');
-                globalMessageSound.volume = 0.7; // Set volume to 70%
-            }
-            // Reset audio to start and play
-            globalMessageSound.currentTime = 0;
-            globalMessageSound.play().catch(error => {
-                // Ignore play() errors (user interaction required in some browsers)
-                console.log('Sound notification error:', error);
-            });
-        } catch (error) {
-            console.log('Sound notification error:', error);
-        }
-    }
-    
-    // Make function globally available
-    window.playMessageSound = playMessageSound;
-    
     function updateMessagesBadge(count) {
         const badgeCount = document.getElementById('messagesBadgeCount');
         const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
@@ -598,10 +547,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Initialize previous count on page load
-                if (previousGlobalMessageCount === 0) {
-                    previousGlobalMessageCount = data.count;
-                }
                 updateMessagesBadge(data.count);
             }
         })
@@ -804,16 +749,6 @@
                 // Listen to message unread count updates
                 echo.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
-                        // Play sound only if:
-                        // 1. Count increased (new message received)
-                        // 2. There are unseen messages (count > 0)
-                        // 3. Not on messages page (to avoid duplicate sounds)
-                        const isOnMessagesPage = window.location.pathname === '/messages' || window.location.pathname.includes('/admin/messages');
-                        if (e.count > previousGlobalMessageCount && previousGlobalMessageCount >= 0 && e.count > 0 && !isOnMessagesPage) {
-                            playMessageSound();
-                        }
-                        previousGlobalMessageCount = e.count;
-                        
                         // Reload dropdown if it's currently open/visible
                         const messagesDropdown = document.querySelector('[x-data*="open"]');
                         if (messagesDropdown && messagesDropdown.__x && messagesDropdown.__x.$data.open) {

@@ -1,27 +1,4 @@
 <script>
-    // Global error handler to suppress browser extension errors
-    window.addEventListener('error', function(event) {
-        // Suppress browser extension connection errors (harmless)
-        if (event.message && event.message.includes('Could not establish connection')) {
-            event.preventDefault();
-            return false;
-        }
-    }, true);
-    
-    // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', function(event) {
-        // Suppress browser extension connection errors (harmless)
-        if (event.reason && typeof event.reason === 'string' && event.reason.includes('Could not establish connection')) {
-            event.preventDefault();
-            return false;
-        }
-        // Suppress if it's an Error object with the message
-        if (event.reason && event.reason.message && event.reason.message.includes('Could not establish connection')) {
-            event.preventDefault();
-            return false;
-        }
-    });
-    
     $(document).ready(function() {
         // Sidebar Toggle
         $('#sidebarCollapse').on('click', function() {
@@ -228,30 +205,6 @@
         }
 
         // Update admin messages badge count
-        // Global sound notification for new messages (admin)
-        let adminMessageSound = null;
-        let previousAdminMessageCount = 0;
-        
-        function playAdminMessageSound() {
-            try {
-                if (!adminMessageSound) {
-                    adminMessageSound = new Audio('{{ asset("images/message.wav") }}');
-                    adminMessageSound.volume = 0.7; // Set volume to 70%
-                }
-                // Reset audio to start and play
-                adminMessageSound.currentTime = 0;
-                adminMessageSound.play().catch(error => {
-                    // Ignore play() errors (user interaction required in some browsers)
-                    console.log('Sound notification error:', error);
-                });
-            } catch (error) {
-                console.log('Sound notification error:', error);
-            }
-        }
-        
-        // Make function globally available
-        window.playAdminMessageSound = playAdminMessageSound;
-        
         function updateAdminMessagesBadge(count) {
             const badgeCount = $('#adminMessagesBadgeCount');
             if (count > 0) {
@@ -274,10 +227,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Initialize previous count on page load
-                    if (previousAdminMessageCount === 0) {
-                        previousAdminMessageCount = data.count;
-                    }
                     updateAdminMessagesBadge(data.count);
                 }
             })
@@ -401,16 +350,6 @@
                     // Listen to message unread count updates
                     adminEcho.private(`user.${userId}`)
                         .listen('.message.unread-count.updated', (e) => {
-                            // Play sound only if:
-                            // 1. Count increased (new message received)
-                            // 2. There are unseen messages (count > 0)
-                            // 3. Not on messages page (to avoid duplicate sounds)
-                            const isOnMessagesPage = window.location.pathname.includes('/admin/messages') || window.location.pathname === '/messages';
-                            if (e.count > previousAdminMessageCount && previousAdminMessageCount >= 0 && e.count > 0 && !isOnMessagesPage) {
-                                playAdminMessageSound();
-                            }
-                            previousAdminMessageCount = e.count;
-                            
                             updateAdminMessagesBadge(e.count);
                             // Reload dropdown if it's currently open/visible
                             const messagesDropdown = $('.dropdown').has('#adminMessagesDropdownList');
@@ -457,16 +396,6 @@
                 const userId = '{{ Auth::id() }}';
                 adminEcho.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
-                        // Play sound only if:
-                        // 1. Count increased (new message received)
-                        // 2. There are unseen messages (count > 0)
-                        // 3. Not on messages page (to avoid duplicate sounds)
-                        const isOnMessagesPage = window.location.pathname.includes('/admin/messages') || window.location.pathname === '/messages';
-                        if (e.count > previousAdminMessageCount && previousAdminMessageCount >= 0 && e.count > 0 && !isOnMessagesPage) {
-                            playAdminMessageSound();
-                        }
-                        previousAdminMessageCount = e.count;
-                        
                         updateAdminMessagesBadge(e.count);
                         // Reload dropdown if it's currently open/visible
                         const messagesDropdown = $('.dropdown').has('#adminMessagesDropdownList');
