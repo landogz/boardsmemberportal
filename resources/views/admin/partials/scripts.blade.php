@@ -369,15 +369,21 @@
                     console.log('Laravel Echo initialized successfully (admin)');
                     console.log('Connecting to Reverb at:', reverbScheme + '://' + reverbHost + ':' + reverbPort);
                     
-                    // Check connection status after 3 seconds
+                    // Check connection status after 3 seconds (silently, only log if in development)
                     setTimeout(function() {
                         const state = adminEcho.connector.pusher.connection.state;
                         if (state !== 'connected') {
-                            console.warn('⚠️ Reverb connection not established. Current state:', state);
-                            console.log('💡 Make sure:');
-                            console.log('   1. Reverb server is running: php artisan reverb:start');
-                            console.log('   2. Your .env has correct REVERB_APP_KEY, REVERB_APP_ID, REVERB_APP_SECRET');
-                            console.log('   3. REVERB_SCHEME=http for local development');
+                            // Only show warning in development mode
+                            const isDevelopment = '{{ env("APP_ENV", "production") }}' === 'local';
+                            if (isDevelopment) {
+                                console.warn('⚠️ Reverb connection not established. Current state:', state);
+                                console.log('💡 Make sure:');
+                                console.log('   1. Reverb server is running: php artisan reverb:start');
+                                console.log('   2. Your .env has correct REVERB_APP_KEY, REVERB_APP_ID, REVERB_APP_SECRET');
+                                console.log('   3. REVERB_SCHEME=http for local development');
+                            }
+                            // Silently handle connection failure in production
+                            // Broadcasting will work via polling/fallback methods
                         }
                     }, 3000);
                 } catch (error) {
