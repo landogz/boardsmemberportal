@@ -55,6 +55,25 @@
         // Storage key for persisting chats
         const STORAGE_KEY = 'activeChats';
         
+        // Sound notification for new messages
+        let messageSound = null;
+        function playMessageSound() {
+            try {
+                if (!messageSound) {
+                    messageSound = new Audio('{{ asset("images/message.wav") }}');
+                    messageSound.volume = 0.7; // Set volume to 70%
+                }
+                // Reset audio to start and play
+                messageSound.currentTime = 0;
+                messageSound.play().catch(error => {
+                    // Ignore play() errors (user interaction required in some browsers)
+                    console.log('Sound notification error:', error);
+                });
+            } catch (error) {
+                console.log('Sound notification error:', error);
+            }
+        }
+        
         // Save active chats to localStorage
         function saveActiveChats() {
             const chatsData = [];
@@ -871,6 +890,7 @@
                             : null;
                         
                         let hasNewMessages = false;
+                        let hasReceivedMessage = false;
                         let currentPreviousMsg = previousMsgData;
                         data.messages.forEach(msg => {
                             // Check if message already exists before appending
@@ -882,6 +902,9 @@
                                     tempMessages.forEach(tempMsg => {
                                         removeTempMessage(chatElement, tempMsg.getAttribute('data-message-id'));
                                     });
+                                } else {
+                                    // Track if we received a message (not sent by us)
+                                    hasReceivedMessage = true;
                                 }
                                 
                                 appendMessage(chatElement, msg, userId, currentPreviousMsg);
@@ -897,6 +920,11 @@
                                 currentPreviousMsg = msg;
                             }
                         });
+                        
+                        // Play sound notification for received messages
+                        if (hasReceivedMessage) {
+                            playMessageSound();
+                        }
                         
                         if (hasNewMessages) {
                             messagesArea.scrollTop = messagesArea.scrollHeight;

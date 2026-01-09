@@ -1651,6 +1651,25 @@
         let userHasScrolledUp = false; // Track if user has manually scrolled up
         let lastSentMessageId = null; // Track the last sent message ID for "Seen" indicator
         let conversationsData = []; // Store conversations data globally
+        
+        // Sound notification for new messages
+        let messageSound = null;
+        function playMessageSound() {
+            try {
+                if (!messageSound) {
+                    messageSound = new Audio('{{ asset("images/message.wav") }}');
+                    messageSound.volume = 0.7; // Set volume to 70%
+                }
+                // Reset audio to start and play
+                messageSound.currentTime = 0;
+                messageSound.play().catch(error => {
+                    // Ignore play() errors (user interaction required in some browsers)
+                    console.log('Sound notification error:', error);
+                });
+            } catch (error) {
+                console.log('Sound notification error:', error);
+            }
+        }
         let conversationListRefreshInterval = null; // Interval for periodic conversation list refresh
         
         // Voice recording variables
@@ -4925,6 +4944,7 @@
                         
                         // Track if we're adding new messages
                         let hasNewMessages = false;
+                        let hasReceivedMessage = false;
                         
                         response.data.messages.forEach(msg => {
                             // Check if message already exists to avoid duplicates
@@ -4933,6 +4953,11 @@
                             appendMessageToPage(msg, userId, previousMsg);
                             previousMsg = msg;
                                 hasNewMessages = true;
+                                
+                                // Track if we received a message (not sent by us)
+                                if (!msg.is_sender) {
+                                    hasReceivedMessage = true;
+                                }
                                 
                             if (msg.created_at > lastMessageTimestamp) {
                                 lastMessageTimestamp = msg.created_at;
@@ -4957,6 +4982,11 @@
                                 previousMsg = msg;
                             }
                         });
+                        
+                        // Play sound notification for received messages
+                        if (hasReceivedMessage) {
+                            playMessageSound();
+                        }
                         
                         // Only auto-scroll to bottom if:
                         // 1. Not scrolling to a parent message
