@@ -422,6 +422,30 @@
     }
 
     // Update messages badge count
+    // Global sound notification for new messages
+    let globalMessageSound = null;
+    let previousGlobalMessageCount = 0;
+    
+    function playMessageSound() {
+        try {
+            if (!globalMessageSound) {
+                globalMessageSound = new Audio('{{ asset("images/message.wav") }}');
+                globalMessageSound.volume = 0.7; // Set volume to 70%
+            }
+            // Reset audio to start and play
+            globalMessageSound.currentTime = 0;
+            globalMessageSound.play().catch(error => {
+                // Ignore play() errors (user interaction required in some browsers)
+                console.log('Sound notification error:', error);
+            });
+        } catch (error) {
+            console.log('Sound notification error:', error);
+        }
+    }
+    
+    // Make function globally available
+    window.playMessageSound = playMessageSound;
+    
     function updateMessagesBadge(count) {
         const badgeCount = document.getElementById('messagesBadgeCount');
         const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
@@ -547,6 +571,10 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Initialize previous count on page load
+                if (previousGlobalMessageCount === 0) {
+                    previousGlobalMessageCount = data.count;
+                }
                 updateMessagesBadge(data.count);
             }
         })
@@ -749,6 +777,14 @@
                 // Listen to message unread count updates
                 echo.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
+                        // Play sound if count increased (new message received)
+                        // Only play if not on messages page (to avoid duplicate sounds)
+                        const isOnMessagesPage = window.location.pathname === '/messages' || window.location.pathname.includes('/admin/messages');
+                        if (e.count > previousGlobalMessageCount && previousGlobalMessageCount >= 0 && !isOnMessagesPage) {
+                            playMessageSound();
+                        }
+                        previousGlobalMessageCount = e.count;
+                        
                         // Reload dropdown if it's currently open/visible
                         const messagesDropdown = document.querySelector('[x-data*="open"]');
                         if (messagesDropdown && messagesDropdown.__x && messagesDropdown.__x.$data.open) {
