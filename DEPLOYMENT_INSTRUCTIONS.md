@@ -1,25 +1,28 @@
 # Laravel Application Deployment Instructions
 
-Complete guide for deploying the Board Member Portal to your domain and hosting.
+Complete guide for deploying the Board Member Portal to AlwaysData hosting.
+
+**Your Configuration:**
+- Domain: `landogz.alwaysdata.net`
+- Web Root: `/www`
+- Project Path: `/www/boardsmemberportal`
 
 ## Prerequisites
 
-- SSH access to your hosting server
-- PHP 8.2+ installed
+- SSH access to AlwaysData server
+- PHP 8.2+ (available on AlwaysData)
 - Composer installed
-- MySQL/MariaDB database
+- MySQL/MariaDB database (create via AlwaysData admin panel)
 - Node.js and npm (for asset compilation)
 - Git installed on server
-- Domain name configured and pointing to your server
 
 ---
 
-## Step 1: Connect to Your Server
+## Step 1: Connect to Your AlwaysData Server
 
 ```bash
-ssh username@your-domain.com
-# or
-ssh username@your-server-ip
+ssh your-username@ssh-landogz.alwaysdata.net
+# or use the SSH credentials from your AlwaysData admin panel
 ```
 
 ---
@@ -27,8 +30,8 @@ ssh username@your-server-ip
 ## Step 2: Clone the Repository
 
 ```bash
-# Navigate to your web root directory (usually public_html, www, or htdocs)
-cd /path/to/your/web/root
+# Navigate to your web root directory
+cd /www
 
 # Clone the repository
 git clone https://github.com/landogz/boardsmemberportal.git
@@ -183,40 +186,49 @@ chown -R www-data:www-data storage bootstrap/cache
 
 ## Step 9: Configure Web Server
 
-### For Apache (.htaccess should already be in public folder)
+### For AlwaysData (Apache)
 
-Create or update your Apache virtual host configuration:
+AlwaysData uses Apache and automatically serves from `/www` directory. You need to configure it to point to the `public` folder.
+
+**Option 1: Create a symbolic link (Recommended)**
+
+```bash
+# Navigate to www directory
+cd /www
+
+# Remove or rename existing index if needed
+# mv index.html index.html.bak (if exists)
+
+# Create symbolic link to Laravel public folder
+ln -s /www/boardsmemberportal/public public_html
+# or if AlwaysData uses a different directory name, adjust accordingly
+```
+
+**Option 2: Configure AlwaysData Admin Panel**
+
+1. Log in to your AlwaysData admin panel: https://admin.alwaysdata.com
+2. Go to **Web > Sites**
+3. Edit your site configuration
+4. Set the **Document root** to: `/www/boardsmemberportal/public`
+5. Save the configuration
+
+**Option 3: Use .htaccess redirect (if needed)**
+
+If AlwaysData serves from `/www` directly, create an `.htaccess` in `/www`:
 
 ```apache
-<VirtualHost *:80>
-    ServerName your-domain.com
-    ServerAlias www.your-domain.com
-    
-    DocumentRoot /path/to/boardsmemberportal/public
-    
-    <Directory /path/to/boardsmemberportal/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-    
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/boardsmemberportal/public/
+RewriteRule ^(.*)$ /boardsmemberportal/public/$1 [L]
 ```
 
-Enable mod_rewrite:
-```bash
-sudo a2enmod rewrite
-sudo systemctl restart apache2
-```
-
-### For Nginx
+### For Nginx (if AlwaysData offers Nginx option)
 
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
-    root /path/to/boardsmemberportal/public;
+    server_name landogz.alwaysdata.net;
+    root /www/boardsmemberportal/public;
 
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
@@ -273,41 +285,60 @@ REVERB_PORT=8080
 REVERB_SCHEME=https
 ```
 
-### Run Reverb as a Service
+### Run Reverb on AlwaysData
 
-Create a systemd service file for Reverb:
+**Important:** AlwaysData may have restrictions on running long-lived processes. Check your plan's limitations.
+
+**Option 1: Using AlwaysData's Process Manager (Recommended)**
+
+1. Log in to AlwaysData admin panel
+2. Go to **Advanced > Processes**
+3. Create a new process:
+   - **Name:** `reverb`
+   - **Command:** `php /www/boardsmemberportal/artisan reverb:start --host=0.0.0.0 --port=8080`
+   - **Working directory:** `/www/boardsmemberportal`
+   - **Auto-restart:** Yes
+
+**Option 2: Using Supervisor (if available)**
 
 ```bash
-sudo nano /etc/systemd/system/reverb.service
+# Create supervisor config
+nano ~/supervisor/reverb.conf
 ```
 
-Add the following:
+Add:
 
 ```ini
-[Unit]
-Description=Laravel Reverb Server
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/path/to/boardsmemberportal
-ExecStart=/usr/bin/php artisan reverb:start --host=0.0.0.0 --port=8080
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
+[program:reverb]
+process_name=%(program_name)s_%(process_num)02d
+command=php /www/boardsmemberportal/artisan reverb:start --host=0.0.0.0 --port=8080
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=your-username
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/www/boardsmemberportal/storage/logs/reverb.log
+stopwaitsecs=3600
 ```
 
-Enable and start the service:
+**Option 3: Using screen/tmux (Temporary solution)**
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable reverb
-sudo systemctl start reverb
-sudo systemctl status reverb
+# Install screen if not available
+# Start a screen session
+screen -S reverb
+
+# Run Reverb
+cd /www/boardsmemberportal
+php artisan reverb:start --host=0.0.0.0 --port=8080
+
+# Detach: Press Ctrl+A then D
+# Reattach: screen -r reverb
 ```
+
+**Note:** AlwaysData may require you to use their process manager or may have restrictions on WebSocket servers. Check with AlwaysData support if Reverb doesn't work.
 
 ### Alternative: Run Reverb with Supervisor
 
@@ -354,10 +385,21 @@ sudo supervisorctl start reverb:*
 
 Laravel uses queues for background jobs. Set up a queue worker:
 
-### Using Supervisor (Recommended)
+### Using AlwaysData Process Manager (Recommended)
+
+1. Log in to AlwaysData admin panel
+2. Go to **Advanced > Processes**
+3. Create a new process:
+   - **Name:** `laravel-worker`
+   - **Command:** `php /www/boardsmemberportal/artisan queue:work --sleep=3 --tries=3 --max-time=3600`
+   - **Working directory:** `/www/boardsmemberportal`
+   - **Auto-restart:** Yes
+
+### Using Supervisor (if available in your home directory)
 
 ```bash
-sudo nano /etc/supervisor/conf.d/laravel-worker.conf
+# Create supervisor config in your home directory
+nano ~/supervisor/laravel-worker.conf
 ```
 
 Add:
@@ -365,57 +407,19 @@ Add:
 ```ini
 [program:laravel-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=php /path/to/boardsmemberportal/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+command=php /www/boardsmemberportal/artisan queue:work --sleep=3 --tries=3 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
 killasgroup=true
-user=www-data
+user=your-username
 numprocs=1
 redirect_stderr=true
-stdout_logfile=/path/to/boardsmemberportal/storage/logs/worker.log
+stdout_logfile=/www/boardsmemberportal/storage/logs/worker.log
 stopwaitsecs=3600
 ```
 
-Start:
-
-```bash
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl start laravel-worker:*
-```
-
-### Using systemd
-
-```bash
-sudo nano /etc/systemd/system/laravel-worker.service
-```
-
-Add:
-
-```ini
-[Unit]
-Description=Laravel Queue Worker
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/path/to/boardsmemberportal
-ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable laravel-worker
-sudo systemctl start laravel-worker
-```
+**Note:** AlwaysData may not allow systemd services. Use their process manager instead.
 
 ---
 
@@ -427,43 +431,41 @@ Laravel's scheduler needs to run every minute. Add to crontab:
 crontab -e
 ```
 
-Add this line (replace with your actual path):
+Add this line:
 
 ```cron
-* * * * * cd /path/to/boardsmemberportal && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /www/boardsmemberportal && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Or for a specific user (www-data):
+**Alternative: Use AlwaysData's Cron Jobs**
 
-```bash
-sudo crontab -u www-data -e
-```
+1. Log in to AlwaysData admin panel
+2. Go to **Advanced > Cron**
+3. Create a new cron job:
+   - **Command:** `cd /www/boardsmemberportal && php artisan schedule:run`
+   - **Schedule:** `* * * * *` (every minute)
 
 ---
 
 ## Step 13: SSL Certificate (HTTPS)
 
-### Using Let's Encrypt (Certbot)
+### SSL Certificate on AlwaysData
 
-```bash
-# Install Certbot
-sudo apt-get install certbot python3-certbot-apache
-# or for Nginx:
-sudo apt-get install certbot python3-certbot-nginx
+AlwaysData provides free SSL certificates via Let's Encrypt:
 
-# Obtain certificate
-sudo certbot --apache -d your-domain.com -d www.your-domain.com
-# or for Nginx:
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+1. Log in to AlwaysData admin panel
+2. Go to **Web > Sites**
+3. Click on your site (`landogz.alwaysdata.net`)
+4. Go to **SSL/TLS** section
+5. Enable **Let's Encrypt** certificate
+6. Save the configuration
 
-# Auto-renewal (should be set up automatically)
-sudo certbot renew --dry-run
-```
+AlwaysData will automatically renew the certificate.
 
 ### Update .env for HTTPS
 
 ```env
-APP_URL=https://your-domain.com
+APP_URL=https://landogz.alwaysdata.net
 REVERB_SCHEME=https
 ```
 
@@ -515,7 +517,7 @@ When you need to update the application:
 
 ```bash
 # Navigate to project directory
-cd /path/to/boardsmemberportal
+cd /www/boardsmemberportal
 
 # Pull latest changes
 git pull origin main
@@ -533,11 +535,10 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Restart services
-sudo systemctl restart reverb
-sudo supervisorctl restart laravel-worker:*
-# or
-sudo supervisorctl restart reverb:*
+# Restart services (via AlwaysData admin panel)
+# Go to Advanced > Processes and restart:
+# - reverb
+# - laravel-worker
 ```
 
 ---
@@ -547,11 +548,12 @@ sudo supervisorctl restart reverb:*
 ### Permission Issues
 
 ```bash
-# Fix ownership
-sudo chown -R www-data:www-data /path/to/boardsmemberportal
-sudo chmod -R 755 /path/to/boardsmemberportal
-sudo chmod -R 775 /path/to/boardsmemberportal/storage
-sudo chmod -R 775 /path/to/boardsmemberportal/bootstrap/cache
+# Fix permissions (AlwaysData uses your user account)
+chmod -R 755 /www/boardsmemberportal
+chmod -R 775 /www/boardsmemberportal/storage
+chmod -R 775 /www/boardsmemberportal/bootstrap/cache
+
+# If you still have issues, contact AlwaysData support
 ```
 
 ### Clear All Caches
@@ -568,18 +570,17 @@ php artisan optimize:clear
 
 ```bash
 # Application logs
-tail -f storage/logs/laravel.log
+tail -f /www/boardsmemberportal/storage/logs/laravel.log
 
 # Reverb logs
-tail -f storage/logs/reverb.log
+tail -f /www/boardsmemberportal/storage/logs/reverb.log
 
 # Queue worker logs
-tail -f storage/logs/worker.log
+tail -f /www/boardsmemberportal/storage/logs/worker.log
 
-# Web server error logs
-tail -f /var/log/apache2/error.log
-# or
-tail -f /var/log/nginx/error.log
+# AlwaysData web server logs (via admin panel)
+# Go to Web > Sites > your-site > Logs
+# Or check: ~/logs/web/
 ```
 
 ### Database Connection Issues
@@ -620,32 +621,50 @@ cat .env | grep DB_
 
 ### Database Backup
 
+**Option 1: Via AlwaysData Admin Panel**
+1. Go to **Databases > MySQL**
+2. Click on your database
+3. Use the **Backup** feature
+
+**Option 2: Via Command Line**
+
 ```bash
+# Create backup directory
+mkdir -p ~/backups
+
 # Create backup script
-nano /path/to/backup-db.sh
+nano ~/backups/backup-db.sh
 ```
 
-Add:
+Add (replace with your actual database credentials):
 
 ```bash
 #!/bin/bash
 DATE=$(date +%Y%m%d_%H%M%S)
-mysqldump -u your_db_user -p'your_db_password' your_database_name > /path/to/backups/db_backup_$DATE.sql
+mysqldump -u your_db_user -p'your_db_password' your_database_name > ~/backups/db_backup_$DATE.sql
+# Keep only last 7 days
+find ~/backups -name "db_backup_*.sql" -mtime +7 -delete
 ```
 
 Make executable and schedule:
 
 ```bash
-chmod +x /path/to/backup-db.sh
+chmod +x ~/backups/backup-db.sh
 crontab -e
-# Add: 0 2 * * * /path/to/backup-db.sh
+# Add: 0 2 * * * ~/backups/backup-db.sh
 ```
 
 ### File Backup
 
 ```bash
+# Create backup directory
+mkdir -p ~/backups
+
 # Backup storage and important files
-tar -czf /path/to/backups/files_backup_$(date +%Y%m%d).tar.gz /path/to/boardsmemberportal/storage
+tar -czf ~/backups/files_backup_$(date +%Y%m%d).tar.gz /www/boardsmemberportal/storage
+
+# Keep only last 7 days
+find ~/backups -name "files_backup_*.tar.gz" -mtime +7 -delete
 ```
 
 ---
@@ -659,5 +678,35 @@ For issues or questions:
 
 ---
 
-**Note:** Replace all `/path/to/boardsmemberportal` with your actual project path, and all `your-domain.com` with your actual domain name.
+---
+
+## AlwaysData-Specific Notes
+
+1. **Document Root:** AlwaysData serves from `/www`. Configure the site to point to `/www/boardsmemberportal/public` in the admin panel.
+
+2. **Process Management:** Use AlwaysData's process manager (Advanced > Processes) for Reverb and queue workers instead of systemd.
+
+3. **Cron Jobs:** Use AlwaysData's cron interface (Advanced > Cron) or your user crontab.
+
+4. **SSL:** AlwaysData provides free Let's Encrypt certificates via the admin panel.
+
+5. **Database:** Create your MySQL database via AlwaysData admin panel (Databases > MySQL).
+
+6. **PHP Version:** AlwaysData supports multiple PHP versions. Select PHP 8.2+ in your site configuration.
+
+7. **File Permissions:** Files are owned by your user account. Use `chmod` for permissions, not `chown`.
+
+8. **Logs:** Access web server logs via AlwaysData admin panel or in `~/logs/web/`.
+
+9. **SSH Access:** Use `ssh your-username@ssh-landogz.alwaysdata.net` to connect.
+
+10. **Port Restrictions:** AlwaysData may restrict certain ports. Check with support if Reverb (port 8080) doesn't work.
+
+---
+
+**Your Configuration Summary:**
+- Domain: `landogz.alwaysdata.net`
+- Project Path: `/www/boardsmemberportal`
+- Public Path: `/www/boardsmemberportal/public`
+- Admin Panel: https://admin.alwaysdata.com
 
