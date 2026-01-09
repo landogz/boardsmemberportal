@@ -12,6 +12,9 @@ class GovernmentAgencySeeder extends Seeder
      */
     public function run(): void
     {
+        // Delete all existing agencies first
+        GovernmentAgency::truncate();
+        
         $agencies = [
             [
                 'name' => 'COMMISSION ON HIGHER EDUCATION',
