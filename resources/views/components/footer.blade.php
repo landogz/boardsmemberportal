@@ -9,11 +9,17 @@
             <div>
                 <h4 class="font-semibold mb-4" style="color: #055498;">Quick Links</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    @auth
+                    <li><a href="{{ route('landing') }}#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
+                    <li><a href="{{ route('landing') }}#calendar-activities" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a></li>
+                    <li><a href="{{ route('board-issuances') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a></li>
+                    <li><a href="{{ route('referendums.index') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a></li>
+                    <li><a href="{{ route('notices.index') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a></li>
+                    @else
                     <li><a href="#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
                     <li><a href="#calendar-activities" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a></li>
-                    @guest
                     <li><a href="#about" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a></li>
-                    @endguest
+                    @endauth
                 </ul>
             </div>
             <div>
