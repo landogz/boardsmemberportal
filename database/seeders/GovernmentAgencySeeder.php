@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\GovernmentAgency;
+use Illuminate\Support\Facades\DB;
 
 class GovernmentAgencySeeder extends Seeder
 {
@@ -13,7 +14,10 @@ class GovernmentAgencySeeder extends Seeder
     public function run(): void
     {
         // Delete all existing agencies first
+        // Disable foreign key checks temporarily to allow truncation
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         GovernmentAgency::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         
         $agencies = [
             [
