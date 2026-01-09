@@ -264,6 +264,8 @@ flowchart TD
     AdminFeatures --> NoticeMgmt[Notice Management]
     AdminFeatures --> AttendanceMgmt[Attendance Confirmation Management]
     AdminFeatures --> AgendaRequestMgmt[Agenda Request Management]
+    AdminFeatures --> ReferenceMaterialMgmt[Reference Material Management]
+    AdminFeatures --> ReportGeneration[Report Generation]
     AdminFeatures --> Messaging[Messaging System]
     
     CONSECDash --> CONSECFeatures{CONSEC Features<br/>Permission-Based}
@@ -380,6 +382,23 @@ flowchart TD
     ApproveRejectRequest -->|Approve| ShowOnNotice[Show on Notice Agenda]
     ApproveRejectRequest -->|Reject| AddRejectionReason[Add Rejection Reason]
     ApproveRejectRequest --> SendRequestEmail[Send Email to User]
+    
+    ReferenceMaterialMgmt --> ReviewMaterials[Review Reference Materials]
+    ReviewMaterials --> ViewMaterialDetails[View Material Details & Attachments]
+    ReviewMaterials --> ApproveRejectMaterial{Approve/Reject Material}
+    ApproveRejectMaterial -->|Approve| MaterialApproved[Material Approved]
+    ApproveRejectMaterial -->|Reject| MaterialRejected[Material Rejected]
+    
+    ReportGeneration --> SelectReportType[Select Report Type]
+    SelectReportType --> QuorumGuide[Quorum Guide Report]
+    SelectReportType --> SummaryMeeting[Summary of Regular Meeting]
+    SelectReportType --> SummaryByTitle[Summary by Title]
+    QuorumGuide --> ApplyFilters[Apply Filters]
+    SummaryMeeting --> ApplyFilters
+    SummaryByTitle --> ApplyFilters
+    ApplyFilters --> GenerateReport[Generate Report]
+    GenerateReport --> ViewResults[View Results]
+    ViewResults --> PrintReport[Print Report]
     
     UserMgmt --> PendingReg[Pending Registrations]
     PendingReg --> ApproveReg{Approve Registration?}
@@ -610,7 +629,42 @@ User/Admin → Messaging System
                  └─► View Group Members
 ```
 
-### J. Audit Trail Flow
+### J. Report Generation Flow
+
+```
+Admin/CONSEC → Report Generation
+   ├─► Select Report Type
+   │      ├─► Quorum Guide
+   │      │      ├─► Select Notice of Meeting
+   │      │      ├─► Generate Report
+   │      │      ├─► View Attendees by Agency
+   │      │      ├─► Board Members vs Other Attendees
+   │      │      └─► Print Report (A4 Portrait)
+   │      │
+   │      ├─► Summary of Regular Meeting
+   │      │      ├─► Select Year (from available data)
+   │      │      ├─► Generate Report
+   │      │      ├─► View Meeting Summary
+   │      │      ├─► Board Regulations & Resolutions
+   │      │      ├─► Totals & Statistics
+   │      │      └─► Print Report (A4 Portrait)
+   │      │
+   │      └─► Summary of Regular Meeting by Title
+   │             ├─► Select Notice Title
+   │             ├─► Generate Report
+   │             ├─► View Approved Issuances
+   │             ├─► Board Regulations & Resolutions Details
+   │             ├─► Totals & Statistics
+   │             └─► Print Report (A4 Portrait)
+   │
+   └─► Print Functionality
+          ├─► Custom Header with DDB Logo
+          ├─► Professional Table Formatting
+          ├─► Page Breaks & Layout
+          └─► Export to PDF
+```
+
+### K. Audit Trail Flow
 
 ```
 System Actions → Audit Logger
@@ -952,7 +1006,7 @@ updated_at
 #### 26. notices
 ```sql
 id
-notice_type (enum: Notice of Meeting, Agenda, Other Matters)
+notice_type (enum: Notice of Meeting, Agenda, Board Issuances, Other Matters)
 title
 related_notice_id (nullable, foreign key to notices)
 meeting_type (enum: online, onsite, hybrid)
@@ -962,6 +1016,9 @@ meeting_time (time, nullable)
 description (text, nullable)
 attachments (JSON - array of media_library IDs)
 cc_emails (JSON - array of objects with name, email, position, agency)
+board_regulations (JSON - array of board_regulation IDs, for Board Issuances)
+board_resolutions (JSON - array of official_document IDs, for Board Issuances)
+no_of_attendees (integer, nullable, for Board Issuances)
 created_by (foreign key to users)
 created_at
 updated_at
@@ -993,6 +1050,21 @@ id
 notice_id (foreign key)
 user_id (foreign key)
 attendance_confirmation_id (foreign key)
+description (text)
+attachments (JSON - array of media_library IDs)
+status (enum: pending, approved, rejected)
+rejection_reason (text, nullable)
+reviewed_by (nullable, foreign key to users)
+reviewed_at (timestamp, nullable)
+created_at
+updated_at
+```
+
+#### 30. reference_materials
+```sql
+id
+notice_id (foreign key)
+user_id (foreign key)
 description (text)
 attachments (JSON - array of media_library IDs)
 status (enum: pending, approved, rejected)
@@ -1134,6 +1206,16 @@ updated_at
   - `/admin/agenda-inclusion-requests/{id}` - View Agenda Request Details
   - `/admin/agenda-inclusion-requests/{id}/approve` - Approve Request (POST)
   - `/admin/agenda-inclusion-requests/{id}/reject` - Reject Request (POST)
+
+- `/admin/reference-materials` - Reference Material Management
+  - `/admin/reference-materials` - List All Reference Materials
+  - `/admin/reference-materials/{id}` - View Reference Material Details
+  - `/admin/reference-materials/{id}/approve` - Approve Material (POST)
+  - `/admin/reference-materials/{id}/reject` - Reject Material (POST)
+
+- `/admin/report-generation` - Report Generation
+  - `/admin/report-generation` - Report Generation Page
+  - `/admin/report-generation/search` - Generate Report (GET)
 
 - `/admin/notifications` - Admin Notifications Page
 
