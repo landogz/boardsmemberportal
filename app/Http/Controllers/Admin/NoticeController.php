@@ -354,6 +354,22 @@ class NoticeController extends Controller
         DB::beginTransaction();
         try {
 
+            // Store original values to compare changes
+            $originalNoOfAttendees = $notice->no_of_attendees;
+            $originalNoticeType = $notice->notice_type;
+            $originalTitle = $notice->title;
+            $originalRelatedNoticeId = $notice->related_notice_id;
+            $originalMeetingType = $notice->meeting_type;
+            $originalMeetingLink = $notice->meeting_link;
+            $originalMeetingDate = $notice->meeting_date;
+            $originalMeetingTime = $notice->meeting_time;
+            $originalBoardRegulations = $notice->board_regulations;
+            $originalBoardResolutions = $notice->board_resolutions;
+            $originalDescription = $notice->description;
+            $originalAttachments = $notice->attachments;
+            $originalCcEmails = $notice->cc_emails;
+            $originalAllowedUsers = $notice->allowedUsers->pluck('id')->toArray();
+
             // For Agenda type, get title from related notice if title_dropdown is provided
             $title = $validated['title'];
             $relatedNoticeId = $notice->related_notice_id;
@@ -369,6 +385,13 @@ class NoticeController extends Controller
                 $relatedNoticeId = null;
             }
 
+            $newNoOfAttendees = ($validated['notice_type'] === 'Board Issuances' && isset($validated['no_of_attendees'])) ? $validated['no_of_attendees'] : null;
+            $newBoardRegulations = ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_regulations'])) ? json_encode($validated['board_regulations']) : null;
+            $newBoardResolutions = ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_resolutions'])) ? json_encode($validated['board_resolutions']) : null;
+            $newCcEmails = !empty($validated['cc_emails']) ? json_encode(array_values(array_filter($validated['cc_emails'], function($item) {
+                return !empty($item['email']);
+            }))) : null;
+
             $notice->update([
                 'notice_type' => $validated['notice_type'],
                 'title' => $title,
@@ -377,58 +400,79 @@ class NoticeController extends Controller
                 'meeting_link' => in_array($validated['meeting_type'], ['online', 'hybrid']) ? $validated['meeting_link'] : null,
                 'meeting_date' => $validated['meeting_date'] ?? null,
                 'meeting_time' => $validated['meeting_time'] ?? null,
-                'no_of_attendees' => ($validated['notice_type'] === 'Board Issuances' && isset($validated['no_of_attendees'])) ? $validated['no_of_attendees'] : null,
-                'board_regulations' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_regulations'])) ? json_encode($validated['board_regulations']) : null,
-                'board_resolutions' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_resolutions'])) ? json_encode($validated['board_resolutions']) : null,
+                'no_of_attendees' => $newNoOfAttendees,
+                'board_regulations' => $newBoardRegulations,
+                'board_resolutions' => $newBoardResolutions,
                 'description' => $validated['description'] ?? null,
                 'attachments' => $validated['attachments'] ?? [],
-                'cc_emails' => !empty($validated['cc_emails']) ? json_encode(array_values(array_filter($validated['cc_emails'], function($item) {
-                    return !empty($item['email']);
-                }))) : null,
+                'cc_emails' => $newCcEmails,
             ]);
 
             // Sync allowed users
             $notice->allowedUsers()->sync($validated['allowed_users']);
+            $newAllowedUsers = $validated['allowed_users'];
+            sort($newAllowedUsers);
+            sort($originalAllowedUsers);
+
+            // Check if only no_of_attendees changed
+            $onlyNoOfAttendeesChanged = 
+                $originalNoticeType === $validated['notice_type'] &&
+                $originalTitle === $title &&
+                $originalRelatedNoticeId == $relatedNoticeId &&
+                $originalMeetingType === $validated['meeting_type'] &&
+                $originalMeetingLink === (in_array($validated['meeting_type'], ['online', 'hybrid']) ? $validated['meeting_link'] : null) &&
+                $originalMeetingDate === ($validated['meeting_date'] ?? null) &&
+                $originalMeetingTime === ($validated['meeting_time'] ?? null) &&
+                $originalBoardRegulations === $newBoardRegulations &&
+                $originalBoardResolutions === $newBoardResolutions &&
+                $originalDescription === ($validated['description'] ?? null) &&
+                json_encode($originalAttachments) === json_encode($validated['attachments'] ?? []) &&
+                $originalCcEmails === $newCcEmails &&
+                $originalAllowedUsers === $newAllowedUsers &&
+                $originalNoOfAttendees != $newNoOfAttendees;
 
             // Reload notice with allowed users
             $notice->load('allowedUsers');
 
-            // Send notifications and emails to ALL allowed users (notice was edited)
-            foreach ($notice->allowedUsers as $user) {
-                // Determine the correct URL based on user privilege
-                $noticeUrl = in_array($user->privilege, ['admin', 'consec']) 
-                    ? route('admin.notices.show', $notice->id)
-                    : route('notices.show', $notice->id);
-                
-                // Create in-app notification
-                Notification::create([
-                    'user_id' => $user->id,
-                    'type' => 'notice',
-                    'title' => 'Notice Updated',
-                    'message' => 'A notice "' . $notice->title . '" has been updated. Please review the changes.',
-                    'url' => $noticeUrl,
-                    'data' => [
-                        'notice_id' => $notice->id,
-                        'notice_title' => $notice->title,
-                    ],
-                ]);
-                
-                // Send email to user
-                try {
-                    Mail::to($user->email)->send(new NoticeEditedEmail($notice, $user));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send notice edited email to user ' . $user->id . ': ' . $e->getMessage());
+            // Only send notifications and emails if something other than no_of_attendees changed
+            if (!$onlyNoOfAttendeesChanged) {
+                // Send notifications and emails to ALL allowed users (notice was edited)
+                foreach ($notice->allowedUsers as $user) {
+                    // Determine the correct URL based on user privilege
+                    $noticeUrl = in_array($user->privilege, ['admin', 'consec']) 
+                        ? route('admin.notices.show', $notice->id)
+                        : route('notices.show', $notice->id);
+                    
+                    // Create in-app notification
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'type' => 'notice',
+                        'title' => 'Notice Updated',
+                        'message' => 'A notice "' . $notice->title . '" has been updated. Please review the changes.',
+                        'url' => $noticeUrl,
+                        'data' => [
+                            'notice_id' => $notice->id,
+                            'notice_title' => $notice->title,
+                        ],
+                    ]);
+                    
+                    // Send email to user
+                    try {
+                        Mail::to($user->email)->send(new NoticeEditedEmail($notice, $user));
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to send notice edited email to user ' . $user->id . ': ' . $e->getMessage());
+                    }
                 }
-            }
 
-            // Send emails to ALL CC users (notice was edited)
-            if (!empty($validated['cc_emails'])) {
-                foreach ($validated['cc_emails'] as $ccData) {
-                    if (!empty($ccData['email']) && filter_var($ccData['email'], FILTER_VALIDATE_EMAIL)) {
-                        try {
-                            Mail::to($ccData['email'])->send(new NoticeCcEditedEmail($notice, $ccData['email']));
-                        } catch (\Exception $e) {
-                            \Log::error('Failed to send notice CC edited email to ' . $ccData['email'] . ': ' . $e->getMessage());
+                // Send emails to ALL CC users (notice was edited)
+                if (!empty($validated['cc_emails'])) {
+                    foreach ($validated['cc_emails'] as $ccData) {
+                        if (!empty($ccData['email']) && filter_var($ccData['email'], FILTER_VALIDATE_EMAIL)) {
+                            try {
+                                Mail::to($ccData['email'])->send(new NoticeCcEditedEmail($notice, $ccData['email']));
+                            } catch (\Exception $e) {
+                                \Log::error('Failed to send notice CC edited email to ' . $ccData['email'] . ': ' . $e->getMessage());
+                            }
                         }
                     }
                 }
