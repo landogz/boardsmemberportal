@@ -1,4 +1,27 @@
 <script>
+    // Global error handler to suppress browser extension errors
+    window.addEventListener('error', function(event) {
+        // Suppress browser extension connection errors (harmless)
+        if (event.message && event.message.includes('Could not establish connection')) {
+            event.preventDefault();
+            return false;
+        }
+    }, true);
+    
+    // Handle unhandled promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+        // Suppress browser extension connection errors (harmless)
+        if (event.reason && typeof event.reason === 'string' && event.reason.includes('Could not establish connection')) {
+            event.preventDefault();
+            return false;
+        }
+        // Suppress if it's an Error object with the message
+        if (event.reason && event.reason.message && event.reason.message.includes('Could not establish connection')) {
+            event.preventDefault();
+            return false;
+        }
+    });
+    
     $(document).ready(function() {
         // Sidebar Toggle
         $('#sidebarCollapse').on('click', function() {
