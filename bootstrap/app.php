@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust all proxies (needed for AlwaysData hosting)
         $middleware->trustProxies(at: '*');
         
+        // Add maintenance mode middleware globally (priority)
+        $middleware->append(\App\Http\Middleware\MaintenanceModeMiddleware::class);
+        
         // Add coming soon middleware globally
         $middleware->append(\App\Http\Middleware\ComingSoonMiddleware::class);
         

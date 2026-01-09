@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ComingSoonMiddleware
+class MaintenanceModeMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,17 +15,12 @@ class ComingSoonMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Don't apply coming soon if maintenance mode is enabled (maintenance takes priority)
+        // Check if maintenance mode is enabled
         if (config('app.maintenance_mode_enabled', false)) {
-            return $next($request);
-        }
-        
-        // Check if coming soon mode is enabled
-        if (config('app.coming_soon_enabled', false)) {
             $path = $request->path();
             
             // Allow access to:
-            // - Root path (where coming soon page is shown)
+            // - Root path (where maintenance page is shown)
             // - API routes (for any API calls)
             // - Health check route
             if ($path === '/' || 
@@ -35,10 +30,11 @@ class ComingSoonMiddleware
                 return $next($request);
             }
             
-            // Redirect all other pages to coming soon
+            // Redirect all other pages to maintenance
             return redirect('/');
         }
 
         return $next($request);
     }
 }
+

@@ -69,12 +69,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Maintenance Mode
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the application will display a "Maintenance" page instead
+    | of the normal landing page. Set MAINTENANCE_MODE_ENABLED=true in .env to enable.
+    | Set MAINTENANCE_END_DATE to the expected completion date (format: YYYY-MM-DD HH:MM:SS).
+    | Maintenance mode takes priority over coming soon mode.
+    |
+    */
+
+    'maintenance_mode_enabled' => env('MAINTENANCE_MODE_ENABLED', false),
+    'maintenance_end_date' => env('MAINTENANCE_END_DATE', '2026-01-20 12:00:00'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Coming Soon Mode
     |--------------------------------------------------------------------------
     |
     | When enabled, the application will display a "Coming Soon" page instead
     | of the normal landing page. Set COMING_SOON_ENABLED=true in .env to enable.
     | Set COMING_SOON_LAUNCH_DATE to the launch date (format: YYYY-MM-DD).
+    | Note: Maintenance mode takes priority over coming soon mode.
     |
     */
 
