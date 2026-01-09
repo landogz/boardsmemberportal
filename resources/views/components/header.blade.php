@@ -235,6 +235,7 @@
 @if(request()->route()->getName() !== 'messages')
 @include('components.messages-popup')
 @endif
+@include('components.pending-notices-alert')
 
 <script>
     // Handle logout for both desktop and mobile

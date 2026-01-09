@@ -29,7 +29,9 @@ class RoleController extends Controller
         }
 
         // Get all roles except admin (admin has automatic access to all permissions)
-        $roles = Role::with('permissions')
+        $roles = Role::with(['permissions', 'users' => function($query) {
+            $query->with('profilePictureMedia');
+        }])
             ->where('name', '!=', 'admin')
             ->orderBy('name')
             ->get();

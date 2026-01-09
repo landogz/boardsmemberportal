@@ -148,6 +148,7 @@ class CalendarController extends Controller
                 'extendedProps' => [
                     'type' => 'announcement',
                     'description' => Str::limit(strip_tags($announcement->description), 150),
+                    'full_description' => strip_tags($announcement->description),
                     'id' => $announcement->id,
                     'url' => route('announcements.show', $announcement->id),
                 ],

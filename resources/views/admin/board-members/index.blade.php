@@ -188,6 +188,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agency</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Representative Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -216,6 +217,20 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ $account->username }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($account->governmentAgency)
+                                    <div class="flex items-center space-x-3">
+                                        @if($account->governmentAgency->logo)
+                                            <div class="flex-shrink-0">
+                                                <img src="{{ asset('storage/' . $account->governmentAgency->logo->file_path) }}" alt="{{ $account->governmentAgency->name }}" class="h-8 w-8 object-contain">
+                                            </div>
+                                        @endif
+                                        <div class="text-sm font-medium text-gray-900">{{ $account->governmentAgency->name }}</div>
+                                    </div>
+                                @else
+                                    <span class="text-sm text-gray-400">N/A</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">{{ $account->designation ?? 'N/A' }}</div>

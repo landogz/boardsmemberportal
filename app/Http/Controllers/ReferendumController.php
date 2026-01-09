@@ -22,7 +22,7 @@ class ReferendumController extends Controller
                 $query->where('users.id', $userId);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(5);
+            ->paginate(6);
         
         return view('referendums.index', compact('referendums'));
     }

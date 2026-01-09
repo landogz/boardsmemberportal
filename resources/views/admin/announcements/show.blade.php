@@ -23,72 +23,128 @@
     $hideDefaultActions = false;
 @endphp
 
+@push('styles')
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.875rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .status-published {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .status-draft {
+        background-color: rgba(156, 163, 175, 0.1);
+        color: #6B7280;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="p-4 lg:p-6">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+<div class="p-4 lg:p-6 space-y-6">
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <!-- Banner Image -->
         @if($announcement->bannerImage)
-            <div class="mb-6">
-                <img src="{{ asset('storage/' . $announcement->bannerImage->file_path) }}" alt="Banner" class="w-full h-64 object-cover rounded-lg">
+            <div class="relative w-full h-64 lg:h-80 overflow-hidden bg-gradient-to-br from-yellow-50 to-yellow-100">
+                <img src="{{ asset('storage/' . $announcement->bannerImage->file_path) }}" alt="Banner" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
         @endif
 
-        <!-- Title -->
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $announcement->title }}</h1>
-
-        <!-- Meta Information -->
-        <div class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
-            <div class="flex items-center">
-                <i class="fas fa-user mr-2"></i>
-                <span>By {{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
-            </div>
-            <div class="flex items-center">
-                <i class="fas fa-calendar mr-2"></i>
-                <span>{{ $announcement->created_at->format('F d, Y') }}</span>
-            </div>
-            <div class="flex items-center">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $announcement->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                    {{ ucfirst($announcement->status) }}
-                </span>
-            </div>
-            @if($announcement->scheduled_at)
-                <div class="flex items-center">
-                    <i class="fas fa-clock mr-2"></i>
-                    <span>Scheduled: {{ $announcement->scheduled_at->format('F d, Y H:i') }}</span>
-                </div>
-            @endif
-        </div>
-
-        <!-- Description -->
-        <div class="prose max-w-none mb-6">
-            <div class="text-gray-700">{!! $announcement->description !!}</div>
-        </div>
-
-        <!-- Allowed Users -->
-        <div class="border-t pt-6 mt-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Allowed Users ({{ $announcement->allowedUsers->count() }})</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($announcement->allowedUsers as $user)
-                    @php
-                        $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=64&background=055498&color=fff';
-                        if ($user->profile_picture) {
-                            $media = \App\Models\MediaLibrary::find($user->profile_picture);
-                            if ($media) {
-                                $profilePic = asset('storage/' . $media->file_path);
-                            }
-                        }
-                    @endphp
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-10 h-10 rounded-full object-cover border-2" style="border-color: #055498;">
-                        <div>
-                            <div class="text-sm font-medium text-gray-900">{{ $user->first_name }} {{ $user->last_name }}</div>
-                            <div class="text-xs text-gray-500">{{ $user->email }}</div>
+        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 px-6 py-5 border-b border-gray-100">
+            <div class="flex items-start justify-between flex-wrap gap-4">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-3 mb-3 flex-wrap">
+                        <span class="status-badge {{ $announcement->status === 'published' ? 'status-published' : 'status-draft' }}">
+                            <i class="fas fa-{{ $announcement->status === 'published' ? 'check-circle' : 'file-alt' }} mr-1.5"></i>
+                            {{ ucfirst($announcement->status) }}
+                        </span>
+                        @if($announcement->scheduled_at)
+                            <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-600 border border-gray-200">
+                                <i class="fas fa-clock mr-1.5"></i>
+                                Scheduled: {{ $announcement->scheduled_at->format('M d, Y H:i') }}
+                            </span>
+                        @endif
+                    </div>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-3">{{ $announcement->title }}</h1>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                        <div class="flex items-center gap-2">
+                            @php
+                                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($announcement->creator->first_name . ' ' . $announcement->creator->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                if ($announcement->creator->profile_picture) {
+                                    $media = \App\Models\MediaLibrary::find($announcement->creator->profile_picture);
+                                    if ($media) {
+                                        $profilePic = asset('storage/' . $media->file_path);
+                                    }
+                                }
+                            @endphp
+                            <img src="{{ $profilePic }}" alt="{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}" class="w-8 h-8 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
+                            <span class="font-medium text-gray-700">{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-500">
+                            <i class="fas fa-calendar text-xs"></i>
+                            <span>{{ $announcement->created_at->format('M d, Y') }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-500">
+                            <i class="fas fa-users text-xs"></i>
+                            <span>{{ $announcement->allowedUsers->count() }} Allowed User(s)</span>
                         </div>
                     </div>
-                @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Content -->
+        <div class="px-6 py-6">
+            <div class="prose prose-lg max-w-none">
+                <div class="text-gray-700 leading-relaxed">{!! $announcement->description !!}</div>
             </div>
         </div>
     </div>
+
+    <!-- Allowed Users Card -->
+    @if($announcement->allowedUsers->count() > 0)
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div class="w-1 h-6 bg-gradient-to-b from-yellow-400 to-amber-500 rounded-full"></div>
+                <span>Allowed Users</span>
+            </h3>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                {{ $announcement->allowedUsers->count() }} User(s)
+            </span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($announcement->allowedUsers as $user)
+                @php
+                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=48&background=055498&color=fff&bold=true';
+                    if ($user->profile_picture) {
+                        $media = \App\Models\MediaLibrary::find($user->profile_picture);
+                        if ($media) {
+                            $profilePic = asset('storage/' . $media->file_path);
+                        }
+                    }
+                @endphp
+                <div class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
+                    <div class="flex-shrink-0">
+                        <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $user->first_name }} {{ $user->last_name }}</div>
+                        <div class="text-xs text-gray-500 truncate">{{ $user->email }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 

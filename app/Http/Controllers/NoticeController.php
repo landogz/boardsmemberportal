@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Notice;
 use App\Models\AttendanceConfirmation;
 use App\Models\AgendaInclusionRequest;
+use App\Models\ReferenceMaterial;
 use App\Models\MediaLibrary;
 use App\Models\Notification;
 use App\Mail\NoticeAcceptedEmail;
@@ -31,14 +32,23 @@ class NoticeController extends Controller
                 $query->where('users.id', $userId);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(6);
         
         // Get attendance confirmations for current user
         $attendanceConfirmations = AttendanceConfirmation::where('user_id', $userId)
             ->pluck('status', 'notice_id')
             ->toArray();
         
-        return view('notices.index', compact('notices', 'attendanceConfirmations'));
+        // Get agenda requests and reference materials for current user
+        $agendaRequests = AgendaInclusionRequest::where('user_id', $userId)
+            ->pluck('id', 'notice_id')
+            ->toArray();
+        
+        $referenceMaterials = ReferenceMaterial::where('user_id', $userId)
+            ->pluck('id', 'notice_id')
+            ->toArray();
+        
+        return view('notices.index', compact('notices', 'attendanceConfirmations', 'agendaRequests', 'referenceMaterials'));
     }
 
     /**
@@ -69,6 +79,17 @@ class NoticeController extends Controller
                 ->first();
         }
         
+        // Get current user's reference material submission if exists
+        $referenceMaterial = null;
+        if ($attendanceConfirmation && $attendanceConfirmation->status === 'accepted') {
+            $referenceMaterial = ReferenceMaterial::where('notice_id', $id)
+                ->where('user_id', $userId)
+                ->first();
+        }
+        
+        // Check if meeting is done
+        $isMeetingDone = $notice->isMeetingDone();
+        
         // Handle action from email link (accept/decline)
         $action = request()->query('action');
         $autoAction = null;
@@ -76,7 +97,46 @@ class NoticeController extends Controller
             $autoAction = $action;
         }
         
-        return view('notices.show', compact('notice', 'attendanceConfirmation', 'agendaRequest', 'autoAction'));
+        return view('notices.show', compact('notice', 'attendanceConfirmation', 'agendaRequest', 'referenceMaterial', 'isMeetingDone', 'autoAction'));
+    }
+
+    /**
+     * Get pending notices for the authenticated user
+     */
+    public function getPendingNotices()
+    {
+        $userId = Auth::id();
+        
+        // Get all notices where user is allowed
+        $allNotices = Notice::with(['creator', 'attendanceConfirmations'])
+            ->whereHas('allowedUsers', function($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Filter to only include notices where user hasn't accepted or declined
+        $pendingNotices = $allNotices->filter(function($notice) use ($userId) {
+            $confirmation = $notice->attendanceConfirmations->where('user_id', $userId)->first();
+            // Pending if no confirmation exists OR status is 'pending'
+            return !$confirmation || $confirmation->status === 'pending';
+        });
+        
+        $notices = $pendingNotices->map(function($notice) {
+            return [
+                'id' => $notice->id,
+                'title' => $notice->title,
+                'notice_type' => $notice->notice_type,
+                'meeting_date' => $notice->meeting_date ? $notice->meeting_date->format('M d, Y') : null,
+                'meeting_time' => $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') : null,
+                'created_at' => $notice->created_at->format('M d, Y'),
+            ];
+        })->values();
+        
+        return response()->json([
+            'success' => true,
+            'notices' => $notices
+        ]);
     }
 
     /**
@@ -353,6 +413,116 @@ class NoticeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to submit agenda inclusion request. Please try again.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Submit reference materials for a notice (after meeting is done)
+     */
+    public function submitReferenceMaterial(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'required|string|max:5000',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'exists:media_library,id',
+        ]);
+        
+        $notice = Notice::findOrFail($id);
+        $userId = Auth::id();
+        
+        // Check if user has access and has accepted
+        if (!$notice->allowedUsers()->where('users.id', $userId)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have access to this notice.'
+            ], 403);
+        }
+        
+        // Check if meeting is done
+        if (!$notice->isMeetingDone()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Reference materials can only be submitted after the meeting date has passed.'
+            ], 400);
+        }
+        
+        $attendanceConfirmation = AttendanceConfirmation::where('notice_id', $id)
+            ->where('user_id', $userId)
+            ->where('status', 'accepted')
+            ->first();
+        
+        if (!$attendanceConfirmation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You must accept the invitation first before submitting reference materials.'
+            ], 400);
+        }
+        
+        // Check if already submitted
+        $existing = ReferenceMaterial::where('notice_id', $id)
+            ->where('user_id', $userId)
+            ->first();
+        
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already submitted reference materials for this notice.'
+            ], 400);
+        }
+        
+        DB::beginTransaction();
+        try {
+            $referenceMaterial = ReferenceMaterial::create([
+                'notice_id' => $id,
+                'user_id' => $userId,
+                'attendance_confirmation_id' => $attendanceConfirmation->id,
+                'description' => $request->description,
+                'attachments' => $request->attachments ?? [],
+                'status' => 'pending',
+            ]);
+            
+            // Reload notice with creator
+            $notice->load('creator');
+            $user = Auth::user();
+            
+            // Send email and notification to notice creator
+            if ($notice->creator) {
+                // URL to the reference material detail page for review
+                $referenceMaterialUrl = route('admin.reference-materials.show', $referenceMaterial->id);
+                
+                // Create in-app notification
+                Notification::create([
+                    'user_id' => $notice->creator->id,
+                    'type' => 'reference_material_submitted',
+                    'title' => 'New Reference Materials Submitted',
+                    'message' => $user->first_name . ' ' . $user->last_name . ' has submitted reference materials for "' . $notice->title . '".',
+                    'url' => $referenceMaterialUrl,
+                    'data' => [
+                        'reference_material_id' => $referenceMaterial->id,
+                        'notice_id' => $notice->id,
+                        'notice_title' => $notice->title,
+                        'user_id' => $user->id,
+                        'user_name' => $user->first_name . ' ' . $user->last_name,
+                    ],
+                ]);
+                
+                // Send email (we'll create this email class later if needed)
+                // Mail::to($notice->creator->email)->send(new ReferenceMaterialSubmittedEmail($referenceMaterial, $notice, $user, $notice->creator));
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Reference materials submitted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error submitting reference materials: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit reference materials. Please try again.',
             ], 500);
         }
     }

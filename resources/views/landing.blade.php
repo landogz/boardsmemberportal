@@ -629,12 +629,30 @@
                 </p>
                 <div class="bg-white dark:bg-[#1e293b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                     <div class="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">
                                 <i class="fas fa-calendar-alt mr-2" style="color: #055498;"></i>
                                 Activities Calendar
                             </h3>
-                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">View meetings, announcements, and scheduled events</p>
+                            <!-- Color Legend -->
+                            <div class="flex items-center gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-0">
+                                <div class="flex items-center gap-1 sm:gap-1.5">
+                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #FBD116; border: 1px solid #d4a017;"></span>
+                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Announcements</span>
+                                </div>
+                                <div class="flex items-center gap-1 sm:gap-1.5">
+                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #CE2028; border: 1px solid #a01a1f;"></span>
+                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Resolutions</span>
+                                </div>
+                                <div class="flex items-center gap-1 sm:gap-1.5">
+                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #055498; border: 1px solid #044080;"></span>
+                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Regulations</span>
+                                </div>
+                                <div class="flex items-center gap-1 sm:gap-1.5">
+                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #7C3AED; border: 1px solid #6D28D9;"></span>
+                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Notices</span>
+                                </div>
+                            </div>
                     </div>
                         <div class="flex gap-2">
                             <button id="printCalendarBtn" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
@@ -1710,14 +1728,21 @@
                         day: 'numeric' 
                     });
                     
+                    // Use full_description for announcements if available, otherwise use description
+                    let description = event.extendedProps.description || 'No description available.';
+                    if (eventType === 'announcement' && event.extendedProps.full_description) {
+                        description = event.extendedProps.full_description;
+                    }
+                    
                     return {
                         title: event.title,
                         type: eventType.charAt(0).toUpperCase() + eventType.slice(1),
                         date: formattedDate,
                         startDate: startDate.toISOString().split('T')[0],
-                        description: event.extendedProps.description || 'No description available.',
+                        description: description,
                         effectiveDate: event.extendedProps.effective_date || null,
                         approvedDate: event.extendedProps.approved_date || null,
+                        noticeType: event.extendedProps.notice_type || null,
                         url: event.extendedProps.url || null,
                         id: event.extendedProps.id || null
                     };
@@ -1788,8 +1813,10 @@
                         eventsTable += '<td>' + event.date + '</td>';
                         eventsTable += '<td><span class="badge">' + event.type + '</span></td>';
                         eventsTable += '<td style="font-weight: bold; color: #333;">' + escapeHtml(event.title) + '</td>';
-                        // Clean description - remove HTML tags but preserve text content
+                        // Clean description - decode HTML entities, remove HTML tags but preserve text content
                         let cleanDescription = event.description || 'No description available.';
+                        // Decode HTML entities first
+                        cleanDescription = decodeHtmlEntities(cleanDescription);
                         // Remove HTML tags but keep text content
                         cleanDescription = cleanDescription.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                         // If description is empty after cleaning, use fallback
@@ -1800,6 +1827,9 @@
                         
                         // Details column
                         let detailsHtml = '';
+                        if (event.type === 'Notice' && event.noticeType) {
+                            detailsHtml += '<div style="margin-bottom: 4px;"><strong style="font-size: 8px; color: #055498;">Notice Type:</strong><br><span style="font-size: 8px;">' + escapeHtml(event.noticeType) + '</span></div>';
+                        }
                         if (event.effectiveDate) {
                             detailsHtml += '<div style="margin-bottom: 4px;"><strong style="font-size: 8px; color: #055498;">Effective:</strong><br><span style="font-size: 8px;">' + event.effectiveDate + '</span></div>';
                         }
@@ -2089,6 +2119,14 @@
 </html>`;
             }
             
+            // Decode HTML entities helper
+            function decodeHtmlEntities(text) {
+                if (!text) return '';
+                const textarea = document.createElement('textarea');
+                textarea.innerHTML = text;
+                return textarea.value;
+            }
+            
             // Escape HTML helper
             function escapeHtml(text) {
                 if (!text) return '';
@@ -2184,7 +2222,13 @@
         }
         
         #landingCalendar .fc-day-today {
-            background-color: rgba(5, 84, 152, 0.1) !important;
+            background-color: rgba(5, 84, 152, 0.25) !important;
+        }
+        
+        #landingCalendar .fc-day-today .fc-daygrid-day-number {
+            color: #055498 !important;
+            font-weight: 700 !important;
+            font-size: 1.1em !important;
         }
         
         #landingCalendar .fc-event {

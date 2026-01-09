@@ -61,6 +61,22 @@
     <div class="mb-4 sm:mb-6">
         <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Attendance Confirmations</h2>
         <p class="text-sm sm:text-base text-gray-600 mt-1">View attendance confirmations and agenda requests for all notices</p>
+        @if(isset($noticeId) && $noticeId)
+            @php
+                $notice = \App\Models\Notice::find($noticeId);
+            @endphp
+            @if($notice)
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-filter mr-2"></i>
+                        Showing attendance confirmations for notice: <strong>{{ $notice->title }}</strong>
+                        <a href="{{ route('admin.attendance-confirmations.index') }}" class="ml-2 text-blue-600 hover:text-blue-800 underline">
+                            Clear filter
+                        </a>
+                    </p>
+                </div>
+            @endif
+        @endif
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

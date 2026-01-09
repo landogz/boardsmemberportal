@@ -55,12 +55,30 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     @if($log->user)
-                                        <div class="text-[11px] font-semibold text-gray-900">
-                                            {{ $log->user->first_name }} {{ $log->user->last_name }}
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-shrink-0">
+                                                @php
+                                                    $profileMedia = $log->user->profile_picture ? \App\Models\MediaLibrary::find($log->user->profile_picture) : null;
+                                                    $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($log->user->first_name . ' ' . $log->user->last_name) . '&size=32&background=055498&color=fff';
+                                                @endphp
+                                                <img src="{{ $profileUrl }}" alt="Profile" class="h-8 w-8 rounded-full object-cover border-2" style="border-color: #055498;">
+                                            </div>
+                                            <div>
+                                                <div class="text-[11px] font-semibold text-gray-900">
+                                                    {{ $log->user->first_name }} {{ $log->user->last_name }}
+                                                </div>
+                                                <div class="text-[10px] text-gray-500">{{ $log->user->email }}</div>
+                                            </div>
                                         </div>
-                                        <div class="text-[10px] text-gray-500">{{ $log->user->email }}</div>
                                     @else
-                                        <span class="text-[11px] text-gray-500">System / Guest</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-shrink-0">
+                                                <img src="https://ui-avatars.com/api/?name=System&size=32&background=6B7280&color=fff" alt="System" class="h-8 w-8 rounded-full object-cover border-2" style="border-color: #6B7280;">
+                                            </div>
+                                            <div>
+                                                <div class="text-[11px] font-semibold text-gray-500">System / Guest</div>
+                                            </div>
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap">

@@ -1733,7 +1733,7 @@
                 }
             });
         }
-        
+
         // Load conversations on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Ensure light mode is maintained (redundant check)
@@ -2860,7 +2860,7 @@
                 })
                 .catch(error => {
                     console.error('Error updating unread counts:', error);
-                });
+            });
         }
 
         function renderConversations(conversations) {
@@ -2939,7 +2939,7 @@
                                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
                                         <p class="text-sm sm:text-base font-semibold text-gray-800 truncate">${fullName}</p>
                                         ${isGroup ? '<i class="fas fa-users text-xs text-gray-400 flex-shrink-0"></i>' : ''}
-                                    </div>
+                                </div>
                                     ${unreadCount > 0 ? `<span class="flex-shrink-0 px-2 py-0.5 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[20px] text-center shadow-sm">${unreadCount}</span>` : ''}
                                 </div>
                                 <p class="text-xs sm:text-sm text-gray-500 truncate">${escapeHtml(lastMessage)}</p>
@@ -3071,7 +3071,7 @@
                 loadConversations();
             }
         }
-        
+
         function openChat(userId, userName, convData = null) {
             // Clear theme if switching to a different chat or non-group chat
             const previousChatUserId = currentChatUserId;
@@ -3303,7 +3303,7 @@
                 if (isGroup) {
                     chatHeaderStatusText.textContent = 'Group chat';
                 } else {
-                    chatHeaderStatusText.textContent = isOnline ? 'Active now' : 'Offline';
+                chatHeaderStatusText.textContent = isOnline ? 'Active now' : 'Offline';
                 }
             }
             
@@ -3443,26 +3443,26 @@
                     if (response.data.success) {
                         // Check if data is encrypted and decrypt it
                         let processMessages = (messages) => {
-                            messagesArea.innerHTML = '';
-                            lastMessageTimestamp = null;
-                            lastSentMessageId = null; // Reset last sent message ID
+                        messagesArea.innerHTML = '';
+                        lastMessageTimestamp = null;
+                        lastSentMessageId = null; // Reset last sent message ID
                             if (messages && messages.length > 0) {
-                                let previousMsg = null;
+                            let previousMsg = null;
                                 messages.forEach(msg => {
-                                    appendMessageToPage(msg, userId, previousMsg);
-                                    previousMsg = msg;
-                                    if (!lastMessageTimestamp || msg.created_at > lastMessageTimestamp) {
-                                        lastMessageTimestamp = msg.created_at;
-                                    }
-                                });
-                                
-                                // Find the last sent message after all messages are loaded
-                                const sentMessages = messages.filter(m => m.is_sender);
-                                if (sentMessages.length > 0) {
-                                    // Sort by created_at descending and get the first one
-                                    sentMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                                    lastSentMessageId = sentMessages[0].id;
+                                appendMessageToPage(msg, userId, previousMsg);
+                                previousMsg = msg;
+                                if (!lastMessageTimestamp || msg.created_at > lastMessageTimestamp) {
+                                    lastMessageTimestamp = msg.created_at;
                                 }
+                            });
+                            
+                            // Find the last sent message after all messages are loaded
+                                const sentMessages = messages.filter(m => m.is_sender);
+                            if (sentMessages.length > 0) {
+                                // Sort by created_at descending and get the first one
+                                sentMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                                lastSentMessageId = sentMessages[0].id;
+                            }
                             }
                             
                             // Always scroll to bottom when loading a new conversation
@@ -3480,7 +3480,7 @@
                                     setTimeout(() => {
                                         // Only mark as read if this is still the active chat
                                         if (currentChatUserId === userId) {
-                                            axios.post(`{{ route('messages.mark-as-read', ':userId') }}`.replace(':userId', userId))
+                            axios.post(`{{ route('messages.mark-as-read', ':userId') }}`.replace(':userId', userId))
                                                 .then((response) => {
                                                     
                                                     // Update unread count immediately for this conversation
@@ -3539,7 +3539,7 @@
                             .then(decryptResponse => {
                                 if (decryptResponse.data.success) {
                                     processMessages(decryptResponse.data.messages || []);
-                                } else {
+                        } else {
                                     console.error('Decryption failed:', decryptResponse.data.message);
                                     messagesArea.innerHTML = '<div class="p-4 text-center text-red-500">Failed to decrypt messages. Please refresh the page.</div>';
                                     return;
@@ -3628,10 +3628,10 @@
                 } else {
                     // Timestamps don't match, remove temp separator and let normal logic decide
                     tempSeparator.remove();
-                    // Check if we need to add a timestamp separator
-                    if (shouldShowTimestampSeparator(msg, previousMsg)) {
-                        const separator = createTimestampSeparator(msg.created_at);
-                        messagesArea.appendChild(separator);
+            // Check if we need to add a timestamp separator
+            if (shouldShowTimestampSeparator(msg, previousMsg)) {
+                const separator = createTimestampSeparator(msg.created_at);
+                messagesArea.appendChild(separator);
                     }
                 }
             } else {
@@ -3682,7 +3682,7 @@
                     // Check if it's a video file (but exclude voice messages)
                     // Prioritize video detection for actual video files
                     const isVideo = !isVoiceMessage && (
-                        (attachment.type && attachment.type.startsWith('video/')) || 
+                                   (attachment.type && attachment.type.startsWith('video/')) || 
                         (attachment.name && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)$/i.test(attachment.name)) ||
                         (attachment.url && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)(\?|$|#)/i.test(attachment.url))
                     );
@@ -3692,7 +3692,7 @@
                         (attachment.type && attachment.type.startsWith('audio/')) ||
                         (attachment.name && /\.(mp3|wav|ogg|m4a|aac)$/i.test(attachment.name)) ||
                         (attachment.url && /\.(mp3|wav|ogg|m4a|aac)(\?|$|#)/i.test(attachment.url))
-                    );
+                                   );
                     
                     if (isVideo) {
                         if (!attachment.url) return;
@@ -4819,10 +4819,10 @@
                         }
                         
                         // Scroll to bottom
-                        setTimeout(() => {
-                            if (messagesArea && !isScrollingToParent) {
-                                messagesArea.scrollTop = messagesArea.scrollHeight;
-                            }
+                    setTimeout(() => {
+                        if (messagesArea && !isScrollingToParent) {
+                            messagesArea.scrollTop = messagesArea.scrollHeight;
+                        }
                         }, 100);
                     }
                     
@@ -4885,13 +4885,13 @@
                 }
                 
                 if (window.Swal) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
                         text: errorMessage,
                         timer: 5000,
                         showConfirmButton: true
-                    });
+                });
                 }
             });
         }
@@ -4930,27 +4930,27 @@
                             // Check if message already exists to avoid duplicates
                             const existingMessage = messagesArea.querySelector(`[data-message-id="${msg.id}"]`);
                             if (!existingMessage) {
-                                appendMessageToPage(msg, userId, previousMsg);
-                                previousMsg = msg;
+                            appendMessageToPage(msg, userId, previousMsg);
+                            previousMsg = msg;
                                 hasNewMessages = true;
                                 
-                                if (msg.created_at > lastMessageTimestamp) {
-                                    lastMessageTimestamp = msg.created_at;
-                                }
-                                // Update last sent message ID if this is a sent message
-                                if (msg.is_sender) {
-                                    if (!lastSentMessageId) {
+                            if (msg.created_at > lastMessageTimestamp) {
+                                lastMessageTimestamp = msg.created_at;
+                            }
+                            // Update last sent message ID if this is a sent message
+                            if (msg.is_sender) {
+                                if (!lastSentMessageId) {
+                                    lastSentMessageId = msg.id;
+                                } else {
+                                    // Compare timestamps to find the most recent
+                                    const currentLastMsg = response.data.messages.find(m => m.id == lastSentMessageId);
+                                    if (currentLastMsg && new Date(msg.created_at) > new Date(currentLastMsg.created_at)) {
                                         lastSentMessageId = msg.id;
-                                    } else {
-                                        // Compare timestamps to find the most recent
-                                        const currentLastMsg = response.data.messages.find(m => m.id == lastSentMessageId);
-                                        if (currentLastMsg && new Date(msg.created_at) > new Date(currentLastMsg.created_at)) {
-                                            lastSentMessageId = msg.id;
-                                        } else if (!currentLastMsg) {
-                                            // If current last message not found, use this one
-                                            lastSentMessageId = msg.id;
-                                        }
+                                    } else if (!currentLastMsg) {
+                                        // If current last message not found, use this one
+                                        lastSentMessageId = msg.id;
                                     }
+                                }
                                 }
                             } else {
                                 // Message already exists, update previousMsg for next iteration
@@ -5003,7 +5003,7 @@
 
         // Global selected users array for user selection modal
         let selectedUsers = [];
-        
+
         function renderUsersForSelection(users) {
             const container = document.getElementById('usersListContainer');
             
@@ -5255,8 +5255,8 @@
                         checkbox.dispatchEvent(new Event('change'));
                     } else {
                         // Fallback: single user selection (old behavior)
-                        const userId = this.getAttribute('data-user-id');
-                        const userName = this.getAttribute('data-user-name');
+                    const userId = this.getAttribute('data-user-id');
+                    const userName = this.getAttribute('data-user-name');
                         const userDataJson = this.getAttribute('data-user-data');
                         
                         let userData = null;
@@ -5276,7 +5276,7 @@
                             agency: userData.agency
                         } : null;
                         
-                        document.getElementById('userSelectionModal').classList.add('hidden');
+                    document.getElementById('userSelectionModal').classList.add('hidden');
                         openChat(userId, userName, convData);
                     }
                 });
@@ -7921,7 +7921,7 @@
                 
                 // Remove link and reset flag after a short delay
                 setTimeout(() => {
-                    document.body.removeChild(link);
+                document.body.removeChild(link);
                     isDownloading = false;
                 }, 100);
             }

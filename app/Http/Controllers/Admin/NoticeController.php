@@ -248,7 +248,23 @@ class NoticeController extends Controller
             }
         }
 
-        return view('admin.notices.show', compact('notice', 'approvedAgendaRequests'));
+        // Get all approved reference materials for this notice
+        $approvedReferenceMaterials = \App\Models\ReferenceMaterial::with(['user.governmentAgency'])
+            ->where('notice_id', $id)
+            ->where('status', 'approved')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        
+        // Load attachment media for each reference material
+        foreach ($approvedReferenceMaterials as $referenceMaterial) {
+            if (!empty($referenceMaterial->attachments)) {
+                $referenceMaterial->setRelation('attachmentMedia', \App\Models\MediaLibrary::whereIn('id', $referenceMaterial->attachments)->get());
+            } else {
+                $referenceMaterial->setRelation('attachmentMedia', collect([]));
+            }
+        }
+
+        return view('admin.notices.show', compact('notice', 'approvedAgendaRequests', 'approvedReferenceMaterials'));
     }
 
     /**

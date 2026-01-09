@@ -1,12 +1,12 @@
 @extends('admin.layout')
 
-@section('title', 'Agenda Request Details')
+@section('title', 'Reference Material Details')
 
 @php
-    $pageTitle = 'Agenda Request Details';
+    $pageTitle = 'Reference Material Details';
     $headerActions = [];
     $headerActions[] = [
-        'url' => route('admin.agenda-inclusion-requests.index'),
+        'url' => route('admin.reference-materials.index'),
         'text' => 'Back to List',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
@@ -47,7 +47,7 @@
 <div class="p-4 lg:p-6 space-y-6">
     <!-- Header Card -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-3">
@@ -57,15 +57,15 @@
                                 'approved' => 'bg-green-500 text-white',
                                 'rejected' => 'bg-red-500 text-white'
                             ];
-                            $statusColor = $statusColors[$request->status] ?? 'bg-gray-500 text-white';
+                            $statusColor = $statusColors[$material->status] ?? 'bg-gray-500 text-white';
                         @endphp
                         <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide {{ $statusColor }}">
-                            <i class="fas fa-{{ $request->status === 'approved' ? 'check-circle' : ($request->status === 'rejected' ? 'times-circle' : 'clock') }} mr-1.5"></i>
-                            {{ ucfirst($request->status) }}
+                            <i class="fas fa-{{ $material->status === 'approved' ? 'check-circle' : ($material->status === 'rejected' ? 'times-circle' : 'clock') }} mr-1.5"></i>
+                            {{ ucfirst($material->status) }}
                         </span>
                     </div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">Agenda Request</h1>
-                    <p class="text-gray-600">Review request details and attachments</p>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">Reference Materials</h1>
+                    <p class="text-gray-600">Review submission details and attachments</p>
                 </div>
             </div>
         </div>
@@ -80,67 +80,44 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Notice Title</label>
-                <p class="text-sm font-semibold text-gray-900 mt-1">{{ $request->notice->title }}</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">{{ $material->notice->title }}</p>
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Notice Type</label>
                 @php
                     $typeClass = 'type-other';
-                    if ($request->notice->notice_type === 'Notice of Meeting') {
+                    if ($material->notice->notice_type === 'Notice of Meeting') {
                         $typeClass = 'type-meeting';
-                    } elseif ($request->notice->notice_type === 'Agenda') {
+                    } elseif ($material->notice->notice_type === 'Agenda') {
                         $typeClass = 'type-agenda';
-                    } elseif ($request->notice->notice_type === 'Board Issuances') {
+                    } elseif ($material->notice->notice_type === 'Board Issuances') {
                         $typeClass = 'type-board-issuances';
                     }
                 @endphp
                 <span class="notice-type-badge {{ $typeClass }} mt-1">
-                    {{ $request->notice->notice_type }}
+                    {{ $material->notice->notice_type }}
                 </span>
             </div>
-            @if($request->notice->meeting_date)
-                <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Meeting Date</label>
-                    <p class="text-sm font-semibold text-gray-900 mt-1">{{ \Carbon\Carbon::parse($request->notice->meeting_date)->format('F d, Y') }}</p>
-                </div>
-            @endif
-            @if($request->notice->meeting_time)
-                <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Meeting Time</label>
-                    <p class="text-sm font-semibold text-gray-900 mt-1">{{ \Carbon\Carbon::parse($request->notice->meeting_time)->format('g:i A') }}</p>
-                </div>
-            @endif
-        </div>
-        <div class="mt-4">
-            <a href="{{ route('admin.notices.show', $request->notice->id) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
-                <i class="fas fa-external-link-alt"></i>
-                <span>View Notice</span>
-            </a>
         </div>
     </div>
 
-    <!-- Requester Information -->
+    <!-- Submitter Information -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <div class="w-1 h-6 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-full"></div>
-            <span>Requested By</span>
+            <span>Submitted By</span>
         </h3>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center space-x-4">
             @php
-                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($request->user->first_name . ' ' . $request->user->last_name) . '&size=64&background=7C3AED&color=fff&bold=true';
-                if ($request->user->profile_picture) {
-                    $media = \App\Models\MediaLibrary::find($request->user->profile_picture);
-                    if ($media) {
-                        $profilePic = asset('storage/' . $media->file_path);
-                    }
-                }
+                $profileMedia = $material->user->profile_picture ? \App\Models\MediaLibrary::find($material->user->profile_picture) : null;
+                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($material->user->first_name . ' ' . $material->user->last_name) . '&size=64&background=055498&color=fff';
             @endphp
-            <img src="{{ $profilePic }}" alt="{{ $request->user->first_name }} {{ $request->user->last_name }}" class="w-16 h-16 rounded-xl object-cover border-2 border-purple-200 shadow-lg">
+            <img src="{{ $profileUrl }}" alt="Profile" class="h-16 w-16 rounded-full object-cover border-2" style="border-color: #055498;">
             <div>
-                <p class="text-lg font-bold text-gray-900">{{ $request->user->first_name }} {{ $request->user->last_name }}</p>
-                <p class="text-sm text-gray-600 mt-0.5">{{ $request->user->email }}</p>
-                @if($request->user->governmentAgency)
-                    <p class="text-sm text-gray-500 mt-1">{{ $request->user->governmentAgency->name }}</p>
+                <p class="text-lg font-semibold text-gray-900">{{ $material->user->first_name }} {{ $material->user->last_name }}</p>
+                <p class="text-sm text-gray-600">{{ $material->user->email }}</p>
+                @if($material->user->governmentAgency)
+                    <p class="text-sm text-gray-500">{{ $material->user->governmentAgency->name }}</p>
                 @endif
             </div>
         </div>
@@ -149,24 +126,22 @@
     <!-- Description -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div class="w-1 h-6 bg-gradient-to-b from-gray-500 to-gray-600 rounded-full"></div>
+            <div class="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full"></div>
             <span>Description</span>
         </h3>
-        <div class="prose max-w-none">
-            <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $request->description }}</p>
-        </div>
+        <p class="text-gray-700 whitespace-pre-wrap">{{ $material->description }}</p>
     </div>
 
     <!-- Attachments -->
-    @if($request->attachments && count($request->attachments) > 0)
+    @if($material->attachments && count($material->attachments) > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
                 <span>Attachments</span>
-                <span class="ml-2 px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">{{ count($request->attachments) }}</span>
+                <span class="ml-2 px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">{{ count($material->attachments) }}</span>
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($request->attachment_media as $attachment)
+                @foreach($material->attachment_media as $attachment)
                     @php
                         $isImage = in_array(strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
                         $isPdf = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) === 'pdf';
@@ -234,87 +209,81 @@
     @endif
 
     <!-- Review Information -->
-    @if($request->status !== 'pending')
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <div class="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full"></div>
-                <span>Review Information</span>
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed By</label>
-                    <p class="text-sm font-semibold text-gray-900 mt-1">
-                        {{ $request->reviewer ? $request->reviewer->first_name . ' ' . $request->reviewer->last_name : 'N/A' }}
-                    </p>
-                </div>
-                <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed At</label>
-                    <p class="text-sm font-semibold text-gray-900 mt-1">
-                        {{ $request->reviewed_at ? $request->reviewed_at->format('F d, Y g:i A') : 'N/A' }}
-                    </p>
-                </div>
-                @if($request->status === 'rejected' && $request->rejection_reason)
-                    <div class="md:col-span-2">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Rejection Reason</label>
-                        <div class="mt-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm font-medium text-red-900">{{ $request->rejection_reason }}</p>
-                        </div>
-                    </div>
-                @endif
+    @if($material->status !== 'pending')
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div class="w-1 h-6 bg-gradient-to-b from-gray-500 to-gray-600 rounded-full"></div>
+            <span>Review Information</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed By</label>
+                <p class="text-sm font-semibold text-gray-900 mt-1">
+                    {{ $material->reviewer ? $material->reviewer->first_name . ' ' . $material->reviewer->last_name : 'N/A' }}
+                </p>
             </div>
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed At</label>
+                <p class="text-sm font-semibold text-gray-900 mt-1">
+                    {{ $material->reviewed_at ? $material->reviewed_at->format('M d, Y g:i A') : 'N/A' }}
+                </p>
+            </div>
+            @if($material->status === 'rejected' && $material->rejection_reason)
+            <div class="md:col-span-2">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Rejection Reason</label>
+                <p class="text-sm text-gray-700 mt-1 whitespace-pre-wrap">{{ $material->rejection_reason }}</p>
+            </div>
+            @endif
         </div>
+    </div>
     @endif
 
-    <!-- Action Buttons -->
-    @if($request->status === 'pending')
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-end gap-3">
-                <button onclick="rejectRequest({{ $request->id }})" class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-times"></i>
-                    <span>Reject</span>
-                </button>
-                <button onclick="approveRequest({{ $request->id }})" class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-check"></i>
-                    <span>Approve</span>
-                </button>
-            </div>
+    <!-- Actions -->
+    @if($material->status === 'pending' && $material->notice->created_by === Auth::id())
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Actions</h3>
+        <div class="flex gap-3">
+            <button onclick="approveMaterial({{ $material->id }})" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                <i class="fas fa-check mr-2"></i>Approve
+            </button>
+            <button onclick="rejectMaterial({{ $material->id }})" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                <i class="fas fa-times mr-2"></i>Reject
+            </button>
         </div>
+    </div>
     @endif
 </div>
 
 <!-- Reject Modal -->
 <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div class="w-1 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full"></div>
-            <span>Reject Agenda Request</span>
-        </h3>
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <h3 class="text-xl font-bold mb-4">Reject Reference Materials</h3>
         <form id="rejectForm">
-            <input type="hidden" id="rejectRequestId" name="request_id">
+            <input type="hidden" id="rejectMaterialId" name="material_id">
             <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                     Rejection Reason <span class="text-red-500">*</span>
                 </label>
                 <textarea 
                     id="rejectReason" 
-                    name="reason" 
+                    name="rejection_reason" 
                     rows="4" 
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
-                    placeholder="Please provide a reason for rejecting this request..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
+                    placeholder="Please provide a reason for rejecting this submission..."
                 ></textarea>
             </div>
             <div class="flex gap-3">
                 <button 
                     type="button" 
                     onclick="closeRejectModal()" 
-                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                 >
                     Cancel
                 </button>
                 <button 
                     type="submit" 
-                    class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                     Reject
                 </button>
@@ -322,51 +291,34 @@
         </form>
     </div>
 </div>
+@endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-    function approveRequest(id) {
+
+    function approveMaterial(id) {
         Swal.fire({
-            title: 'Approve Request?',
-            text: 'Are you sure you want to approve this agenda request?',
+            title: 'Approve Reference Materials?',
+            text: 'Are you sure you want to approve this submission?',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#10B981',
             cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Yes, approve',
-            cancelButtonText: 'Cancel',
-            customClass: {
-                popup: 'rounded-xl',
-                confirmButton: 'rounded-lg',
-                cancelButton: 'rounded-lg'
-            }
+            confirmButtonText: 'Yes, approve'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Processing...',
-                    text: 'Please wait',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                axios.post(`/admin/agenda-inclusion-requests/${id}/approve`)
+                axios.post(`/admin/reference-materials/${id}/approve`)
                     .then(response => {
                         if (response.data.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Success!',
+                                title: 'Approved!',
                                 text: response.data.message,
                                 timer: 1500,
-                                showConfirmButton: false,
-                                customClass: {
-                                    popup: 'rounded-xl'
-                                }
+                                showConfirmButton: false
                             }).then(() => {
                                 location.reload();
                             });
@@ -375,19 +327,16 @@
                     .catch(error => {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
-                            text: error.response?.data?.message || 'Failed to approve request.',
-                            customClass: {
-                                popup: 'rounded-xl'
-                            }
+                            title: 'Error',
+                            text: error.response?.data?.message || 'Failed to approve reference materials.'
                         });
                     });
             }
         });
     }
 
-    function rejectRequest(id) {
-        document.getElementById('rejectRequestId').value = id;
+    function rejectMaterial(id) {
+        document.getElementById('rejectMaterialId').value = id;
         document.getElementById('rejectReason').value = '';
         document.getElementById('rejectModal').classList.remove('hidden');
     }
@@ -399,33 +348,18 @@
 
     document.getElementById('rejectForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const requestId = document.getElementById('rejectRequestId').value;
+        const materialId = document.getElementById('rejectMaterialId').value;
         const reason = document.getElementById('rejectReason').value;
         
-        Swal.fire({
-            title: 'Processing...',
-            text: 'Please wait',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
-            customClass: {
-                popup: 'rounded-xl'
-            }
-        });
-        
-        axios.post(`/admin/agenda-inclusion-requests/${requestId}/reject`, { reason })
+        axios.post(`/admin/reference-materials/${materialId}/reject`, { rejection_reason: reason })
             .then(response => {
                 if (response.data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Success!',
+                        title: 'Rejected!',
                         text: response.data.message,
                         timer: 1500,
-                        showConfirmButton: false,
-                        customClass: {
-                            popup: 'rounded-xl'
-                        }
+                        showConfirmButton: false
                     }).then(() => {
                         closeRejectModal();
                         location.reload();
@@ -435,14 +369,11 @@
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error!',
-                    text: error.response?.data?.message || 'Failed to reject request.',
-                    customClass: {
-                        popup: 'rounded-xl'
-                    }
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to reject reference materials.'
                 });
             });
     });
 </script>
 @endpush
-@endsection
+

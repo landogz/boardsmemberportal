@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<nav id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-80 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out" style="background-color: #123a60;">
+<nav id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out" style="background-color: #123a60; width: 19rem;">
     <div class="flex flex-col h-full">
         <!-- User Info -->
         <div class="p-4" style="border-bottom: 1px solid #055498;">
@@ -153,6 +153,14 @@
                         </a>
                     </li>
                     @endcan
+                    @can('view reference materials')
+                    <li>
+                        <a href="{{ route('admin.reference-materials.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.reference-materials.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.reference-materials.*') ? 'background-color:#055498;' : '' }}">
+                            <i class="fas fa-book w-5" style="color: #FBD116;"></i>
+                            <span class="ml-3">Reference Materials</span>
+                        </a>
+                    </li>
+                    @endcan
                     @if(Auth::check() && (Auth::user()->hasPermission('view board regulations') || Auth::user()->hasPermission('view board resolutions') || Auth::user()->hasPermission('view referendum')))
                     <li>
                         <a href="#" class="menu-toggle flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? 'text-white' : '' }}" style="{{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
@@ -188,17 +196,9 @@
                         </ul>
                     </li>
                     @endif
-                    @can('view reference materials')
-                    <li>
-                        <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
-                            <i class="fas fa-book w-5" style="color: #FBD116;"></i>
-                            <span class="ml-3">Reference Materials</span>
-                        </a>
-                    </li>
-                    @endcan
                     @can('view reports')
                     <li>
-                        <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <a href="{{ route('admin.report-generation.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-chart-bar w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Report Generation</span>
                         </a>

@@ -25,7 +25,7 @@ class BoardMemberController extends Controller
 
         // Board members are users with privilege = 'user'
         $boardMembers = User::where('privilege', 'user')
-            ->with('roles')
+            ->with(['roles', 'governmentAgency.logo'])
             ->orderBy('created_at', 'desc')
             ->get();
 

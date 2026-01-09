@@ -134,6 +134,67 @@
         color: #6b7280;
         font-size: 0.875rem;
     }
+    
+    /* Overlapping avatars */
+    .avatar-stack {
+        display: flex;
+        align-items: center;
+    }
+    
+    .avatar-stack .avatar-item {
+        position: relative;
+        margin-left: -12px;
+        transition: transform 0.2s ease, z-index 0.2s ease;
+    }
+    
+    .avatar-stack .avatar-item:first-child {
+        margin-left: 0;
+    }
+    
+    .avatar-stack .avatar-item:hover {
+        transform: translateY(-4px) scale(1.1);
+        z-index: 10;
+    }
+    
+    .avatar-stack .avatar-item img {
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Tooltip */
+    .avatar-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        background-color: #1f2937;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 20;
+        margin-bottom: 8px;
+    }
+    
+    .avatar-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: #1f2937;
+    }
+    
+    .avatar-item:hover .avatar-tooltip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 </style>
 @endpush
 
@@ -199,7 +260,36 @@
                                     <div class="text-sm font-medium text-gray-900">{{ ucfirst($role->name) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $role->users()->count() }}</div>
+                                    <div class="avatar-stack">
+                                        @php
+                                            $maxVisible = 7;
+                                            $users = $role->users;
+                                            $visibleUsers = $users->take($maxVisible);
+                                            $remainingCount = $users->count() - $maxVisible;
+                                        @endphp
+                                        @foreach($visibleUsers as $user)
+                                            @php
+                                                $profileMedia = $user->profile_picture ? \App\Models\MediaLibrary::find($user->profile_picture) : null;
+                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=32&background=055498&color=fff';
+                                            @endphp
+                                            <div class="avatar-item relative">
+                                                <img src="{{ $profileUrl }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-8 h-8 rounded-full object-cover cursor-pointer">
+                                                <div class="avatar-tooltip">
+                                                    {{ $user->first_name }} {{ $user->last_name }}
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        @if($remainingCount > 0)
+                                            <div class="avatar-item relative">
+                                                <div class="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-semibold text-gray-600 cursor-pointer shadow-sm">
+                                                    +{{ $remainingCount }}
+                                                </div>
+                                                <div class="avatar-tooltip">
+                                                    {{ $remainingCount }} more user(s)
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ $role->permissions()->count() }}</div>

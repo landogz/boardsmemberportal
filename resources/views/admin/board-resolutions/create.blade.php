@@ -52,8 +52,8 @@
                         id="version" 
                         name="version" 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        placeholder="e.g., 2025.10"
-                        value="{{ old('version', '2025.10') }}"
+                        placeholder="e.g., {{ date('Y') }}.01"
+                        value="{{ old('version', date('Y') . '.01') }}"
                     >
                 </div>
 

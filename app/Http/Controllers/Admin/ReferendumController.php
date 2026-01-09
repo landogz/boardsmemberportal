@@ -439,4 +439,68 @@ class ReferendumController extends Controller
             return back()->with('error', 'Failed to delete referendum: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Bulk delete referendums
+     */
+    public function bulkDelete(Request $request)
+    {
+        if (!Auth::user()->hasPermission('delete referendum')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to delete referendums.'
+            ], 403);
+        }
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:referendums,id',
+        ]);
+
+        $ids = $request->input('ids');
+        $deletedCount = 0;
+        $errors = [];
+
+        DB::beginTransaction();
+        try {
+            foreach ($ids as $id) {
+                try {
+                    $referendum = Referendum::findOrFail($id);
+                    $title = $referendum->title;
+                    $referendum->delete();
+
+                    AuditLogger::log(
+                        'referendum.deleted',
+                        'Deleted referendum: ' . $title,
+                        null,
+                        ['referendum_id' => $id]
+                    );
+
+                    $deletedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete referendum ID {$id}: " . $e->getMessage();
+                }
+            }
+
+            DB::commit();
+
+            if ($deletedCount > 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "{$deletedCount} referendum(s) deleted successfully." . (!empty($errors) ? ' Some errors occurred: ' . implode(', ', $errors) : '')
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No referendums were deleted. Errors: ' . implode(', ', $errors)
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete referendums: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

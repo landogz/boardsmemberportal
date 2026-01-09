@@ -18,9 +18,21 @@
     @include('components.header-footer-styles')
     <style>
         .notices-container {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem 1rem;
+        }
+        
+        .notices-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .notices-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .page-header {
@@ -63,6 +75,8 @@
             margin-bottom: 1.5rem;
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
         }
         
         .dark .notice-card {
@@ -73,6 +87,26 @@
         .notice-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .notice-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+        
+        .notice-actions {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .notice-actions button,
+        .notice-actions a {
+            position: relative;
+            z-index: 11;
         }
         
         .notice-header {
@@ -404,8 +438,10 @@
         </div>
 
         @if($notices->count() > 0)
+            <div class="notices-grid">
             @foreach($notices as $notice)
-                <div class="notice-card">
+                <div class="notice-card" onclick="window.location.href='{{ route('notices.show', $notice->id) }}'">
+                    <a href="{{ route('notices.show', $notice->id) }}" class="notice-card-link"></a>
                     <div class="notice-header">
                         @php
                             $typeClass = 'badge-other';
@@ -421,9 +457,7 @@
                         </span>
                         
                         <h2 class="notice-title">
-                            <a href="{{ route('notices.show', $notice->id) }}" class="notice-title-link">
-                                {{ $notice->title }}
-                            </a>
+                            {{ $notice->title }}
                         </h2>
                         
                         <div class="notice-meta">
@@ -441,6 +475,21 @@
                                 <div class="meta-item">
                                     <i class="fas fa-clock"></i>
                                     <span>{{ \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') }}</span>
+                                </div>
+                            @endif
+                            @if($notice->creator)
+                                <div class="meta-item">
+                                    @php
+                                        $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($notice->creator->first_name . ' ' . $notice->creator->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                        if ($notice->creator->profile_picture) {
+                                            $media = \App\Models\MediaLibrary::find($notice->creator->profile_picture);
+                                            if ($media) {
+                                                $creatorProfilePic = asset('storage/' . $media->file_path);
+                                            }
+                                        }
+                                    @endphp
+                                    <img src="{{ $creatorProfilePic }}" alt="{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}" class="w-4 h-4 rounded-full object-cover border border-gray-300 dark:border-gray-600" style="margin-right: 0.25rem;">
+                                    <span>{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}</span>
                                 </div>
                             @endif
                         </div>
@@ -480,9 +529,57 @@
                                 <div class="detail-row">
                                     <span class="detail-label">Meeting Link</span>
                                     <span class="detail-value">
-                                        <a href="{{ $notice->meeting_link }}" target="_blank" class="detail-link">
-                                            <i class="fas fa-external-link-alt mr-1"></i>
-                                            Join Meeting
+                                        @php
+                                            $meetingUrl = strtolower($notice->meeting_link);
+                                            $platform = 'default';
+                                            $platformName = 'Meeting';
+                                            $platformIcon = 'fa-video';
+                                            $platformColor = '#055498';
+                                            
+                                            if (strpos($meetingUrl, 'zoom.us') !== false || strpos($meetingUrl, 'zoom.com') !== false) {
+                                                $platform = 'zoom';
+                                                $platformName = 'Zoom';
+                                                $platformIcon = 'fa-video';
+                                                $platformColor = '#2D8CFF';
+                                            } elseif (strpos($meetingUrl, 'meet.google.com') !== false || strpos($meetingUrl, 'google.com/meet') !== false) {
+                                                $platform = 'google-meet';
+                                                $platformName = 'Google Meet';
+                                                $platformIcon = 'fa-video';
+                                                $platformColor = '#00832D';
+                                            } elseif (strpos($meetingUrl, 'teams.microsoft.com') !== false || strpos($meetingUrl, 'teams.live.com') !== false) {
+                                                $platform = 'teams';
+                                                $platformName = 'Microsoft Teams';
+                                                $platformIcon = 'fa-video';
+                                                $platformColor = '#6264A7';
+                                            } elseif (strpos($meetingUrl, 'webex.com') !== false) {
+                                                $platform = 'webex';
+                                                $platformName = 'Webex';
+                                                $platformIcon = 'fa-video';
+                                                $platformColor = '#00AEEF';
+                                            } elseif (strpos($meetingUrl, 'gotomeeting.com') !== false) {
+                                                $platform = 'gotomeeting';
+                                                $platformName = 'GoToMeeting';
+                                                $platformIcon = 'fa-video';
+                                                $platformColor = '#F68D2E';
+                                            }
+                                        @endphp
+                                        <a href="{{ $notice->meeting_link }}" target="_blank" class="detail-link inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-colors hover:opacity-90" onclick="event.stopPropagation();" style="color: {{ $platformColor }}; background: {{ $platformColor }}15; border: 1px solid {{ $platformColor }}40;">
+                                            @if($platform === 'zoom')
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 5.605L12 11.979 8.075 13.826l-1.97-5.605L12 6.275l5.894 1.946z"/>
+                                                </svg>
+                                            @elseif($platform === 'google-meet')
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M19.53 9.75L15.75 6H8.25L4.47 9.75a.75.75 0 0 0-.22.53v3.44c0 .2.08.39.22.53L8.25 18h7.5l3.78-3.75a.75.75 0 0 0 .22-.53v-3.44a.75.75 0 0 0-.22-.53zM12 13.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                                </svg>
+                                            @elseif($platform === 'teams')
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M19.5 4.5c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2zm-15 0c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2zm7.5 0c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2z"/>
+                                                </svg>
+                                            @else
+                                                <i class="fas {{ $platformIcon }}" style="font-size: 12px;"></i>
+                                            @endif
+                                            <span>Join {{ $platformName }}</span>
                                         </a>
                                     </span>
                                 </div>
@@ -493,24 +590,35 @@
                     <div class="notice-actions">
                         <div class="action-buttons">
                             @if(!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending')
-                                <button class="btn-action btn-accept" onclick="acceptNotice({{ $notice->id }})">
+                                <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }});">
                                     <i class="fas fa-check"></i>
                                     <span>Accept</span>
                                 </button>
-                                <button class="btn-action btn-decline" onclick="declineNotice({{ $notice->id }})">
+                                <button class="btn-action btn-decline" onclick="event.stopPropagation(); declineNotice({{ $notice->id }});">
                                     <i class="fas fa-times"></i>
                                     <span>Decline</span>
                                 </button>
                             @elseif(isset($attendanceConfirmations[$notice->id]) && $attendanceConfirmations[$notice->id] === 'accepted')
-                                <button class="btn-action btn-agenda" onclick="requestAgendaInclusion({{ $notice->id }})">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Request Agenda Inclusion</span>
-                                </button>
+                                @php
+                                    $isMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
+                                @endphp
+                                @if(!$isMeetingDone && !isset($agendaRequests[$notice->id]))
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Request Agenda Inclusion</span>
+                                    </button>
+                                @elseif($isMeetingDone && !isset($referenceMaterials[$notice->id]))
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});">
+                                        <i class="fas fa-file-upload"></i>
+                                        <span>Submit Reference Materials</span>
+                                    </button>
+                                @endif
                             @endif
                         </div>
                     </div>
                 </div>
             @endforeach
+            </div>
             
             <div class="pagination-wrapper">
                 {{ $notices->links() }}
@@ -849,6 +957,11 @@
             uploadedAttachmentIds = uploadedAttachmentIds.filter(id => id !== fileId);
             $(this).closest('.attachment-item').remove();
         });
+
+        function submitReferenceMaterial(noticeId) {
+            // Redirect to show page where the modal is available
+            window.location.href = `/notices/${noticeId}`;
+        }
     </script>
 </body>
 </html>

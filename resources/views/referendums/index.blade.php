@@ -33,14 +33,20 @@
     <style>
         /* Facebook Newsfeed Styles */
         .newsfeed-container {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px 16px;
         }
         
-        @media (min-width: 1200px) {
-            .newsfeed-container {
-                max-width: 1000px;
+        .referendums-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .referendums-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -571,6 +577,7 @@
 
                 <!-- Referendums Feed -->
                 @if($referendums->count() > 0)
+                    <div class="referendums-grid">
                     @foreach($referendums as $referendum)
                         @php
                             $isExpired = $referendum->isExpired();
@@ -731,6 +738,7 @@
                             </div>
                         </div>
                     @endforeach
+                    </div>
 
                     <!-- Pagination -->
                     <div class="mt-6 mb-4">

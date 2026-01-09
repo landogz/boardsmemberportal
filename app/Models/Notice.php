@@ -197,4 +197,30 @@ class Notice extends Model
     {
         return $this->hasMany(AgendaInclusionRequest::class);
     }
+
+    /**
+     * Get reference materials for this notice
+     */
+    public function referenceMaterials(): HasMany
+    {
+        return $this->hasMany(ReferenceMaterial::class);
+    }
+
+    /**
+     * Check if meeting is done (meeting date has passed)
+     */
+    public function isMeetingDone(): bool
+    {
+        if (!$this->meeting_date) {
+            return false;
+        }
+        
+        $meetingDateTime = \Carbon\Carbon::parse($this->meeting_date);
+        if ($this->meeting_time) {
+            $time = \Carbon\Carbon::parse($this->meeting_time);
+            $meetingDateTime->setTime($time->hour, $time->minute, $time->second);
+        }
+        
+        return $meetingDateTime->isPast();
+    }
 }

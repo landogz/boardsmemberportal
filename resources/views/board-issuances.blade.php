@@ -150,7 +150,7 @@
                                     </div>
                                     <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">{{ $regulation->title }}</h3>
                                     @if($regulation->description)
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{{ Str::limit($regulation->description, 120) }}</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-3 whitespace-pre-wrap">{{ $regulation->description }}</p>
                                     @endif
                                     <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         @if($regulation->version)
@@ -167,10 +167,21 @@
                                         @endif
                                     </div>
                                     @if($regulation->uploader)
-                                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                            <i class="fas fa-user mr-1"></i>
-                                            {{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}
-                                        </p>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            @php
+                                                $uploaderProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($regulation->uploader->first_name . ' ' . $regulation->uploader->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                                if ($regulation->uploader->profile_picture) {
+                                                    $media = \App\Models\MediaLibrary::find($regulation->uploader->profile_picture);
+                                                    if ($media) {
+                                                        $uploaderProfilePic = asset('storage/' . $media->file_path);
+                                                    }
+                                                }
+                                            @endphp
+                                            <img src="{{ $uploaderProfilePic }}" alt="{{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}" class="w-6 h-6 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                                            <p class="text-xs text-gray-400 dark:text-gray-500">
+                                                {{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}
+                                            </p>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="flex-shrink-0">
@@ -226,7 +237,7 @@
                                     </div>
                                     <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">{{ $document->title }}</h3>
                             @if($document->description)
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{{ Str::limit($document->description, 120) }}</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-3 whitespace-pre-wrap">{{ $document->description }}</p>
                             @endif
                                     <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                             @if($document->version)
@@ -243,10 +254,21 @@
                             @endif
                                     </div>
                             @if($document->uploader)
-                                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                            <i class="fas fa-user mr-1"></i>
-                                            {{ $document->uploader->first_name }} {{ $document->uploader->last_name }}
-                                        </p>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            @php
+                                                $uploaderProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($document->uploader->first_name . ' ' . $document->uploader->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                                if ($document->uploader->profile_picture) {
+                                                    $media = \App\Models\MediaLibrary::find($document->uploader->profile_picture);
+                                                    if ($media) {
+                                                        $uploaderProfilePic = asset('storage/' . $media->file_path);
+                                                    }
+                                                }
+                                            @endphp
+                                            <img src="{{ $uploaderProfilePic }}" alt="{{ $document->uploader->first_name }} {{ $document->uploader->last_name }}" class="w-6 h-6 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                                            <p class="text-xs text-gray-400 dark:text-gray-500">
+                                                {{ $document->uploader->first_name }} {{ $document->uploader->last_name }}
+                                            </p>
+                                        </div>
                             @endif
                         </div>
                                 <div class="flex-shrink-0">

@@ -15,20 +15,27 @@ class AttendanceConfirmationController extends Controller
     /**
      * Display attendance confirmations for all notices
      */
-    public function index()
+    public function index(Request $request)
     {
         if (!Auth::user()->hasPermission('view attendance confirmation')) {
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view attendance confirmation.');
         }
 
+        // Handle notice filter parameter
+        $noticeId = $request->query('notice');
+        
         // Get all notices with their attendance confirmations and agenda inclusion requests
-        $notices = Notice::with([
+        $query = Notice::with([
             'attendanceConfirmations.user.governmentAgency',
             'agendaInclusionRequests.user',
             'allowedUsers'
-        ])
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
+        ]);
+        
+        if ($noticeId) {
+            $query->where('id', $noticeId);
+        }
+        
+        $notices = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Calculate statistics for each notice
         foreach ($notices as $notice) {
@@ -45,7 +52,7 @@ class AttendanceConfirmationController extends Controller
             ];
         }
 
-        return view('admin.attendance-confirmations.index', compact('notices'));
+        return view('admin.attendance-confirmations.index', compact('notices', 'noticeId'));
     }
 
     /**

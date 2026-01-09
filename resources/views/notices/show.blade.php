@@ -113,11 +113,24 @@
             justify-content: center;
             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             color: #475569;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .meta-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.5rem;
         }
         
         .dark .meta-icon {
             background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
             color: #cbd5e1;
+        }
+        
+        .dark .meta-icon img {
+            border: 2px solid #334155;
         }
         
         .meta-content {
@@ -217,11 +230,36 @@
         }
         
         .notice-description {
+            text-indent: 0 !important;
+            text-align: left !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
             font-size: 1rem;
             line-height: 1.75;
             color: #475569;
             white-space: pre-wrap;
             word-wrap: break-word;
+        }
+        
+        .notice-description::first-line {
+            text-indent: 0 !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+        
+        .notice-description * {
+            text-indent: 0 !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            text-align: left !important;
+        }
+        
+        .notice-description p:first-child,
+        .notice-description div:first-child,
+        .notice-description span:first-child {
+            text-indent: 0 !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
         }
         
         .dark .notice-description {
@@ -529,8 +567,17 @@
                 
                 <div class="notice-meta-grid">
                     <div class="meta-item">
-                        <div class="meta-icon">
-                            <i class="fas fa-user"></i>
+                        <div class="meta-icon" style="background: transparent; padding: 0;">
+                            @php
+                                $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($notice->creator->first_name . ' ' . $notice->creator->last_name) . '&size=48&background=055498&color=fff&bold=true';
+                                if ($notice->creator->profile_picture) {
+                                    $media = \App\Models\MediaLibrary::find($notice->creator->profile_picture);
+                                    if ($media) {
+                                        $creatorProfilePic = asset('storage/' . $media->file_path);
+                                    }
+                                }
+                            @endphp
+                            <img src="{{ $creatorProfilePic }}" alt="{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
                         </div>
                         <div class="meta-content">
                             <div class="meta-label">Created By</div>
@@ -581,7 +628,7 @@
                 @if($notice->description)
                     <h2 class="section-title">Description</h2>
                     <div class="notice-description">
-                        {{ trim($notice->description) }}
+                        {!! nl2br(e(strip_tags(trim($notice->description)))) !!}
                     </div>
                 @endif
                 
@@ -595,9 +642,57 @@
                         <div class="detail-card">
                             <div class="detail-label">Meeting Link</div>
                             <div class="detail-value">
-                                <a href="{{ $notice->meeting_link }}" target="_blank" class="detail-link">
-                                    <i class="fas fa-external-link-alt mr-1"></i>
-                                    Join Meeting
+                                @php
+                                    $meetingUrl = strtolower($notice->meeting_link);
+                                    $platform = 'default';
+                                    $platformName = 'Meeting';
+                                    $platformIcon = 'fa-video';
+                                    $platformColor = '#055498';
+                                    
+                                    if (strpos($meetingUrl, 'zoom.us') !== false || strpos($meetingUrl, 'zoom.com') !== false) {
+                                        $platform = 'zoom';
+                                        $platformName = 'Zoom';
+                                        $platformIcon = 'fa-video';
+                                        $platformColor = '#2D8CFF';
+                                    } elseif (strpos($meetingUrl, 'meet.google.com') !== false || strpos($meetingUrl, 'google.com/meet') !== false) {
+                                        $platform = 'google-meet';
+                                        $platformName = 'Google Meet';
+                                        $platformIcon = 'fa-video';
+                                        $platformColor = '#00832D';
+                                    } elseif (strpos($meetingUrl, 'teams.microsoft.com') !== false || strpos($meetingUrl, 'teams.live.com') !== false) {
+                                        $platform = 'teams';
+                                        $platformName = 'Microsoft Teams';
+                                        $platformIcon = 'fa-video';
+                                        $platformColor = '#6264A7';
+                                    } elseif (strpos($meetingUrl, 'webex.com') !== false) {
+                                        $platform = 'webex';
+                                        $platformName = 'Webex';
+                                        $platformIcon = 'fa-video';
+                                        $platformColor = '#00AEEF';
+                                    } elseif (strpos($meetingUrl, 'gotomeeting.com') !== false) {
+                                        $platform = 'gotomeeting';
+                                        $platformName = 'GoToMeeting';
+                                        $platformIcon = 'fa-video';
+                                        $platformColor = '#F68D2E';
+                                    }
+                                @endphp
+                                <a href="{{ $notice->meeting_link }}" target="_blank" class="detail-link inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:opacity-90 font-medium" style="color: {{ $platformColor }}; background: {{ $platformColor }}15; border: 1px solid {{ $platformColor }}40;">
+                                    @if($platform === 'zoom')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 5.605L12 11.979 8.075 13.826l-1.97-5.605L12 6.275l5.894 1.946z"/>
+                                        </svg>
+                                    @elseif($platform === 'google-meet')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M19.53 9.75L15.75 6H8.25L4.47 9.75a.75.75 0 0 0-.22.53v3.44c0 .2.08.39.22.53L8.25 18h7.5l3.78-3.75a.75.75 0 0 0 .22-.53v-3.44a.75.75 0 0 0-.22-.53zM12 13.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                        </svg>
+                                    @elseif($platform === 'teams')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M19.5 4.5c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2zm-15 0c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2zm7.5 0c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2s2-.897 2-2v-11c0-1.103-.897-2-2-2z"/>
+                                        </svg>
+                                    @else
+                                        <i class="fas {{ $platformIcon }}"></i>
+                                    @endif
+                                    <span>Join {{ $platformName }}</span>
                                 </a>
                             </div>
                         </div>
@@ -677,14 +772,14 @@
                             <span>Decline Invitation</span>
                         </button>
                     </div>
-                @elseif($attendanceConfirmation->status === 'accepted' && !$agendaRequest)
+                @elseif($attendanceConfirmation->status === 'accepted' && !$isMeetingDone && !$agendaRequest)
                     <div class="action-buttons">
                         <button class="btn-action btn-agenda" onclick="requestAgendaInclusion({{ $notice->id }})">
                             <i class="fas fa-plus"></i>
                             <span>Request Agenda Inclusion</span>
                         </button>
                     </div>
-                @elseif($attendanceConfirmation->status === 'accepted' && $agendaRequest)
+                @elseif($attendanceConfirmation->status === 'accepted' && !$isMeetingDone && $agendaRequest)
                     <div class="text-center">
                         <div class="status-indicator status-{{ $agendaRequest->status === 'approved' ? 'accepted' : ($agendaRequest->status === 'rejected' ? 'declined' : 'pending') }}">
                             @if($agendaRequest->status === 'approved')
@@ -696,6 +791,28 @@
                             @else
                                 <i class="fas fa-clock"></i>
                                 <span>Agenda Request: Pending Review</span>
+                            @endif
+                        </div>
+                    </div>
+                @elseif($attendanceConfirmation->status === 'accepted' && $isMeetingDone && !$referenceMaterial)
+                    <div class="action-buttons">
+                        <button class="btn-action btn-agenda" onclick="submitReferenceMaterial({{ $notice->id }})">
+                            <i class="fas fa-file-upload"></i>
+                            <span>Submit Reference Materials</span>
+                        </button>
+                    </div>
+                @elseif($attendanceConfirmation->status === 'accepted' && $isMeetingDone && $referenceMaterial)
+                    <div class="text-center">
+                        <div class="status-indicator status-{{ $referenceMaterial->status === 'approved' ? 'accepted' : ($referenceMaterial->status === 'rejected' ? 'declined' : 'pending') }}">
+                            @if($referenceMaterial->status === 'approved')
+                                <i class="fas fa-check-circle"></i>
+                                <span>Reference Materials: Approved</span>
+                            @elseif($referenceMaterial->status === 'rejected')
+                                <i class="fas fa-times-circle"></i>
+                                <span>Reference Materials: Rejected</span>
+                            @else
+                                <i class="fas fa-clock"></i>
+                                <span>Reference Materials: Pending Review</span>
                             @endif
                         </div>
                     </div>
@@ -808,10 +925,72 @@
         </div>
     </div>
 
+    <!-- Reference Materials Submission Modal -->
+    <div id="referenceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Submit Reference Materials</h3>
+            <form id="referenceForm">
+                <input type="hidden" id="referenceNoticeId" name="notice_id">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    <textarea 
+                        id="referenceDescription" 
+                        name="description" 
+                        rows="6" 
+                        required
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none dark:bg-gray-700 dark:text-white"
+                        placeholder="Describe the reference materials you are submitting..."
+                    ></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Attachments
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                        <input 
+                            type="file" 
+                            id="referenceAttachments" 
+                            name="attachments[]" 
+                            multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif"
+                            class="hidden"
+                        >
+                        <div id="referenceDropZone" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
+                            </p>
+                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 30MB per file)</p>
+                        </div>
+                        <div id="referenceAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button 
+                        type="button" 
+                        onclick="closeReferenceModal()" 
+                        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="flex-1 px-4 py-2 bg-[#055498] text-white rounded-lg hover:bg-[#123a60] transition-colors"
+                    >
+                        Submit Materials
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
         let uploadedAttachmentIds = [];
+        let uploadedReferenceAttachmentIds = [];
         let currentNoticeId = null;
 
         // Auto-trigger action from email link
@@ -1044,6 +1223,146 @@
             e.preventDefault();
             const fileId = $(this).data('file-id');
             uploadedAttachmentIds = uploadedAttachmentIds.filter(id => id !== fileId);
+            $(this).closest('.attachment-item').remove();
+        });
+
+        // Reference Materials functions
+        function submitReferenceMaterial(noticeId) {
+            currentNoticeId = noticeId;
+            document.getElementById('referenceNoticeId').value = noticeId;
+            document.getElementById('referenceDescription').value = '';
+            uploadedReferenceAttachmentIds = [];
+            document.getElementById('referenceAttachmentsPreview').innerHTML = '';
+            document.getElementById('referenceModal').classList.remove('hidden');
+        }
+
+        function closeReferenceModal() {
+            document.getElementById('referenceModal').classList.add('hidden');
+            document.getElementById('referenceForm').reset();
+            uploadedReferenceAttachmentIds = [];
+            document.getElementById('referenceAttachmentsPreview').innerHTML = '';
+        }
+
+        // Reference form submission
+        document.getElementById('referenceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const noticeId = document.getElementById('referenceNoticeId').value;
+            const description = document.getElementById('referenceDescription').value;
+            
+            const formData = new FormData();
+            formData.append('description', description);
+            if (uploadedReferenceAttachmentIds.length > 0) {
+                uploadedReferenceAttachmentIds.forEach(id => {
+                    formData.append('attachments[]', id);
+                });
+            }
+            
+            try {
+                const response = await axios.post(`/notices/${noticeId}/reference-materials`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        closeReferenceModal();
+                        location.reload();
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: error.response?.data?.message || 'Failed to submit reference materials.',
+                });
+            }
+        });
+
+        // File upload handling for reference attachments
+        const referenceAttachmentsInput = document.getElementById('referenceAttachments');
+        const referenceDropZone = document.getElementById('referenceDropZone');
+        const referenceAttachmentsPreview = document.getElementById('referenceAttachmentsPreview');
+
+        referenceDropZone.addEventListener('click', () => {
+            referenceAttachmentsInput.click();
+        });
+
+        referenceAttachmentsInput.addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                await handleReferenceFilesUpload(files);
+                referenceAttachmentsInput.value = '';
+            }
+        });
+
+        async function handleReferenceFilesUpload(files) {
+            for (const file of files) {
+                if (file.size > 30 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Too Large',
+                        text: `File "${file.name}" exceeds 30MB limit.`,
+                    });
+                    return;
+                }
+            }
+
+            const uploadFormData = new FormData();
+            files.forEach(file => {
+                uploadFormData.append('files[]', file);
+            });
+
+            try {
+                const uploadResponse = await axios.post('{{ route("admin.media-library.store") }}', uploadFormData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                if (uploadResponse.data.success && uploadResponse.data.files) {
+                    const newIds = uploadResponse.data.files.map(file => file.id);
+                    uploadedReferenceAttachmentIds = [...uploadedReferenceAttachmentIds, ...newIds];
+                    
+                    uploadResponse.data.files.forEach(file => {
+                        const isImage = file.type.startsWith('image/');
+                        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+                        const previewHtml = `
+                            <div class="relative border rounded-lg p-2 attachment-item" data-file-id="${file.id}">
+                                <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors delete-reference-attachment-btn" data-file-id="${file.id}">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                                ${isImage ? 
+                                    `<img src="${file.url}" alt="${file.name}" class="w-full h-24 object-cover rounded">` :
+                                    isPdf ?
+                                    `<div class="w-full h-24 flex flex-col items-center justify-center bg-gray-100 rounded">
+                                        <i class="fas fa-file-pdf text-3xl text-red-500 mb-1"></i>
+                                    </div>` :
+                                    `<div class="w-full h-24 flex items-center justify-center bg-gray-100 rounded">
+                                        <i class="fas fa-file text-3xl text-gray-400"></i>
+                                    </div>`
+                                }
+                                <p class="text-xs text-gray-600 mt-1 truncate" title="${file.name}">${file.name}</p>
+                            </div>
+                        `;
+                        referenceAttachmentsPreview.insertAdjacentHTML('beforeend', previewHtml);
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Error',
+                    text: error.response?.data?.message || 'Failed to upload files.',
+                });
+            }
+        }
+
+        $(document).on('click', '.delete-reference-attachment-btn', function(e) {
+            e.preventDefault();
+            const fileId = $(this).data('file-id');
+            uploadedReferenceAttachmentIds = uploadedReferenceAttachmentIds.filter(id => id !== fileId);
             $(this).closest('.attachment-item').remove();
         });
     </script>

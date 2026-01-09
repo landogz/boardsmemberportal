@@ -238,6 +238,7 @@
         $declined = $attendanceConfirmations->where('status', 'declined')->count();
         $pending = $notice->allowedUsers->count() - $accepted - $declined;
         $agendaRequests = \App\Models\AgendaInclusionRequest::where('notice_id', $notice->id)->count();
+        $referenceMaterials = \App\Models\ReferenceMaterial::where('notice_id', $notice->id)->count();
     @endphp
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 shadow-sm">
@@ -278,7 +279,7 @@
     <!-- Quick Actions -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <div class="flex flex-wrap items-center gap-3">
-            <a href="{{ route('admin.attendance-confirmations.show', $notice->id) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
+            <a href="{{ route('admin.attendance-confirmations.index') }}?notice={{ $notice->id }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
                 <i class="fas fa-check-circle"></i>
                 <span>View Attendance Confirmations</span>
             </a>
@@ -286,6 +287,12 @@
                 <a href="{{ route('admin.agenda-inclusion-requests.index') }}?notice={{ $notice->id }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-medium text-sm transition-all duration-200 border border-purple-200">
                     <i class="fas fa-clipboard-list"></i>
                     <span>View {{ $agendaRequests }} Agenda Request(s)</span>
+                </a>
+            @endif
+            @if($referenceMaterials > 0)
+                <a href="{{ route('admin.reference-materials.index') }}?notice={{ $notice->id }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
+                    <i class="fas fa-book"></i>
+                    <span>View {{ $referenceMaterials }} Reference Material(s)</span>
                 </a>
             @endif
         </div>
@@ -402,6 +409,72 @@
                                 <p class="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Attachments ({{ count($agendaRequest->attachments) }})</p>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($agendaRequest->attachment_media as $attachment)
+                                        @php
+                                            $isPdf = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) === 'pdf';
+                                        @endphp
+                                        @if($isPdf)
+                                            <a href="javascript:void(0)" onclick="openGlobalPdfModal('{{ asset('storage/' . $attachment->file_path) }}', '{{ addslashes($attachment->file_name) }}')" class="inline-flex items-center gap-2 px-3 py-2 bg-red-100 hover:bg-red-200 rounded-lg text-xs font-medium text-red-700 transition-colors border border-red-200 cursor-pointer">
+                                                <i class="fas fa-file-pdf text-xs"></i>
+                                                <span class="truncate max-w-[150px]">{{ $attachment->file_name }}</span>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('admin.media-library.download', $attachment->id) }}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium text-gray-700 transition-colors border border-gray-200">
+                                                <i class="fas fa-file text-xs"></i>
+                                                <span class="truncate max-w-[150px]">{{ $attachment->file_name }}</span>
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <!-- Approved Reference Materials -->
+    @if(isset($approvedReferenceMaterials) && $approvedReferenceMaterials->count() > 0)
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                <span>Approved Reference Materials</span>
+                <span class="ml-2 px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">{{ $approvedReferenceMaterials->count() }}</span>
+            </h3>
+            <div class="space-y-4">
+                @foreach($approvedReferenceMaterials as $referenceMaterial)
+                    <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow bg-gradient-to-r from-white to-blue-50/30">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                @php
+                                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($referenceMaterial->user->first_name . ' ' . $referenceMaterial->user->last_name) . '&size=48&background=055498&color=fff&bold=true';
+                                    if ($referenceMaterial->user->profile_picture) {
+                                        $media = \App\Models\MediaLibrary::find($referenceMaterial->user->profile_picture);
+                                        if ($media) {
+                                            $profilePic = asset('storage/' . $media->file_path);
+                                        }
+                                    }
+                                @endphp
+                                <img src="{{ $profilePic }}" alt="{{ $referenceMaterial->user->first_name }} {{ $referenceMaterial->user->last_name }}" class="w-12 h-12 rounded-xl object-cover border-2 border-blue-200 shadow-sm">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">{{ $referenceMaterial->user->first_name }} {{ $referenceMaterial->user->last_name }}</p>
+                                    @if($referenceMaterial->user->governmentAgency)
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $referenceMaterial->user->governmentAgency->name }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-lg border border-blue-200">
+                                <i class="fas fa-check-circle mr-1.5"></i>Approved
+                            </span>
+                        </div>
+                        <div class="mb-4 pl-1">
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $referenceMaterial->description }}</p>
+                        </div>
+                        @if($referenceMaterial->attachments && count($referenceMaterial->attachments) > 0)
+                            <div class="pt-4 border-t border-gray-200">
+                                <p class="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Attachments ({{ count($referenceMaterial->attachments) }})</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($referenceMaterial->attachment_media as $attachment)
                                         @php
                                             $isPdf = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) === 'pdf';
                                         @endphp

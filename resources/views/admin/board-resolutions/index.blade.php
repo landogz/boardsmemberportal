@@ -106,7 +106,18 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($document->uploader)
-                                <div class="text-sm text-gray-900">{{ $document->uploader->first_name }} {{ $document->uploader->last_name }}</div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex-shrink-0">
+                                        @php
+                                            $profileMedia = $document->uploader->profile_picture ? \App\Models\MediaLibrary::find($document->uploader->profile_picture) : null;
+                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($document->uploader->first_name . ' ' . $document->uploader->last_name) . '&size=40&background=055498&color=fff';
+                                        @endphp
+                                        <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
+                                    </div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ $document->uploader->first_name }} {{ $document->uploader->last_name }}
+                                    </div>
+                                </div>
                             @else
                                 <div class="text-sm text-gray-500">N/A</div>
                             @endif

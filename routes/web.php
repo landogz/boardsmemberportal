@@ -261,6 +261,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
 
     // Referendums (admin)
     Route::prefix('admin/referendums')->name('admin.referendums.')->group(function () {
+        Route::post('/bulk-delete', [\App\Http\Controllers\Admin\ReferendumController::class, 'bulkDelete'])->name('bulk-delete');
         Route::get('/', [\App\Http\Controllers\Admin\ReferendumController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\ReferendumController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\ReferendumController::class, 'store'])->name('store');
@@ -279,6 +280,14 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\NoticeController::class, 'edit'])->name('edit');
         Route::put('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'update'])->name('update');
         Route::delete('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'destroy'])->name('destroy');
+    });
+
+    // Reference Materials (admin)
+    Route::prefix('admin/reference-materials')->name('admin.reference-materials.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'reject'])->name('reject');
     });
 
     // Agenda Inclusion Requests (admin)
@@ -303,6 +312,12 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('edit');
         Route::put('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('update');
         Route::delete('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('destroy');
+    });
+
+    // Report Generation
+    Route::prefix('admin/report-generation')->name('admin.report-generation.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'index'])->name('index');
+        Route::get('/search', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'search'])->name('search');
     });
 
     // Announcements (authenticated users)
@@ -332,11 +347,13 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
 
     // Notices (authenticated users)
     Route::prefix('notices')->name('notices.')->middleware('auth')->group(function () {
+        Route::get('/pending', [\App\Http\Controllers\NoticeController::class, 'getPendingNotices'])->name('pending');
         Route::get('/', [\App\Http\Controllers\NoticeController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\NoticeController::class, 'show'])->name('show');
         Route::post('/{id}/accept', [\App\Http\Controllers\NoticeController::class, 'accept'])->name('accept');
         Route::post('/{id}/decline', [\App\Http\Controllers\NoticeController::class, 'decline'])->name('decline');
         Route::post('/{id}/agenda-inclusion', [\App\Http\Controllers\NoticeController::class, 'submitAgendaInclusion'])->name('agenda-inclusion');
+        Route::post('/{id}/reference-materials', [\App\Http\Controllers\NoticeController::class, 'submitReferenceMaterial'])->name('reference-materials');
     });
 
     // Profile Routes

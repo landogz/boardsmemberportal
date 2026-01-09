@@ -81,6 +81,15 @@
     .action-dropdown-menu {
         position: fixed !important;
     }
+    
+    /* Line clamp utility for text truncation */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+    }
 </style>
 @endpush
 
@@ -104,11 +113,29 @@
             </div>
         @endif
 
+        <!-- Bulk Actions Bar -->
+        <div id="bulkActionsBar" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span id="selectedCount" class="text-sm font-medium text-blue-900">0 selected</span>
+                    <button id="bulkDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+                        <i class="fas fa-trash mr-2"></i>Delete Selected
+                    </button>
+                </div>
+                <button id="clearSelectionBtn" class="text-sm text-blue-600 hover:text-blue-800">
+                    Clear Selection
+                </button>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table id="referendumsTable" class="w-full">
                 <thead>
                     <tr class="bg-gray-50">
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Title</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase" style="width: 50px;">
+                            <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-[#055498] focus:ring-[#055498]">
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase" style="max-width: 300px;">Title</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Created By</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Expires At</th>
@@ -121,11 +148,24 @@
                     @forelse($referendums as $referendum)
                     <tr>
                         <td class="px-4 py-3">
-                            <div class="font-medium text-gray-900">{{ $referendum->title }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ Str::limit($referendum->content, 100) }}</div>
+                            <input type="checkbox" class="referendum-checkbox rounded border-gray-300 text-[#055498] focus:ring-[#055498]" value="{{ $referendum->id }}" data-referendum-id="{{ $referendum->id }}">
+                        </td>
+                        <td class="px-4 py-3" style="max-width: 300px;">
+                            <div class="font-medium text-gray-900 line-clamp-2">{{ Str::limit($referendum->title, 60) }}</div>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-700">
-                            {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    @php
+                                        $profileMedia = $referendum->creator->profile_picture ? \App\Models\MediaLibrary::find($referendum->creator->profile_picture) : null;
+                                        $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->first_name . ' ' . $referendum->creator->last_name) . '&size=40&background=055498&color=fff';
+                                    @endphp
+                                    <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                                </div>
+                            </div>
                         </td>
                         <td class="px-4 py-3">
                             <span class="status-badge {{ $referendum->status === 'active' ? 'status-active' : 'status-expired' }}">
@@ -175,7 +215,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
                             No referendums found. <a href="{{ route('admin.referendums.create') }}" class="text-blue-600 hover:underline">Create one</a>
                         </td>
                     </tr>
@@ -197,10 +237,11 @@
     $(document).ready(function() {
         @if($referendums->count() > 0)
         $('#referendumsTable').DataTable({
-            order: [[3, 'desc']], // Sort by expires_at
+            order: [[4, 'desc']], // Sort by expires_at (column index changed due to checkbox column)
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             columnDefs: [
+                { targets: 0, orderable: false }, // Checkbox column is not sortable
                 { targets: -1, orderable: false } // Actions column is not sortable
             ],
             language: {
@@ -320,6 +361,108 @@
     $(document).on('click', '.delete-referendum-btn', function() {
         const referendumId = $(this).data('referendum-id');
         deleteReferendum(referendumId);
+    });
+
+    // Select All functionality
+    $('#selectAll').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        $('.referendum-checkbox').prop('checked', isChecked);
+        updateBulkActionsBar();
+    });
+
+    // Individual checkbox change
+    $(document).on('change', '.referendum-checkbox', function() {
+        updateSelectAllCheckbox();
+        updateBulkActionsBar();
+    });
+
+    // Update select all checkbox state
+    function updateSelectAllCheckbox() {
+        const totalCheckboxes = $('.referendum-checkbox').length;
+        const checkedCheckboxes = $('.referendum-checkbox:checked').length;
+        $('#selectAll').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+    }
+
+    // Update bulk actions bar visibility and count
+    function updateBulkActionsBar() {
+        const selectedCount = $('.referendum-checkbox:checked').length;
+        $('#selectedCount').text(selectedCount + ' selected');
+        
+        if (selectedCount > 0) {
+            $('#bulkActionsBar').removeClass('hidden');
+        } else {
+            $('#bulkActionsBar').addClass('hidden');
+        }
+    }
+
+    // Clear selection
+    $('#clearSelectionBtn').on('click', function() {
+        $('.referendum-checkbox').prop('checked', false);
+        $('#selectAll').prop('checked', false);
+        updateBulkActionsBar();
+    });
+
+    // Bulk delete
+    $('#bulkDeleteBtn').on('click', function() {
+        const selectedIds = $('.referendum-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        if (selectedIds.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Selection',
+                text: 'Please select at least one referendum to delete.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to delete ${selectedIds.length} referendum(s). This action cannot be undone!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: `Yes, delete ${selectedIds.length} item(s)!`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while we delete the selected referendums.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                axios.post('/admin/referendums/bulk-delete', {
+                    ids: selectedIds
+                })
+                .then(response => {
+                    if (response.data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.data.message || `${selectedIds.length} referendum(s) deleted successfully.`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.response?.data?.message || 'An error occurred while deleting referendums. Please try again.'
+                    });
+                });
+            }
+        });
     });
 </script>
 @endpush

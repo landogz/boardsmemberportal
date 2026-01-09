@@ -526,7 +526,7 @@
                                 <!-- Title & Description -->
                                 <div>
                                     <h1 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 leading-tight tracking-tight break-words">{{ $referendum->title }}</h1>
-                                    <div class="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">{{ $referendum->content }}</div>
+                                    <div class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">{{ $referendum->content }}</div>
                                 </div>
                             </div>
                         </div>
