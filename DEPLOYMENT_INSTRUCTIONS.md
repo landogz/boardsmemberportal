@@ -93,7 +93,7 @@ BROADCAST_DRIVER=reverb
 REVERB_APP_ID=your-app-id
 REVERB_APP_KEY=your-app-key
 REVERB_APP_SECRET=your-app-secret
-REVERB_HOST=your-domain.com
+REVERB_HOST=landogz.alwaysdata.net
 REVERB_PORT=8080
 REVERB_SCHEME=https
 
@@ -280,7 +280,7 @@ Edit `config/reverb.php` or set in `.env`:
 REVERB_APP_ID=your-app-id
 REVERB_APP_KEY=your-app-key
 REVERB_APP_SECRET=your-app-secret
-REVERB_HOST=your-domain.com
+REVERB_HOST=landogz.alwaysdata.net
 REVERB_PORT=8080
 REVERB_SCHEME=https
 ```
