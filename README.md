@@ -135,14 +135,15 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 
 ### 📋 Notices System
 - **Notice Management** - Admin can create, edit, view, and delete meeting notices with comprehensive details
-- **Notice Types** - Support for "Notice of Meeting", "Agenda", and "Other Matters"
+- **Notice Types** - Support for "Notice of Meeting", "Agenda", "Board Issuances", and "Other Matters"
 - **Meeting Details** - Meeting type (online, onsite, hybrid), date, time, and meeting links
 - **User Access Control** - Select specific board members who can view each notice
 - **CC Emails** - Add non-registered users with structured data (name, email, position, agency)
 - **Multiple Attachments** - Support for multiple file attachments (images, PDFs, documents)
 - **Attendance Confirmations** - Users can accept or decline meeting invitations
 - **Agenda Inclusion Requests** - Users can submit requests to include items in meeting agenda
-- **Request Management** - Admin can approve or reject agenda inclusion requests with reasons
+- **Reference Materials** - Users can submit reference materials for meetings (after meeting is done)
+- **Request Management** - Admin can approve or reject agenda inclusion requests and reference materials with reasons
 - **Calendar Integration** - Notices displayed on activities calendar with color coding
 - **Email Notifications** - Professional email templates sent to:
   - Allowed users when notices are created/updated
@@ -154,6 +155,22 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Status Tracking** - Track attendance confirmations and agenda request statuses
 - **PDF Viewer** - Integrated PDF viewer for notice attachments
 - **Professional UI** - Clean, modern design for both admin and user-facing pages
+
+### 📊 Report Generation System
+- **Advanced Report Generation** - Comprehensive report generation system with advanced search and filtering
+- **Report Types**:
+  - **Quorum Guide** - Generate quorum guide reports for board meetings with attendee details grouped by agency
+  - **Summary of Regular Meeting** - Generate summary reports of regular meetings by year with board regulations and resolutions
+  - **Summary of Regular Meeting by Title** - Generate detailed summary reports for specific meetings with approved issuances
+- **Dynamic Filtering** - Report-specific filters (year, notice title, date ranges, user selection, etc.)
+- **Print Functionality** - Professional print layouts with custom headers, footers, and page formatting
+- **A4 Portrait Format** - Print-ready reports in A4 portrait orientation with DDB logo
+- **Data Aggregation** - Automatic calculation of totals, counts, and summaries
+- **Attendee Grouping** - Group attendees by agency with distinction between Board Members and Other Attendees
+- **CC Email Integration** - Include non-registered CC email recipients in attendee reports
+- **Board Issuances Tracking** - Track and display board regulations and resolutions approved in meetings
+- **Year-Based Filtering** - Dynamic year dropdown showing only years with available data
+- **Professional Formatting** - Clean, professional table layouts with merged cells and proper alignment
 
 ### 📋 Roles & Permissions
 - Dynamic role creation
@@ -260,6 +277,8 @@ flowchart TD
     CONSECFeatures --> NoticeMgmt
     CONSECFeatures --> AttendanceMgmt
     CONSECFeatures --> AgendaRequestMgmt
+    CONSECFeatures --> ReferenceMaterialMgmt
+    CONSECFeatures --> ReportGeneration
     CONSECFeatures --> Messaging
     
     UserMgmt --> CONSECAccounts[CONSEC Accounts]
