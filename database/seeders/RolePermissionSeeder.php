@@ -55,6 +55,7 @@ class RolePermissionSeeder extends Seeder
             'delete board regulations',
             
             // Referendums
+            'manage referendum',
             'view referendum',
             'create referendum',
             'edit referendum',
@@ -168,6 +169,8 @@ class RolePermissionSeeder extends Seeder
             'view announcements',
             'view notices',
             'view calendar events',
+            'upload media',
+            'delete media',
         ]);
 
         // Assign admin role to existing admin users
