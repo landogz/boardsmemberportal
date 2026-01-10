@@ -492,17 +492,15 @@
             </div>
             
             <!-- Totals Below Table -->
-            <div class="mt-4 text-center">
-                <div class="inline-block text-left space-y-2">
-                    <div class="font-semibold text-gray-900">
-                        Total no. of Meetings: {{ $totalMeetings }}
-                    </div>
-                    <div class="font-semibold text-gray-900">
-                        Total no. of Approved Board Regulations: {{ $totalRegulations }}
-                    </div>
-                    <div class="font-semibold text-gray-900">
-                        Total no. of Approved Resolutions: {{ $totalResolutions }}
-                    </div>
+            <div class="mt-4 text-left space-y-2">
+                <div class="font-semibold text-gray-900">
+                    Total no. of Meetings: {{ $totalMeetings }}
+                </div>
+                <div class="font-semibold text-gray-900">
+                    Total no. of Approved Board Regulations: {{ $totalRegulations }}
+                </div>
+                <div class="font-semibold text-gray-900">
+                    Total no. of Approved Resolutions: {{ $totalResolutions }}
                 </div>
             </div>
         </div>
@@ -586,14 +584,12 @@
             </div>
             
             <!-- Totals Below Table -->
-            <div class="mt-4 text-center">
-                <div class="inline-block text-left space-y-2">
-                    <div class="font-semibold text-gray-900">
-                        Total no. of Approved Board Regulations: {{ $totalRegulations }}
-                    </div>
-                    <div class="font-semibold text-gray-900">
-                        Total no. of Approved Resolutions: {{ $totalResolutions }}
-                    </div>
+            <div class="mt-4 text-left space-y-2">
+                <div class="font-semibold text-gray-900">
+                    Total no. of Approved Board Regulations: {{ $totalRegulations }}
+                </div>
+                <div class="font-semibold text-gray-900">
+                    Total no. of Approved Resolutions: {{ $totalResolutions }}
                 </div>
             </div>
         </div>

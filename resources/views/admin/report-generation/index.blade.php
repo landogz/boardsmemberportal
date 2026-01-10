@@ -1243,21 +1243,16 @@
             rowNumber++;
         });
         
-        // Totals row
-        table += '<tr>';
-        table += '<td style="border: 1px solid #333; padding: 8px; font-weight: bold;" colspan="4">';
-        table += 'Total no. of Meetings: ' + totalMeetings;
-        table += '</td>';
-        table += '<td style="border: 1px solid #333; padding: 8px; font-weight: bold;">';
-        table += 'Total no. of Approved Board Regulations: ' + totalRegulations;
-        table += '</td>';
-        table += '<td style="border: 1px solid #333; padding: 8px; font-weight: bold;">';
-        table += 'Total no. of Approved Resolutions: ' + totalResolutions;
-        table += '</td>';
-        table += '</tr>';
-        
         table += '</tbody></table>';
-        return table;
+        
+        // Totals below table
+        let totals = '<div style="margin-top: 20px; text-align: left;">';
+        totals += '<div style="font-weight: bold; margin-bottom: 8px;">Total no. of Meetings: ' + totalMeetings + '</div>';
+        totals += '<div style="font-weight: bold; margin-bottom: 8px;">Total no. of Approved Board Regulations: ' + totalRegulations + '</div>';
+        totals += '<div style="font-weight: bold;">Total no. of Approved Resolutions: ' + totalResolutions + '</div>';
+        totals += '</div>';
+        
+        return table + totals;
     }
 
     function generateSummaryRegularMeetingByTitleContent(summaryData) {
@@ -1328,18 +1323,15 @@
             });
         }
         
-        // Totals row
-        table += '<tr>';
-        table += '<td style="border: 1px solid #333; padding: 8px; font-weight: bold;" colspan="2">';
-        table += 'Total no. of Approved Board Regulations: ' + totalRegulations;
-        table += '</td>';
-        table += '<td style="border: 1px solid #333; padding: 8px; font-weight: bold;" colspan="3">';
-        table += 'Total no. of Approved Resolutions: ' + totalResolutions;
-        table += '</td>';
-        table += '</tr>';
-        
         table += '</tbody></table>';
-        return table;
+        
+        // Totals below table
+        let totals = '<div style="margin-top: 20px; text-align: left;">';
+        totals += '<div style="font-weight: bold; margin-bottom: 8px;">Total no. of Approved Board Regulations: ' + totalRegulations + '</div>';
+        totals += '<div style="font-weight: bold;">Total no. of Approved Resolutions: ' + totalResolutions + '</div>';
+        totals += '</div>';
+        
+        return table + totals;
     }
 
     function getTableHeaders(reportType) {
