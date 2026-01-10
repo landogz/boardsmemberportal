@@ -579,18 +579,20 @@
                                 </td>
                             </tr>
                         @endfor
-                        
-                        <!-- Totals Row -->
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2 font-semibold" colspan="2">
-                                Total no. of Approved Board Regulations: {{ $totalRegulations }}
-                            </td>
-                            <td class="border border-gray-300 px-4 py-2 font-semibold" colspan="3">
-                                Total no. of Approved Resolutions: {{ $totalResolutions }}
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Totals Below Table -->
+            <div class="mt-4 text-center">
+                <div class="inline-block text-left space-y-2">
+                    <div class="font-semibold text-gray-900">
+                        Total no. of Approved Board Regulations: {{ $totalRegulations }}
+                    </div>
+                    <div class="font-semibold text-gray-900">
+                        Total no. of Approved Resolutions: {{ $totalResolutions }}
+                    </div>
+                </div>
             </div>
         </div>
     @else
