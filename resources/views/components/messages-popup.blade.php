@@ -7551,6 +7551,19 @@
             min-width: 36px !important;
             min-height: 36px !important;
             padding: 0.5rem !important;
+            /* Remove tap highlight and focus ring on mobile */
+            -webkit-tap-highlight-color: transparent !important;
+            tap-highlight-color: transparent !important;
+            outline: none !important;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+        /* Remove focus ring on active state */
+        .message-react-btn:active, .message-reply-btn:active, .message-delete-btn:active,
+        .message-react-btn:focus, .message-reply-btn:focus, .message-delete-btn:focus {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         
         .chat-expanded {
