@@ -26,9 +26,9 @@ class PasswordResetEmail extends Mailable
     {
         $this->user = $user;
         $this->token = $token;
-        // Generate absolute URL to reset password page
-        $baseUrl = config('app.url');
-        $this->resetUrl = rtrim($baseUrl, '/') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+        // Generate absolute URL to reset password page using Laravel's URL helper
+        // This ensures it uses the correct APP_URL from .env or detects it automatically
+        $this->resetUrl = url('/reset-password?token=' . $token . '&email=' . urlencode($user->email));
     }
 
     /**
