@@ -32,10 +32,16 @@ class ReferenceMaterialController extends Controller
         if ($noticeId) {
             $materials = ReferenceMaterial::with(['notice', 'user', 'reviewer', 'attendanceConfirmation'])
                 ->where('notice_id', $noticeId)
+                ->whereHas('user', function($query) {
+                    $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
         } else {
             $materials = ReferenceMaterial::with(['notice', 'user', 'reviewer', 'attendanceConfirmation'])
+                ->whereHas('user', function($query) {
+                    $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
         }

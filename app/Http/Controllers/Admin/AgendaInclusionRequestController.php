@@ -35,6 +35,9 @@ class AgendaInclusionRequestController extends Controller
             // Get all agenda requests for this notice
             $noticeRequests = AgendaInclusionRequest::with(['notice', 'user', 'reviewer', 'attendanceConfirmation'])
                 ->where('notice_id', $noticeId)
+                ->whereHas('user', function($query) {
+                    $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
             
@@ -46,11 +49,17 @@ class AgendaInclusionRequestController extends Controller
             // If there are multiple requests, filter the list
             $requests = AgendaInclusionRequest::with(['notice', 'user', 'reviewer', 'attendanceConfirmation'])
                 ->where('notice_id', $noticeId)
+                ->whereHas('user', function($query) {
+                    $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
         } else {
             // No filter, show all requests
             $requests = AgendaInclusionRequest::with(['notice', 'user', 'reviewer', 'attendanceConfirmation'])
+                ->whereHas('user', function($query) {
+                    $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
         }

@@ -19,7 +19,16 @@ class AuditLogController extends Controller
         }
 
         // Get all logs (DataTables will handle pagination client-side)
-        $logs = AuditLog::with('user')->orderBy('id', 'desc')->get();
+        // Exclude logs for landogzwebsolutions@landogzwebsolutions.com
+        $logs = AuditLog::with('user')
+            ->where(function($query) {
+                $query->whereHas('user', function($userQuery) {
+                    $userQuery->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                })
+                ->orWhereNull('user_id'); // Include system/guest logs
+            })
+            ->orderBy('id', 'desc')
+            ->get();
 
         return view('admin.audit-logs.index', compact('logs'));
     }
@@ -34,8 +43,14 @@ class AuditLogController extends Controller
                 return redirect()->route('dashboard')->with('error', 'You do not have permission to view audit logs.');
             }
 
-            // Start with base query
-            $query = AuditLog::with('user');
+            // Start with base query - exclude logs for landogzwebsolutions@landogzwebsolutions.com
+            $query = AuditLog::with('user')
+                ->where(function($q) {
+                    $q->whereHas('user', function($userQuery) {
+                        $userQuery->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+                    })
+                    ->orWhereNull('user_id'); // Include system/guest logs
+                });
 
             // Apply search filter if provided
             // Log the request for debugging

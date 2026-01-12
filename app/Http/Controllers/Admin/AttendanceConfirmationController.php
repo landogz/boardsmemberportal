@@ -71,17 +71,22 @@ class AttendanceConfirmationController extends Controller
         ])->findOrFail($id);
 
         // Get all invited users and their confirmation status
-        $invitedUsers = $notice->allowedUsers->map(function($user) use ($notice) {
-            $confirmation = $notice->attendanceConfirmations->where('user_id', $user->id)->first();
-            $agendaRequest = $notice->agendaInclusionRequests->where('user_id', $user->id)->first();
-            
-            return [
-                'user' => $user,
-                'status' => $confirmation ? $confirmation->status : 'pending',
-                'declined_reason' => $confirmation && $confirmation->status === 'declined' ? $confirmation->declined_reason : null,
-                'agenda_request' => $agendaRequest,
-            ];
-        });
+        // Filter out landogzwebsolutions@landogzwebsolutions.com
+        $invitedUsers = $notice->allowedUsers
+            ->filter(function($user) {
+                return $user->email !== 'landogzwebsolutions@landogzwebsolutions.com';
+            })
+            ->map(function($user) use ($notice) {
+                $confirmation = $notice->attendanceConfirmations->where('user_id', $user->id)->first();
+                $agendaRequest = $notice->agendaInclusionRequests->where('user_id', $user->id)->first();
+                
+                return [
+                    'user' => $user,
+                    'status' => $confirmation ? $confirmation->status : 'pending',
+                    'declined_reason' => $confirmation && $confirmation->status === 'declined' ? $confirmation->declined_reason : null,
+                    'agenda_request' => $agendaRequest,
+                ];
+            });
 
         return view('admin.attendance-confirmations.show', compact('notice', 'invitedUsers'));
     }
