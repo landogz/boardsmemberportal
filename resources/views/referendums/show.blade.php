@@ -1359,11 +1359,6 @@
                     });
 
                     if (response.data.success) {
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Comment posted successfully!'
-                    });
-                    
                     // Clear input and reset height
                     const textarea = document.getElementById('commentInput');
                     textarea.value = '';
@@ -1539,11 +1534,6 @@
                 });
                 
                 if (response.data.success) {
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Comment updated successfully!'
-                    });
-                    
                     // Update comment text
                     const $commentElement = $editContainer.closest('.fb-comment');
                     const $textElement = $commentElement.find('.fb-comment-text');
