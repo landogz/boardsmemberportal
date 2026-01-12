@@ -225,34 +225,34 @@
                                     </button>
                                 </div>
                             </div>
-                            <form class="chat-form flex items-center space-x-2 px-3">
+                            <form class="chat-form flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 flex-nowrap overflow-hidden">
                                 <!-- File Attachment Button -->
                                 <!-- Compressed Icons Container -->
-                                <div class="flex items-center" style="gap: 0rem;">
+                                <div class="flex items-center flex-shrink-0" style="gap: 0rem;">
                                     <!-- Attach Files Button -->
-                                    <button type="button" class="chat-attach-btn p-1.5 text-blue-600 hover:bg-gray-100 rounded-full transition" title="Attach files">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button type="button" class="chat-attach-btn p-1 sm:p-1.5 text-blue-600 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center" title="Attach files">
+                                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                         </svg>
                                     </button>
                                     <input type="file" class="hidden chat-file-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
                                     <!-- Voice Clip Button -->
-                                    <button type="button" class="chat-voice-btn p-1.5 text-red-500 hover:bg-gray-100 rounded-full transition" title="Record voice message">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <button type="button" class="chat-voice-btn p-1 sm:p-1.5 text-red-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center" title="Record voice message">
+                                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"></path>
                                             <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7.002 7.002 0 0 0 6 6.92V21h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7.002 7.002 0 0 0 19 11z"></path>
                                         </svg>
                                     </button>
                                 </div>
-                                <input type="text" placeholder="Type a message..." class="chat-input flex-1 px-3 py-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                <input type="text" placeholder="Type a message..." class="chat-input flex-1 min-w-0 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
                                 <!-- Emoji Button -->
-                                <button type="button" class="chat-emoji-btn p-2 text-yellow-500 hover:bg-gray-100 rounded-full transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button type="button" class="chat-emoji-btn p-1 sm:p-2 text-yellow-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center flex-shrink-0" title="Add emoji">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </button>
-                                <button type="submit" class="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition flex items-center justify-center" title="Send message">
-                                    <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button type="submit" class="p-1.5 sm:p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center flex-shrink-0" title="Send message">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                     </svg>
                                 </button>
@@ -7520,6 +7520,31 @@
         #messagesPopupContainer {
             right: 0.5rem;
             left: 0.5rem;
+        }
+        /* Fix chat form on mobile - ensure send button is visible */
+        .chat-form {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+            flex-wrap: nowrap !important;
+        }
+        .chat-form > * {
+            flex-shrink: 0 !important;
+        }
+        .chat-input {
+            min-width: 0 !important;
+            flex: 1 1 0% !important;
+            max-width: 100% !important;
+        }
+        .chat-form button[type="submit"] {
+            flex-shrink: 0 !important;
+            visibility: visible !important;
+            display: flex !important;
+        }
+        .chat-attach-btn,
+        .chat-voice-btn,
+        .chat-emoji-btn {
+            flex-shrink: 0 !important;
         }
         
         .chat-expanded {

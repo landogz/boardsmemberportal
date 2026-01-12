@@ -457,6 +457,32 @@
             .new-message-btn i {
                 font-size: 0.75rem;
             }
+            /* Fix message form on mobile - ensure send button is visible */
+            #messageForm {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                flex-wrap: nowrap !important;
+            }
+            #messageForm > * {
+                flex-shrink: 0 !important;
+            }
+            #messageInput {
+                min-width: 0 !important;
+                flex: 1 1 0% !important;
+                max-width: 100% !important;
+            }
+            #sendBtn {
+                flex-shrink: 0 !important;
+                visibility: visible !important;
+                display: flex !important;
+            }
+            /* Ensure form container doesn't overflow */
+            #activeChat:not(.hidden) > div:last-child {
+                overflow: visible !important;
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
         }
         @media (min-width: 641px) and (max-width: 767px) {
             #conversationsSearch {
@@ -664,23 +690,23 @@
                                 </div>
                             </div>
                             <!-- Input Form -->
-                            <form id="messageForm" class="flex items-center space-x-1 sm:space-x-2" style="display: flex; visibility: visible;">
+                            <form id="messageForm" class="flex items-center space-x-1 sm:space-x-2 flex-nowrap overflow-hidden" style="display: flex; visibility: visible; width: 100%;">
                                 <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
-                                <button type="button" id="attachBtn" class="p-2 sm:p-2.5 text-blue-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[44px] min-h-[44px] flex items-center justify-center" title="Attach files">
-                                    <i class="fas fa-paperclip text-base sm:text-lg"></i>
+                                <button type="button" id="attachBtn" class="p-1.5 sm:p-2.5 text-blue-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Attach files">
+                                    <i class="fas fa-paperclip text-sm sm:text-lg"></i>
                                 </button>
-                                <button type="button" id="voiceBtn" class="p-2 sm:p-2.5 text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[44px] min-h-[44px] flex items-center justify-center" title="Record voice message">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <button type="button" id="voiceBtn" class="p-1.5 sm:p-2.5 text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Record voice message">
+                                    <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"></path>
                                         <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7.002 7.002 0 0 0 6 6.92V21h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7.002 7.002 0 0 0 19 11z"></path>
                                     </svg>
                                 </button>
-                                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 px-3 sm:px-4 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                                <button type="button" id="emojiBtn" class="p-2 sm:p-2.5 text-yellow-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[44px] min-h-[44px] flex items-center justify-center" title="Add emoji">
-                                    <i class="fas fa-smile text-base sm:text-lg"></i>
+                                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                <button type="button" id="emojiBtn" class="p-1.5 sm:p-2.5 text-yellow-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Add emoji">
+                                    <i class="fas fa-smile text-sm sm:text-lg"></i>
                                 </button>
-                                <button type="submit" id="sendBtn" class="px-3 sm:px-4 py-2.5 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center" title="Send message">
-                                    <i class="fas fa-paper-plane text-base sm:text-lg"></i>
+                                <button type="submit" id="sendBtn" class="px-2 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Send message">
+                                    <i class="fas fa-paper-plane text-sm sm:text-lg"></i>
                                 </button>
                             </form>
                         </div>
