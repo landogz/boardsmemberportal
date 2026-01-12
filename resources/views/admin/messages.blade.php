@@ -4065,21 +4065,21 @@
                 messageDiv.setAttribute('data-is-sender', 'true');
                 
                 const actionButtons = `
-                    <button class="message-react-btn p-1 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" 
+                    <button class="message-react-btn p-0.5 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" 
                             data-message-id="${msg.id}" title="React">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </button>
-                    <button class="message-reply-btn p-1 text-gray-500 hover:text-green-500 hover:bg-gray-100 rounded-full transition" 
+                    <button class="message-reply-btn p-0.5 text-gray-500 hover:text-green-500 hover:bg-gray-100 rounded-full transition" 
                             data-message-id="${msg.id}" title="Reply">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                         </svg>
                     </button>
-                    <button class="message-delete-btn p-1 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-full transition" 
+                    <button class="message-delete-btn p-0.5 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-full transition" 
                             data-message-id="${msg.id}" title="Delete">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
                     </button>
@@ -4626,19 +4626,19 @@
             
             messageDiv.innerHTML = `
                 <div class="flex-1 flex justify-end items-start gap-2 group">
-                    <div class="flex items-center gap-0.5" style="opacity: 1; visibility: visible;">
-                        <button class="message-react-btn p-1 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="React" disabled>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-0" style="opacity: 1; visibility: visible;">
+                        <button class="message-react-btn p-0.5 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="React" disabled>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </button>
-                        <button class="message-reply-btn p-1 text-gray-500 hover:text-green-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="Reply" disabled>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button class="message-reply-btn p-0.5 text-gray-500 hover:text-green-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="Reply" disabled>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                             </svg>
                         </button>
-                        <button class="message-delete-btn p-1 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="Delete" disabled>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button class="message-delete-btn p-0.5 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-full transition" data-message-id="${tempId}" title="Delete" disabled>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
