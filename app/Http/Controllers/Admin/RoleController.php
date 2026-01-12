@@ -451,7 +451,9 @@ class RoleController extends Controller
         }
 
         // Get all users with this role
-        $users = User::whereIn('id', $userIds)->get();
+        $users = User::whereIn('id', $userIds)
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+            ->get();
 
         foreach ($users as $user) {
             $revokedPermissions = $user->revoked_permissions ?? [];

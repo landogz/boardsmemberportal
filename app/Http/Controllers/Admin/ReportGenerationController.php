@@ -30,6 +30,7 @@ class ReportGenerationController extends Controller
 
         // Get filter options - only consec and admin users for "Uploaded By" dropdown
         $users = User::whereIn('privilege', ['consec', 'admin'])
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();

@@ -147,13 +147,13 @@
     
     // Chart Data - User Distribution
     $userDistribution = [
-        'admin' => \App\Models\User::where('privilege', 'admin')->count(),
-        'consec' => \App\Models\User::where('privilege', 'consec')->count(),
+        'admin' => \App\Models\User::where('privilege', 'admin')->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count(),
+        'consec' => \App\Models\User::where('privilege', 'consec')->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count(),
         'board_members' => \App\Models\User::where(function($query) {
             $query->where('privilege', 'user')
                   ->orWhere('representative_type', 'Board Member');
-        })->count(),
-        'authorized_reps' => \App\Models\User::where('representative_type', 'Authorized Representative')->count(),
+        })->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count(),
+        'authorized_reps' => \App\Models\User::where('representative_type', 'Authorized Representative')->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count(),
     ];
     
     // Chart Data - Messages Over Time (Last 7 days)

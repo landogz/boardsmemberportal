@@ -25,6 +25,7 @@ class PendingRegistrationsController extends Controller
 
         // Get pending registrations (users with status = 'pending')
         $pendingRegistrations = User::where('status', 'pending')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with(['governmentAgency', 'roles'])
             ->orderBy('created_at', 'desc')
             ->get();

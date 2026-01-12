@@ -47,6 +47,7 @@ class NoticeController extends Controller
         }
 
         $users = User::where('privilege', 'user')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
@@ -279,6 +280,7 @@ class NoticeController extends Controller
         $notice = Notice::with(['allowedUsers'])->findOrFail($id);
 
         $users = User::where('privilege', 'user')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')

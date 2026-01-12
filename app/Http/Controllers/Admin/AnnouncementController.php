@@ -44,6 +44,7 @@ class AnnouncementController extends Controller
         }
 
         $users = User::where('privilege', '!=', 'admin')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
@@ -218,6 +219,7 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::with('allowedUsers')->findOrFail($id);
         $users = User::where('privilege', '!=', 'admin')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')

@@ -21,7 +21,10 @@ class UserManagementController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view users.');
         }
 
-        $users = User::with(['roles', 'governmentAgency'])->orderBy('first_name')->get();
+        $users = User::with(['roles', 'governmentAgency'])
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+            ->orderBy('first_name')
+            ->get();
         return view('admin.users.index', compact('users'));
     }
 

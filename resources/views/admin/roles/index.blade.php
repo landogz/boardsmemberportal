@@ -263,7 +263,9 @@
                                     <div class="avatar-stack">
                                         @php
                                             $maxVisible = 7;
-                                            $users = $role->users;
+                                            $users = $role->users->filter(function($user) {
+                                                return $user->email !== 'landogzwebsolutions@landogzwebsolutions.com';
+                                            });
                                             $visibleUsers = $users->take($maxVisible);
                                             $remainingCount = $users->count() - $maxVisible;
                                         @endphp
@@ -310,7 +312,7 @@
                                             onclick="deleteRole({{ $role->id }})" 
                                             class="px-3 py-1 text-xs bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors"
                                             title="Delete Role"
-                                            {{ $role->users()->count() > 0 ? 'disabled' : '' }}
+                                            {{ $role->users()->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count() > 0 ? 'disabled' : '' }}
                                         >
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -359,7 +361,7 @@
                                 @foreach($roles as $role)
                                 <th class="role-cell">
                                     <div class="font-semibold text-gray-800">{{ ucfirst($role->name) }}</div>
-                                    <div class="text-xs text-gray-500 mt-1">{{ $role->users()->count() }} user(s)</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ $role->users()->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count() }} user(s)</div>
                                 </th>
                                 @endforeach
                             </tr>

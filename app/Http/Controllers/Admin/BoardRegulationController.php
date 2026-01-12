@@ -88,7 +88,9 @@ class BoardRegulationController extends Controller
         AuditLogger::log('board_regulation.create', 'Created board regulation: ' . $regulation->title, $regulation);
 
         // Send email to all users and consec
-        $recipients = User::whereIn('privilege', ['user', 'consec'])->get();
+        $recipients = User::whereIn('privilege', ['user', 'consec'])
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+            ->get();
         foreach ($recipients as $recipient) {
             try {
                 Mail::to($recipient->email)->send(new \App\Mail\BoardRegulationEmail($recipient, $regulation));

@@ -48,6 +48,7 @@ class ReferendumController extends Controller
         }
 
         $users = User::where('privilege', '!=', 'admin')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
@@ -284,6 +285,7 @@ class ReferendumController extends Controller
 
         $referendum = Referendum::with('allowedUsers')->findOrFail($id);
         $users = User::where('privilege', '!=', 'admin')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')

@@ -25,6 +25,7 @@ class CONSECController extends Controller
 
         // CONSEC accounts are users with privilege = 'consec'
         $consecAccounts = User::where('privilege', 'consec')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('roles')
             ->orderBy('created_at', 'desc')
             ->get();

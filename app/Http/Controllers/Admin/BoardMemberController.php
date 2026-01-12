@@ -25,6 +25,7 @@ class BoardMemberController extends Controller
 
         // Board members are users with privilege = 'user'
         $boardMembers = User::where('privilege', 'user')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with(['roles', 'governmentAgency.logo'])
             ->orderBy('created_at', 'desc')
             ->get();
