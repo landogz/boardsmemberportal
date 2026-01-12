@@ -892,9 +892,15 @@
         }
         /* Touch-friendly buttons */
         @media (max-width: 640px) {
-            button, .message-react-btn, .message-reply-btn, .message-delete-btn {
+            button {
                 min-width: 44px;
                 min-height: 44px;
+            }
+            /* Compressed message action buttons - still touch-friendly but more compact */
+            .message-react-btn, .message-reply-btn, .message-delete-btn {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 0.5rem !important;
             }
             input, textarea {
                 font-size: 16px; /* Prevents zoom on iOS */

@@ -7546,6 +7546,12 @@
         .chat-emoji-btn {
             flex-shrink: 0 !important;
         }
+        /* Compressed message action buttons - still touch-friendly but more compact */
+        .message-react-btn, .message-reply-btn, .message-delete-btn {
+            min-width: 36px !important;
+            min-height: 36px !important;
+            padding: 0.5rem !important;
+        }
         
         .chat-expanded {
             width: 100% !important;
