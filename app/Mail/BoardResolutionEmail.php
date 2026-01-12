@@ -27,12 +27,12 @@ class BoardResolutionEmail extends Mailable
         $this->resolution = $resolution;
         
         // Generate absolute URL to login page with redirect
-        // For regular users: /referendums
+        // For regular users: /board-issuances
         // For consec: /admin/notifications
         $baseUrl = config('app.url');
         $resolutionPath = ($user->privilege === 'consec' || $user->privilege === 'admin') 
             ? '/admin/notifications' 
-            : '/referendums';
+            : '/board-issuances';
         $this->resolutionUrl = rtrim($baseUrl, '/') . '/login?redirect=' . urlencode($resolutionPath);
     }
 
