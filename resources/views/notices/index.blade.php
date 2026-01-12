@@ -364,11 +364,16 @@
         }
         
         .empty-state {
-            text-center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             padding: 4rem 2rem;
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-radius: 16px;
             border: 1px solid #e2e8f0;
+            min-height: 400px;
         }
         
         .dark .empty-state {
@@ -390,6 +395,7 @@
             font-size: 1.125rem;
             color: #64748b;
             font-weight: 500;
+            text-align: center;
         }
         
         .dark .empty-text {
