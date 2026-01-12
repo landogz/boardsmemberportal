@@ -27,12 +27,12 @@ class BoardRegulationEmail extends Mailable
         $this->regulation = $regulation;
         
         // Generate absolute URL to login page with redirect
-        // For regular users: /referendums
+        // For regular users: /board-issuances
         // For consec: /admin/notifications
         $baseUrl = config('app.url');
         $regulationPath = ($user->privilege === 'consec' || $user->privilege === 'admin') 
             ? '/admin/notifications' 
-            : '/referendums';
+            : '/board-issuances';
         $this->regulationUrl = rtrim($baseUrl, '/') . '/login?redirect=' . urlencode($regulationPath);
     }
 
