@@ -39,9 +39,17 @@ class AttendanceConfirmationController extends Controller
 
         // Calculate statistics for each notice
         foreach ($notices as $notice) {
-            $totalInvited = $notice->allowedUsers->count();
-            $accepted = $notice->attendanceConfirmations->where('status', 'accepted')->count();
-            $declined = $notice->attendanceConfirmations->where('status', 'declined')->count();
+            // Filter out landogzwebsolutions@landogzwebsolutions.com from allowed users
+            $filteredAllowedUsers = $notice->allowedUsers->filter(function($user) {
+                return $user->email !== 'landogzwebsolutions@landogzwebsolutions.com';
+            });
+            $totalInvited = $filteredAllowedUsers->count();
+            // Filter attendance confirmations for the excluded user
+            $filteredConfirmations = $notice->attendanceConfirmations->filter(function($confirmation) {
+                return $confirmation->user && $confirmation->user->email !== 'landogzwebsolutions@landogzwebsolutions.com';
+            });
+            $accepted = $filteredConfirmations->where('status', 'accepted')->count();
+            $declined = $filteredConfirmations->where('status', 'declined')->count();
             $pending = $totalInvited - $accepted - $declined;
             
             $notice->stats = [
