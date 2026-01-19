@@ -6,10 +6,12 @@ use App\Models\User;
 use App\Models\Notification;
 use App\Models\GovernmentAgency;
 use App\Services\AuditLogger;
+use App\Mail\ApprovedRegistrationEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -249,13 +251,18 @@ class AuthController extends Controller
             'is_active' => true,
             'mobile' => $request->mobile,
             'landline' => $request->landline,
-            'status' => 'pending',
+            'status' => 'approved',
             'email_verified_at' => now(),
         ]);
 
+        // Ensure user has 'user' role
+        if (!$user->hasRole('user')) {
+            $user->assignRole('user');
+        }
+
         AuditLogger::log(
             'auth.register',
-            'User registration submitted',
+            'User registration completed and auto-approved',
             $user,
             [
                 'email' => $user->email,
@@ -264,65 +271,19 @@ class AuthController extends Controller
             ]
         );
 
-        // Create notifications for users with "approve pending registrations" permission
-        // Get all users who can approve (admin privilege or has the permission via role)
-        $approvers = collect();
-        
-        // Get admin users
-        $adminUsers = User::where('privilege', 'admin')->get();
-        $approvers = $approvers->merge($adminUsers);
-        
-        // Get users with "approve pending registrations" permission via roles
-        $permissionUserIds = DB::table('model_has_roles')
-            ->join('role_has_permissions', 'model_has_roles.role_id', '=', 'role_has_permissions.role_id')
-            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-            ->where('model_has_roles.model_type', 'App\\Models\\User')
-            ->where('permissions.name', 'approve pending registrations')
-            ->pluck('model_has_roles.model_id')
-            ->unique()
-            ->toArray();
-        
-        if (!empty($permissionUserIds)) {
-            $permissionUsers = User::whereIn('id', $permissionUserIds)
-                ->where('privilege', '!=', 'admin') // Exclude admins (already added)
-                ->get();
-            $approvers = $approvers->merge($permissionUsers);
-        }
-        
-        $approvers = $approvers->unique('id');
-
-        foreach ($approvers as $approver) {
-            \App\Models\Notification::create([
-                'user_id' => $approver->id,
-                'type' => 'pending_registration',
-                'title' => 'New Registration Pending Approval',
-                'message' => $user->pre_nominal_title . ' ' . $user->first_name . ' ' . $user->last_name . ' has submitted a registration request.',
-                'url' => route('admin.pending-registrations.index'),
-                'data' => [
-                    'registered_user_id' => $user->id,
-                    'registered_user_email' => $user->email,
-                    'registered_user_name' => $user->pre_nominal_title . ' ' . $user->first_name . ' ' . $user->last_name,
-                ],
-            ]);
-        }
-
-        // Send emails to all admin users
-        // Reload user with governmentAgency relationship for email
+        // Send approval email to user
         $user->load('governmentAgency');
-        $adminUsers = User::where('privilege', 'admin')->get();
-        foreach ($adminUsers as $adminUser) {
-            try {
-                \Illuminate\Support\Facades\Mail::to($adminUser->email)->send(
-                    new \App\Mail\PendingRegistrationEmail($user, $adminUser)
-                );
-            } catch (\Exception $e) {
-                \Log::error('Failed to send pending registration email to admin ' . $adminUser->id . ': ' . $e->getMessage());
-            }
+        try {
+            Mail::to($user->email)->send(
+                new ApprovedRegistrationEmail($user)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send approval email to user ' . $user->id . ': ' . $e->getMessage());
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Registration successful! Your account is pending approval by CONSEC.',
+            'message' => 'Registration successful! Your account has been approved and activated. You can now login.',
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
