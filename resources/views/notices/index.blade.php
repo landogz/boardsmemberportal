@@ -844,41 +844,13 @@
         // Agenda form submission
         document.getElementById('agendaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const noticeId = document.getElementById('agendaNoticeId').value;
-            const description = document.getElementById('agendaDescription').value;
-            
-            const formData = new FormData();
-            formData.append('description', description);
-            if (uploadedAttachmentIds.length > 0) {
-                uploadedAttachmentIds.forEach(id => {
-                    formData.append('attachments[]', id);
-                });
-            }
-            
-            try {
-                const response = await axios.post(`/notices/${noticeId}/agenda-inclusion`, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                
-                if (response.data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.data.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        closeAgendaModal();
-                        location.reload();
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: error.response?.data?.message || 'Failed to submit agenda inclusion request.',
-                });
-            }
+            Swal.fire({
+                icon: 'info',
+                title: 'Function Not Yet Approved',
+                text: 'This function is currently under development and has not been approved yet.',
+                confirmButtonColor: '#055498',
+                confirmButtonText: 'OK'
+            });
         });
 
         // File upload handling for agenda attachments
@@ -964,9 +936,15 @@
             $(this).closest('.attachment-item').remove();
         });
 
-        function submitReferenceMaterial(noticeId) {
-            // Redirect to show page where the modal is available
-            window.location.href = `/notices/${noticeId}`;
+        function submitReferenceMaterial(noticeId, e) {
+            if (e) e.preventDefault();
+            Swal.fire({
+                icon: 'info',
+                title: 'Function Not Yet Approved',
+                text: 'This function is currently under development and has not been approved yet.',
+                confirmButtonColor: '#055498',
+                confirmButtonText: 'OK'
+            });
         }
     </script>
 </body>

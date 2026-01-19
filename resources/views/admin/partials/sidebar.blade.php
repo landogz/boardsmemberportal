@@ -57,7 +57,7 @@
                             @endcan
                             @can('view pending registrations')
                             <li>
-                                <a href="{{ route('admin.pending-registrations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
+                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-clock w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Pending Registrations</span>
                                 </a>
@@ -147,7 +147,7 @@
                     @endcan
                     @can('view agenda requests')
                     <li>
-                        <a href="{{ route('admin.agenda-inclusion-requests.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'background-color: #055498;' : '' }}">
+                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-clipboard-list w-5 transition-colors" style="color: #FBD116;"></i>
                             <span class="ml-3">Agenda Requests</span>
                         </a>
@@ -155,7 +155,7 @@
                     @endcan
                     @can('view reference materials')
                     <li>
-                        <a href="{{ route('admin.reference-materials.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.reference-materials.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.reference-materials.*') ? 'background-color:#055498;' : '' }}">
+                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.reference-materials.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.reference-materials.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-book w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Reference Materials</span>
                         </a>
@@ -171,7 +171,7 @@
                         <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
                             @can('view board regulations')
                             <li>
-                                <a href="{{ route('admin.board-regulations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-regulations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
+                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-regulations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-balance-scale w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Board Regulations</span>
                                 </a>
@@ -187,7 +187,7 @@
                             @endcan
                             @can('view referendum')
                             <li>
-                                <a href="{{ route('admin.referendums.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.referendums.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
+                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.referendums.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-vote-yea w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Referendums</span>
                                 </a>
@@ -198,7 +198,7 @@
                     @endif
                     @can('view reports')
                     <li>
-                        <a href="{{ route('admin.report-generation.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
+                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-chart-bar w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Report Generation</span>
                         </a>
@@ -206,7 +206,7 @@
                     @endcan
                     @if(Auth::check() && Auth::user()->hasPermission('view audit logs'))
                     <li>
-                        <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.index') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.index') ? 'background-color:#055498;' : '' }}">
+                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.index') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.index') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-clipboard-check w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Audit Logs</span>
                         </a>
@@ -222,7 +222,7 @@
                         <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.government-agencies.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
                             @can('view government agencies')
                             <li>
-                                <a href="{{ route('admin.government-agencies.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.index') || request()->routeIs('admin.government-agencies.create') || request()->routeIs('admin.government-agencies.edit') ? 'text-white' : '' }}">
+                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.index') || request()->routeIs('admin.government-agencies.create') || request()->routeIs('admin.government-agencies.edit') ? 'text-white' : '' }}">
                                     <i class="fas fa-building w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Manage Agencies</span>
                                 </a>
@@ -230,7 +230,7 @@
                             @endcan
                             @can('edit government agencies')
                             <li>
-                                <a href="{{ route('admin.government-agencies.settings') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.settings') ? 'text-white' : '' }}">
+                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.settings') ? 'text-white' : '' }}">
                                     <i class="fas fa-tools w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Agency Settings</span>
                                 </a>
@@ -245,3 +245,14 @@
     </div>
 </nav>
 
+<script>
+function showNotApprovedModal() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Function Not Yet Approved',
+        text: 'This function is currently under development and has not been approved yet.',
+        confirmButtonColor: '#055498',
+        confirmButtonText: 'OK'
+    });
+}
+</script>

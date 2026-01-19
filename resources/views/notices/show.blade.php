@@ -1106,41 +1106,13 @@
         // Agenda form submission
         document.getElementById('agendaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const noticeId = document.getElementById('agendaNoticeId').value;
-            const description = document.getElementById('agendaDescription').value;
-            
-            const formData = new FormData();
-            formData.append('description', description);
-            if (uploadedAttachmentIds.length > 0) {
-                uploadedAttachmentIds.forEach(id => {
-                    formData.append('attachments[]', id);
-                });
-            }
-            
-            try {
-                const response = await axios.post(`/notices/${noticeId}/agenda-inclusion`, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                
-                if (response.data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.data.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        closeAgendaModal();
-                        location.reload();
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: error.response?.data?.message || 'Failed to submit agenda inclusion request.',
-                });
-            }
+            Swal.fire({
+                icon: 'info',
+                title: 'Function Not Yet Approved',
+                text: 'This function is currently under development and has not been approved yet.',
+                confirmButtonColor: '#055498',
+                confirmButtonText: 'OK'
+            });
         });
 
         // File upload handling for agenda attachments
@@ -1227,13 +1199,15 @@
         });
 
         // Reference Materials functions
-        function submitReferenceMaterial(noticeId) {
-            currentNoticeId = noticeId;
-            document.getElementById('referenceNoticeId').value = noticeId;
-            document.getElementById('referenceDescription').value = '';
-            uploadedReferenceAttachmentIds = [];
-            document.getElementById('referenceAttachmentsPreview').innerHTML = '';
-            document.getElementById('referenceModal').classList.remove('hidden');
+        function submitReferenceMaterial(noticeId, e) {
+            if (e) e.preventDefault();
+            Swal.fire({
+                icon: 'info',
+                title: 'Function Not Yet Approved',
+                text: 'This function is currently under development and has not been approved yet.',
+                confirmButtonColor: '#055498',
+                confirmButtonText: 'OK'
+            });
         }
 
         function closeReferenceModal() {
@@ -1246,41 +1220,13 @@
         // Reference form submission
         document.getElementById('referenceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const noticeId = document.getElementById('referenceNoticeId').value;
-            const description = document.getElementById('referenceDescription').value;
-            
-            const formData = new FormData();
-            formData.append('description', description);
-            if (uploadedReferenceAttachmentIds.length > 0) {
-                uploadedReferenceAttachmentIds.forEach(id => {
-                    formData.append('attachments[]', id);
-                });
-            }
-            
-            try {
-                const response = await axios.post(`/notices/${noticeId}/reference-materials`, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                
-                if (response.data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.data.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        closeReferenceModal();
-                        location.reload();
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: error.response?.data?.message || 'Failed to submit reference materials.',
-                });
-            }
+            Swal.fire({
+                icon: 'info',
+                title: 'Function Not Yet Approved',
+                text: 'This function is currently under development and has not been approved yet.',
+                confirmButtonColor: '#055498',
+                confirmButtonText: 'OK'
+            });
         });
 
         // File upload handling for reference attachments
