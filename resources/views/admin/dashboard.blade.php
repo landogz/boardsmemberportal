@@ -5,6 +5,53 @@
 @php
     $pageTitle = 'Dashboard';
     
+    // Load dashboard preferences for admin/consec users (widget visibility, order, time ranges)
+    $dashboardPreferences = null;
+    $widgetPreferences = [];
+    $summaryCardsEnabled = true;
+    $activityRange = '30_days';
+    $messagesRange = '7_days';
+    $contentRange = '6_months';
+
+    $isAdminLike = Auth::check() && (
+        Auth::user()->hasRole('admin') ||
+        Auth::user()->hasRole('consec') ||
+        in_array(Auth::user()->privilege, ['admin', 'consec'])
+    );
+
+    if ($isAdminLike) {
+        $dashboardPreferences = \App\Models\DashboardPreference::where('user_id', Auth::id())->first();
+        if ($dashboardPreferences && is_array($dashboardPreferences->layout)) {
+            $layout = $dashboardPreferences->layout;
+            $widgetPreferences = $layout['widgets'] ?? [];
+            if (isset($layout['summaryCardsEnabled'])) {
+                $summaryCardsEnabled = (bool) $layout['summaryCardsEnabled'];
+            }
+
+            foreach ($widgetPreferences as $w) {
+                if (($w['key'] ?? null) === 'activity_over_time' && !empty($w['timeRange'])) {
+                    $activityRange = $w['timeRange'];
+                }
+                if (($w['key'] ?? null) === 'messages_activity' && !empty($w['timeRange'])) {
+                    $messagesRange = $w['timeRange'];
+                }
+                if (($w['key'] ?? null) === 'content_overview' && !empty($w['timeRange'])) {
+                    $contentRange = $w['timeRange'];
+                }
+            }
+        }
+    }
+
+    // Helper to check widget visibility (defaults to true if not configured)
+    function isWidgetVisible($key, $widgetPreferences) {
+        foreach ($widgetPreferences as $w) {
+            if (($w['key'] ?? null) === $key) {
+                return isset($w['visible']) ? (bool) $w['visible'] : true;
+            }
+        }
+        return true;
+    }
+
     // Calculate media statistics
     $mediaFilesCount = \App\Models\MediaLibrary::count();
     $totalStorageBytes = 0;
@@ -136,10 +183,23 @@
     $activeAgencies = \App\Models\GovernmentAgency::where('is_active', true)->count();
     $totalAgencies = \App\Models\GovernmentAgency::count();
     
-    // Chart Data - Activity Over Time (Last 30 days)
+    // Determine number of days for activity/messages charts based on preferences
+    $activityDays = 30;
+    if ($activityRange === '7_days') {
+        $activityDays = 7;
+    } elseif ($activityRange === '90_days') {
+        $activityDays = 90;
+    }
+
+    $messagesDays = 7;
+    if ($messagesRange === '30_days') {
+        $messagesDays = 30;
+    }
+
+    // Chart Data - Activity Over Time
     $activityChartLabels = [];
     $activityChartData = [];
-    for ($i = 29; $i >= 0; $i--) {
+    for ($i = $activityDays - 1; $i >= 0; $i--) {
         $date = \Carbon\Carbon::now()->subDays($i);
         $activityChartLabels[] = $date->format('M d');
         $activityChartData[] = \App\Models\AuditLog::whereDate('created_at', $date->toDateString())->count();
@@ -156,10 +216,10 @@
         'authorized_reps' => \App\Models\User::where('representative_type', 'Authorized Representative')->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')->count(),
     ];
     
-    // Chart Data - Messages Over Time (Last 7 days)
+    // Chart Data - Messages Over Time
     $messagesChartLabels = [];
     $messagesChartData = [];
-    for ($i = 6; $i >= 0; $i--) {
+    for ($i = $messagesDays - 1; $i >= 0; $i--) {
         $date = \Carbon\Carbon::now()->subDays($i);
         $messagesChartLabels[] = $date->format('M d');
         $messagesChartData[] = \App\Models\Chat::whereDate('created_at', $date->toDateString())->count();
@@ -171,13 +231,18 @@
         'draft' => \App\Models\Announcement::where('status', 'draft')->count(),
     ];
     
-    // Chart Data - Content Creation (Last 6 months)
+    // Chart Data - Content Creation
     $contentChartLabels = [];
     $resolutionsData = [];
     $regulationsData = [];
     $announcementsData = [];
     $noticesData = [];
-    for ($i = 5; $i >= 0; $i--) {
+    $contentMonths = 6;
+    if ($contentRange === '12_months') {
+        $contentMonths = 12;
+    }
+
+    for ($i = $contentMonths - 1; $i >= 0; $i--) {
         $date = \Carbon\Carbon::now()->subMonths($i);
         $contentChartLabels[] = $date->format('M Y');
         $resolutionsData[] = \App\Models\OfficialDocument::whereYear('created_at', $date->year)
@@ -198,14 +263,24 @@
 @section('content')
 <div class="p-4 sm:p-6">
                 <!-- Page Title -->
-                <div class="mb-4 sm:mb-6">
+                <div class="mb-4 sm:mb-6 flex items-center justify-between">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Dashboard</h2>
+                    @if($isAdminLike)
+                        <a href="{{ route('admin.dashboard.customize') }}"
+                           class="inline-flex items-center px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+                            <i class="fas fa-sliders-h mr-2 text-xs"></i>
+                            Customize
+                        </a>
+                    @endif
                 </div>
                 
                 <!-- Secondary Stats -->
-                @if(Auth::user()->privilege === 'admin')
+                @if($isAdminLike && $summaryCardsEnabled)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 sm:mb-6">
-        <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onclick="window.location.href='{{ route('admin.board-members.index') }}'">
+                    @if(isWidgetVisible('board_members', $widgetPreferences))
+                    <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
+                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                         onclick="window.location.href='{{ route('admin.board-members.index') }}'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
                             <i class="fas fa-users text-xl sm:text-2xl opacity-80"></i>
                         </div>
@@ -217,11 +292,15 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-xs sm:text-sm opacity-90">Authorized Reps</span>
                                 <strong class="text-lg sm:text-xl" id="authorizedReps">{{ $authorizedRepsCount }}</strong>
-                </div>
-            </div>
-        </div>
-                    
-        <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onclick="window.location.href='#'">
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(isWidgetVisible('attendance', $widgetPreferences))
+                    <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
+                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                         onclick="window.location.href='#'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
                             <i class="fas fa-check-square text-xl sm:text-2xl opacity-80"></i>
                         </div>
@@ -234,26 +313,34 @@
                                 <span class="text-xs sm:text-sm opacity-90">Pending Confirmations</span>
                                 <strong class="text-lg sm:text-xl" id="pendingConfirmations">0</strong>
                             </div>
-        </div>
+                        </div>
                     </div>
-                    
-        <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onclick="window.location.href='{{ route('admin.media-library.index') }}'">
+                    @endif
+
+                    @if(isWidgetVisible('media_storage', $widgetPreferences))
+                    <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
+                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                         onclick="window.location.href='{{ route('admin.media-library.index') }}'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
                             <i class="fas fa-folder-open text-xl sm:text-2xl opacity-80"></i>
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs sm:text-sm opacity-90">Media Files</span>
-                    <strong class="text-lg sm:text-xl" id="mediaFiles">{{ $mediaFilesCount }}</strong>
+                                <strong class="text-lg sm:text-xl" id="mediaFiles">{{ $mediaFilesCount }}</strong>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-xs sm:text-sm opacity-90">MB Storage</span>
-                    <strong class="text-lg sm:text-xl" id="totalStorage">{{ $totalStorageMB }}</strong>
-                </div>
-            </div>
+                                <strong class="text-lg sm:text-xl" id="totalStorage">{{ $totalStorageMB }}</strong>
+                            </div>
+                        </div>
                     </div>
-                    
-        <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow" style="background: linear-gradient(135deg, #FBD116 0%, #FBD116 100%); color: #123a60;" onclick="window.location.href='{{ route('admin.audit-logs.index') }}'">
+                    @endif
+
+                    @if(isWidgetVisible('audit_logs', $widgetPreferences))
+                    <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
+                         style="background: linear-gradient(135deg, #FBD116 0%, #FBD116 100%); color: #123a60;"
+                         onclick="window.location.href='{{ route('admin.audit-logs.index') }}'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
                             <i class="fas fa-history text-xl sm:text-2xl opacity-80"></i>
                         </div>
@@ -265,16 +352,19 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-xs sm:text-sm opacity-90">Today's Activities</span>
                                 <strong class="text-lg sm:text-xl" id="todayActivities">{{ $todayActivitiesCount }}</strong>
-                </div>
-            </div>
+                            </div>
+                        </div>
                     </div>
+                    @endif
                 </div>
                 @endif
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <div id="dashboardChartsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <!-- Activity Over Time Chart -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+        @if(isWidgetVisible('activity_over_time', $widgetPreferences))
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget"
+             data-widget-key="activity_over_time">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <div class="p-2 rounded-lg" style="background-color: rgba(251, 209, 22, 0.1);">
@@ -282,15 +372,26 @@
                     </div>
                     <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity Over Time</h3>
                 </div>
-                <span class="text-xs text-gray-500">Last 30 Days</span>
+                <span class="text-xs text-gray-500">
+                    @if($activityDays === 7)
+                        Last 7 Days
+                    @elseif($activityDays === 30)
+                        Last 30 Days
+                    @else
+                        Last 90 Days
+                    @endif
+                </span>
             </div>
             <div class="relative" style="height: 250px;">
                 <canvas id="activityChart"></canvas>
             </div>
         </div>
+        @endif
 
         <!-- User Distribution Chart -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+        @if(isWidgetVisible('user_distribution', $widgetPreferences))
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget"
+             data-widget-key="user_distribution">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <div class="p-2 rounded-lg" style="background-color: rgba(5, 84, 152, 0.1);">
@@ -303,9 +404,12 @@
                 <canvas id="userDistributionChart"></canvas>
             </div>
         </div>
+        @endif
 
         <!-- Messages Activity Chart -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+        @if(isWidgetVisible('messages_activity', $widgetPreferences))
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget"
+             data-widget-key="messages_activity">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <div class="p-2 rounded-lg" style="background-color: rgba(5, 84, 152, 0.1);">
@@ -313,15 +417,24 @@
                     </div>
                     <h3 class="text-base sm:text-lg font-semibold text-gray-800">Messages Activity</h3>
                 </div>
-                <span class="text-xs text-gray-500">Last 7 Days</span>
+                <span class="text-xs text-gray-500">
+                    @if($messagesDays === 7)
+                        Last 7 Days
+                    @else
+                        Last 30 Days
+                    @endif
+                </span>
             </div>
             <div class="relative" style="height: 250px;">
                 <canvas id="messagesChart"></canvas>
             </div>
         </div>
+        @endif
 
         <!-- Announcements Status Chart -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget">
+        @if(isWidgetVisible('announcements_status', $widgetPreferences))
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget"
+             data-widget-key="announcements_status">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <div class="p-2 rounded-lg" style="background-color: rgba(251, 209, 22, 0.1);">
@@ -334,10 +447,13 @@
                 <canvas id="announcementsChart"></canvas>
             </div>
         </div>
+        @endif
     </div>
 
     <!-- Content Creation Chart (Full Width) -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget mb-4 sm:mb-6">
+    @if(isWidgetVisible('content_overview', $widgetPreferences))
+    <div id="contentOverviewWidget" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 dashboard-widget mb-4 sm:mb-6"
+         data-widget-key="content_overview">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
                 <div class="p-2 rounded-lg" style="background-color: rgba(206, 32, 40, 0.1);">
@@ -345,12 +461,19 @@
                 </div>
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Content Creation Overview</h3>
             </div>
-            <span class="text-xs text-gray-500">Last 6 Months</span>
+            <span class="text-xs text-gray-500">
+                @if($contentMonths === 6)
+                    Last 6 Months
+                @else
+                    Last 12 Months
+                @endif
+            </span>
         </div>
         <div class="relative" style="height: 300px;">
             <canvas id="contentChart"></canvas>
         </div>
     </div>
+    @endif
 </div>
 @endsection
     
@@ -489,6 +612,69 @@
 @endpush
 
 @push('scripts')
+<script>
+    // Reorder chart widgets and optionally move Content Overview based on saved preferences (order only, layout preserved)
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            @if($isAdminLike)
+            $.ajax({
+                url: '{{ route('admin.dashboard.preferences.show') }}',
+                method: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (!response.success || !response.layout || !response.layout.widgets) {
+                        return;
+                    }
+
+                    const widgets = response.layout.widgets;
+                    const $chartsGrid = $('#dashboardChartsGrid');
+                    const $contentOverview = $('#contentOverviewWidget');
+
+                    if ($chartsGrid.length) {
+                        // Only reorder chart widgets inside the charts grid; summary cards stay fixed
+                        const chartKeys = ['activity_over_time', 'user_distribution', 'messages_activity', 'announcements_status'];
+                        widgets.forEach(function (w) {
+                            if (!chartKeys.includes(w.key)) {
+                                return;
+                            }
+                            const $widget = $chartsGrid.find('[data-widget-key=\"' + w.key + '\"]');
+                            if ($widget.length) {
+                                $chartsGrid.append($widget);
+                            }
+                        });
+                    }
+
+                    // Move Content Creation Overview before or after charts based on relative order
+                    if ($contentOverview.length) {
+                        const orderMap = {};
+                        widgets.forEach(function (w, index) {
+                            orderMap[w.key] = index;
+                        });
+
+                        const idxContent = orderMap['content_overview'];
+                        const firstChartKey = ['activity_over_time', 'user_distribution', 'messages_activity', 'announcements_status']
+                            .find(function (k) { return typeof orderMap[k] !== 'undefined'; });
+
+                        if (typeof idxContent !== 'undefined' && firstChartKey && $chartsGrid.length) {
+                            const idxFirstChart = orderMap[firstChartKey];
+                            const $parent = $chartsGrid.parent();
+
+                            if (idxContent < idxFirstChart) {
+                                // User placed Content Overview before first chart → move section above charts grid
+                                $contentOverview.insertBefore($chartsGrid);
+                            } else {
+                                // Otherwise keep it after charts grid
+                                $contentOverview.insertAfter($chartsGrid);
+                            }
+                        }
+                    }
+                }
+            });
+            @endif
+        });
+    })();
+</script>
+
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>

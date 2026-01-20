@@ -109,21 +109,29 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     })->name('dashboard');
 
     Route::get('/admin/dashboard', function () {
-        // Allow access if user has admin role (which has all permissions) or has any admin permission
+        // Allow access if user has admin or consec role/privilege (dashboard is for admin-level users)
         $user = Auth::user();
-        if (!$user->hasRole('admin') && 
-            !$user->hasPermission('view board resolutions') && 
-            !$user->hasPermission('view board regulations') && 
-            !$user->hasPermission('view government agencies') && 
-            !$user->hasPermission('view media library') && 
-            !$user->hasPermission('view audit logs') && 
-            !$user->hasPermission('view roles') && 
-            !$user->hasPermission('view permissions') && 
-            !$user->hasPermission('view consec accounts')) {
+        if (
+            !$user->hasRole('admin') &&
+            !$user->hasRole('consec') &&
+            !in_array($user->privilege, ['admin', 'consec'])
+        ) {
             return redirect()->route('dashboard');
         }
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    // Admin Dashboard Customization (admin / consec)
+    Route::prefix('admin/dashboard')->name('admin.dashboard.')->group(function () {
+        Route::get('/customize', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'edit'])
+            ->name('customize');
+
+        Route::get('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'show'])
+            ->name('preferences.show');
+
+        Route::post('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'store'])
+            ->name('preferences.store');
+    });
     
     // Admin Messages Route
     Route::get('/admin/messages', function () {
