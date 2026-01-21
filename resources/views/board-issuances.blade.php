@@ -91,6 +91,7 @@
                     <label for="filterType" class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Type</label>
                     <select id="filterType" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#055498] focus:border-[#055498]">
                         <option value="">All Types</option>
+                        <option value="regulation">Board Regulations</option>
                         <option value="resolution">Board Resolutions</option>
                     </select>
                 </div>
@@ -120,8 +121,94 @@
             </div>
         </div>
 
-        <!-- Board Resolutions -->
-        <div id="issuancesContainer" class="grid grid-cols-1 gap-6">
+        <!-- Board Regulations and Resolutions -->
+        <div id="issuancesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Board Regulations Section -->
+            <div id="regulationsSection" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-5 sm:p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(5, 84, 152, 0.1);">
+                        <i class="fas fa-balance-scale text-lg" style="color: #055498;"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold" style="color: #055498;">Board Regulations</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Effective regulations and policy guidelines</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 space-y-4" id="regulationsList">
+                    @forelse($regulations as $regulation)
+                        <div id="regulation-{{ $regulation->id }}" class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 scroll-mt-20"
+                             data-type="regulation"
+                             data-year="{{ $regulation->year }}"
+                             data-keywords="{{ strtolower($regulation->title . ' ' . ($regulation->description ?? '') . ' ' . ($regulation->version ?? '')) }}">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 pr-4">
+                                    <div class="flex items-center mb-2">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-2" style="background-color: rgba(5, 84, 152, 0.1);">
+                                            <i class="fas fa-balance-scale text-sm" style="color: #055498;"></i>
+                                        </div>
+                                        <span class="text-xs font-semibold px-2 py-1 rounded-full" style="background-color: rgba(5, 84, 152, 0.1); color: #055498;">Regulation</span>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">{{ $regulation->title }}</h3>
+                                    @if($regulation->description)
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-3 whitespace-pre-wrap">{{ $regulation->description }}</p>
+                                    @endif
+                                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                        @if($regulation->version)
+                                            <span class="flex items-center">
+                                                <i class="fas fa-tag mr-1"></i>
+                                                {{ $regulation->version }}
+                                            </span>
+                                        @endif
+                                        @if($regulation->effective_date)
+                                            <span class="flex items-center">
+                                                <i class="fas fa-calendar-alt mr-1"></i>
+                                                {{ $regulation->effective_date->format('M d, Y') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if($regulation->uploader)
+                                        <div class="flex items-center gap-2 mt-2">
+                                            @php
+                                                $uploaderProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($regulation->uploader->first_name . ' ' . $regulation->uploader->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                                if ($regulation->uploader->profile_picture) {
+                                                    $media = \App\Models\MediaLibrary::find($regulation->uploader->profile_picture);
+                                                    if ($media) {
+                                                        $uploaderProfilePic = asset('storage/' . $media->file_path);
+                                                    }
+                                                }
+                                            @endphp
+                                            <img src="{{ $uploaderProfilePic }}" alt="{{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}" class="w-6 h-6 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                                            <p class="text-xs text-gray-400 dark:text-gray-500">
+                                                {{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}
+                                            </p>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-shrink-0">
+                                    @if($regulation->pdf)
+                                        <button
+                                            onclick="viewPDF('{{ asset('storage/' . $regulation->pdf->file_path) }}', '{{ $regulation->title }}', '{{ addslashes($regulation->title) }}', 'document')"
+                                            class="px-4 py-2 text-xs font-semibold rounded-lg text-white hover:opacity-90 transition-all duration-200 shadow-sm hover:shadow-md"
+                                            style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
+                                        >
+                                            <i class="fas fa-eye mr-1"></i>VIEW
+                                        </button>
+                                    @else
+                                        <button type="button" class="px-4 py-2 text-xs font-semibold rounded-lg text-gray-400 bg-gray-100 dark:bg-gray-700 cursor-not-allowed" disabled>
+                                            <i class="fas fa-file-times mr-1"></i>NO FILE
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8">
+                            <i class="fas fa-balance-scale text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No board regulations available at this time.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
             <!-- Board Resolutions Section -->
             <div id="resolutionsSection" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-5 sm:p-6">
             <div class="flex items-center mb-4">
@@ -306,9 +393,9 @@
                     }
                 });
 
-                // Always show resolutions section (regulations removed)
-                const $resolutionsSection = $('#resolutionsSection');
-                $resolutionsSection.show();
+                // Ensure sections remain visible; items inside will hide/show
+                $('#resolutionsSection').show();
+                $('#regulationsSection').show();
             }
             
             // Populate filters from URL parameters

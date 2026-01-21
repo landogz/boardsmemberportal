@@ -171,7 +171,7 @@
                         <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
                             @can('view board regulations')
                             <li>
-                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-regulations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
+                                <a href="{{ route('admin.board-regulations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-regulations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-regulations.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-balance-scale w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Board Regulations</span>
                                 </a>
@@ -222,7 +222,7 @@
                         <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.government-agencies.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
                             @can('view government agencies')
                             <li>
-                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.index') || request()->routeIs('admin.government-agencies.create') || request()->routeIs('admin.government-agencies.edit') ? 'text-white' : '' }}">
+                                <a href="{{ route('admin.government-agencies.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.index') || request()->routeIs('admin.government-agencies.create') || request()->routeIs('admin.government-agencies.edit') ? 'text-white' : '' }}">
                                     <i class="fas fa-building w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Manage Agencies</span>
                                 </a>
@@ -230,7 +230,7 @@
                             @endcan
                             @can('edit government agencies')
                             <li>
-                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.settings') ? 'text-white' : '' }}">
+                                <a href="{{ route('admin.government-agencies.settings') }}" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-md transition-all duration-200 group {{ request()->routeIs('admin.government-agencies.settings') ? 'text-white' : '' }}">
                                     <i class="fas fa-tools w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Agency Settings</span>
                                 </a>
