@@ -393,9 +393,26 @@
                     }
                 });
 
-                // Ensure sections remain visible; items inside will hide/show
-                $('#resolutionsSection').show();
-                $('#regulationsSection').show();
+                const $container = $('#issuancesContainer');
+                const $resolutionsSection = $('#resolutionsSection');
+                const $regulationsSection = $('#regulationsSection');
+
+                if (type === 'regulation') {
+                    // Only regulations, full width
+                    $container.removeClass('md:grid-cols-2').addClass('md:grid-cols-1');
+                    $resolutionsSection.hide();
+                    $regulationsSection.show();
+                } else if (type === 'resolution') {
+                    // Only resolutions, full width
+                    $container.removeClass('md:grid-cols-2').addClass('md:grid-cols-1');
+                    $regulationsSection.hide();
+                    $resolutionsSection.show();
+                } else {
+                    // Show both side-by-side
+                    $container.removeClass('md:grid-cols-1').addClass('md:grid-cols-2');
+                    $regulationsSection.show();
+                    $resolutionsSection.show();
+                }
             }
             
             // Populate filters from URL parameters
