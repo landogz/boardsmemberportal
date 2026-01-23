@@ -378,7 +378,17 @@
                     <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-                        <input type="password" id="password" name="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Enter password">
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Enter password">
+                            <button 
+                                type="button" 
+                                id="togglePassword" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                                aria-label="Toggle password visibility"
+                            >
+                                <i class="fas fa-eye" id="passwordEyeIcon"></i>
+                            </button>
+                        </div>
                         <span class="text-red-500 text-sm hidden" id="password-error"></span>
                         <div class="password-requirements mt-2">
                             <ul>
@@ -394,7 +404,17 @@
                     <!-- Confirm Password -->
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Confirm password">
+                        <div class="relative">
+                            <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Confirm password">
+                            <button 
+                                type="button" 
+                                id="togglePasswordConfirmation" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                                aria-label="Toggle password visibility"
+                            >
+                                <i class="fas fa-eye" id="passwordConfirmationEyeIcon"></i>
+                            </button>
+                        </div>
                         <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
                     </div>
                 </div>
@@ -564,6 +584,33 @@
                 }
             }
             $(this).val(value);
+        });
+
+        // Toggle password visibility
+        $('#togglePassword').on('click', function() {
+            const passwordInput = $('#password');
+            const eyeIcon = $('#passwordEyeIcon');
+            
+            if (passwordInput.attr('type') === 'password') {
+                passwordInput.attr('type', 'text');
+                eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordInput.attr('type', 'password');
+                eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        $('#togglePasswordConfirmation').on('click', function() {
+            const passwordInput = $('#password_confirmation');
+            const eyeIcon = $('#passwordConfirmationEyeIcon');
+            
+            if (passwordInput.attr('type') === 'password') {
+                passwordInput.attr('type', 'text');
+                eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordInput.attr('type', 'password');
+                eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
         });
 
         // Password validation
