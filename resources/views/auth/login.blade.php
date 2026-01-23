@@ -17,6 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Gotham Font -->
     <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -120,14 +122,24 @@
 
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                    placeholder="Enter your password"
-                >
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        placeholder="Enter your password"
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePassword" 
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                        aria-label="Toggle password visibility"
+                    >
+                        <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
+                    </button>
+                </div>
                 <span class="text-red-500 text-sm hidden" id="password-error"></span>
             </div>
 
@@ -166,6 +178,22 @@
         // Set up axios defaults
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
