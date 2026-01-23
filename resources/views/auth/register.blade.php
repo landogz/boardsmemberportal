@@ -870,13 +870,37 @@
             // Password validation
             $('#password').on('input', function() {
                 const password = $(this).val();
+                const $input = $(this);
                 
-                // Check requirements
-                $('#req-length').toggleClass('valid invalid', password.length >= 6);
-                $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
-                $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
-                $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+                // Check individual requirements
+                const hasLength = password.length >= 6;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                // Match any special character (not alphanumeric)
+                const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+                
+                // Update requirement indicators
+                $('#req-length').toggleClass('valid invalid', hasLength);
+                $('#req-uppercase').toggleClass('valid invalid', hasUppercase);
+                $('#req-lowercase').toggleClass('valid invalid', hasLowercase);
+                $('#req-number').toggleClass('valid invalid', hasNumber);
+                $('#req-special').toggleClass('valid invalid', hasSpecial);
+                
+                // Check if all requirements are met
+                const allValid = hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+                
+                // Update input border color
+                if (password.length === 0) {
+                    // Reset to default when empty
+                    $input.removeClass('border-red-500 border-green-500').addClass('border-gray-300 dark:border-gray-600');
+                } else if (allValid) {
+                    // Green border when all requirements met
+                    $input.removeClass('border-gray-300 dark:border-gray-600 border-red-500').addClass('border-green-500');
+                } else {
+                    // Red border when requirements not met
+                    $input.removeClass('border-gray-300 dark:border-gray-600 border-green-500').addClass('border-red-500');
+                }
             });
 
             // PSGC Cascading Dropdowns using JSON data

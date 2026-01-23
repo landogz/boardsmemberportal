@@ -83,7 +83,27 @@ class BoardMemberController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $fail('The password must contain at least one capital letter.');
+                    }
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $fail('The password must contain at least one small letter.');
+                    }
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $fail('The password must contain at least one number.');
+                    }
+                    // Match any special character (not alphanumeric)
+                    if (!preg_match('/[^a-zA-Z0-9]/', $value)) {
+                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |, etc.).');
+                    }
+                },
+            ],
         ]);
 
         // Generate username if not provided or if it already exists

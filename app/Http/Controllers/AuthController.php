@@ -202,7 +202,8 @@ class AuthController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!@#$%^&*|]/', $value)) {
+                    // Match any special character (not alphanumeric)
+                    if (!preg_match('/[^a-zA-Z0-9]/', $value)) {
                         $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |, etc.).');
                     }
                 },
