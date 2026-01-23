@@ -561,16 +561,6 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
-                    @guest
-                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="/login" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
-                            Get Started
-                        </a>
-                        <a href="#about" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold hover:bg-white transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
-                            Learn More
-                        </a>
-                    </div>
-                    @endguest
                 </div>
             </div>
             <!-- Slide 2 -->
@@ -578,16 +568,6 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
-                    @guest
-                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="#announcements" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
-                            View Announcements
-                        </a>
-                        <a href="#calendar-activities" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
-                            Calendar Activities
-                        </a>
-                    </div>
-                    @endguest
                 </div>
             </div>
             <!-- Slide 3 -->
@@ -595,16 +575,6 @@
                 <div class="text-center px-2 sm:px-4 text-white relative z-10">
                     <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure & Modern Platform</h1>
                     <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
-                    @guest
-                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center">
-                        <a href="/register" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-white rounded-full font-bold hover:scale-105 transition transform shadow-xl text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="color: #055498;">
-                            Register Now
-                        </a>
-                        <a href="#contact" class="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 border-2 border-white text-white rounded-full font-bold transition text-xs sm:text-sm md:text-base min-h-[44px] flex items-center justify-center" style="hover:color: #055498;" onmouseover="this.style.backgroundColor='white'; this.style.color='#055498';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
-                            Contact Us
-                        </a>
-                    </div>
-                    @endguest
                 </div>
             </div>
             <!-- Navigation Dots -->
@@ -845,8 +815,8 @@
                         <span class="text-2xl sm:text-3xl">👁️</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Vision</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
-                        The DDB envisions “Drug-Free Communities”.
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
+                        The DDB envisions "Drug-Free Communities".
                     </p>
                 </div>
                 <!-- Mission -->
@@ -855,7 +825,7 @@
                         <span class="text-2xl sm:text-3xl">🎯</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mission</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
                         The Dangerous Drugs Board is committed to stamping out the illicit supply of and demand for dangerous drugs
                         and precursor chemicals, and to promote regional and international cooperation in drug abuse prevention and control.
                     </p>
@@ -866,11 +836,11 @@
                         <span class="text-2xl sm:text-3xl">📜</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mandate</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left mb-3">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify mb-3">
                         Republic Act No. 9165 or the Comprehensive Dangerous Drugs Act of 2002 mandates the DDB to be the
                         policy-making and strategy-formulating body on drug prevention and control.
                     </p>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-left">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
                         It shall develop and adopt a comprehensive, integrated, unified and balanced national drug abuse
                         prevention and control strategy.
                     </p>
@@ -922,24 +892,31 @@
                     <form id="contactForm" class="space-y-4 sm:space-y-6">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="Your name" required>
+                                <label for="contact_name" class="block text-sm font-semibold mb-2">Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="contact_name" name="name" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base" placeholder="Your name" required>
+                                <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Email</label>
-                                <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="your@email.com" required>
+                                <label for="contact_email" class="block text-sm font-semibold mb-2">Email <span class="text-red-500">*</span></label>
+                                <input type="email" id="contact_email" name="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base" placeholder="your@email.com" required>
+                                <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-2">Subject</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base" style="focus:ring-color: #055498;" placeholder="What's this about?" required>
+                            <label for="contact_subject" class="block text-sm font-semibold mb-2">Subject <span class="text-red-500">*</span></label>
+                            <input type="text" id="contact_subject" name="subject" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base" placeholder="What's this about?" required>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-2">Message</label>
-                            <textarea rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:border-transparent text-base resize-y" style="focus:ring-color: #055498;" placeholder="Your message..." required></textarea>
+                            <label for="contact_message" class="block text-sm font-semibold mb-2">Message <span class="text-red-500">*</span></label>
+                            <textarea id="contact_message" name="message" rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base resize-y" placeholder="Your message..." required></textarea>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                         </div>
-                        <button type="submit" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-bold hover:scale-105 transition transform shadow-lg text-sm sm:text-base min-h-[44px]" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                            Send Message
+                        <button type="submit" id="contactSubmitBtn" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-bold hover:scale-105 transition transform shadow-lg text-sm sm:text-base min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                            <span class="submit-text">Send Message</span>
+                            <span class="loading-text hidden">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Sending...
+                            </span>
                         </button>
                     </form>
                 </div>
@@ -1144,11 +1121,131 @@
                         }
                     });
 
+                    // Set up axios defaults for contact form
+                    if (typeof axios !== 'undefined') {
+                        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+                    }
+                    
                     // Contact form
                     $('#contactForm').on('submit', function(e) {
                         e.preventDefault();
-                        alert('Thank you for your message! We will get back to you soon.');
+                        
+                        if (typeof axios === 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Please wait for the page to fully load.',
+                                confirmButtonColor: '#055498'
+                            });
+                            return;
+                        }
+                        
+                        const form = $(this);
+                        const submitBtn = $('#contactSubmitBtn');
+                        const submitText = submitBtn.find('.submit-text');
+                        const loadingText = submitBtn.find('.loading-text');
+                        
+                        // Clear previous errors
+                        form.find('.error-message').addClass('hidden').text('');
+                        form.find('input, textarea').removeClass('border-red-500');
+                        
+                        // Validate all fields
+                        let isValid = true;
+                        form.find('input[required], textarea[required]').each(function() {
+                            const field = $(this);
+                            const value = field.val().trim();
+                            
+                            if (!value) {
+                                isValid = false;
+                                field.addClass('border-red-500');
+                                field.siblings('.error-message').removeClass('hidden').text('This field is required.');
+                            } else if (field.attr('type') === 'email' && !isValidEmail(value)) {
+                                isValid = false;
+                                field.addClass('border-red-500');
+                                field.siblings('.error-message').removeClass('hidden').text('Please enter a valid email address.');
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Please fill in all required fields correctly.',
+                                confirmButtonColor: '#055498'
+                            });
+                            return;
+                        }
+                        
+                        // Disable submit button
+                        submitBtn.prop('disabled', true);
+                        submitText.addClass('hidden');
+                        loadingText.removeClass('hidden');
+                        
+                        // Submit form via AJAX
+                        const formData = {
+                            name: $('#contact_name').val().trim(),
+                            email: $('#contact_email').val().trim(),
+                            subject: $('#contact_subject').val().trim(),
+                            message: $('#contact_message').val().trim()
+                        };
+                        
+                        axios.post('{{ route("contact.submit") }}', formData)
+                            .then(function(response) {
+                                if (response.data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Message Sent!',
+                                        text: response.data.message || 'Thank you for your message! We will get back to you soon.',
+                                        confirmButtonColor: '#055498'
+                                    }).then(() => {
+                                        form[0].reset();
+                                        form.find('input, textarea').removeClass('border-red-500');
+                                    });
+                                } else {
+                                    throw new Error(response.data.message || 'Failed to send message.');
+                                }
+                            })
+                            .catch(function(error) {
+                                let errorMessage = 'An error occurred while sending your message. Please try again.';
+                                
+                                if (error.response && error.response.data) {
+                                    if (error.response.data.message) {
+                                        errorMessage = error.response.data.message;
+                                    } else if (error.response.data.errors) {
+                                        // Handle validation errors
+                                        const errors = error.response.data.errors;
+                                        Object.keys(errors).forEach(function(key) {
+                                            const field = form.find('[name="' + key + '"]');
+                                            if (field.length) {
+                                                field.addClass('border-red-500');
+                                                field.siblings('.error-message').removeClass('hidden').text(errors[key][0]);
+                                            }
+                                        });
+                                        errorMessage = 'Please correct the errors above.';
+                                    }
+                                }
+                                
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: errorMessage,
+                                    confirmButtonColor: '#055498'
+                                });
+                            })
+                            .finally(function() {
+                                // Re-enable submit button
+                                submitBtn.prop('disabled', false);
+                                submitText.removeClass('hidden');
+                                loadingText.addClass('hidden');
+                            });
                     });
+                    
+                    // Email validation helper
+                    function isValidEmail(email) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(email);
+                    }
 
                     // Go to Top Button
                     const goToTopBtn = document.getElementById('goToTop');

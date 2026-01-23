@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,9 @@ Route::get('/forgot-password', function () {
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email')->middleware('guest');
 Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset')->middleware('guest');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update')->middleware('guest');
+
+// Contact Form Route
+Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/api/government-agencies', function () {
     $agencies = \App\Models\GovernmentAgency::active()->with('logo')->orderBy('name')->get(['id', 'name', 'code', 'logo_id']);
