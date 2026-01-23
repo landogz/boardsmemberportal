@@ -177,6 +177,20 @@
         .password-requirements li.invalid {
             color: #ef4444;
         }
+        .password-input-valid {
+            border-color: #10B981 !important;
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+        .password-input-invalid {
+            border-color: #ef4444 !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+        .dark .password-input-valid {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+        .dark .password-input-invalid {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
         
         /* Fix Safari select height mismatch with inputs */
         select {
@@ -870,15 +884,14 @@
             // Password validation
             $('#password').on('input', function() {
                 const password = $(this).val();
-                const $input = $(this);
+                const $passwordInput = $(this);
                 
                 // Check individual requirements
                 const hasLength = password.length >= 6;
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                // Match any special character (not alphanumeric)
-                const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+                const hasSpecial = /[~!@#$%^&*|]/.test(password);
                 
                 // Update requirement indicators
                 $('#req-length').toggleClass('valid invalid', hasLength);
@@ -890,16 +903,15 @@
                 // Check if all requirements are met
                 const allValid = hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
                 
-                // Update input border color
-                if (password.length === 0) {
-                    // Reset to default when empty
-                    $input.removeClass('border-red-500 border-green-500').addClass('border-gray-300 dark:border-gray-600');
-                } else if (allValid) {
-                    // Green border when all requirements met
-                    $input.removeClass('border-gray-300 dark:border-gray-600 border-red-500').addClass('border-green-500');
+                // Update password input styling
+                if (password.length > 0) {
+                    if (allValid) {
+                        $passwordInput.removeClass('password-input-invalid').addClass('password-input-valid');
+                    } else {
+                        $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
+                    }
                 } else {
-                    // Red border when requirements not met
-                    $input.removeClass('border-gray-300 dark:border-gray-600 border-green-500').addClass('border-red-500');
+                    $passwordInput.removeClass('password-input-valid password-input-invalid');
                 }
             });
 
