@@ -43,9 +43,6 @@
         // Set modal title
         modalTitle.textContent = title || 'PDF Viewer';
         
-        // Set iframe source
-        iframe.src = pdfUrl;
-        
         // Create download filename from title
         // Clean title: remove special characters, replace spaces with underscores, ensure it ends with .pdf
         let downloadFilename = (title || 'document').trim();
@@ -66,8 +63,14 @@
             downloadFilename = downloadFilename.substring(0, 197) + '.pdf';
         }
         
-        // Set download link - use absolute URL and title-based filename
+        // Get absolute URL
         const absoluteUrl = pdfUrl.startsWith('http') ? pdfUrl : (window.location.origin + (pdfUrl.startsWith('/') ? '' : '/') + pdfUrl);
+        
+        // Set iframe source - if using the new PDF routes, they will serve with custom filename in Content-Disposition header
+        iframe.src = absoluteUrl;
+        iframe.setAttribute('title', title || 'PDF Document');
+        
+        // Set download link
         downloadLink.href = absoluteUrl;
         downloadLink.download = downloadFilename;
         downloadLink.setAttribute('data-pdf-modal', 'false'); // Prevent interception

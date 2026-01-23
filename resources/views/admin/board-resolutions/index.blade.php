@@ -125,7 +125,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($document->pdf)
                                 <button 
-                                    onclick="openGlobalPdfModal('{{ asset('storage/' . $document->pdf->file_path) }}', '{{ addslashes($document->title) }}')"
+                                    onclick="openGlobalPdfModal('{{ route('admin.board-resolutions.pdf', $document->id) }}', '{{ addslashes($document->title) }}')"
                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors cursor-pointer"
                                     title="Click to view PDF"
                                 >

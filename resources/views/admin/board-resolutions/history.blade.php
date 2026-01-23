@@ -67,7 +67,7 @@
             <div class="md:col-span-2">
                 <p class="text-sm text-gray-600 mb-2">PDF File</p>
                 <button 
-                    onclick="openGlobalPdfModal('{{ asset('storage/' . $document->pdf->file_path) }}', '{{ addslashes($document->title) }}')"
+                    onclick="openGlobalPdfModal('{{ route('admin.board-resolutions.pdf', $document->id) }}', '{{ addslashes($document->title) }}')"
                     class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors cursor-pointer"
                 >
                     <i class="fas fa-file-pdf mr-2"></i>{{ $document->pdf->file_name }}

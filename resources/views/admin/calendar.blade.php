@@ -856,6 +856,54 @@
                 
                 calendar.render();
                 
+                // Update today button text to show current date (remove "today" word)
+                const today = new Date();
+                const formattedDate = today.toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                
+                function updateTodayButtonText() {
+                    const todayButton = document.querySelector('#calendar .fc-today-button');
+                    if (todayButton) {
+                        const currentText = todayButton.textContent.trim();
+                        // Only update if text contains "today" or doesn't match the formatted date
+                        if (currentText.toLowerCase().includes('today') || currentText !== formattedDate) {
+                            todayButton.textContent = formattedDate;
+                        }
+                    }
+                }
+                
+                // Use MutationObserver for immediate updates (no flashing)
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                            const todayButton = document.querySelector('#calendar .fc-today-button');
+                            if (todayButton) {
+                                const currentText = todayButton.textContent.trim();
+                                if (currentText.toLowerCase().includes('today')) {
+                                    // Update immediately (synchronously) to prevent flashing
+                                    todayButton.textContent = formattedDate;
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                // Observe the calendar container for button changes
+                const calendarContainer = document.getElementById('calendar');
+                if (calendarContainer) {
+                    observer.observe(calendarContainer, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true
+                    });
+                }
+                
+                // Initial update
+                setTimeout(updateTodayButtonText, 50);
+                
                 // Handle window resize
                 let resizeTimer;
                 window.addEventListener('resize', function() {
@@ -875,7 +923,19 @@
                             center: 'title',
                             right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
                         });
+                        // Update today button text after resize
+                        setTimeout(updateTodayButtonText, 100);
                     }, 250);
+                });
+                
+                // Update today button text when calendar view changes
+                calendar.on('viewDidMount', function() {
+                    setTimeout(updateTodayButtonText, 50);
+                });
+                
+                // Update today button text when calendar dates change (prev/next navigation)
+                calendar.on('datesSet', function() {
+                    setTimeout(updateTodayButtonText, 50);
                 });
                 
                 // Filter panel toggle
@@ -1074,6 +1134,15 @@
     #calendar .fc-timeGridWeek-button,
     #calendar .fc-timeGridDay-button {
         text-transform: capitalize !important;
+    }
+    
+    /* Hide button text if it contains "today" to prevent flashing */
+    #calendar .fc-today-button:not([data-date-set]) {
+        position: relative;
+    }
+    
+    #calendar .fc-today-button[data-text*="today" i] {
+        color: transparent !important;
     }
     
     #calendar .fc-day-today {

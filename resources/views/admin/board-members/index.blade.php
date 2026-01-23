@@ -169,6 +169,41 @@
     .action-dropdown-menu {
         position: fixed !important;
     }
+    
+    /* Allow text wrapping in table cells */
+    #boardMembersTable td {
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Set minimum widths for columns to prevent too narrow columns */
+    #boardMembersTable td:first-child {
+        min-width: 200px;
+    }
+    
+    #boardMembersTable td:nth-child(2) {
+        min-width: 180px;
+    }
+    
+    #boardMembersTable td:nth-child(3) {
+        min-width: 120px;
+    }
+    
+    #boardMembersTable td:nth-child(4) {
+        min-width: 200px;
+    }
+    
+    #boardMembersTable td:nth-child(5) {
+        min-width: 150px;
+    }
+    
+    /* Keep nowrap for badge/button columns */
+    #boardMembersTable td:nth-child(6),
+    #boardMembersTable td:nth-child(7),
+    #boardMembersTable td:nth-child(8) {
+        white-space: nowrap;
+    }
 </style>
 @endpush
 
@@ -198,7 +233,7 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($boardMembers as $account)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="flex-shrink-0">
                                         @php
@@ -207,18 +242,18 @@
                                         @endphp
                                         <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
                                     </div>
-                                    <div class="text-sm font-medium text-gray-900">
+                                    <div class="text-sm font-medium text-gray-900 break-words">
                                         {{ $account->pre_nominal_title }} {{ $account->first_name }} {{ $account->middle_initial ? $account->middle_initial . '.' : '' }} {{ $account->last_name }} {{ $account->post_nominal_title ? ', ' . $account->post_nominal_title : '' }}
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $account->email }}</div>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 break-words">{{ $account->email }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $account->username }}</div>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 break-words">{{ $account->username ?? 'N/A' }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4">
                                 @if($account->governmentAgency)
                                     <div class="flex items-center space-x-3">
                                         @if($account->governmentAgency->logo)
@@ -226,14 +261,14 @@
                                                 <img src="{{ asset('storage/' . $account->governmentAgency->logo->file_path) }}" alt="{{ $account->governmentAgency->name }}" class="h-8 w-8 object-contain">
                                             </div>
                                         @endif
-                                        <div class="text-sm font-medium text-gray-900">{{ $account->governmentAgency->name }}</div>
+                                        <div class="text-sm font-medium text-gray-900 break-words">{{ $account->governmentAgency->name }}</div>
                                     </div>
                                 @else
                                     <span class="text-sm text-gray-400">N/A</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">{{ $account->designation ?? 'N/A' }}</div>
+                                <div class="text-sm text-gray-900 break-words">{{ $account->designation ?? 'N/A' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">

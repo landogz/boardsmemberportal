@@ -258,6 +258,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'edit'])->name('edit');
         Route::post('/{id}/update', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'update'])->name('update');
         Route::get('/{id}/history', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'history'])->name('history');
+        Route::get('/{id}/pdf', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'servePdf'])->name('pdf');
         Route::delete('/{id}', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'destroy'])->name('destroy');
     });
 
@@ -269,6 +270,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'edit'])->name('edit');
         Route::post('/{id}/update', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'update'])->name('update');
         Route::get('/{id}/history', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'history'])->name('history');
+        Route::get('/{id}/pdf', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'servePdf'])->name('pdf');
         Route::delete('/{id}', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'destroy'])->name('destroy');
     });
 

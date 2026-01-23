@@ -1592,6 +1592,54 @@
                     
                     calendarLanding.render();
                     
+                    // Update today button text to show current date (remove "today" word)
+                    const todayLanding = new Date();
+                    const formattedDateLanding = todayLanding.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                    });
+                    
+                    function updateTodayButtonTextLanding() {
+                        const todayButton = document.querySelector('#landingCalendar .fc-today-button');
+                        if (todayButton) {
+                            const currentText = todayButton.textContent.trim();
+                            // Only update if text contains "today" or doesn't match the formatted date
+                            if (currentText.toLowerCase().includes('today') || currentText !== formattedDateLanding) {
+                                todayButton.textContent = formattedDateLanding;
+                            }
+                        }
+                    }
+                    
+                    // Use MutationObserver for immediate updates (no flashing)
+                    const observerLanding = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                                const todayButton = document.querySelector('#landingCalendar .fc-today-button');
+                                if (todayButton) {
+                                    const currentText = todayButton.textContent.trim();
+                                    if (currentText.toLowerCase().includes('today')) {
+                                        // Update immediately (synchronously) to prevent flashing
+                                        todayButton.textContent = formattedDateLanding;
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Observe the calendar container for button changes
+                    const calendarContainerLanding = document.getElementById('landingCalendar');
+                    if (calendarContainerLanding) {
+                        observerLanding.observe(calendarContainerLanding, {
+                            childList: true,
+                            subtree: true,
+                            characterData: true
+                        });
+                    }
+                    
+                    // Initial update
+                    setTimeout(updateTodayButtonTextLanding, 50);
+                    
                     // Filter panel toggle
                     const toggleFilterBtn = document.getElementById('toggleFilterBtnLanding');
                     const filterPanel = document.getElementById('filterPanelLanding');
@@ -1664,7 +1712,19 @@
                                 center: 'title',
                                 right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
                             });
+                            // Update today button text after resize
+                            setTimeout(updateTodayButtonTextLanding, 200);
                         }, 250);
+                    });
+                    
+                    // Update today button text when calendar view changes
+                    calendarLanding.on('viewDidMount', function() {
+                        setTimeout(updateTodayButtonTextLanding, 50);
+                    });
+                    
+                    // Update today button text when calendar dates change (prev/next navigation)
+                    calendarLanding.on('datesSet', function() {
+                        setTimeout(updateTodayButtonTextLanding, 50);
                     });
                 } catch(error) {
                     console.error('Error initializing landing calendar:', error);
@@ -2227,6 +2287,11 @@
         #landingCalendar .fc-timeGridWeek-button,
         #landingCalendar .fc-timeGridDay-button {
             text-transform: capitalize !important;
+        }
+        
+        /* Hide button text if it contains "today" to prevent flashing */
+        #landingCalendar .fc-today-button[data-text*="today" i] {
+            color: transparent !important;
         }
         
         #landingCalendar .fc-day-today {

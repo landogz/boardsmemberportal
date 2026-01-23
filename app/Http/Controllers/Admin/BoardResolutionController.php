@@ -288,4 +288,44 @@ class BoardResolutionController extends Controller
 
         return view('admin.board-resolutions.history', compact('document', 'versions'));
     }
+
+    /**
+     * Serve PDF with custom filename for viewer
+     */
+    public function servePdf($id)
+    {
+        if (!Auth::user()->hasPermission('view board resolutions')) {
+            abort(403, 'You do not have permission to view board resolutions.');
+        }
+
+        $document = OfficialDocument::with('pdf')->findOrFail($id);
+
+        if (!$document->pdf || !$document->pdf->file_path) {
+            abort(404, 'PDF not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($document->pdf->file_path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'PDF file not found.');
+        }
+
+        // Create safe filename from document title
+        // Use the actual title, sanitized for filename use
+        $title = $document->title;
+        // Remove or replace characters that are problematic in filenames
+        $filename = preg_replace('#[<>:"/\\\\|?*]#', '_', $title);
+        // Limit length to avoid issues
+        if (strlen($filename) > 200) {
+            $filename = substr($filename, 0, 197);
+        }
+        $filename .= '.pdf';
+
+        // Serve file with custom filename in Content-Disposition header
+        // Use both filename and filename* for better browser compatibility
+        return response()->file($filePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+        ]);
+    }
 }
