@@ -196,6 +196,12 @@
             </div>
             <input type="file" id="profilePictureInput" accept="image/*" class="hidden">
             <p class="text-sm text-gray-600 mt-4">Click on the image to change your profile picture</p>
+            @if($user->profile_picture)
+            <button type="button" id="removeProfilePictureBtn" class="mt-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center">
+                <i class="fas fa-trash-alt mr-2"></i>
+                Remove Profile Picture
+            </button>
+            @endif
         </div>
 
         <!-- Step Indicator -->
@@ -605,6 +611,80 @@
                 $('#headerProfilePicture').attr('src', newProfilePicUrl);
                 $('#sidebarProfilePicture').attr('src', newProfilePicUrl);
                 
+                // Show remove button if it doesn't exist
+                if ($('#removeProfilePictureBtn').length === 0) {
+                    const removeBtn = $('<button>', {
+                        type: 'button',
+                        id: 'removeProfilePictureBtn',
+                        class: 'mt-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center',
+                        html: '<i class="fas fa-trash-alt mr-2"></i>Remove Profile Picture'
+                    });
+                    $('#profilePictureInput').after(removeBtn);
+                    
+                    // Attach event handler
+                    $('#removeProfilePictureBtn').on('click', function() {
+                        Swal.fire({
+                            title: 'Remove Profile Picture?',
+                            text: 'Are you sure you want to remove your profile picture? This action cannot be undone.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#EF4444',
+                            cancelButtonColor: '#6B7280',
+                            confirmButtonText: 'Yes, Remove It',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: 'Removing...',
+                                    text: 'Please wait while we remove your profile picture.',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                                axios.post('{{ route("profile.remove-picture") }}')
+                                    .then(function(response) {
+                                        if (response.data.success) {
+                                            $('#profilePicturePreview').attr('src', response.data.profile_picture_url);
+                                            $('#headerProfilePicture').attr('src', response.data.profile_picture_url);
+                                            $('#sidebarProfilePicture').attr('src', response.data.profile_picture_url);
+                                            $(document).trigger('profilePictureUpdated', [response.data.profile_picture_url]);
+                                            $('#removeProfilePictureBtn').fadeOut(300, function() {
+                                                $(this).remove();
+                                            });
+
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: response.data.message || 'Profile picture removed successfully.',
+                                                timer: 2000,
+                                                showConfirmButton: false,
+                                                toast: true,
+                                                position: 'top-end'
+                                            });
+                                        } else {
+                                            throw new Error(response.data.message || 'Remove failed');
+                                        }
+                                    })
+                                    .catch(function(error) {
+                                        let errorMessage = 'Failed to remove profile picture.';
+                                        if (error.response && error.response.data && error.response.data.message) {
+                                            errorMessage = error.response.data.message;
+                                        }
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Remove Failed',
+                                            text: errorMessage,
+                                        });
+                                    });
+                            }
+                        });
+                    });
+                }
+                
                 // Trigger custom event for other components that might need to update
                 $(document).trigger('profilePictureUpdated', [newProfilePicUrl]);
                 
@@ -641,6 +721,80 @@
                 text: errorMessage,
             });
         }
+    });
+
+    // Remove profile picture
+    $('#removeProfilePictureBtn').on('click', function() {
+        Swal.fire({
+            title: 'Remove Profile Picture?',
+            text: 'Are you sure you want to remove your profile picture? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, Remove It',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Removing...',
+                    text: 'Please wait while we remove your profile picture.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                axios.post('{{ route("profile.remove-picture") }}')
+                    .then(function(response) {
+                        if (response.data.success) {
+                            // Update preview with default avatar
+                            $('#profilePicturePreview').attr('src', response.data.profile_picture_url);
+                            
+                            // Update header and sidebar profile pictures
+                            $('#headerProfilePicture').attr('src', response.data.profile_picture_url);
+                            $('#sidebarProfilePicture').attr('src', response.data.profile_picture_url);
+                            
+                            // Trigger custom event for other components
+                            $(document).trigger('profilePictureUpdated', [response.data.profile_picture_url]);
+                            
+                            // Hide remove button
+                            $('#removeProfilePictureBtn').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.data.message || 'Profile picture removed successfully.',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        } else {
+                            throw new Error(response.data.message || 'Remove failed');
+                        }
+                    })
+                    .catch(function(error) {
+                        let errorMessage = 'Failed to remove profile picture.';
+                        if (error.response && error.response.data) {
+                            if (error.response.data.message) {
+                                errorMessage = error.response.data.message;
+                            }
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Remove Failed',
+                            text: errorMessage,
+                        });
+                    });
+            }
+        });
     });
 
     // Post nominal title custom input

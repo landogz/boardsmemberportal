@@ -377,6 +377,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     Route::get('/profile/view/{id}', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/upload-picture', [\App\Http\Controllers\ProfileController::class, 'uploadProfilePicture'])->name('profile.upload-picture');
+    Route::post('/profile/remove-picture', [\App\Http\Controllers\ProfileController::class, 'removeProfilePicture'])->name('profile.remove-picture');
     Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/check-username', [\App\Http\Controllers\ProfileController::class, 'checkUsername'])->name('profile.check-username');
 

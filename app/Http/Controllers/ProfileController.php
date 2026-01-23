@@ -305,6 +305,47 @@ class ProfileController extends Controller
     }
 
     /**
+     * Remove profile picture
+     */
+    public function removeProfilePicture()
+    {
+        $user = Auth::user();
+
+        if (!$user->profile_picture) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No profile picture to remove',
+            ], 400);
+        }
+
+        // Delete old profile picture if exists
+        $oldMedia = MediaLibrary::find($user->profile_picture);
+        if ($oldMedia && Storage::disk('public')->exists($oldMedia->file_path)) {
+            Storage::disk('public')->delete($oldMedia->file_path);
+        }
+        if ($oldMedia) {
+            $oldMedia->delete();
+        }
+
+        $user->update(['profile_picture' => null]);
+
+        AuditLogger::log(
+            'profile.picture_removed',
+            'User removed profile picture',
+            $user
+        );
+
+        // Generate default avatar URL
+        $defaultAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=200&background=055498&color=fff';
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile picture removed successfully',
+            'profile_picture_url' => $defaultAvatarUrl,
+        ]);
+    }
+
+    /**
      * Check if username is available
      */
     public function checkUsername(Request $request)
