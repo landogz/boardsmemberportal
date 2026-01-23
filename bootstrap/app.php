@@ -19,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->alias([
             'track.activity' => \App\Http\Middleware\TrackUserActivity::class,
-            'admin.or.consec' => \App\Http\Middleware\EnsureAdminOrConsec::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -108,41 +108,48 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         return redirect()->route('landing');
     })->name('dashboard');
 
-    // Admin Routes - Protected by admin.or.consec middleware
-    Route::middleware(['admin.or.consec'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+    Route::get('/admin/dashboard', function () {
+        // Allow access if user has admin or consec role/privilege (dashboard is for admin-level users)
+        $user = Auth::user();
+        if (
+            !$user->hasRole('admin') &&
+            !$user->hasRole('consec') &&
+            !in_array($user->privilege, ['admin', 'consec'])
+        ) {
+            return redirect()->route('dashboard');
+        }
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 
-        // Admin Dashboard Customization (admin / consec)
-        Route::prefix('dashboard')->name('dashboard.')->group(function () {
-            Route::get('/customize', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'edit'])
-                ->name('customize');
+    // Admin Dashboard Customization (admin / consec)
+    Route::prefix('admin/dashboard')->name('admin.dashboard.')->group(function () {
+        Route::get('/customize', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'edit'])
+            ->name('customize');
 
-            Route::get('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'show'])
-                ->name('preferences.show');
+        Route::get('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'show'])
+            ->name('preferences.show');
 
-            Route::post('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'store'])
-                ->name('preferences.store');
-        });
-        
-        // Admin Messages Route
-        Route::get('/messages', function () {
-            return view('admin.messages');
-        })->name('messages');
+        Route::post('/preferences', [\App\Http\Controllers\Admin\DashboardPreferenceController::class, 'store'])
+            ->name('preferences.store');
+    });
+    
+    // Admin Messages Route
+    Route::get('/admin/messages', function () {
+        return view('admin.messages');
+    })->name('admin.messages');
 
-        // Admin Calendar Route
-        Route::get('/calendar', function () {
-            $user = Auth::user();
-            if (!$user->hasRole('admin') && !$user->hasPermission('view calendar events')) {
-                return redirect()->route('admin.dashboard');
-            }
-            return view('admin.calendar');
-        })->name('calendar');
+    // Admin Calendar Route
+    Route::get('/admin/calendar', function () {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->hasPermission('view calendar events')) {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('admin.calendar');
+    })->name('admin.calendar');
 
 
-        // Government Agency Routes
-        Route::prefix('government-agencies')->name('government-agencies.')->group(function () {
+    // Government Agency Routes
+    Route::prefix('admin/government-agencies')->name('admin.government-agencies.')->group(function () {
         Route::get('/', [\App\Http\Controllers\GovernmentAgencyController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\GovernmentAgencyController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\GovernmentAgencyController::class, 'store'])->name('store');
@@ -157,8 +164,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/bulk/deactivate', [\App\Http\Controllers\GovernmentAgencyController::class, 'bulkDeactivate'])->name('bulk.deactivate');
     });
 
-        // Media Library Routes
-        Route::prefix('media-library')->name('media-library.')->group(function () {
+    // Media Library Routes
+    Route::prefix('admin/media-library')->name('admin.media-library.')->group(function () {
         Route::get('/', [\App\Http\Controllers\MediaLibraryController::class, 'index'])->name('index');
         Route::get('/browse', [\App\Http\Controllers\MediaLibraryController::class, 'browse'])->name('browse');
         Route::post('/upload', [\App\Http\Controllers\MediaLibraryController::class, 'store'])->name('store');
@@ -169,12 +176,12 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/bulk-delete', [\App\Http\Controllers\MediaLibraryController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
-        // Audit Logs (admin)
-        Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
-        Route::get('/audit-logs/export-pdf', [\App\Http\Controllers\AuditLogController::class, 'exportPdf'])->name('audit-logs.export-pdf');
+    // Audit Logs (admin)
+    Route::get('/admin/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('admin.audit-logs.index');
+    Route::get('/admin/audit-logs/export-pdf', [\App\Http\Controllers\AuditLogController::class, 'exportPdf'])->name('admin.audit-logs.export-pdf');
 
-        // Roles and Permissions (admin)
-        Route::prefix('roles')->name('roles.')->group(function () {
+    // Roles and Permissions (admin)
+    Route::prefix('admin/roles')->name('admin.roles.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
@@ -184,7 +191,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/update-permission', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('update-permission');
     });
 
-        Route::prefix('permissions')->name('permissions.')->group(function () {
+    Route::prefix('admin/permissions')->name('admin.permissions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PermissionController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\PermissionController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\PermissionController::class, 'store'])->name('store');
@@ -193,8 +200,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\PermissionController::class, 'destroy'])->name('destroy');
     });
 
-        // CONSEC Account Management (admin)
-        Route::prefix('consec')->name('consec.')->group(function () {
+    // CONSEC Account Management (admin)
+    Route::prefix('admin/consec')->name('admin.consec.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\CONSECController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\CONSECController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\CONSECController::class, 'store'])->name('store');
@@ -206,8 +213,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/permissions', [\App\Http\Controllers\Admin\CONSECController::class, 'updatePermissions'])->name('update-permissions');
     });
 
-        // Board Member Management (admin)
-        Route::prefix('board-members')->name('board-members.')->group(function () {
+    // Board Member Management (admin)
+    Route::prefix('admin/board-members')->name('admin.board-members.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\BoardMemberController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\BoardMemberController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\BoardMemberController::class, 'store'])->name('store');
@@ -219,8 +226,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/permissions', [\App\Http\Controllers\Admin\BoardMemberController::class, 'updatePermissions'])->name('update-permissions');
     });
 
-        // Pending Registrations Management (admin)
-        Route::prefix('pending-registrations')->name('pending-registrations.')->group(function () {
+    // Pending Registrations Management (admin)
+    Route::prefix('admin/pending-registrations')->name('admin.pending-registrations.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PendingRegistrationsController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\Admin\PendingRegistrationsController::class, 'show'])->name('show');
         Route::post('/{id}/approve', [\App\Http\Controllers\Admin\PendingRegistrationsController::class, 'approve'])->name('approve');
@@ -238,13 +245,13 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     });
 
-        // Admin Notifications
-        Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\NotificationController::class, 'adminIndex'])->name('index');
-        });
+    // Admin Notifications
+    Route::prefix('admin/notifications')->name('admin.notifications.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'adminIndex'])->name('index');
+    });
 
-        // Board Resolutions (admin)
-        Route::prefix('board-resolutions')->name('board-resolutions.')->group(function () {
+    // Board Resolutions (admin)
+    Route::prefix('admin/board-resolutions')->name('admin.board-resolutions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'store'])->name('store');
@@ -254,8 +261,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\BoardResolutionController::class, 'destroy'])->name('destroy');
     });
 
-        // Board Regulations (admin)
-        Route::prefix('board-regulations')->name('board-regulations.')->group(function () {
+    // Board Regulations (admin)
+    Route::prefix('admin/board-regulations')->name('admin.board-regulations.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'store'])->name('store');
@@ -265,8 +272,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\BoardRegulationController::class, 'destroy'])->name('destroy');
     });
 
-        // Referendums (admin)
-        Route::prefix('referendums')->name('referendums.')->group(function () {
+    // Referendums (admin)
+    Route::prefix('admin/referendums')->name('admin.referendums.')->group(function () {
         Route::post('/bulk-delete', [\App\Http\Controllers\Admin\ReferendumController::class, 'bulkDelete'])->name('bulk-delete');
         Route::get('/', [\App\Http\Controllers\Admin\ReferendumController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\ReferendumController::class, 'create'])->name('create');
@@ -277,8 +284,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\ReferendumController::class, 'destroy'])->name('destroy');
     });
 
-        // Announcements (admin)
-        Route::prefix('notices')->name('notices.')->group(function () {
+    // Announcements (admin)
+    Route::prefix('admin/notices')->name('admin.notices.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\NoticeController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\NoticeController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Admin\NoticeController::class, 'store'])->name('store');
@@ -288,29 +295,29 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\NoticeController::class, 'destroy'])->name('destroy');
     });
 
-        // Reference Materials (admin)
-        Route::prefix('reference-materials')->name('reference-materials.')->group(function () {
+    // Reference Materials (admin)
+    Route::prefix('admin/reference-materials')->name('admin.reference-materials.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'show'])->name('show');
         Route::post('/{id}/approve', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'reject'])->name('reject');
     });
 
-        // Agenda Inclusion Requests (admin)
-        Route::prefix('agenda-inclusion-requests')->name('agenda-inclusion-requests.')->group(function () {
+    // Agenda Inclusion Requests (admin)
+    Route::prefix('admin/agenda-inclusion-requests')->name('admin.agenda-inclusion-requests.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'show'])->name('show');
         Route::post('/{id}/approve', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [\App\Http\Controllers\Admin\AgendaInclusionRequestController::class, 'reject'])->name('reject');
     });
 
-        // Attendance Confirmations (admin)
-        Route::prefix('attendance-confirmations')->name('attendance-confirmations.')->group(function () {
+    // Attendance Confirmations (admin)
+    Route::prefix('admin/attendance-confirmations')->name('admin.attendance-confirmations.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'show'])->name('show');
     });
 
-        Route::prefix('announcements')->name('announcements.')->group(function () {
+    Route::prefix('admin/announcements')->name('admin.announcements.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('store');
@@ -320,8 +327,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('destroy');
     });
 
-        // Report Generation
-        Route::prefix('report-generation')->name('report-generation.')->group(function () {
+    // Report Generation
+    Route::prefix('admin/report-generation')->name('admin.report-generation.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'index'])->name('index');
         Route::get('/search', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'search'])->name('search');
     });
@@ -362,19 +369,18 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/reference-materials', [\App\Http\Controllers\NoticeController::class, 'submitReferenceMaterial'])->name('reference-materials');
     });
 
-        // Admin Profile Routes
-        Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/edit', [\App\Http\Controllers\ProfileController::class, 'adminEdit'])->name('edit');
-        });
-    }); // End of admin middleware group
-
-    // Profile Routes (regular users)
+    // Profile Routes
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/view/{id}', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/upload-picture', [\App\Http\Controllers\ProfileController::class, 'uploadProfilePicture'])->name('profile.upload-picture');
     Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/check-username', [\App\Http\Controllers\ProfileController::class, 'checkUsername'])->name('profile.check-username');
+
+    // Admin Profile Routes
+    Route::prefix('admin/profile')->name('admin.profile.')->middleware('auth')->group(function () {
+        Route::get('/edit', [\App\Http\Controllers\ProfileController::class, 'adminEdit'])->name('edit');
+    });
 
     // Board Issuances (only for authenticated users)
     Route::get('/board-issuances', [\App\Http\Controllers\BoardIssuanceController::class, 'index'])->name('board-issuances');

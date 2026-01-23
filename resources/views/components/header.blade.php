@@ -7,10 +7,10 @@
                  class="h-8 w-auto object-contain">
             <span class="hidden sm:inline">REPUBLIC OF THE PHILIPPINES</span>
         </div>
-        <div class="search-bar">
+        <!-- <div class="search-bar">
             <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
             <button type="button" onclick="handleSearch()" class="dark:bg-blue-600">Search</button>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -64,8 +64,8 @@
                                 <div class="px-4 py-8 text-center">
                                     <i class="fas fa-spinner fa-spin text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
-                                    </div>
-                            </div>
+                                        </div>
+                                        </div>
                             <div class="border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                                 <a href="{{ route('notifications.index') }}" class="block px-4 py-3 text-center text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition" style="color: #055498;">
                                     See All Notifications
@@ -93,7 +93,7 @@
                                 <div class="px-4 py-8 text-center">
                                     <i class="fas fa-spinner fa-spin text-gray-400 dark:text-gray-500 text-2xl mb-2"></i>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">Loading messages...</p>
-                                    </div>
+                                        </div>
                             </div>
                             <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                                 <a href="{{ route('messages') }}" class="block text-center text-sm font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
