@@ -314,6 +314,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     // Attendance Confirmations (admin)
     Route::prefix('admin/attendance-confirmations')->name('admin.attendance-confirmations.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'index'])->name('index');
+        Route::post('/{id}/re-invite', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'reInvite'])->name('re-invite');
         Route::get('/{id}', [\App\Http\Controllers\Admin\AttendanceConfirmationController::class, 'show'])->name('show');
     });
 

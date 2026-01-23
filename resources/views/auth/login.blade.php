@@ -137,7 +137,7 @@
                         class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
                         aria-label="Toggle password visibility"
                     >
-                        <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
+                        <i class="fas fa-eye-slash text-lg" id="passwordEyeIcon"></i>
                     </button>
                 </div>
                 <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -185,13 +185,15 @@
             const eyeIcon = document.getElementById('passwordEyeIcon');
             
             if (passwordInput.type === 'password') {
+                // Show password - change icon to eye (password is now visible)
                 passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
                 eyeIcon.classList.remove('fa-eye-slash');
                 eyeIcon.classList.add('fa-eye');
+            } else {
+                // Hide password - change icon to eye-slash (password is now hidden)
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
             }
         });
 

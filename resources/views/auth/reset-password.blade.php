@@ -17,6 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Gotham Font -->
     <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -83,6 +85,20 @@
         .password-requirements li.invalid {
             color: #ef4444;
         }
+        .password-input-valid {
+            border-color: #10B981 !important;
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+        .password-input-invalid {
+            border-color: #ef4444 !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+        .dark .password-input-valid {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+        .dark .password-input-invalid {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
     </style>
     @include('components.header-footer-styles')
 </head>
@@ -103,15 +119,25 @@
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        minlength="6"
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                        placeholder="Enter new password"
-                    >
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            placeholder="Enter new password"
+                        >
+                        <button 
+                            type="button" 
+                            id="togglePassword" 
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                            aria-label="Toggle password visibility"
+                        >
+                            <i class="fas fa-eye-slash text-lg" id="passwordEyeIcon"></i>
+                        </button>
+                    </div>
                     <span class="text-red-500 text-sm hidden" id="password-error"></span>
                     <div class="password-requirements mt-2">
                         <ul>
@@ -126,15 +152,25 @@
 
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
-                    <input
-                        type="password"
-                        id="password_confirmation"
-                        name="password_confirmation"
-                        required
-                        minlength="6"
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                        placeholder="Confirm new password"
-                    >
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            placeholder="Confirm new password"
+                        >
+                        <button 
+                            type="button" 
+                            id="togglePasswordConfirmation" 
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                            aria-label="Toggle password visibility"
+                        >
+                            <i class="fas fa-eye-slash text-lg" id="passwordConfirmationEyeIcon"></i>
+                        </button>
+                    </div>
                     <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
                 </div>
 
@@ -172,14 +208,58 @@
             // Password validation
             $('#password').on('input', function() {
                 const password = $(this).val();
+                const $passwordInput = $(this);
                 
-                // Check requirements
-                $('#req-length').toggleClass('valid invalid', password.length >= 6);
-                $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
-                $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
-                $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+                const hasLength = password.length >= 6;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[~!@#$%^&*|]/.test(password);
+                
+                // Update individual requirement indicators
+                $('#req-length').removeClass('valid invalid').addClass(hasLength ? 'valid' : 'invalid');
+                $('#req-uppercase').removeClass('valid invalid').addClass(hasUppercase ? 'valid' : 'invalid');
+                $('#req-lowercase').removeClass('valid invalid').addClass(hasLowercase ? 'valid' : 'invalid');
+                $('#req-number').removeClass('valid invalid').addClass(hasNumber ? 'valid' : 'invalid');
+                $('#req-special').removeClass('valid invalid').addClass(hasSpecial ? 'valid' : 'invalid');
+                
+                // Check if all requirements are met
+                const allValid = hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+                
+                // Update password input styling
+                if (password.length > 0) {
+                    $passwordInput.removeClass('password-input-valid password-input-invalid').addClass(allValid ? 'password-input-valid' : 'password-input-invalid');
+                } else {
+                    $passwordInput.removeClass('password-input-valid password-input-invalid');
+                }
             });
+
+            // Password toggle functionality
+            function setupPasswordToggle(inputId, toggleId, iconId) {
+                const passwordInput = document.getElementById(inputId);
+                const toggleButton = document.getElementById(toggleId);
+                const eyeIcon = document.getElementById(iconId);
+
+                if (toggleButton && passwordInput && eyeIcon) {
+                    toggleButton.addEventListener('click', function() {
+                        if (passwordInput.type === 'password') {
+                            // Show password - change icon to eye (password is now visible)
+                            passwordInput.type = 'text';
+                            eyeIcon.classList.remove('fa-eye-slash');
+                            eyeIcon.classList.add('fa-eye');
+                        } else {
+                            // Hide password - change icon to eye-slash (password is now hidden)
+                            passwordInput.type = 'password';
+                            eyeIcon.classList.remove('fa-eye');
+                            eyeIcon.classList.add('fa-eye-slash');
+                        }
+                    });
+                }
+            }
+            
+            // Setup password toggles
+            setupPasswordToggle('password', 'togglePassword', 'passwordEyeIcon');
+            setupPasswordToggle('password_confirmation', 'togglePasswordConfirmation', 'passwordConfirmationEyeIcon');
 
             function validatePassword(password) {
                 return password.length >= 6 &&

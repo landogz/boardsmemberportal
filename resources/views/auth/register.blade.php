@@ -672,7 +672,7 @@
                                     class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
                                     aria-label="Toggle password visibility"
                                 >
-                                    <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
+                                    <i class="fas fa-eye-slash text-lg" id="passwordEyeIcon"></i>
                                 </button>
                             </div>
                             <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -705,7 +705,7 @@
                                     class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
                                     aria-label="Toggle password visibility"
                                 >
-                                    <i class="fas fa-eye text-lg" id="passwordConfirmationEyeIcon"></i>
+                                    <i class="fas fa-eye-slash text-lg" id="passwordConfirmationEyeIcon"></i>
                                 </button>
                             </div>
                             <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
@@ -909,11 +909,13 @@
                 const eyeIcon = $('#passwordEyeIcon');
                 
                 if (passwordInput.attr('type') === 'password') {
+                    // Show password - change icon to eye (password is now visible)
                     passwordInput.attr('type', 'text');
-                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    passwordInput.attr('type', 'password');
                     eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                } else {
+                    // Hide password - change icon to eye-slash (password is now hidden)
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
                 }
             });
 
@@ -922,11 +924,13 @@
                 const eyeIcon = $('#passwordConfirmationEyeIcon');
                 
                 if (passwordInput.attr('type') === 'password') {
+                    // Show password - change icon to eye (password is now visible)
                     passwordInput.attr('type', 'text');
-                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    passwordInput.attr('type', 'password');
                     eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                } else {
+                    // Hide password - change icon to eye-slash (password is now hidden)
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
                 }
             });
 

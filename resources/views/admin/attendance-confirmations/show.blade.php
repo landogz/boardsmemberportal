@@ -154,19 +154,32 @@
                                 {{ $item['user']->governmentAgency ? $item['user']->governmentAgency->name : 'N/A' }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @php
-                                $statusColors = [
-                                    'accepted' => 'bg-green-100 text-green-700 border-green-200',
-                                    'declined' => 'bg-red-100 text-red-700 border-red-200',
-                                    'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200'
-                                ];
-                                $statusColor = $statusColors[$item['status']] ?? 'bg-gray-100 text-gray-700 border-gray-200';
-                            @endphp
-                            <span class="px-3 py-1.5 rounded-lg text-xs font-bold border {{ $statusColor }}">
-                                <i class="fas fa-{{ $item['status'] === 'accepted' ? 'check-circle' : ($item['status'] === 'declined' ? 'times-circle' : 'clock') }} mr-1.5"></i>
-                                {{ ucfirst($item['status']) }}
-                            </span>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                @php
+                                    $statusColors = [
+                                        'accepted' => 'bg-green-100 text-green-700 border-green-200',
+                                        'declined' => 'bg-red-100 text-red-700 border-red-200',
+                                        'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                                    ];
+                                    $statusColor = $statusColors[$item['status']] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+                                @endphp
+                                <span class="px-3 py-1.5 rounded-lg text-xs font-bold border {{ $statusColor }} whitespace-nowrap">
+                                    <i class="fas fa-{{ $item['status'] === 'accepted' ? 'check-circle' : ($item['status'] === 'declined' ? 'times-circle' : 'clock') }} mr-1.5"></i>
+                                    {{ ucfirst($item['status']) }}
+                                </span>
+                                @if($item['status'] === 'declined' && isset($item['user']) && $item['user'] && isset($item['user']->id) && isset($item['user']->email))
+                                    <button 
+                                        data-notice-id="{{ $notice->id }}"
+                                        data-user-id="{{ $item['user']->id }}"
+                                        class="re-invite-btn px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap min-h-[32px]"
+                                        title="Re-invite this user"
+                                    >
+                                        <i class="fas fa-paper-plane text-xs"></i>
+                                        <span>Re-invite</span>
+                                    </button>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             @if($item['declined_reason'])
@@ -200,4 +213,122 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    (function() {
+        // Set up axios defaults
+        if (typeof axios !== 'undefined') {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (csrfToken) {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.getAttribute('content');
+            }
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        }
+
+        function reInviteUser(noticeId, userId) {
+            if (typeof Swal === 'undefined') {
+                alert('SweetAlert2 is not loaded. Please refresh the page.');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Re-invite User?',
+                text: 'This will send the notice again to the user and reset their status to pending.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Re-invite',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#055498',
+                cancelButtonColor: '#6b7280',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Sending invitation...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: function() {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Build the URL dynamically
+                    var url = '/admin/attendance-confirmations/' + encodeURIComponent(noticeId) + '/re-invite';
+                    
+                    // Ensure user_id is sent as a string (UUID)
+                    axios.post(url, {
+                        user_id: String(userId)
+                    })
+                    .then(function(response) {
+                        if (response.data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.data.message || 'User has been re-invited successfully.',
+                                confirmButtonColor: '#055498',
+                                timer: 2000,
+                                showConfirmButton: true
+                            }).then(function() {
+                                // Reload the page to show updated status
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.data.message || 'Failed to re-invite user. Please try again.',
+                                confirmButtonColor: '#055498'
+                            });
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error re-inviting user:', error);
+                        var errorMessage = 'Failed to re-invite user. Please try again.';
+                        
+                        if (error.response) {
+                            // Server responded with error
+                            if (error.response.data && error.response.data.message) {
+                                errorMessage = error.response.data.message;
+                            } else if (error.response.status === 404) {
+                                errorMessage = 'User or notice not found. The user may have been deleted.';
+                            } else if (error.response.status === 403) {
+                                errorMessage = 'You do not have permission to perform this action.';
+                            }
+                        } else if (error.request) {
+                            // Request was made but no response received
+                            errorMessage = 'No response from server. Please check your connection.';
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                            confirmButtonColor: '#055498'
+                        });
+                    });
+                }
+            });
+        }
+
+        // Attach event listeners to all re-invite buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const reInviteButtons = document.querySelectorAll('.re-invite-btn');
+            reInviteButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const noticeId = this.getAttribute('data-notice-id');
+                    const userId = this.getAttribute('data-user-id');
+                    if (noticeId && userId) {
+                        // Convert to appropriate types - noticeId is integer, userId is UUID string
+                        reInviteUser(parseInt(noticeId), String(userId));
+                    }
+                });
+            });
+        });
+    })();
+</script>
+@endpush
 @endsection
