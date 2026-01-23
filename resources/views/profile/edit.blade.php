@@ -201,6 +201,20 @@
         .password-requirements li.invalid {
             color: #ef4444;
         }
+        .password-input-valid {
+            border-color: #10B981 !important;
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+        .password-input-invalid {
+            border-color: #ef4444 !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+        .dark .password-input-valid {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+        .dark .password-input-invalid {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
         
         /* Fix Safari select height mismatch with inputs */
         select {
@@ -690,25 +704,47 @@
                 <!-- Step 4: Account Security -->
                 <div class="step" id="step4">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Account Security</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Leave blank if you don't want to change the password</p>
                     <div class="space-y-4">
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
-                            <input 
-                                type="password" 
-                                id="current_password" 
-                                name="current_password"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                            >
+                            <div class="relative">
+                                <input 
+                                    type="password" 
+                                    id="current_password" 
+                                    name="current_password"
+                                    class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                    placeholder="Enter current password"
+                                >
+                                <button 
+                                    type="button" 
+                                    id="toggleCurrentPassword" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                                    aria-label="Toggle password visibility"
+                                >
+                                    <i class="fas fa-eye text-lg" id="currentPasswordEyeIcon"></i>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                placeholder="Enter new password"
-                            >
+                            <div class="relative">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password"
+                                    class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                    placeholder="Enter new password"
+                                >
+                                <button 
+                                    type="button" 
+                                    id="togglePassword" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                                    aria-label="Toggle password visibility"
+                                >
+                                    <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
+                                </button>
+                            </div>
                             <span class="text-red-500 text-sm hidden" id="password-error"></span>
                             <div class="password-requirements mt-2">
                                 <ul>
@@ -722,13 +758,23 @@
                         </div>
                         <div>
                             <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
-                            <input 
-                                type="password" 
-                                id="password_confirmation" 
-                                name="password_confirmation"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                placeholder="Confirm new password"
-                            >
+                            <div class="relative">
+                                <input 
+                                    type="password" 
+                                    id="password_confirmation" 
+                                    name="password_confirmation"
+                                    class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                    placeholder="Confirm new password"
+                                >
+                                <button 
+                                    type="button" 
+                                    id="togglePasswordConfirmation" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
+                                    aria-label="Toggle password visibility"
+                                >
+                                    <i class="fas fa-eye text-lg" id="passwordConfirmationEyeIcon"></i>
+                                </button>
+                            </div>
                             <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
                         </div>
                     </div>
@@ -1076,16 +1122,102 @@
                 }, 500);
             });
 
+            // Toggle password visibility
+            $('#toggleCurrentPassword').on('click', function() {
+                const passwordInput = $('#current_password');
+                const eyeIcon = $('#currentPasswordEyeIcon');
+                
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
+            $('#togglePassword').on('click', function() {
+                const passwordInput = $('#password');
+                const eyeIcon = $('#passwordEyeIcon');
+                
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
+            $('#togglePasswordConfirmation').on('click', function() {
+                const passwordInput = $('#password_confirmation');
+                const eyeIcon = $('#passwordConfirmationEyeIcon');
+                
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
             // Password validation
             $('#password').on('input', function() {
                 const password = $(this).val();
+                const $passwordInput = $(this);
                 
-                // Check requirements
-                $('#req-length').toggleClass('valid invalid', password.length >= 6);
-                $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
-                $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
-                $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+                // Check individual requirements
+                const hasLength = password.length >= 6;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[~!@#$%^&*|]/.test(password);
+                
+                // Update requirement indicators
+                if (hasLength) {
+                    $('#req-length').removeClass('invalid').addClass('valid');
+                } else {
+                    $('#req-length').removeClass('valid').addClass('invalid');
+                }
+                
+                if (hasUppercase) {
+                    $('#req-uppercase').removeClass('invalid').addClass('valid');
+                } else {
+                    $('#req-uppercase').removeClass('valid').addClass('invalid');
+                }
+                
+                if (hasLowercase) {
+                    $('#req-lowercase').removeClass('invalid').addClass('valid');
+                } else {
+                    $('#req-lowercase').removeClass('valid').addClass('invalid');
+                }
+                
+                if (hasNumber) {
+                    $('#req-number').removeClass('invalid').addClass('valid');
+                } else {
+                    $('#req-number').removeClass('valid').addClass('invalid');
+                }
+                
+                if (hasSpecial) {
+                    $('#req-special').removeClass('invalid').addClass('valid');
+                } else {
+                    $('#req-special').removeClass('valid').addClass('invalid');
+                }
+                
+                // Check if all requirements are met
+                const allValid = hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+                
+                // Update password input styling
+                if (password.length > 0) {
+                    if (allValid) {
+                        $passwordInput.removeClass('password-input-invalid').addClass('password-input-valid');
+                    } else {
+                        $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
+                    }
+                } else {
+                    $passwordInput.removeClass('password-input-valid password-input-invalid');
+                }
             });
 
             // PSGC Cascading Dropdowns
