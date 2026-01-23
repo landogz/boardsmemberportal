@@ -579,11 +579,35 @@
             const hasSpecial = /[~!@#$%^&*|]/.test(password);
             
             // Update requirement indicators
-            $('#req-length').toggleClass('valid invalid', hasLength);
-            $('#req-uppercase').toggleClass('valid invalid', hasUppercase);
-            $('#req-lowercase').toggleClass('valid invalid', hasLowercase);
-            $('#req-number').toggleClass('valid invalid', hasNumber);
-            $('#req-special').toggleClass('valid invalid', hasSpecial);
+            if (hasLength) {
+                $('#req-length').removeClass('invalid').addClass('valid');
+            } else {
+                $('#req-length').removeClass('valid').addClass('invalid');
+            }
+            
+            if (hasUppercase) {
+                $('#req-uppercase').removeClass('invalid').addClass('valid');
+            } else {
+                $('#req-uppercase').removeClass('valid').addClass('invalid');
+            }
+            
+            if (hasLowercase) {
+                $('#req-lowercase').removeClass('invalid').addClass('valid');
+            } else {
+                $('#req-lowercase').removeClass('valid').addClass('invalid');
+            }
+            
+            if (hasNumber) {
+                $('#req-number').removeClass('invalid').addClass('valid');
+            } else {
+                $('#req-number').removeClass('valid').addClass('invalid');
+            }
+            
+            if (hasSpecial) {
+                $('#req-special').removeClass('invalid').addClass('valid');
+            } else {
+                $('#req-special').removeClass('valid').addClass('invalid');
+            }
             
             // Check if all requirements are met
             const allValid = hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
