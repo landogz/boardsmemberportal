@@ -17,6 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Gotham Font -->
     <link href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -667,10 +669,10 @@
                                 <button 
                                     type="button" 
                                     id="togglePassword" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
                                     aria-label="Toggle password visibility"
                                 >
-                                    <i class="fas fa-eye" id="passwordEyeIcon"></i>
+                                    <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
                                 </button>
                             </div>
                             <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -700,10 +702,10 @@
                                 <button 
                                     type="button" 
                                     id="togglePasswordConfirmation" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition-colors p-2 z-10"
                                     aria-label="Toggle password visibility"
                                 >
-                                    <i class="fas fa-eye" id="passwordConfirmationEyeIcon"></i>
+                                    <i class="fas fa-eye text-lg" id="passwordConfirmationEyeIcon"></i>
                                 </button>
                             </div>
                             <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>

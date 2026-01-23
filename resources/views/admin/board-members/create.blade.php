@@ -383,10 +383,10 @@
                             <button 
                                 type="button" 
                                 id="togglePassword" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors p-2 z-10"
                                 aria-label="Toggle password visibility"
                             >
-                                <i class="fas fa-eye" id="passwordEyeIcon"></i>
+                                <i class="fas fa-eye text-lg" id="passwordEyeIcon"></i>
                             </button>
                         </div>
                         <span class="text-red-500 text-sm hidden" id="password-error"></span>
@@ -409,10 +409,10 @@
                             <button 
                                 type="button" 
                                 id="togglePasswordConfirmation" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors p-2 z-10"
                                 aria-label="Toggle password visibility"
                             >
-                                <i class="fas fa-eye" id="passwordConfirmationEyeIcon"></i>
+                                <i class="fas fa-eye text-lg" id="passwordConfirmationEyeIcon"></i>
                             </button>
                         </div>
                         <span class="text-red-500 text-sm hidden" id="password_confirmation-error"></span>
