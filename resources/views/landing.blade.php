@@ -2211,14 +2211,22 @@
         }
         
         #landingCalendar .fc-today-button {
-            background-color: #FBD116 !important;
-            border-color: #FBD116 !important;
+            background-color: #e5e7eb !important;
+            border-color: #e5e7eb !important;
             color: #123a60 !important;
         }
         
         #landingCalendar .fc-today-button:hover {
-            background-color: #facc15 !important;
-            border-color: #facc15 !important;
+            background-color: #d1d5db !important;
+            border-color: #d1d5db !important;
+        }
+        
+        /* Capitalize calendar button text */
+        #landingCalendar .fc-today-button,
+        #landingCalendar .fc-dayGridMonth-button,
+        #landingCalendar .fc-timeGridWeek-button,
+        #landingCalendar .fc-timeGridDay-button {
+            text-transform: capitalize !important;
         }
         
         #landingCalendar .fc-day-today {

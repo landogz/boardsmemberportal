@@ -188,13 +188,20 @@
                             <div class="flex items-center space-x-3">
                                 <div class="flex-shrink-0">
                                     @php
-                                        $profileMedia = $announcement->creator->profile_picture ? \App\Models\MediaLibrary::find($announcement->creator->profile_picture) : null;
-                                        $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($announcement->creator->first_name . ' ' . $announcement->creator->last_name) . '&size=40&background=055498&color=fff';
+                                        $creator = $announcement->creator;
+                                        if ($creator) {
+                                            $profileMedia = $creator->profile_picture ? \App\Models\MediaLibrary::find($creator->profile_picture) : null;
+                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($creator->first_name . ' ' . $creator->last_name) . '&size=40&background=055498&color=fff';
+                                            $creatorName = $creator->first_name . ' ' . $creator->last_name;
+                                        } else {
+                                            $profileUrl = 'https://ui-avatars.com/api/?name=Deleted+User&size=40&background=055498&color=fff';
+                                            $creatorName = 'Deleted User';
+                                        }
                                     @endphp
                                     <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
                                 </div>
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}
+                                    {{ $creatorName }}
                                 </div>
                             </div>
                         </td>

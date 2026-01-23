@@ -44,8 +44,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Action Buttons - Mobile Optimized -->
-                <div class="flex gap-2 sm:gap-2 flex-shrink-0">
+                <!-- Action Buttons - Mobile Optimized (Hidden for now) -->
+                <div class="flex gap-2 sm:gap-2 flex-shrink-0 hidden">
                     <button id="printCalendarBtn" class="px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center justify-center min-h-[44px] sm:min-h-0 touch-manipulation" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                         <i class="fas fa-print mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
                         <span class="hidden xs:inline">Print</span>
@@ -1058,14 +1058,22 @@
     }
     
     #calendar .fc-today-button {
-        background-color: #FBD116 !important;
-        border-color: #FBD116 !important;
+        background-color: #e5e7eb !important;
+        border-color: #e5e7eb !important;
         color: #123a60 !important;
     }
     
     #calendar .fc-today-button:hover {
-        background-color: #facc15 !important;
-        border-color: #facc15 !important;
+        background-color: #d1d5db !important;
+        border-color: #d1d5db !important;
+    }
+    
+    /* Capitalize calendar button text */
+    #calendar .fc-today-button,
+    #calendar .fc-dayGridMonth-button,
+    #calendar .fc-timeGridWeek-button,
+    #calendar .fc-timeGridDay-button {
+        text-transform: capitalize !important;
     }
     
     #calendar .fc-day-today {
