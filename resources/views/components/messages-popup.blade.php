@@ -244,7 +244,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <input type="text" placeholder="Type a message..." class="chat-input flex-1 min-w-0 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                <input type="text" placeholder="Type a message..." class="chat-input flex-1 min-w-0 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" style="font-size: 16px;">
                                 <!-- Emoji Button -->
                                 <button type="button" class="chat-emoji-btn p-1 sm:p-2 text-yellow-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center flex-shrink-0" title="Add emoji">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -7624,6 +7624,7 @@
             min-width: 0 !important;
             flex: 1 1 0% !important;
             max-width: 100% !important;
+            font-size: 16px !important; /* Prevent iOS zoom on focus */
         }
         .chat-form button[type="submit"] {
             flex-shrink: 0 !important;

@@ -246,35 +246,69 @@
                     font-size: 0.65rem !important;
                 }
             }
-            /* Fix message input at bottom of screen on mobile */
+            /* Fix message input at bottom of screen on mobile and tablet */
             #activeChat:not(.hidden) {
                 position: relative;
                 height: 100%;
                 display: flex !important;
                 flex-direction: column;
             }
-            #activeChat:not(.hidden) > div:last-child {
-                display: block !important;
-                visibility: visible !important;
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                background: white !important;
-                z-index: 50 !important;
-                border-top: 1px solid #e5e7eb !important;
-                padding: 12px !important;
-                box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-                margin: 0 !important;
+            /* Fix input container at bottom on mobile and tablet (up to 1024px) */
+            @media (max-width: 1024px) {
+                #activeChat:not(.hidden) .message-input-container {
+                    display: block !important;
+                    visibility: visible !important;
+                    position: fixed !important;
+                    bottom: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    background: white !important;
+                    z-index: 50 !important;
+                    border-top: 1px solid #e5e7eb !important;
+                    padding: 12px !important;
+                    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                    margin: 0 !important;
+                }
+                .dark #activeChat:not(.hidden) .message-input-container {
+                    background: #1f2937 !important;
+                    border-top-color: #374151 !important;
+                }
+                /* Account for safe area on mobile devices */
+                @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) .message-input-container {
+                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+                /* Add padding to messages area to account for fixed input */
+                #activeChat:not(.hidden) #chatMessagesArea {
+                    padding-bottom: 120px !important;
+                }
             }
-            .dark #activeChat:not(.hidden) > div:last-child {
-                background: #1f2937 !important;
-                border-top-color: #374151 !important;
-            }
-            /* Account for safe area on mobile devices */
-            @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            /* Legacy support for older structure */
+            @media (max-width: 640px) {
                 #activeChat:not(.hidden) > div:last-child {
-                    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                    display: block !important;
+                    visibility: visible !important;
+                    position: fixed !important;
+                    bottom: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    background: white !important;
+                    z-index: 50 !important;
+                    border-top: 1px solid #e5e7eb !important;
+                    padding: 12px !important;
+                    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                    margin: 0 !important;
+                }
+                .dark #activeChat:not(.hidden) > div:last-child {
+                    background: #1f2937 !important;
+                    border-top-color: #374151 !important;
+                }
+                /* Account for safe area on mobile devices */
+                @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) > div:last-child {
+                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                    }
                 }
             }
             #messageForm {
@@ -309,6 +343,15 @@
                 #chatMessagesArea {
                     padding-bottom: 10px !important;
                     margin-bottom: 0 !important;
+                }
+            }
+            /* Prevent iOS zoom on input focus - font-size must be 16px or larger */
+            #messageInput {
+                font-size: 16px !important;
+            }
+            @media (max-width: 1024px) {
+                #messageInput {
+                    font-size: 16px !important;
                 }
             }
             /* Ensure chat area takes full height on mobile */
@@ -668,7 +711,7 @@
                         </div>
 
                         <!-- Message Input -->
-                        <div class="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0" style="position: relative; margin-top: 0px !important; display: block; visibility: visible;">
+                        <div class="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 message-input-container" style="position: relative; margin-top: 0px !important; display: block; visibility: visible;">
                             <!-- Reply Indicator -->
                             <div id="replyIndicator" class="hidden mb-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500" style="position: relative; z-index: 1;">
                                 <div class="flex items-center justify-between">
@@ -720,7 +763,7 @@
                                         <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7.002 7.002 0 0 0 6 6.92V21h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7.002 7.002 0 0 0 19 11z"></path>
                                     </svg>
                                 </button>
-                                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" style="font-size: 16px;">
                                 <button type="button" id="emojiBtn" class="p-1.5 sm:p-2.5 text-yellow-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Add emoji">
                                     <i class="fas fa-smile text-sm sm:text-lg"></i>
                                 </button>
