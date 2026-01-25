@@ -110,41 +110,32 @@
                             $barangayName = $user->office_barangay;
 
                             try {
-                                $regionsJson = @file_get_contents(public_path('address/region.json'));
-                                $provincesJson = @file_get_contents(public_path('address/province.json'));
-                                $citiesJson = @file_get_contents(public_path('address/city.json'));
-                                $barangaysJson = @file_get_contents(public_path('address/barangay.json'));
-
-                                $regionsData = $regionsJson ? json_decode($regionsJson, true) : [];
-                                $provincesData = $provincesJson ? json_decode($provincesJson, true) : [];
-                                $citiesData = $citiesJson ? json_decode($citiesJson, true) : [];
-                                $barangaysData = $barangaysJson ? json_decode($barangaysJson, true) : [];
-
-                                if ($user->office_region && is_array($regionsData)) {
-                                    $match = collect($regionsData)->firstWhere('region_code', $user->office_region);
-                                    if ($match) {
-                                        $regionName = $match['region_name'] ?? $user->office_region;
+                                // Get address names from database models
+                                if ($user->office_region) {
+                                    $region = \App\Models\Region::where('region_code', $user->office_region)->first();
+                                    if ($region) {
+                                        $regionName = $region->region_name;
                                     }
                                 }
 
-                                if ($user->office_province && is_array($provincesData)) {
-                                    $match = collect($provincesData)->firstWhere('province_code', $user->office_province);
-                                    if ($match) {
-                                        $provinceName = $match['province_name'] ?? $user->office_province;
+                                if ($user->office_province) {
+                                    $province = \App\Models\Province::where('province_code', $user->office_province)->first();
+                                    if ($province) {
+                                        $provinceName = $province->province_name;
                                     }
                                 }
 
-                                if ($user->office_city_municipality && is_array($citiesData)) {
-                                    $match = collect($citiesData)->firstWhere('city_code', $user->office_city_municipality);
-                                    if ($match) {
-                                        $cityName = $match['city_name'] ?? $user->office_city_municipality;
+                                if ($user->office_city_municipality) {
+                                    $city = \App\Models\City::where('city_code', $user->office_city_municipality)->first();
+                                    if ($city) {
+                                        $cityName = $city->city_name;
                                     }
                                 }
 
-                                if ($user->office_barangay && is_array($barangaysData)) {
-                                    $match = collect($barangaysData)->firstWhere('brgy_code', $user->office_barangay);
-                                    if ($match) {
-                                        $barangayName = $match['brgy_name'] ?? $user->office_barangay;
+                                if ($user->office_barangay) {
+                                    $barangay = \App\Models\Barangay::where('brgy_code', $user->office_barangay)->first();
+                                    if ($barangay) {
+                                        $barangayName = $barangay->brgy_name;
                                     }
                                 }
                             } catch (\Throwable $e) {

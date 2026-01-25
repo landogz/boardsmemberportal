@@ -238,6 +238,14 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/disapprove', [\App\Http\Controllers\Admin\PendingRegistrationsController::class, 'disapprove'])->name('disapprove');
     });
 
+    // Address Settings Management (admin only)
+    Route::prefix('admin/address-settings')->name('admin.address-settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AddressSettingsController::class, 'index'])->name('index');
+        Route::post('/store', [\App\Http\Controllers\Admin\AddressSettingsController::class, 'store'])->name('store');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\AddressSettingsController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\AddressSettingsController::class, 'destroy'])->name('destroy');
+    });
+
     // Notifications (authenticated users)
     Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
@@ -445,6 +453,14 @@ Route::post('/api/test', function () {
         'message' => 'Data received successfully',
         'data' => request()->all()
     ]);
+});
+
+// Address API Routes
+Route::prefix('api/address')->group(function () {
+    Route::get('/regions', [\App\Http\Controllers\Api\AddressController::class, 'regions'])->name('api.address.regions');
+    Route::get('/provinces', [\App\Http\Controllers\Api\AddressController::class, 'provinces'])->name('api.address.provinces');
+    Route::get('/cities', [\App\Http\Controllers\Api\AddressController::class, 'cities'])->name('api.address.cities');
+    Route::get('/barangays', [\App\Http\Controllers\Api\AddressController::class, 'barangays'])->name('api.address.barangays');
 });
 
 // Temporary route to check PHP configuration

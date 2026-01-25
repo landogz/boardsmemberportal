@@ -949,87 +949,98 @@
     });
 
     $(document).ready(function() {
-        // Load PSGC data from JSON files
-        $.getJSON('/address/region.json', function(regions) {
-            regionsData = regions;
-            const regionSelect = $('#office_region');
-            regionSelect.html('<option value="">Select Region</option>');
-            regions.forEach(region => {
-                const selected = userOfficeRegion == region.region_code ? 'selected' : '';
-                regionSelect.append(`<option value="${region.region_code}" data-id="${region.id}" ${selected}>${region.region_name}</option>`);
+        // Load PSGC data from API
+        axios.get('/api/address/regions')
+            .then(function(response) {
+                regionsData = response.data;
+                const regionSelect = $('#office_region');
+                regionSelect.html('<option value="">Select Region</option>');
+                response.data.forEach(region => {
+                    const selected = userOfficeRegion == region.region_code ? 'selected' : '';
+                    regionSelect.append(`<option value="${region.region_code}" data-id="${region.id}" ${selected}>${region.region_name}</option>`);
+                });
+                
+                if (userOfficeRegion) {
+                    setTimeout(() => {
+                        regionSelect.trigger('change');
+                    }, 100);
+                }
+            })
+            .catch(function(error) {
+                console.error('Failed to load regions:', error);
+                $('#office_region').html('<option value="">Error loading regions</option>');
             });
-            
-            if (userOfficeRegion) {
-                setTimeout(() => {
-                    regionSelect.trigger('change');
-                }, 100);
-            }
-        }).fail(function() {
-            $('#office_region').html('<option value="">Error loading regions</option>');
-        });
 
-        $.getJSON('/address/province.json', function(provinces) {
-            provincesData = provinces;
-        }).fail(function() {
-            console.error('Failed to load provinces');
-        });
-
-        $.getJSON('/address/city.json', function(cities) {
-            citiesData = cities;
-        }).fail(function() {
-            console.error('Failed to load cities');
-        });
-
-        $.getJSON('/address/barangay.json', function(barangays) {
-            barangaysData = barangays;
-        }).fail(function() {
-            console.error('Failed to load barangays');
-        });
+        // Provinces, cities, and barangays are now loaded on-demand via API when dropdowns change
 
         $('#office_region').on('change', function() {
             const regionCode = $(this).val();
             const provinceSelect = $('#office_province');
+            const citySelect = $('#office_city_municipality');
+            const barangaySelect = $('#office_barangay');
             
             if (regionCode) {
-                const filteredProvinces = provincesData.filter(p => p.region_code === regionCode);
-                provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
-                filteredProvinces.forEach(province => {
-                    const selected = userOfficeProvince == province.province_code ? 'selected' : '';
-                    provinceSelect.append(`<option value="${province.province_code}" ${selected}>${province.province_name}</option>`);
-                });
+                // Fetch provinces by region_code from API
+                provinceSelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/provinces', { params: { region_code: regionCode } })
+                    .then(function(response) {
+                        provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
+                        response.data.forEach(province => {
+                            const selected = userOfficeProvince == province.province_code ? 'selected' : '';
+                            provinceSelect.append(`<option value="${province.province_code}" ${selected}>${province.province_name}</option>`);
+                        });
+                        
+                        if (userOfficeProvince) {
+                            setTimeout(() => {
+                                provinceSelect.trigger('change');
+                            }, 100);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load provinces:', error);
+                        provinceSelect.html('<option value="">Error loading provinces</option>');
+                    });
                 
-                if (userOfficeProvince) {
-                    setTimeout(() => {
-                        provinceSelect.trigger('change');
-                    }, 100);
-                }
+                citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
+                barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             } else {
                 provinceSelect.prop('disabled', true).html('<option value="">Select Province</option>');
-                $('#office_city_municipality').prop('disabled', true).html('<option value="">Select City/Municipality</option>');
-                $('#office_barangay').prop('disabled', true).html('<option value="">Select Barangay</option>');
+                citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
+                barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             }
         });
 
         $('#office_province').on('change', function() {
             const provinceCode = $(this).val();
             const citySelect = $('#office_city_municipality');
+            const barangaySelect = $('#office_barangay');
             
             if (provinceCode) {
-                const filteredCities = citiesData.filter(c => c.province_code === provinceCode);
-                citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
-                filteredCities.forEach(city => {
-                    const selected = userOfficeCity == city.city_code ? 'selected' : '';
-                    citySelect.append(`<option value="${city.city_code}" ${selected}>${city.city_name}</option>`);
-                });
+                // Fetch cities by province_code from API
+                citySelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/cities', { params: { province_code: provinceCode } })
+                    .then(function(response) {
+                        citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
+                        response.data.forEach(city => {
+                            const selected = userOfficeCity == city.city_code ? 'selected' : '';
+                            citySelect.append(`<option value="${city.city_code}" ${selected}>${city.city_name}</option>`);
+                        });
+                        
+                        if (userOfficeCity) {
+                            setTimeout(() => {
+                                citySelect.trigger('change');
+                            }, 100);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load cities:', error);
+                        citySelect.html('<option value="">Error loading cities</option>');
+                    });
                 
-                if (userOfficeCity) {
-                    setTimeout(() => {
-                        citySelect.trigger('change');
-                    }, 100);
-                }
+                barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             } else {
                 citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
-                $('#office_barangay').prop('disabled', true).html('<option value="">Select Barangay</option>');
+                barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             }
         });
 
@@ -1038,12 +1049,20 @@
             const barangaySelect = $('#office_barangay');
             
             if (cityCode) {
-                const filteredBarangays = barangaysData.filter(b => b.city_code === cityCode);
-                barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
-                filteredBarangays.forEach(barangay => {
-                    const selected = userOfficeBarangay == barangay.brgy_code ? 'selected' : '';
-                    barangaySelect.append(`<option value="${barangay.brgy_code}" ${selected}>${barangay.brgy_name}</option>`);
-                });
+                // Fetch barangays by city_code from API
+                barangaySelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/barangays', { params: { city_code: cityCode } })
+                    .then(function(response) {
+                        barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
+                        response.data.forEach(barangay => {
+                            const selected = userOfficeBarangay == barangay.brgy_code ? 'selected' : '';
+                            barangaySelect.append(`<option value="${barangay.brgy_code}" ${selected}>${barangay.brgy_name}</option>`);
+                        });
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load barangays:', error);
+                        barangaySelect.html('<option value="">Error loading barangays</option>');
+                    });
             } else {
                 barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             }
@@ -1083,6 +1102,8 @@
         clearErrors();
         currentStep++;
         showStep(currentStep);
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Previous button

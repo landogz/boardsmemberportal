@@ -500,43 +500,30 @@
             }
         });
 
-        // Load PSGC data from JSON files
-        $.getJSON('/address/region.json', function(regions) {
-            regionsData = regions;
-            const regionSelect = $('#office_region');
-            regionSelect.html('<option value="">Select Region</option>');
-            regions.forEach(region => {
-                const selected = userOfficeRegion == region.region_code ? 'selected' : '';
-                regionSelect.append(`<option value="${region.region_code}" data-id="${region.id}" ${selected}>${region.region_name}</option>`);
+        // Load PSGC data from API
+        axios.get('/api/address/regions')
+            .then(function(response) {
+                regionsData = response.data;
+                const regionSelect = $('#office_region');
+                regionSelect.html('<option value="">Select Region</option>');
+                response.data.forEach(region => {
+                    const selected = userOfficeRegion == region.region_code ? 'selected' : '';
+                    regionSelect.append(`<option value="${region.region_code}" data-id="${region.id}" ${selected}>${region.region_name}</option>`);
+                });
+                
+                // If user has a region selected, trigger change to load provinces
+                if (userOfficeRegion) {
+                    setTimeout(() => {
+                        regionSelect.trigger('change');
+                    }, 100);
+                }
+            })
+            .catch(function(error) {
+                console.error('Failed to load regions:', error);
+                $('#office_region').html('<option value="">Error loading regions</option>');
             });
-            
-            // If user has a region selected, trigger change to load provinces
-            if (userOfficeRegion) {
-                setTimeout(() => {
-                    regionSelect.trigger('change');
-                }, 100);
-            }
-        }).fail(function() {
-            $('#office_region').html('<option value="">Error loading regions</option>');
-        });
 
-        $.getJSON('/address/province.json', function(provinces) {
-            provincesData = provinces;
-        }).fail(function() {
-            console.error('Failed to load provinces');
-        });
-
-        $.getJSON('/address/city.json', function(cities) {
-            citiesData = cities;
-        }).fail(function() {
-            console.error('Failed to load cities');
-        });
-
-        $.getJSON('/address/barangay.json', function(barangays) {
-            barangaysData = barangays;
-        }).fail(function() {
-            console.error('Failed to load barangays');
-        });
+        // Provinces, cities, and barangays are now loaded on-demand via API when dropdowns change
 
         // Handle post nominal title "Others" option
         $('#post_nominal_title').on('change', function() {
@@ -591,7 +578,7 @@
             }
         });
 
-        // PSGC Cascading Dropdowns
+        // PSGC Cascading Dropdowns using API
         $('#office_region').on('change', function() {
             const regionCode = $(this).val();
             const provinceSelect = $('#office_province');
@@ -599,22 +586,30 @@
             const barangaySelect = $('#office_barangay');
             
             if (regionCode) {
-                const filteredProvinces = provincesData.filter(p => p.region_code === regionCode);
-                provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
-                filteredProvinces.forEach(province => {
-                    const selected = userOfficeProvince == province.province_code ? 'selected' : '';
-                    provinceSelect.append(`<option value="${province.province_code}" ${selected}>${province.province_name}</option>`);
-                });
+                // Fetch provinces by region_code from API
+                provinceSelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/provinces', { params: { region_code: regionCode } })
+                    .then(function(response) {
+                        provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
+                        response.data.forEach(province => {
+                            const selected = userOfficeProvince == province.province_code ? 'selected' : '';
+                            provinceSelect.append(`<option value="${province.province_code}" ${selected}>${province.province_name}</option>`);
+                        });
+                        
+                        // If user has a province selected, trigger change to load cities
+                        if (userOfficeProvince) {
+                            setTimeout(() => {
+                                provinceSelect.trigger('change');
+                            }, 100);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load provinces:', error);
+                        provinceSelect.html('<option value="">Error loading provinces</option>');
+                    });
                 
                 citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
                 barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
-                
-                // If user has a province selected, trigger change to load cities
-                if (userOfficeProvince) {
-                    setTimeout(() => {
-                        provinceSelect.trigger('change');
-                    }, 100);
-                }
             } else {
                 provinceSelect.prop('disabled', true).html('<option value="">Select Province</option>');
                 citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
@@ -628,21 +623,29 @@
             const barangaySelect = $('#office_barangay');
             
             if (provinceCode) {
-                const filteredCities = citiesData.filter(c => c.province_code === provinceCode);
-                citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
-                filteredCities.forEach(city => {
-                    const selected = userOfficeCity == city.city_code ? 'selected' : '';
-                    citySelect.append(`<option value="${city.city_code}" ${selected}>${city.city_name}</option>`);
-                });
+                // Fetch cities by province_code from API
+                citySelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/cities', { params: { province_code: provinceCode } })
+                    .then(function(response) {
+                        citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
+                        response.data.forEach(city => {
+                            const selected = userOfficeCity == city.city_code ? 'selected' : '';
+                            citySelect.append(`<option value="${city.city_code}" ${selected}>${city.city_name}</option>`);
+                        });
+                        
+                        // If user has a city selected, trigger change to load barangays
+                        if (userOfficeCity) {
+                            setTimeout(() => {
+                                citySelect.trigger('change');
+                            }, 100);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load cities:', error);
+                        citySelect.html('<option value="">Error loading cities</option>');
+                    });
                 
                 barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
-                
-                // If user has a city selected, trigger change to load barangays
-                if (userOfficeCity) {
-                    setTimeout(() => {
-                        citySelect.trigger('change');
-                    }, 100);
-                }
             } else {
                 citySelect.prop('disabled', true).html('<option value="">Select City/Municipality</option>');
                 barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
@@ -654,12 +657,20 @@
             const barangaySelect = $('#office_barangay');
             
             if (cityCode) {
-                const filteredBarangays = barangaysData.filter(b => b.city_code === cityCode);
-                barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
-                filteredBarangays.forEach(barangay => {
-                    const selected = userOfficeBarangay == barangay.brgy_code ? 'selected' : '';
-                    barangaySelect.append(`<option value="${barangay.brgy_code}" ${selected}>${barangay.brgy_name}</option>`);
-                });
+                // Fetch barangays by city_code from API
+                barangaySelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                axios.get('/api/address/barangays', { params: { city_code: cityCode } })
+                    .then(function(response) {
+                        barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
+                        response.data.forEach(barangay => {
+                            const selected = userOfficeBarangay == barangay.brgy_code ? 'selected' : '';
+                            barangaySelect.append(`<option value="${barangay.brgy_code}" ${selected}>${barangay.brgy_name}</option>`);
+                        });
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load barangays:', error);
+                        barangaySelect.html('<option value="">Error loading barangays</option>');
+                    });
             } else {
                 barangaySelect.prop('disabled', true).html('<option value="">Select Barangay</option>');
             }
@@ -669,6 +680,7 @@
     // Step validation functions
     function validateStep(step) {
         let isValid = true;
+        let firstInvalidField = null;
         
         if (step === 1) {
             const governmentAgencyId = $('#government_agency_id').val();
@@ -683,38 +695,47 @@
             
             if (!governmentAgencyId) {
                 showError('government_agency_id', 'Government agency is required');
+                if (!firstInvalidField) firstInvalidField = '#government_agency_id';
                 isValid = false;
             }
             if (!representativeType) {
                 showError('representative_type', 'Representative type is required');
+                if (!firstInvalidField) firstInvalidField = '#representative_type';
                 isValid = false;
             }
             if (!preNominalTitle) {
                 showError('pre_nominal_title', 'Pre nominal title is required');
+                if (!firstInvalidField) firstInvalidField = '#pre_nominal_title';
                 isValid = false;
             }
             if (!firstName) {
                 showError('first_name', 'First name is required');
+                if (!firstInvalidField) firstInvalidField = '#first_name';
                 isValid = false;
             }
             if (!lastName) {
                 showError('last_name', 'Last name is required');
+                if (!firstInvalidField) firstInvalidField = '#last_name';
                 isValid = false;
             }
             if (!designation) {
                 showError('designation', 'Designation is required');
+                if (!firstInvalidField) firstInvalidField = '#designation';
                 isValid = false;
             }
             if (!sex) {
                 showError('sex', 'Sex is required');
+                if (!firstInvalidField) firstInvalidField = '#sex';
                 isValid = false;
             }
             if (!gender) {
                 showError('gender', 'Gender is required');
+                if (!firstInvalidField) firstInvalidField = '#gender';
                 isValid = false;
             }
             if (!birthDate) {
                 showError('birth_date', 'Birth date is required');
+                if (!firstInvalidField) firstInvalidField = '#birth_date';
                 isValid = false;
             }
         } else if (step === 2) {
@@ -725,18 +746,22 @@
             
             if (!region) {
                 showError('office_region', 'Region is required');
+                if (!firstInvalidField) firstInvalidField = '#office_region';
                 isValid = false;
             }
             if (!province) {
                 showError('office_province', 'Province is required');
+                if (!firstInvalidField) firstInvalidField = '#office_province';
                 isValid = false;
             }
             if (!city) {
                 showError('office_city_municipality', 'City/Municipality is required');
+                if (!firstInvalidField) firstInvalidField = '#office_city_municipality';
                 isValid = false;
             }
             if (!barangay) {
                 showError('office_barangay', 'Barangay is required');
+                if (!firstInvalidField) firstInvalidField = '#office_barangay';
                 isValid = false;
             }
         } else if (step === 3) {
@@ -746,20 +771,25 @@
             
             if (!email) {
                 showError('email', 'Email is required');
+                if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             } else if (!isValidEmail(email)) {
                 showError('email', 'Please enter a valid email address');
+                if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             }
             if (!username) {
                 showError('username', 'Username is required');
+                if (!firstInvalidField) firstInvalidField = '#username';
                 isValid = false;
             }
             if (!mobile) {
                 showError('mobile', 'Mobile number is required');
+                if (!firstInvalidField) firstInvalidField = '#mobile';
                 isValid = false;
             } else if (!mobile.startsWith('+63')) {
                 showError('mobile', 'Mobile number must start with +63');
+                if (!firstInvalidField) firstInvalidField = '#mobile';
                 isValid = false;
             }
         } else if (step === 4) {
@@ -770,17 +800,30 @@
             if (password) {
                 if (!validatePassword(password)) {
                     showError('password', 'Password does not meet requirements');
+                    if (!firstInvalidField) firstInvalidField = '#password';
                     isValid = false;
                 }
                 
                 if (!passwordConfirmation) {
                     showError('password_confirmation', 'Please confirm your password');
+                    if (!firstInvalidField) firstInvalidField = '#password_confirmation';
                     isValid = false;
                 } else if (password !== passwordConfirmation) {
                     showError('password_confirmation', 'Passwords do not match');
+                    if (!firstInvalidField) firstInvalidField = '#password_confirmation';
                     isValid = false;
                 }
             }
+        }
+        
+        // Focus on first invalid field
+        if (!isValid && firstInvalidField) {
+            setTimeout(() => {
+                $(firstInvalidField).focus();
+                $('html, body').animate({
+                    scrollTop: $(firstInvalidField).offset().top - 100
+                }, 500);
+            }, 100);
         }
         
         return isValid;
@@ -841,6 +884,11 @@
             clearErrors();
             currentStep++;
             showStep(currentStep);
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            // Scroll to top to see error messages
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
