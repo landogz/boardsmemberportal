@@ -5856,21 +5856,83 @@
         
         // Load current theme for a single chat
         async function popupLoadSingleChatCurrentTheme(userId) {
+            if (!userId) {
+                popupSingleChatCurrentAppliedTheme = null;
+                popupSingleChatSelectedThemeId = null;
+                return null;
+            }
+            
+            // Store the userId we're loading for to prevent race conditions
+            const loadingForUserId = userId;
+            
             try {
-                const response = await axios.get(`{{ route("messages.conversation.theme", ["otherUserId" => ":userId"]) }}`.replace(':userId', userId));
+                const response = await axios.get(`{{ route("messages.conversation.theme", ["otherUserId" => ":userId"]) }}`.replace(':userId', loadingForUserId));
+                
+                // Only update if we're still loading for the same user
+                if (popupActiveSingleChatUserId && popupActiveSingleChatUserId !== loadingForUserId) {
+                    return null;
+                }
+                
                 if (response.data.success) {
                     popupSingleChatCurrentAppliedTheme = response.data.theme || null;
+                    popupSingleChatSelectedThemeId = response.data.theme || null;
                     return popupSingleChatCurrentAppliedTheme;
+                } else {
+                    // No theme set for this conversation
+                    popupSingleChatCurrentAppliedTheme = null;
+                    popupSingleChatSelectedThemeId = null;
+                    return null;
                 }
             } catch (error) {
                 console.error('Error loading single chat theme:', error);
+                // Reset on error
+                if (!popupActiveSingleChatUserId || popupActiveSingleChatUserId === loadingForUserId) {
+                    popupSingleChatCurrentAppliedTheme = null;
+                    popupSingleChatSelectedThemeId = null;
+                }
+                return null;
             }
-            return null;
         }
         
         // Load and apply theme for single chat popup
         async function popupLoadSingleChatTheme(userId, chatElement) {
-            if (!userId || userId.startsWith('group_')) return;
+            if (!userId || userId.startsWith('group_')) {
+                // Reset theme state when switching away from single chat
+                popupSingleChatCurrentAppliedTheme = null;
+                popupSingleChatSelectedThemeId = null;
+                return;
+            }
+            
+            // Reset theme state when switching to a different single chat
+            const previousUserId = popupActiveSingleChatUserId;
+            if (previousUserId && previousUserId !== userId) {
+                // Clear previous theme from previous chat element if it exists
+                const previousChatElement = document.querySelector(`[data-user-id="${previousUserId}"]`);
+                if (previousChatElement) {
+                    const previousMessagesArea = previousChatElement.querySelector('.chat-messages');
+                    if (previousMessagesArea) {
+                        previousMessagesArea.style.background = '';
+                        previousMessagesArea.style.backgroundImage = '';
+                        previousMessagesArea.style.backgroundSize = '';
+                        previousMessagesArea.style.backgroundPosition = '';
+                        previousMessagesArea.style.backgroundRepeat = '';
+                        previousMessagesArea.removeAttribute('data-theme-id');
+                        previousMessagesArea.removeAttribute('data-theme-user-id');
+                        
+                        // Reset message bubbles
+                        previousMessagesArea.querySelectorAll('.message-bubble').forEach(message => {
+                            message.style.background = '';
+                            message.style.color = '';
+                        });
+                    }
+                }
+                // Reset theme state variables
+                popupSingleChatCurrentAppliedTheme = null;
+                popupSingleChatSelectedThemeId = null;
+            }
+            
+            // Update active user ID
+            popupActiveSingleChatUserId = userId;
             
             try {
                 // Load themes if not loaded
@@ -5882,6 +5944,15 @@
                 const themeId = await popupLoadSingleChatCurrentTheme(userId);
                 if (themeId && chatElement) {
                     popupApplySingleChatThemeToChat(themeId, chatElement);
+                } else if (!themeId && chatElement) {
+                    // No theme set, ensure default appearance
+                    const messagesArea = chatElement.querySelector('.chat-messages');
+                    if (messagesArea) {
+                        messagesArea.style.background = '';
+                        messagesArea.style.backgroundImage = '';
+                        messagesArea.removeAttribute('data-theme-id');
+                        messagesArea.removeAttribute('data-theme-user-id');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading single chat theme:', error);
@@ -5892,15 +5963,33 @@
         function popupApplySingleChatThemeToChat(themeId, chatElement) {
             if (!chatElement || !themeId) return;
             
+            const chatUserId = chatElement.getAttribute('data-user-id');
+            if (!chatUserId) return;
+            
+            // Verify this theme is being applied to the correct chat
+            if (popupActiveSingleChatUserId && popupActiveSingleChatUserId !== chatUserId) {
+                return; // Different chat is active, don't apply theme
+            }
+            
             const theme = popupSingleChatAvailableThemes.find(t => t.id === themeId);
             if (!theme) return;
             
             const messagesArea = chatElement.querySelector('.chat-messages');
             if (!messagesArea) return;
             
-            // Store theme info
+            // Double-check: verify the stored theme user ID matches current chat
+            const storedThemeUserId = messagesArea.getAttribute('data-theme-user-id');
+            if (storedThemeUserId && storedThemeUserId !== chatUserId) {
+                // Different chat's theme is stored, clear it first
+                messagesArea.style.background = '';
+                messagesArea.style.backgroundImage = '';
+                messagesArea.removeAttribute('data-theme-id');
+                messagesArea.removeAttribute('data-theme-user-id');
+            }
+            
+            // Store theme info with current user ID
             messagesArea.setAttribute('data-theme-id', themeId);
-            messagesArea.setAttribute('data-theme-user-id', chatElement.getAttribute('data-user-id'));
+            messagesArea.setAttribute('data-theme-user-id', chatUserId);
             
             // Apply background
             if (theme.background_image) {

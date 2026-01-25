@@ -2971,6 +2971,31 @@
                 
                 // Load single chat theme if it's a single chat
                 if (!isGroupChat && userId) {
+                    // Reset theme state when switching to a different single chat
+                    const previousUserId = window.currentSingleChatUserId;
+                    if (previousUserId && previousUserId !== userId) {
+                        // Clear previous theme from chat area
+                        const chatMessagesArea = document.getElementById('chatMessagesArea');
+                        if (chatMessagesArea) {
+                            chatMessagesArea.style.background = '';
+                            chatMessagesArea.style.backgroundImage = '';
+                            chatMessagesArea.style.backgroundSize = '';
+                            chatMessagesArea.style.backgroundPosition = '';
+                            chatMessagesArea.style.backgroundRepeat = '';
+                            chatMessagesArea.removeAttribute('data-theme-id');
+                            chatMessagesArea.removeAttribute('data-theme-user-id');
+                            
+                            // Reset message bubbles
+                            chatMessagesArea.querySelectorAll('.message-bubble').forEach(message => {
+                                message.style.background = '';
+                                message.style.color = '';
+                            });
+                        }
+                        // Reset theme state variables
+                        singleChatCurrentAppliedTheme = null;
+                        singleChatSelectedThemeId = null;
+                    }
+                    
                     window.currentSingleChatUserId = userId;
                     // Load themes first if not loaded, then load and apply current theme
                     if (singleChatAvailableThemes.length === 0) {
@@ -2978,6 +3003,13 @@
                             loadSingleChatCurrentTheme().then(() => {
                                 if (singleChatCurrentAppliedTheme && window.currentSingleChatUserId === userId) {
                                     applySingleChatThemeToChat(singleChatCurrentAppliedTheme);
+                                } else if (!singleChatCurrentAppliedTheme && window.currentSingleChatUserId === userId) {
+                                    // No theme set, ensure default appearance
+                                    const chatMessagesArea = document.getElementById('chatMessagesArea');
+                                    if (chatMessagesArea) {
+                                        chatMessagesArea.style.background = '';
+                                        chatMessagesArea.style.backgroundImage = '';
+                                    }
                                 }
                             });
                         });
@@ -2985,11 +3017,21 @@
                         loadSingleChatCurrentTheme().then(() => {
                             if (singleChatCurrentAppliedTheme && window.currentSingleChatUserId === userId) {
                                 applySingleChatThemeToChat(singleChatCurrentAppliedTheme);
+                            } else if (!singleChatCurrentAppliedTheme && window.currentSingleChatUserId === userId) {
+                                // No theme set, ensure default appearance
+                                const chatMessagesArea = document.getElementById('chatMessagesArea');
+                                if (chatMessagesArea) {
+                                    chatMessagesArea.style.background = '';
+                                    chatMessagesArea.style.backgroundImage = '';
+                                }
                             }
                         });
                     }
                 } else {
                     window.currentSingleChatUserId = null;
+                    // Reset theme state when switching away from single chat
+                    singleChatCurrentAppliedTheme = null;
+                    singleChatSelectedThemeId = null;
                 }
             }
             
@@ -8226,19 +8268,42 @@
         
         // Load current theme for single chat
         async function loadSingleChatCurrentTheme() {
-            if (!window.currentSingleChatUserId) return null;
+            if (!window.currentSingleChatUserId) {
+                singleChatCurrentAppliedTheme = null;
+                singleChatSelectedThemeId = null;
+                return null;
+            }
+            
+            // Store the userId we're loading for to prevent race conditions
+            const loadingForUserId = window.currentSingleChatUserId;
             
             try {
-                const response = await axios.get(`{{ route("messages.conversation.theme", ["otherUserId" => ":userId"]) }}`.replace(':userId', window.currentSingleChatUserId));
+                const response = await axios.get(`{{ route("messages.conversation.theme", ["otherUserId" => ":userId"]) }}`.replace(':userId', loadingForUserId));
+                
+                // Only update if we're still on the same chat
+                if (window.currentSingleChatUserId !== loadingForUserId) {
+                    return null;
+                }
+                
                 if (response.data.success && response.data.theme) {
                     singleChatCurrentAppliedTheme = response.data.theme;
                     singleChatSelectedThemeId = response.data.theme;
                     updateSingleChatThemeSelection();
                     return response.data.theme;
+                } else {
+                    // No theme set for this conversation
+                    singleChatCurrentAppliedTheme = null;
+                    singleChatSelectedThemeId = null;
+                    updateSingleChatThemeSelection();
+                    return null;
                 }
-                return null;
             } catch (error) {
                 console.error('Error loading current theme:', error);
+                // Reset on error
+                if (window.currentSingleChatUserId === loadingForUserId) {
+                    singleChatCurrentAppliedTheme = null;
+                    singleChatSelectedThemeId = null;
+                }
                 return null;
             }
         }
@@ -8618,10 +8683,20 @@
                 return; // User switched to a different chat, don't apply theme
             }
             
+            // Double-check: verify the stored theme user ID matches current chat
+            const storedThemeUserId = chatMessagesArea.getAttribute('data-theme-user-id');
+            if (storedThemeUserId && storedThemeUserId !== window.currentSingleChatUserId) {
+                // Different chat's theme is stored, clear it first
+                chatMessagesArea.style.background = '';
+                chatMessagesArea.style.backgroundImage = '';
+                chatMessagesArea.removeAttribute('data-theme-id');
+                chatMessagesArea.removeAttribute('data-theme-user-id');
+            }
+            
             const theme = singleChatAvailableThemes.find(t => t.id === themeId);
             if (!theme) return;
             
-            // Store theme info
+            // Store theme info with current user ID
             chatMessagesArea.setAttribute('data-theme-id', themeId);
             chatMessagesArea.setAttribute('data-theme-user-id', window.currentSingleChatUserId);
             
