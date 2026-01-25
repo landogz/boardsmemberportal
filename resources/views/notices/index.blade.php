@@ -609,12 +609,12 @@
                                     $isMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
                                 @endphp
                                 @if(!$isMeetingDone && !isset($agendaRequests[$notice->id]))
-                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});">
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});" style="display: none;">
                                         <i class="fas fa-plus"></i>
                                         <span>Request Agenda Inclusion</span>
                                     </button>
                                 @elseif($isMeetingDone && !isset($referenceMaterials[$notice->id]))
-                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});">
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});" style="display: none;">
                                         <i class="fas fa-file-upload"></i>
                                         <span>Submit Reference Materials</span>
                                     </button>

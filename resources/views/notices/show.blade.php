@@ -774,7 +774,7 @@
                     </div>
                 @elseif($attendanceConfirmation->status === 'accepted' && !$isMeetingDone && !$agendaRequest)
                     <div class="action-buttons">
-                        <button class="btn-action btn-agenda" onclick="requestAgendaInclusion({{ $notice->id }})">
+                        <button class="btn-action btn-agenda" onclick="requestAgendaInclusion({{ $notice->id }})" style="display: none;">
                             <i class="fas fa-plus"></i>
                             <span>Request Agenda Inclusion</span>
                         </button>
@@ -796,7 +796,7 @@
                     </div>
                 @elseif($attendanceConfirmation->status === 'accepted' && $isMeetingDone && !$referenceMaterial)
                     <div class="action-buttons">
-                        <button class="btn-action btn-agenda" onclick="submitReferenceMaterial({{ $notice->id }})">
+                        <button class="btn-action btn-agenda" onclick="submitReferenceMaterial({{ $notice->id }})" style="display: none;">
                             <i class="fas fa-file-upload"></i>
                             <span>Submit Reference Materials</span>
                         </button>
