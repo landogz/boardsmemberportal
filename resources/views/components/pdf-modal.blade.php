@@ -10,9 +10,29 @@
         </div>
         
         <!-- PDF Viewer - Full Screen -->
-        <div class="flex-1 overflow-hidden p-4 lg:p-6">
-            <iframe id="globalPdfViewer" src="" class="w-full h-full border border-gray-300 rounded-lg" frameborder="0"></iframe>
+        <div class="flex-1 overflow-hidden p-4 lg:p-6 relative">
+            <div id="pdfViewerContainer" class="w-full h-full border border-gray-300 rounded-lg relative overflow-hidden">
+                <iframe id="globalPdfViewer" src="" class="w-full h-full" frameborder="0" style="clip-path: inset(56px 0 0 0); margin-top: -56px; height: calc(100% + 56px);"></iframe>
+            </div>
         </div>
+        
+        <style>
+            /* Hide PDF viewer title by clipping the top portion of the iframe */
+            #pdfViewerContainer {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            #globalPdfViewer {
+                /* Clip the top 56px where the title appears */
+                clip-path: inset(56px 0 0 0);
+                -webkit-clip-path: inset(56px 0 0 0);
+                /* Shift the iframe up to hide the title area */
+                margin-top: -56px;
+                /* Increase height to compensate for the shift */
+                height: calc(100% + 56px);
+            }
+        </style>
         
         <!-- Modal Footer -->
         <div class="flex items-center justify-between p-4 lg:p-6 border-t border-gray-200 bg-gray-50">
@@ -67,8 +87,81 @@
         const absoluteUrl = pdfUrl.startsWith('http') ? pdfUrl : (window.location.origin + (pdfUrl.startsWith('/') ? '' : '/') + pdfUrl);
         
         // Set iframe source - if using the new PDF routes, they will serve with custom filename in Content-Disposition header
-        iframe.src = absoluteUrl;
+        // Add URL parameters to minimize toolbar (Chrome PDF viewer)
+        let pdfUrlWithParams = absoluteUrl;
+        if (!pdfUrlWithParams.includes('#')) {
+            pdfUrlWithParams += '#toolbar=0&navpanes=0';
+        } else if (!pdfUrlWithParams.includes('toolbar=')) {
+            pdfUrlWithParams += '&toolbar=0&navpanes=0';
+        }
+        
+        iframe.src = pdfUrlWithParams;
         iframe.setAttribute('title', title || 'PDF Document');
+        
+        // Try to hide title span in PDF viewer after iframe loads (if accessible)
+        iframe.onload = function() {
+            function hideTitleSpan() {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!iframeDoc) return;
+                    
+                    // Hide title span
+                    const titleSpan = iframeDoc.getElementById('title');
+                    if (titleSpan) {
+                        titleSpan.style.display = 'none';
+                        titleSpan.style.visibility = 'hidden';
+                        titleSpan.style.opacity = '0';
+                        titleSpan.style.height = '0';
+                        titleSpan.style.width = '0';
+                        titleSpan.style.overflow = 'hidden';
+                    }
+                    
+                    // Also try to hide using querySelector
+                    const titleElements = iframeDoc.querySelectorAll('#title, span#title');
+                    titleElements.forEach(function(el) {
+                        el.style.display = 'none';
+                        el.style.visibility = 'hidden';
+                        el.style.opacity = '0';
+                        el.style.height = '0';
+                        el.style.width = '0';
+                        el.style.overflow = 'hidden';
+                    });
+                    
+                    // Try to inject CSS to hide it permanently
+                    if (iframeDoc.head) {
+                        let style = iframeDoc.getElementById('hide-title-style');
+                        if (!style) {
+                            style = iframeDoc.createElement('style');
+                            style.id = 'hide-title-style';
+                            style.textContent = '#title, span#title { display: none !important; visibility: hidden !important; opacity: 0 !important; height: 0 !important; width: 0 !important; overflow: hidden !important; }';
+                            iframeDoc.head.appendChild(style);
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin or other error - overlay will cover it
+                }
+            }
+            
+            // Hide immediately
+            hideTitleSpan();
+            
+            // Use MutationObserver to watch for dynamically added elements
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc) {
+                    const observer = new MutationObserver(function(mutations) {
+                        hideTitleSpan();
+                    });
+                    
+                    observer.observe(iframeDoc.body || iframeDoc.documentElement, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            } catch (e) {
+                // Cross-origin error - overlay will cover it
+            }
+        };
         
         // Set download link
         downloadLink.href = absoluteUrl;
