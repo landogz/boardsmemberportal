@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->alias([
             'track.activity' => \App\Http\Middleware\TrackUserActivity::class,
+            'prevent.user.admin' => \App\Http\Middleware\PreventUserAccessToAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

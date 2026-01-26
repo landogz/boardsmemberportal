@@ -29,14 +29,25 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Board Member Management** - Complete management system for board members
 - **Pending Registrations** - Review and approve/disapprove new user registrations
 - Multi-step registration forms with PSGC (Philippine Standard Geographic Code) address fields
+- **Form Enhancements** - Auto-scroll to top on step navigation, auto-focus on first invalid field
+- **Username Auto-generation** - System-generated usernames (hidden from registration form)
 - Profile picture upload and management
+- **Remove Profile Picture** - Ability to remove profile picture for both admin and regular users
 - Account activation/deactivation with audit logging
+- **Access Control** - User privilege restrictions prevent regular users from accessing admin pages
 
 ### 📄 Document Management
 - **Board Resolutions** - Create, edit, view, and manage board resolutions with version history
 - **Board Regulations** - Complete CRUD with versioning and change notes
 - **Board Issuances** - Public-facing page displaying both resolutions and regulations
-- **Activities Calendar** - Display all resolutions, regulations, announcements, and notices in calendar view with color coding
+- **Activities Calendar** - FullCalendar integration displaying all resolutions, regulations, announcements, and notices
+  - **Color Coding** - Visual distinction for different event types (announcements, resolutions, regulations, notices)
+  - **Multiple Views** - Month, week, and day views with responsive list view for mobile
+  - **Advanced Filtering** - Filter by event type, date range, and search terms
+  - **Print Functionality** - Generate and print calendar reports with filtered events
+  - **Event Details** - Click events to view detailed information in modal
+  - **Landing Page Integration** - Calendar displayed on landing page for authenticated users
+  - **Responsive Design** - Adaptive views for mobile, tablet, and desktop
 - PDF document viewer with full-screen modal
 - Document history tracking with version comparison
 - Change notes for document edits
@@ -47,6 +58,19 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Bulk operations (activate, deactivate, delete)
 - Status toggle functionality
 - DataTables with search and filtering
+
+### 📍 Address Settings (Admin Only)
+- **Address Data Management** - Complete CRUD system for Philippine address data
+- **Regions Management** - Create, edit, delete, and search regions with PSGC codes
+- **Provinces Management** - Manage provinces with region relationships
+- **Cities Management** - Manage cities with province and region relationships
+- **Barangays Management** - Manage barangays with city, province, and region relationships
+- **Database-Driven** - Address data stored in database (migrated from JSON files)
+- **Search Functionality** - Search across all address levels with filtering
+- **Pagination** - Efficient pagination with 20 items per page
+- **Professional UI** - Clean, modern interface matching admin panel design
+- **API Endpoints** - RESTful API for address data retrieval used in forms
+- **PSGC Integration** - Philippine Standard Geographic Code support
 
 ### 📚 Media Library
 - Drag & drop file upload
@@ -95,17 +119,23 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - **Direct Messages** - One-on-one conversations between users
 - **Group Chats** - Create and manage group conversations with multiple members
 - **Group Management** - Add/remove members, assign/revoke admin privileges, update group info
+- **Chat Themes** - Customizable themes for single chats and group chats with background images and color schemes
+- **Single Chat Themes** - Apply unique themes per conversation that persist across sessions
+- **Group Chat Themes** - Customize group chat appearance with various theme options
 - **Voice Messages** - Record and send voice clips with playback controls
 - **Voice Playback** - Play/pause controls, speed adjustment (1x, 1.25x, 1.5x, 2x), waveform visualization
 - **File Attachments** - Share images, videos, audio files, and documents
 - **Image Viewer** - Full-screen image viewer with zoom, pan, and download functionality
-- **Message Reactions** - React to messages with emojis (👍, ❤️, 😂, 😮, 😢, 😠)
+- **Message Reactions** - React to messages with emojis using emoji picker (👍, ❤️, 😂, 😮, 😢, 😠)
+- **Emoji Picker** - Comprehensive emoji picker with categories (smileys, gestures, animals, food, activities, travel, objects, symbols)
 - **Message Replies** - Reply to specific messages with threaded conversations
 - **Online Status** - Real-time online/offline status indicators
 - **Unread Counts** - Track unread messages per conversation
 - **Conversation Search** - Search through conversations and messages
-- **Chat Popup** - Quick access chat popup interface
+- **Chat Popup** - Quick access chat popup interface with floating window
 - **Message Timestamps** - Display message timestamps and date separators
+- **Mobile Optimization** - Fixed input area at bottom on mobile/tablet devices
+- **iOS Zoom Prevention** - Prevents iOS zoom when tapping message input field
 
 ### 🗳️ Referendum System
 - **Referendum Posts** - Admin can create, edit, and delete referendum posts with title, content, attachments, and expiration date
@@ -208,9 +238,20 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Smooth animations and transitions
 - Dropdown action menus for tables
 - Multi-step forms with progress indicators
+- **Form Validation** - Client-side validation with auto-focus on invalid fields
+- **Scroll to Top** - Automatic scroll to top when navigating form steps
 - Tooltips for action buttons
 - Loading states and feedback
 - Consistent branding throughout
+- **Responsive Emoji Picker** - Optimized emoji picker with responsive spacing for desktop and mobile
+
+### 📞 Contact Us System
+- **Contact Form** - Functional contact form on landing page
+- **Client-Side Validation** - Real-time validation with error messages
+- **Required Fields** - Name, email, subject, and message validation
+- **Email Notifications** - Contact form submissions sent to admin via email
+- **SweetAlert2 Integration** - User-friendly success/error notifications
+- **AJAX Submission** - Form submission without page refresh
 
 ## 📋 Table of Contents
 
@@ -1075,16 +1116,73 @@ created_at
 updated_at
 ```
 
+#### 31. regions
+```sql
+id
+psgc_code (string, unique)
+region_name (string)
+region_code (string, unique)
+created_at
+updated_at
+```
+
+#### 32. provinces
+```sql
+id
+province_code (string, unique)
+province_name (string)
+psgc_code (string)
+region_code (string, foreign key to regions.region_code)
+created_at
+updated_at
+```
+
+#### 33. cities
+```sql
+id
+city_code (string, unique)
+city_name (string)
+psgc_code (string)
+province_code (string, foreign key to provinces.province_code)
+region_code (string, foreign key to regions.region_code)
+created_at
+updated_at
+```
+
+#### 34. barangays
+```sql
+id
+brgy_code (string, unique)
+brgy_name (string)
+city_code (string, foreign key to cities.city_code)
+province_code (string, foreign key to provinces.province_code)
+region_code (string, foreign key to regions.region_code)
+created_at
+updated_at
+```
+
+#### 35. conversation_themes
+```sql
+id
+user_id (nullable, foreign key to users)
+other_user_id (nullable, foreign key to users)
+group_chat_id (nullable, foreign key to group_chats)
+theme_id (string)
+created_at
+updated_at
+```
+
 ---
 
 ## 3. PAGES & ROUTES
 
 ### A. Public Pages
 
-- `/` - Landing Page (Public Announcements, Activities Calendar)
+- `/` - Landing Page (Public Announcements, Activities Calendar, Contact Us)
 - `/login` - Login Page
-- `/register` - Registration Page (Multi-step form)
+- `/register` - Registration Page (Multi-step form, username field hidden)
 - `/forgot-password` - Forgot Password
+- `/contact/submit` - Contact Us Form Submission (POST)
 
 ### B. User Dashboard Pages
 
@@ -1110,6 +1208,14 @@ updated_at
   - `/announcements/{id}` - View Announcement
   - `/announcements/api/landing` - Get Announcements for Landing Page (AJAX, max 3)
   - `/announcements/api/{id}/modal` - Get Announcement for Modal (AJAX)
+- `/notices` - Notices List (User-facing)
+  - `/notices` - View All Notices
+  - `/notices/{id}` - View Notice Details
+  - `/notices/{id}/accept` - Accept Notice Invitation (POST)
+  - `/notices/{id}/decline` - Decline Notice Invitation (POST)
+  - `/notices/{id}/agenda-inclusion` - Submit Agenda Inclusion Request (POST)
+  - `/notices/{id}/reference-materials` - Submit Reference Materials (POST)
+  - `/notices/pending` - Get Pending Notices (AJAX)
 - `/referendums` - Referendums List (User-facing)
   - `/referendums/{id}` - View Referendum (with voting and comments)
   - `/referendums/{id}/vote` - Submit Vote (POST)
@@ -1117,6 +1223,11 @@ updated_at
   - `/referendums/{id}/comments` - Post Comment (POST)
   - `/referendums/{id}/comments/{commentId}` - Update Comment (POST)
   - `/referendums/{id}/comments/{commentId}` - Delete Comment (DELETE)
+- `/api/calendar/events` - Get Calendar Events (AJAX, authenticated users)
+- `/api/address/regions` - Get Regions (AJAX)
+- `/api/address/provinces` - Get Provinces (AJAX, optional region filter)
+- `/api/address/cities` - Get Cities (AJAX, optional province filter)
+- `/api/address/barangays` - Get Barangays (AJAX, optional city filter)
 
 ### C. Admin Pages
 
@@ -1324,11 +1435,44 @@ Text: #0A0A0A
    php artisan migrate
    ```
 
-8. **Seed database (optional)**
+8. **Seed database**
+   
+   **Option A: Run all default seeders**
    ```bash
    php artisan db:seed
-   # Or specific seeders:
+   ```
+   This will run:
+   - `GovernmentAgencySeeder` - Creates default government agencies
+   - `UserSeeder` - Creates default admin and test users
+
+   **Option B: Run specific seeders**
+   ```bash
+   # Seed roles and permissions (REQUIRED for RBAC)
    php artisan db:seed --class=RolePermissionSeeder
+   
+   # Seed address data (regions, provinces, cities, barangays)
+   php artisan db:seed --class=AddressDataSeeder
+   
+   # Seed government agencies
+   php artisan db:seed --class=GovernmentAgencySeeder
+   
+   # Seed default users
+   php artisan db:seed --class=UserSeeder
+   ```
+
+   **Recommended order for first-time setup:**
+   ```bash
+   # 1. Seed roles and permissions first (REQUIRED)
+   php artisan db:seed --class=RolePermissionSeeder
+   
+   # 2. Seed government agencies
+   php artisan db:seed --class=GovernmentAgencySeeder
+   
+   # 3. Seed default users
+   php artisan db:seed --class=UserSeeder
+   
+   # 4. Seed address data (optional, large dataset)
+   php artisan db:seed --class=AddressDataSeeder
    ```
 
 9. **Build assets**
@@ -1353,11 +1497,21 @@ Text: #0A0A0A
     - Application: `http://localhost:8000`
     - Admin Dashboard: `http://localhost:8000/admin/dashboard`
 
-### Default Admin Account
+### Default Login Credentials
 
-After seeding, you can create an admin account or use the default:
-- **Email:** admin@admin.com
-- **Password:** (set during registration or use password reset)
+After running the seeders, you can use the following credentials to log in:
+
+**Seeded Admin Account**
+- **Email/Username:** `admin@example.com`
+- **Password:** `password`
+
+**Test User Accounts (from UserSeeder)**
+- **Email:** `john.doe@example.com` | **Password:** `password`
+- **Email:** `jane.smith@example.com` | **Password:** `password`
+- **Email:** `michael.johnson@example.com` | **Password:** `password`
+- **Email:** `sarah.williams@example.com` | **Password:** `password`
+
+**Important:** After first login, it's recommended to change the default passwords for security purposes.
 
 ---
 

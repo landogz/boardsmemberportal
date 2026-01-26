@@ -1004,7 +1004,7 @@
 
             axios.get('{{ route("notifications.recent") }}', { params: { limit: 3 } })
                 .then(response => {
-                    const notifications = response.data.notifications.slice(0, 3); // Ensure max 3
+                    const notifications = (response.data && response.data.notifications) ? response.data.notifications.slice(0, 3) : []; // Ensure max 3
                     const notificationsList = $('#notificationsList');
                     const notificationBadge = $('#notificationBadge');
                     const markAllReadBtn = $('#markAllReadBtn');

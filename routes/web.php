@@ -112,6 +112,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         return redirect()->route('landing');
     })->name('dashboard');
 
+    // Admin Routes - Prevent 'user' privilege from accessing
+    Route::middleware(['prevent.user.admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         // Allow access if user has admin or consec role/privilege (dashboard is for admin-level users)
         $user = Auth::user();
@@ -246,17 +248,6 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\AddressSettingsController::class, 'destroy'])->name('destroy');
     });
 
-    // Notifications (authenticated users)
-    Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
-        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
-        Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
-        Route::get('/recent', [\App\Http\Controllers\NotificationController::class, 'getRecent'])->name('recent');
-        Route::post('/{id}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-as-read');
-        Route::post('/{id}/mark-as-unread', [\App\Http\Controllers\NotificationController::class, 'markAsUnread'])->name('mark-as-unread');
-        Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-        Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
-    });
-
     // Admin Notifications
     Route::prefix('admin/notifications')->name('admin.notifications.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\NotificationController::class, 'adminIndex'])->name('index');
@@ -348,17 +339,6 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/search', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'search'])->name('search');
     });
 
-    // Announcements (authenticated users)
-    Route::prefix('announcements')->name('announcements.')->middleware('auth')->group(function () {
-        Route::get('/', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('index');
-        Route::get('/{id}', [\App\Http\Controllers\AnnouncementController::class, 'show'])->name('show');
-        Route::get('/api/landing', [\App\Http\Controllers\AnnouncementController::class, 'getForLanding'])->name('api.landing');
-        Route::get('/api/{id}/modal', [\App\Http\Controllers\AnnouncementController::class, 'getForModal'])->name('api.modal');
-    });
-
-    // Calendar Events API
-    Route::get('/api/calendar/events', [\App\Http\Controllers\CalendarController::class, 'getEvents'])->name('api.calendar.events')->middleware('auth');
-
     // Referendum Voting and Comments (authenticated users)
     Route::prefix('referendums')->name('referendums.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\ReferendumController::class, 'index'])->name('index');
@@ -373,7 +353,33 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'destroy'])->name('comments.destroy');
     });
 
-    // Notices (authenticated users)
+    // Admin Profile Routes
+    Route::prefix('admin/profile')->name('admin.profile.')->middleware('auth')->group(function () {
+        Route::get('/edit', [\App\Http\Controllers\ProfileController::class, 'adminEdit'])->name('edit');
+    });
+    }); // End of prevent.user.admin middleware group
+
+    // Profile Routes (authenticated users - accessible to all users, moved outside admin middleware)
+    Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/view/{id}', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/upload-picture', [\App\Http\Controllers\ProfileController::class, 'uploadProfilePicture'])->name('profile.upload-picture');
+    Route::post('/profile/remove-picture', [\App\Http\Controllers\ProfileController::class, 'removeProfilePicture'])->name('profile.remove-picture');
+    Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/check-username', [\App\Http\Controllers\ProfileController::class, 'checkUsername'])->name('profile.check-username');
+
+    // Announcements (authenticated users - accessible to all users, moved outside admin middleware)
+    Route::prefix('announcements')->name('announcements.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\AnnouncementController::class, 'show'])->name('show');
+        Route::get('/api/landing', [\App\Http\Controllers\AnnouncementController::class, 'getForLanding'])->name('api.landing');
+        Route::get('/api/{id}/modal', [\App\Http\Controllers\AnnouncementController::class, 'getForModal'])->name('api.modal');
+    });
+
+    // Calendar Events API (authenticated users - accessible to all users)
+    Route::get('/api/calendar/events', [\App\Http\Controllers\CalendarController::class, 'getEvents'])->name('api.calendar.events')->middleware('auth');
+
+    // Notices (authenticated users - accessible to all users, moved outside admin middleware)
     Route::prefix('notices')->name('notices.')->middleware('auth')->group(function () {
         Route::get('/pending', [\App\Http\Controllers\NoticeController::class, 'getPendingNotices'])->name('pending');
         Route::get('/', [\App\Http\Controllers\NoticeController::class, 'index'])->name('index');
@@ -384,24 +390,19 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/reference-materials', [\App\Http\Controllers\NoticeController::class, 'submitReferenceMaterial'])->name('reference-materials');
     });
 
-    // Profile Routes
-    Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/profile/view/{id}', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
-    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile/upload-picture', [\App\Http\Controllers\ProfileController::class, 'uploadProfilePicture'])->name('profile.upload-picture');
-    Route::post('/profile/remove-picture', [\App\Http\Controllers\ProfileController::class, 'removeProfilePicture'])->name('profile.remove-picture');
-    Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::post('/profile/check-username', [\App\Http\Controllers\ProfileController::class, 'checkUsername'])->name('profile.check-username');
-
-    // Admin Profile Routes
-    Route::prefix('admin/profile')->name('admin.profile.')->middleware('auth')->group(function () {
-        Route::get('/edit', [\App\Http\Controllers\ProfileController::class, 'adminEdit'])->name('edit');
-    });
-
     // Board Issuances (only for authenticated users)
     Route::get('/board-issuances', [\App\Http\Controllers\BoardIssuanceController::class, 'index'])->name('board-issuances');
 
-    // Notifications Route - handled by controller above
+    // Notifications (authenticated users - accessible to all users, moved outside admin middleware)
+    Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::get('/recent', [\App\Http\Controllers\NotificationController::class, 'getRecent'])->name('recent');
+        Route::post('/{id}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/{id}/mark-as-unread', [\App\Http\Controllers\NotificationController::class, 'markAsUnread'])->name('mark-as-unread');
+        Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+        Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    });
 
     // Messages Routes
     Route::get('/messages', function () {
