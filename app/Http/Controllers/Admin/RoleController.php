@@ -28,11 +28,12 @@ class RoleController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view roles.');
         }
 
-        // Get all roles except admin (admin has automatic access to all permissions)
+        // Get all roles except admin and consec (admin has automatic access to all permissions)
         $roles = Role::with(['permissions', 'users' => function($query) {
             $query->with('profilePictureMedia');
         }])
             ->where('name', '!=', 'admin')
+            ->whereRaw('LOWER(name) != ?', ['consec'])
             ->orderBy('name')
             ->get();
 
