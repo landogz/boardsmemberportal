@@ -97,7 +97,8 @@ class GroupChatController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string|max:1000',
-                'avatar' => 'nullable|string|max:255',
+                // Allow avatar to be null or any type (string URL or null); we validate usage below
+                'avatar' => 'nullable',
                 'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'theme' => 'nullable|string|max:255',
             ]);
