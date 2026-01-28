@@ -246,7 +246,7 @@
         <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Create Account</h1>
-                <p class="text-gray-600 dark:text-gray-400">Register as a board member</p>
+                <p class="text-gray-600 dark:text-gray-400">Register as a Board Member / Authorized Representative</p>
             </div>
 
             <!-- Step Indicator -->
