@@ -13,7 +13,6 @@
                     <li><a href="{{ route('landing') }}#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
                     <li><a href="{{ route('landing') }}#calendar-activities" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar Activities</a></li>
                     <li><a href="{{ route('board-issuances') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a></li>
-                    <li><a href="{{ route('referendums.index') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a></li>
                     <li><a href="{{ route('notices.index') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a></li>
                     @else
                     <li><a href="#about" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a></li>

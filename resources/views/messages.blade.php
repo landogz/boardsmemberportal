@@ -5203,7 +5203,6 @@
                 newOpenChatBtn.addEventListener('click', function() {
                     // Get current selectedUsers from the closure
                     if (selectedUsers.length !== 1) {
-                        console.log('Selected users count:', selectedUsers.length);
                         return;
                     }
                     
@@ -8668,7 +8667,6 @@
             
             try {
                 const url = `{{ route("messages.conversation.theme.apply", ["otherUserId" => ":userId"]) }}`.replace(':userId', window.currentSingleChatUserId);
-                console.log('Applying theme:', { themeId: singleChatSelectedThemeId, userId: window.currentSingleChatUserId, url });
                 
                 const response = await axios.post(url, {
                     theme: singleChatSelectedThemeId

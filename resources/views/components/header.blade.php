@@ -731,7 +731,7 @@
 
                 // Add connection event listeners
                 echo.connector.pusher.connection.bind('connected', function() {
-                    console.log('✅ Reverb WebSocket connected successfully');
+                    // Reverb WebSocket connected successfully
                 });
 
                 echo.connector.pusher.connection.bind('disconnected', function() {
@@ -743,7 +743,7 @@
                 });
 
                 echo.connector.pusher.connection.bind('state_change', function(states) {
-                    console.log('🔄 Reverb connection state:', states.current);
+                    // Reverb connection state changed: states.current
                 });
 
                 // Listen to message unread count updates
@@ -768,8 +768,8 @@
                         updateNotificationBadge(e.count);
                     });
 
-                console.log('Laravel Echo initialized successfully');
-                console.log('Connecting to Reverb at:', reverbScheme + '://' + reverbHost + ':' + reverbPort);
+                // Laravel Echo initialized successfully
+                // Connecting to Reverb at: reverbScheme + '://' + reverbHost + ':' + reverbPort
                 
                 // Check connection status after 3 seconds (silently, only log if in development)
                 setTimeout(function() {
@@ -779,10 +779,10 @@
                         const isDevelopment = '{{ env("APP_ENV", "production") }}' === 'local';
                         if (isDevelopment) {
                             console.warn('⚠️ Reverb connection not established. Current state:', state);
-                            console.log('💡 Make sure:');
-                            console.log('   1. Reverb server is running: php artisan reverb:start');
-                            console.log('   2. Your .env has correct REVERB_APP_KEY, REVERB_APP_ID, REVERB_APP_SECRET');
-                            console.log('   3. REVERB_SCHEME=http for local development');
+                            // Tips:
+                            // 1. Reverb server is running: php artisan reverb:start
+                            // 2. .env has correct REVERB_APP_KEY, REVERB_APP_ID, REVERB_APP_SECRET
+                            // 3. REVERB_SCHEME=http for local development
                         }
                         // Silently handle connection failure in production
                         // Broadcasting will work via polling/fallback methods
@@ -907,7 +907,7 @@
                         messagesContainer.__x.$data.open = false;
                     }
                 } catch (e) {
-                    console.log('Could not close Alpine dropdown:', e);
+                    // Could not close Alpine dropdown
                 }
             }
         }
