@@ -312,8 +312,16 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="flex-1 overflow-hidden p-4 lg:p-6">
-                <iframe id="pdfViewer" src="" class="w-full h-full border border-gray-300 dark:border-gray-600 rounded-lg" frameborder="0"></iframe>
+            <div class="flex-1 overflow-hidden p-4 lg:p-6 relative">
+                <div id="pdfViewerContainerUser" class="w-full h-full border border-gray-300 dark:border-gray-600 rounded-lg relative overflow-hidden">
+                    <iframe 
+                        id="pdfViewer" 
+                        src="" 
+                        class="w-full h-full" 
+                        frameborder="0"
+                        style="clip-path: inset(56px 0 0 0); margin-top: -56px; height: calc(100% + 56px);"
+                    ></iframe>
+                </div>
             </div>
 
             <!-- Modal Footer -->
@@ -466,7 +474,7 @@
             });
         });
 
-        // View PDF in modal
+        // View PDF in modal (user side)
         function viewPDF(pdfUrl, identifier, title, type) {
             const modal = document.getElementById('pdfModal');
             const iframe = document.getElementById('pdfViewer');
@@ -481,8 +489,20 @@
                 modalTitle.textContent = 'Document Title: ' + (identifier || 'N/A');
             }
 
-            iframe.src = pdfUrl;
-            downloadLink.href = pdfUrl;
+            // Build absolute URL and hide built-in PDF toolbar/header
+            const absoluteUrl = pdfUrl.startsWith('http') 
+                ? pdfUrl 
+                : (window.location.origin + (pdfUrl.startsWith('/') ? '' : '/') + pdfUrl);
+
+            let pdfUrlWithParams = absoluteUrl;
+            if (!pdfUrlWithParams.includes('#')) {
+                pdfUrlWithParams += '#toolbar=0&navpanes=0';
+            } else if (!pdfUrlWithParams.includes('toolbar=')) {
+                pdfUrlWithParams += '&toolbar=0&navpanes=0';
+            }
+
+            iframe.src = pdfUrlWithParams;
+            downloadLink.href = absoluteUrl;
             // Use title for download filename, fallback to identifier if title not provided
             const downloadFilename = title || identifier || 'document';
             downloadLink.download = downloadFilename.replace(/[^a-z0-9]/gi, '_') + '.pdf';
