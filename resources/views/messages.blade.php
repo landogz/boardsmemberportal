@@ -195,15 +195,284 @@
                 min-height: calc(100vh - 50px);
             }
         }
-        .conversations-list {
-            height: calc(100% - 60px);
-            max-height: calc(100% - 60px);
-        }
-        @media (max-width: 640px) {
-            .conversations-list {
-                height: calc(100% - 55px);
-                max-height: calc(100% - 55px);
+        /* Mobile landscape - full viewport */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .messages-page-container {
+                height: 100vh !important;
+                min-height: 100vh !important;
+                max-height: 100vh !important;
             }
+        }
+        /* Emoji Picker Responsive Styles */
+        .emoji-picker-popup {
+            overflow: hidden;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .emoji-picker-popup.hidden {
+            display: none !important;
+        }
+        .emoji-grid {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            max-height: none !important;
+        }
+        .emoji-categories {
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+            min-height: 50px !important;
+            height: 50px !important;
+            max-height: 50px !important;
+            display: flex !important;
+            align-items: center !important;
+            position: relative !important;
+            z-index: 10 !important;
+            background-color: white !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+        .dark .emoji-categories {
+            background-color: #1f2937 !important;
+            border-top-color: #374151 !important;
+        }
+        .emoji-category-btn {
+            flex-shrink: 0 !important;
+            min-width: 36px !important;
+            height: 100% !important;
+        }
+        .emoji-grid .flex {
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .emoji-grid .emoji-item {
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        /* Mobile landscape - maximize emoji picker to fit screen */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                width: calc(100vw - 64px) !important;
+                height: calc(100vh - 80px) !important;
+                max-width: calc(100vw - 64px) !important;
+                max-height: calc(100vh - 80px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .emoji-grid {
+                padding: 0.5rem !important;
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+            }
+            .emoji-grid .flex {
+                gap: 0.25rem !important;
+            }
+            .emoji-grid .emoji-item {
+                font-size: 1.25rem !important;
+                padding: 0.25rem !important;
+            }
+            .emoji-categories {
+                flex-shrink: 0 !important;
+                flex-grow: 0 !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                max-height: 50px !important;
+                position: relative !important;
+                z-index: 10 !important;
+                background-color: white !important;
+                padding: 0.5rem !important;
+                border-top: 1px solid #e5e7eb !important;
+            }
+            .dark .emoji-categories {
+                background-color: #1f2937 !important;
+                border-top-color: #374151 !important;
+            }
+            .emoji-category-btn {
+                min-width: 32px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.5rem !important;
+                height: 100% !important;
+            }
+        }
+        /* Small mobile landscape (e.g., iPhone SE landscape) */
+        @media (max-width: 667px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                height: calc(100vh - 60px) !important;
+                max-height: calc(100vh - 60px) !important;
+            }
+        }
+        /* Mobile portrait - fit to screen */
+        @media (max-width: 640px) {
+            .emoji-picker-popup {
+                width: calc(100vw - 32px) !important;
+                height: calc(100vh - 269px) !important;
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 200px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .emoji-grid {
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+            }
+            .emoji-categories {
+                flex-shrink: 0 !important;
+                flex-grow: 0 !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                max-height: 50px !important;
+                position: relative !important;
+                z-index: 10 !important;
+                background-color: white !important;
+                padding: 0.5rem !important;
+                border-top: 1px solid #e5e7eb !important;
+            }
+            .dark .emoji-categories {
+                background-color: #1f2937 !important;
+                border-top-color: #374151 !important;
+            }
+            .emoji-category-btn {
+                min-width: 32px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.5rem !important;
+                height: 100% !important;
+            }
+        }
+        /* Tablet portrait - fit to screen */
+        @media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+            .emoji-picker-popup {
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 150px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .emoji-grid {
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+            }
+            .emoji-categories {
+                flex-shrink: 0 !important;
+                flex-grow: 0 !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                max-height: 50px !important;
+                position: relative !important;
+                z-index: 10 !important;
+                background-color: white !important;
+                padding: 0.5rem !important;
+                border-top: 1px solid #e5e7eb !important;
+            }
+            .dark .emoji-categories {
+                background-color: #1f2937 !important;
+                border-top-color: #374151 !important;
+            }
+            .emoji-category-btn {
+                min-width: 32px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.5rem !important;
+                height: 100% !important;
+            }
+        }
+        /* Tablet landscape (e.g., 768x320, 1024x768) - fit to screen */
+        @media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                width: calc(100vw - 102px) !important;
+                height: calc(100vh - 80px) !important;
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 80px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .emoji-grid {
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+                padding: 0.5rem !important;
+            }
+            .emoji-grid .flex {
+                gap: 0.25rem !important;
+            }
+            .emoji-grid .emoji-item {
+                font-size: 1.25rem !important;
+                padding: 0.25rem !important;
+            }
+            .emoji-categories {
+                flex-shrink: 0 !important;
+                flex-grow: 0 !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                max-height: 50px !important;
+                position: relative !important;
+                z-index: 10 !important;
+                background-color: white !important;
+                padding: 0.5rem !important;
+                border-top: 1px solid #e5e7eb !important;
+            }
+            .dark .emoji-categories {
+                background-color: #1f2937 !important;
+                border-top-color: #374151 !important;
+            }
+            .emoji-category-btn {
+                min-width: 32px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.5rem !important;
+                height: 100% !important;
+            }
+        }
+        /* Small tablet landscape (e.g., 768x320) */
+        @media (min-width: 641px) and (max-width: 800px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                height: calc(100vh - 60px) !important;
+                max-height: calc(100vh - 60px) !important;
+            }
+        }
+        /* Desktop/Laptop - keep original size and positioning */
+        @media (min-width: 1025px) {
+            .emoji-picker-popup {
+                width: 320px !important;
+                height: 300px !important;
+                max-width: 320px !important;
+                max-height: 300px !important;
+            }
+        }
+        .conversations-list {
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+        }
+        /* Ensure back button is dark on white background by default */
+        /* This will be overridden by JavaScript for colored backgrounds */
+        .bg-white #backToConversations,
+        #backToConversations:not([style*="color"]) {
+            color: #1f2937 !important;
+        }
+        .bg-white #backToConversations i,
+        #backToConversations:not([style*="color"]) i {
+            color: #1f2937 !important;
+        }
+        /* Dark mode override */
+        .dark .bg-gray-800 #backToConversations {
+            color: #9ca3af !important;
+        }
+        .dark .bg-gray-800 #backToConversations i {
+            color: #9ca3af !important;
         }
         .chat-messages-area {
             height: calc(100% - 200px);
@@ -282,6 +551,27 @@
                 /* Add padding to messages area to account for fixed input */
                 #activeChat:not(.hidden) #chatMessagesArea {
                     padding-bottom: 120px !important;
+                }
+            }
+            /* Mobile landscape - ensure full width input */
+            @media (max-width: 896px) and (orientation: landscape) {
+                #activeChat:not(.hidden) .message-input-container {
+                    width: 100vw !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    max-width: 100vw !important;
+                }
+                #activeChat:not(.hidden) #chatMessagesArea {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    padding-bottom: 100px !important;
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                }
+                /* Ensure chat header fills width */
+                #activeChat:not(.hidden) > div:first-child {
+                    width: 100% !important;
+                    max-width: 100% !important;
                 }
             }
             /* Legacy support for older structure */
@@ -479,10 +769,97 @@
                 display: none !important;
             }
         }
+        /* Mobile landscape - same behavior as mobile portrait */
+        @media (max-width: 896px) and (orientation: landscape) {
+            /* Full viewport height when header is hidden */
+            .messages-page-container {
+                height: 100vh !important;
+                min-height: 100vh !important;
+                max-height: 100vh !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .messages-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                height: 100% !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+            }
+            .messages-container.container {
+                max-width: 100vw !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            #conversationsList.mobile-hidden {
+                display: none !important;
+            }
+            #chatArea.mobile-visible {
+                display: flex !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: 100vw !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                z-index: 40 !important;
+            }
+            /* Ensure chat area and message input are visible on mobile landscape when chat is active */
+            #chatArea.mobile-visible #activeChat:not(.hidden) {
+                display: flex !important;
+                width: 100% !important;
+                height: 100% !important;
+                flex-direction: column !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #chatArea.mobile-visible #activeChat:not(.hidden) > div:first-child {
+                width: 100% !important;
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+            }
+            #chatArea.mobile-visible #activeChat:not(.hidden) > div:last-child {
+                display: block !important;
+                visibility: visible !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            #chatArea.mobile-visible #activeChat:not(.hidden) #messageForm {
+                display: flex !important;
+                visibility: visible !important;
+                width: 100% !important;
+            }
+            /* Hide header when chat is open on mobile landscape */
+            #chatArea.mobile-visible ~ * .top-bar,
+            body:has(#chatArea.mobile-visible) .top-bar,
+            body:has(#chatArea.mobile-visible) nav {
+                display: none !important;
+            }
+        }
         /* Alternative method for browsers that don't support :has() */
         @media (max-width: 767px) {
             body.header-hidden-mobile .top-bar,
             body.header-hidden-mobile nav {
+                display: none !important;
+            }
+        }
+        /* Mobile landscape - hide header and footer */
+        @media (max-width: 896px) and (orientation: landscape) {
+            body.header-hidden-mobile .top-bar,
+            body.header-hidden-mobile nav {
+                display: none !important;
+            }
+            footer, .agency-footer, .standard-footer {
                 display: none !important;
             }
         }
@@ -779,7 +1156,7 @@
     </div>
 
     <!-- Emoji Picker Popup -->
-    <div id="emojiPickerPopup" class="hidden fixed z-[9999] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col" style="width: 320px; height: 300px;">
+    <div id="emojiPickerPopup" class="hidden fixed z-[9999] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 emoji-picker-popup" style="max-width: calc(100vw - 32px); max-height: calc(100vh - 100px);">
         @include('components.emoji-picker')
     </div>
 
@@ -1341,7 +1718,9 @@
         
         // Function to make action buttons visible on mobile
         function makeActionButtonsVisible() {
-            if (window.innerWidth <= 767) {
+            const isMobilePortrait = window.innerWidth <= 767;
+            const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+            if (isMobilePortrait || isMobileLandscape) {
                 const actionButtonContainers = document.querySelectorAll('.opacity-0.group-hover\\:opacity-100, .opacity-0');
                 actionButtonContainers.forEach(container => {
                     container.classList.remove('opacity-0');
@@ -1407,7 +1786,9 @@
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(function() {
                     // On desktop/tablet, ensure both are visible and header is shown
-                    if (window.innerWidth > 767) {
+                    const isMobilePortrait = window.innerWidth <= 767;
+                    const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+                    if (!isMobilePortrait && !isMobileLandscape) {
                         const conversationsList = document.getElementById('conversationsList');
                         const chatArea = document.getElementById('chatArea');
                         if (conversationsList) {
@@ -1595,25 +1976,104 @@
                     // Show picker
                     emojiPicker.classList.remove('hidden');
                     
-                    // Position picker beside button
-                    const buttonRect = emojiBtn.getBoundingClientRect();
-                    const pickerWidth = 320;
-                    const pickerHeight = 300;
+                    // Position picker - center on mobile/tablet, relative to button on desktop/laptop
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const isMobile = viewportWidth <= 768;
+                    const isTablet = viewportWidth > 768 && viewportWidth <= 1024;
+                    const isLandscape = viewportWidth > viewportHeight;
                     
-                    // Position above the button, aligned to the right
-                    let top = buttonRect.top - pickerHeight - 8; // 8px gap above button
-                    let left = buttonRect.right - pickerWidth; // Align right edge with button right edge
+                    let pickerWidth, pickerHeight, left, top;
                     
-                    // Adjust if picker goes off screen
-                    if (top < 8) {
-                        // If not enough space above, show below
-                        top = buttonRect.bottom + 8;
+                    if (isMobile || isTablet) {
+                        // Mobile/Tablet: Center on screen and fit to viewport
+                        // Reserve space: search bar (~60px) + category buttons (~50px) = ~110px
+                        const reservedSpace = 110;
+                        const viewportHeight = window.innerHeight;
+                        const viewportWidth = window.innerWidth;
+                        
+                        if (isMobile && isLandscape) {
+                            // Mobile landscape: use most of screen width and height
+                            // Small mobile landscape (e.g., iPhone SE)
+                            if (viewportHeight <= 400) {
+                                pickerWidth = Math.min(viewportWidth - 64, 600);
+                                pickerHeight = Math.min(viewportHeight - 60, 350);
+                            } else {
+                                pickerWidth = Math.min(viewportWidth - 64, 600);
+                                pickerHeight = Math.min(viewportHeight - 80, 450);
+                            }
+                        } else if (isMobile) {
+                            // Mobile portrait: use most of width, reasonable height
+                            pickerWidth = Math.min(viewportWidth - 32, 400);
+                            pickerHeight = Math.min(viewportHeight - 269, 400);
+                        } else if (isTablet && isLandscape) {
+                            // Tablet landscape (e.g., 768x320, 1024x768)
+                            if (viewportHeight <= 400) {
+                                // Small tablet landscape like 768x320
+                                pickerWidth = Math.min(viewportWidth - 64, 700);
+                                pickerHeight = Math.min(viewportHeight - 60, 280);
+                            } else {
+                                // Regular tablet landscape
+                                pickerWidth = Math.min(viewportWidth - 64, 700);
+                                pickerHeight = Math.min(viewportHeight - 80, 500);
+                            }
+                        } else {
+                            // Tablet portrait: larger size
+                            pickerWidth = Math.min(viewportWidth - 32, 500);
+                            pickerHeight = Math.min(viewportHeight - 150, 500);
+                        }
+                        
+                        // Ensure picker has correct dimensions
+                        emojiPicker.style.width = `${pickerWidth}px`;
+                        emojiPicker.style.height = `${pickerHeight}px`;
+                        
+                        // Center horizontally and vertically
+                        left = (window.innerWidth - pickerWidth) / 2;
+                        top = (window.innerHeight - pickerHeight) / 2;
+                        
+                        // Force category buttons to be visible
+                        setTimeout(() => {
+                            const categories = emojiPicker.querySelector('.emoji-categories');
+                            if (categories) {
+                                categories.style.display = 'flex';
+                                categories.style.visibility = 'visible';
+                                categories.style.opacity = '1';
+                                categories.style.flexShrink = '0';
+                            }
+                        }, 10);
+                    } else {
+                        // Desktop/Laptop: Position relative to button (original behavior)
+                        const buttonRect = emojiBtn.getBoundingClientRect();
+                        pickerWidth = Math.min(320, window.innerWidth - 16);
+                        pickerHeight = Math.min(300, window.innerHeight - 16);
+                        
+                        // Ensure picker has correct dimensions
+                        emojiPicker.style.width = `${pickerWidth}px`;
+                        emojiPicker.style.height = `${pickerHeight}px`;
+                        
+                        // Position above the button, aligned to the right
+                        top = buttonRect.top - pickerHeight - 8; // 8px gap above button
+                        left = buttonRect.right - pickerWidth; // Align right edge with button right edge
+                        
+                        // Adjust if picker goes off screen
+                        if (top < 8) {
+                            // If not enough space above, show below
+                            top = buttonRect.bottom + 8;
+                        }
                     }
+                    
+                    // Ensure picker stays within viewport bounds (for all screen sizes)
                     if (left < 8) {
                         left = 8;
                     }
                     if (left + pickerWidth > window.innerWidth - 8) {
-                        left = window.innerWidth - pickerWidth - 8;
+                        left = Math.max(8, window.innerWidth - pickerWidth - 8);
+                    }
+                    if (top < 8) {
+                        top = 8;
+                    }
+                    if (top + pickerHeight > window.innerHeight - 8) {
+                        top = Math.max(8, window.innerHeight - pickerHeight - 8);
                     }
                     
                     emojiPicker.style.top = `${top}px`;
@@ -1623,16 +2083,31 @@
                     setupEmojiPicker(emojiPicker);
                 } else {
                     // Hide picker
-                    emojiPicker.classList.add('hidden');
+                    closeEmojiPicker();
                 }
             });
+            
+            // Function to close emoji picker
+            function closeEmojiPicker() {
+                const emojiPicker = document.getElementById('emojiPickerPopup');
+                if (emojiPicker) {
+                    emojiPicker.classList.add('hidden');
+                    emojiPicker.style.display = 'none';
+                }
+            }
             
             // Close emoji picker when clicking outside
             document.addEventListener('click', function(e) {
                 const emojiPicker = document.getElementById('emojiPickerPopup');
                 const emojiBtn = document.getElementById('emojiBtn');
-                if (emojiPicker && !emojiPicker.contains(e.target) && e.target !== emojiBtn && !emojiBtn.contains(e.target)) {
-                    emojiPicker.classList.add('hidden');
+                const closeBtn = document.getElementById('closeEmojiPicker');
+                if (emojiPicker && 
+                    !emojiPicker.contains(e.target) && 
+                    e.target !== emojiBtn && 
+                    !emojiBtn.contains(e.target) &&
+                    e.target !== closeBtn &&
+                    !closeBtn?.contains(e.target)) {
+                    closeEmojiPicker();
                 }
             });
             
@@ -1751,7 +2226,9 @@
                     }
                     if (chatArea) {
                         chatArea.classList.remove('mobile-visible');
-                        if (window.innerWidth <= 767) {
+                        const isMobilePortrait = window.innerWidth <= 767;
+                        const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+                        if (isMobilePortrait || isMobileLandscape) {
                             chatArea.classList.add('hidden');
                         }
                     }
@@ -1770,7 +2247,9 @@
                     }
                     
                     // Show header again when going back to conversations on mobile
-                    if (window.innerWidth <= 767) {
+                    const isMobilePortrait = window.innerWidth <= 767;
+                    const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+                    if (isMobilePortrait || isMobileLandscape) {
                         document.body.classList.remove('header-hidden-mobile');
                     }
                     
@@ -2309,6 +2788,15 @@
         // Setup emoji picker functionality
         function setupEmojiPicker(emojiPicker) {
                 if (!emojiPicker) return;
+                
+                // Close button handler
+                const closeBtn = emojiPicker.querySelector('#closeEmojiPicker');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        closeEmojiPicker();
+                    });
+                }
                 
                 // Emoji search functionality
                 const emojiSearchInput = emojiPicker.querySelector('.emoji-search-input');
@@ -2999,6 +3487,30 @@
                         headerText.forEach(el => el.style.color = '');
                         const headerIcons = chatHeader.querySelectorAll('#groupSettingsBtn i, #backToConversations i');
                         headerIcons.forEach(icon => icon.style.color = '');
+                        // Reset back button and settings button colors - default to dark for white background
+                        const headerButtons = chatHeader.querySelectorAll('#groupSettingsBtn, #backToConversations');
+                        headerButtons.forEach(btn => {
+                            btn.style.color = '';
+                            const icon = btn.querySelector('i');
+                            if (icon) {
+                                icon.style.color = '';
+                            }
+                        });
+                        // After reset, ensure back button is dark for white background (default)
+                        setTimeout(() => {
+                            const computedBg = window.getComputedStyle(chatHeader).backgroundColor;
+                            const isWhite = computedBg && (computedBg.includes('255, 255, 255') || computedBg.includes('rgb(255, 255, 255)') || computedBg === 'white');
+                            if (isWhite || !computedBg || computedBg === 'rgba(0, 0, 0, 0)') {
+                                const backBtn = chatHeader.querySelector('#backToConversations');
+                                if (backBtn) {
+                                    backBtn.style.setProperty('color', '#1f2937', 'important');
+                                    const backIcon = backBtn.querySelector('i');
+                                    if (backIcon) {
+                                        backIcon.style.setProperty('color', '#1f2937', 'important');
+                                    }
+                                }
+                            }
+                        }, 10);
                     }
                     
                     // Reset message bubbles to default
@@ -3094,7 +3606,10 @@
             // Mobile: Hide conversations list, show chat area, hide header
             const conversationsList = document.getElementById('conversationsList');
             const chatArea = document.getElementById('chatArea');
-            if (window.innerWidth <= 767) {
+            const isMobilePortrait = window.innerWidth <= 767;
+            const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+            
+            if (isMobilePortrait || isMobileLandscape) {
                 if (conversationsList) {
                     conversationsList.classList.add('mobile-hidden');
                 }
@@ -3102,7 +3617,7 @@
                     chatArea.classList.add('mobile-visible');
                     chatArea.classList.remove('hidden');
                 }
-                // Hide header on mobile when chat is open
+                // Hide header on mobile (portrait and landscape) when chat is open
                 document.body.classList.add('header-hidden-mobile');
             }
             
@@ -5355,7 +5870,9 @@
                 }).join('');
                 
                 // Ensure input container stays visible by scrolling it into view on mobile
-                if (messageInputContainer && window.innerWidth <= 767) {
+                const isMobilePortrait = window.innerWidth <= 767;
+                const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+                if (messageInputContainer && (isMobilePortrait || isMobileLandscape)) {
                     setTimeout(() => {
                         messageInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }, 100);
@@ -7417,16 +7934,12 @@
                 chatMessagesArea.style.background = theme.background;
             }
             
-            // Apply theme to chat header - only if this is the active group chat
+            // Apply theme to chat header - for both group chats and single chats
             const chatHeader = document.querySelector('#activeChat .border-b.bg-white');
-            if (chatHeader && currentChatUserId && currentChatUserId.startsWith('group_')) {
-                const headerBgColor = theme.header_color || theme.accent_color;
-                chatHeader.style.setProperty('background-color', headerBgColor, 'important');
-                chatHeader.style.setProperty('border-color', headerBgColor, 'important');
-                
+            if (chatHeader) {
                 // Helper function to check if color is light
                 const isLightColor = (color) => {
-                    if (!color) return false;
+                    if (!color) return true; // Default to light (white) if no color
                     // Convert hex to RGB
                     let r, g, b;
                     if (color.startsWith('#')) {
@@ -7440,15 +7953,29 @@
                             g = parseInt(matches[1]);
                             b = parseInt(matches[2]);
                         } else {
-                            return false;
+                            return true; // Default to light if can't parse
                         }
                     } else {
-                        return false;
+                        return true; // Default to light for unknown formats
                     }
                     // Calculate luminance (YIQ formula)
                     const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
                     return yiq >= 128;
                 };
+                
+                let headerBgColor;
+                if (currentChatUserId && currentChatUserId.startsWith('group_')) {
+                    // Group chat - use theme colors
+                    headerBgColor = theme.header_color || theme.accent_color;
+                    if (headerBgColor) {
+                        chatHeader.style.setProperty('background-color', headerBgColor, 'important');
+                        chatHeader.style.setProperty('border-color', headerBgColor, 'important');
+                    }
+                } else {
+                    // Single chat or no theme - check computed background color
+                    const computedBg = window.getComputedStyle(chatHeader).backgroundColor;
+                    headerBgColor = computedBg;
+                }
                 
                 // Update header text color for readability
                 const headerText = chatHeader.querySelectorAll('#chatHeaderName, #chatHeaderStatusText');
