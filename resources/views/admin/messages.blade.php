@@ -86,6 +86,88 @@
         #emojiPickerPopup{
             background-color:#fff !important;
         }
+
+        /* Emoji Picker Responsive Styles (match user messages page) */
+        .emoji-picker-popup {
+            overflow: hidden;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .emoji-picker-popup.hidden {
+            display: none !important;
+        }
+        .emoji-grid {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            max-height: none !important;
+        }
+        .emoji-categories {
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+            min-height: 50px !important;
+            height: 50px !important;
+            max-height: 50px !important;
+            display: flex !important;
+            align-items: center !important;
+            position: relative !important;
+            z-index: 10 !important;
+            background-color: white !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+        .emoji-category-btn {
+            flex-shrink: 0 !important;
+            min-width: 32px !important;
+            height: 100% !important;
+        }
+        .emoji-grid .flex {
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .emoji-grid .emoji-item {
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        /* Mobile landscape - maximize emoji picker to fit screen */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                width: calc(100vw - 64px) !important;
+                height: calc(100vh - 80px) !important;
+                max-width: calc(100vw - 64px) !important;
+                max-height: calc(100vh - 80px) !important;
+            }
+            .emoji-grid {
+                padding: 0.5rem !important;
+            }
+        }
+        /* Mobile portrait - fit to screen */
+        @media (max-width: 640px) {
+            .emoji-picker-popup {
+                width: calc(100vw - 32px) !important;
+                height: calc(100vh - 269px) !important;
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 200px) !important;
+            }
+        }
+        /* Tablet portrait - fit to screen */
+        @media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+            .emoji-picker-popup {
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 150px) !important;
+            }
+        }
+        /* Tablet landscape (e.g., 768x320, 1024x768) - fit to screen */
+        @media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+            .emoji-picker-popup {
+                width: calc(100vw - 102px) !important;
+                height: calc(100vh - 80px) !important;
+                max-width: calc(100vw - 32px) !important;
+                max-height: calc(100vh - 80px) !important;
+            }
+        }
         /* Force light mode for conversation list */
         #conversationsList {
             background-color: #ffffff !important;
@@ -471,14 +553,9 @@
             }
         }
         .conversations-list {
-            height: calc(100% - 60px);
-            max-height: calc(100% - 60px);
-        }
-        @media (max-width: 640px) {
-            .conversations-list {
-                height: calc(100% - 55px);
-                max-height: calc(100% - 55px);
-            }
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
         }
         .chat-messages-area {
             height: calc(100% - 200px);
@@ -1164,7 +1241,7 @@
     </div>
 
     <!-- Emoji Picker Popup -->
-    <div id="emojiPickerPopup" class="hidden fixed z-[9999] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col" style="width: 320px; height: 300px;">
+    <div id="emojiPickerPopup" class="hidden fixed z-[9999] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col emoji-picker-popup" style="max-width: calc(100vw - 32px); max-height: calc(100vh - 100px);">
         @include('components.emoji-picker')
     </div>
 
@@ -2061,55 +2138,113 @@
                 });
             }
 
-            // Emoji button - show popup beside button
+            // Emoji button - show popup (responsive: center on mobile/tablet, beside button on desktop)
             const emojiBtn = document.getElementById('emojiBtn');
             if (emojiBtn) {
                 emojiBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const emojiPicker = document.getElementById('emojiPickerPopup');
                 
-                // Remove any existing picker
-                const existingPicker = document.querySelector('.emoji-picker-popup');
-                if (existingPicker && existingPicker !== emojiPicker) {
-                    existingPicker.remove();
-                }
-                
-                // Toggle picker
-                if (emojiPicker.classList.contains('hidden')) {
-                    // Show picker
-                    emojiPicker.classList.remove('hidden');
-                    
-                    // Position picker beside button
-                    const buttonRect = emojiBtn.getBoundingClientRect();
-                    const pickerWidth = 320;
-                    const pickerHeight = 300;
-                    
-                    // Position above the button, aligned to the right
-                    let top = buttonRect.top - pickerHeight - 8; // 8px gap above button
-                    let left = buttonRect.right - pickerWidth; // Align right edge with button right edge
-                    
-                    // Adjust if picker goes off screen
-                    if (top < 8) {
-                        // If not enough space above, show below
-                        top = buttonRect.bottom + 8;
-                    }
-                    if (left < 8) {
-                        left = 8;
-                    }
-                    if (left + pickerWidth > window.innerWidth - 8) {
-                        left = window.innerWidth - pickerWidth - 8;
+                    // Remove any existing picker
+                    const existingPicker = document.querySelector('.emoji-picker-popup');
+                    if (existingPicker && existingPicker !== emojiPicker) {
+                        existingPicker.remove();
                     }
                     
-                    emojiPicker.style.top = `${top}px`;
-                    emojiPicker.style.left = `${left}px`;
-                    
-                    // Setup emoji picker functionality
-                    setupEmojiPicker(emojiPicker);
-                } else {
-                    // Hide picker
-                    emojiPicker.classList.add('hidden');
-                }
-            });
+                    // Toggle picker
+                    if (emojiPicker.classList.contains('hidden')) {
+                        // Show picker
+                        emojiPicker.classList.remove('hidden');
+                        
+                        // Position picker - center on mobile/tablet, relative to button on desktop/laptop
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+                        const isMobile = viewportWidth <= 768;
+                        const isTablet = viewportWidth > 768 && viewportWidth <= 1024;
+                        const isLandscape = viewportWidth > viewportHeight;
+                        
+                        let pickerWidth, pickerHeight, left, top;
+                        
+                        if (isMobile || isTablet) {
+                            // Mobile/Tablet: Center on screen and fit to viewport
+                            const vh = viewportHeight;
+                            const vw = viewportWidth;
+                            
+                            if (isMobile && isLandscape) {
+                                // Mobile landscape: use most of screen width and height
+                                if (vh <= 400) {
+                                    pickerWidth = Math.min(vw - 64, 600);
+                                    pickerHeight = Math.min(vh - 60, 350);
+                                } else {
+                                    pickerWidth = Math.min(vw - 64, 600);
+                                    pickerHeight = Math.min(vh - 80, 450);
+                                }
+                            } else if (isMobile) {
+                                // Mobile portrait
+                                pickerWidth = Math.min(vw - 32, 400);
+                                pickerHeight = Math.min(vh - 269, 400);
+                            } else if (isTablet && isLandscape) {
+                                // Tablet landscape (e.g., 768x320, 1024x768)
+                                if (vh <= 400) {
+                                    pickerWidth = Math.min(vw - 64, 700);
+                                    pickerHeight = Math.min(vh - 60, 280);
+                                } else {
+                                    pickerWidth = Math.min(vw - 64, 700);
+                                    pickerHeight = Math.min(vh - 80, 500);
+                                }
+                            } else {
+                                // Tablet portrait
+                                pickerWidth = Math.min(vw - 32, 500);
+                                pickerHeight = Math.min(vh - 150, 500);
+                            }
+                            
+                            emojiPicker.style.width = `${pickerWidth}px`;
+                            emojiPicker.style.height = `${pickerHeight}px`;
+                            
+                            // Center
+                            left = (viewportWidth - pickerWidth) / 2;
+                            top = (viewportHeight - pickerHeight) / 2;
+                        } else {
+                            // Desktop/Laptop: Position relative to button
+                            const buttonRect = emojiBtn.getBoundingClientRect();
+                            pickerWidth = Math.min(320, window.innerWidth - 16);
+                            pickerHeight = Math.min(300, window.innerHeight - 16);
+                            
+                            emojiPicker.style.width = `${pickerWidth}px`;
+                            emojiPicker.style.height = `${pickerHeight}px`;
+                            
+                            // Position above the button, aligned to the right
+                            top = buttonRect.top - pickerHeight - 8;
+                            left = buttonRect.right - pickerWidth;
+                            
+                            if (top < 8) {
+                                top = buttonRect.bottom + 8;
+                            }
+                            
+                            if (left < 8) {
+                                left = 8;
+                            }
+                            if (left + pickerWidth > window.innerWidth - 8) {
+                                left = Math.max(8, window.innerWidth - pickerWidth - 8);
+                            }
+                        }
+                        
+                        // Ensure picker stays within viewport
+                        if (top < 8) top = 8;
+                        if (top + pickerHeight > window.innerHeight - 8) {
+                            top = Math.max(8, window.innerHeight - pickerHeight - 8);
+                        }
+                        
+                        emojiPicker.style.top = `${top}px`;
+                        emojiPicker.style.left = `${left}px`;
+                        
+                        // Setup emoji picker functionality
+                        setupEmojiPicker(emojiPicker);
+                    } else {
+                        // Hide picker
+                        emojiPicker.classList.add('hidden');
+                    }
+                });
             
             // Close emoji picker when clicking outside
             document.addEventListener('click', function(e) {
@@ -2526,6 +2661,16 @@
         // Setup emoji picker functionality
         function setupEmojiPicker(emojiPicker) {
                 if (!emojiPicker) return;
+                
+                // Close button handler (X button in header)
+                const closeBtn = emojiPicker.querySelector('#closeEmojiPicker');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        emojiPicker.classList.add('hidden');
+                        emojiPicker.style.display = 'none';
+                    });
+                }
                 
                 // Emoji search functionality
                 const emojiSearchInput = emojiPicker.querySelector('.emoji-search-input');
