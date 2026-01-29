@@ -56,8 +56,8 @@
                             </li>
                             @endcan
                             @can('view pending registrations')
-                            <li style="display: none;">
-                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
+                            <li>
+                                <a href="{{ route('admin.pending-registrations.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-clock w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Pending Registrations</span>
                                 </a>
@@ -197,8 +197,8 @@
                     </li>
                     @endif
                     @can('view reports')
-                    <li style="display: none;">
-                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
+                    <li>
+                        <a href="{{ route('admin.report-generation.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-chart-bar w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Report Generation</span>
                         </a>

@@ -249,6 +249,15 @@
                 <p class="text-gray-600 dark:text-gray-400">Register as a Board Member / Authorized Representative</p>
             </div>
 
+            <!-- Pending Approval Notice -->
+            <div class="flex items-start gap-3 p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"></i>
+                <div class="text-sm text-blue-800 dark:text-blue-200">
+                    <p class="font-medium mb-1">Registration requires CONSEC approval</p>
+                    <p class="text-blue-700 dark:text-blue-300">Your registration will be reviewed by CONSEC. You will receive an email once your account has been approved. You can then sign in with your credentials.</p>
+                </div>
+            </div>
+
             <!-- Step Indicator -->
             <div class="step-indicator">
                 <div class="step-item active" data-step="1">

@@ -16,14 +16,20 @@ class PendingRegistrationEmail extends Mailable
     public $registeredUser;
     public $adminUser;
     public $pendingRegistrationsUrl;
+    public $forRegistrant;
 
     /**
      * Create a new message instance.
+     *
+     * @param User $registeredUser The user who just registered
+     * @param User|null $adminUser The admin recipient (when notifying admins). Pass same as registeredUser when forRegistrant=true
+     * @param bool $forRegistrant When true, email is for the registering user (pending approval notice). When false, for admins (new registration alert)
      */
-    public function __construct(User $registeredUser, User $adminUser)
+    public function __construct(User $registeredUser, ?User $adminUser = null, bool $forRegistrant = false)
     {
         $this->registeredUser = $registeredUser;
-        $this->adminUser = $adminUser;
+        $this->adminUser = $adminUser ?? $registeredUser;
+        $this->forRegistrant = $forRegistrant;
         // Generate absolute URL to login page with redirect to pending registrations
         $baseUrl = config('app.url');
         $this->pendingRegistrationsUrl = rtrim($baseUrl, '/') . '/login?redirect=' . urlencode('/admin/pending-registrations');
@@ -35,7 +41,7 @@ class PendingRegistrationEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Registration Pending Approval',
+            subject: $this->forRegistrant ? 'Registration Submitted - Pending Approval' : 'New Registration Pending Approval',
         );
     }
 
@@ -50,6 +56,7 @@ class PendingRegistrationEmail extends Mailable
                 'registeredUser' => $this->registeredUser,
                 'adminUser' => $this->adminUser,
                 'pendingRegistrationsUrl' => $this->pendingRegistrationsUrl,
+                'forRegistrant' => $this->forRegistrant,
             ],
         );
     }

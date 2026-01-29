@@ -205,13 +205,35 @@
                     <!-- Header -->
                     <tr>
                         <td class="email-header">
-                            <h1>🔔 New Registration Pending Approval</h1>
+                            <h1>{{ ($forRegistrant ?? false) ? '📋 Registration Submitted' : '🔔 New Registration Pending Approval' }}</h1>
                         </td>
                     </tr>
                     
                     <!-- Body -->
                     <tr>
                         <td class="email-body">
+                            @if($forRegistrant ?? false)
+                            {{-- Email for the registering user (pending approval notice) --}}
+                            <p class="greeting">
+                                Hello <strong>{{ $registeredUser->pre_nominal_title }} {{ $registeredUser->first_name }} {{ $registeredUser->last_name }}</strong>,
+                            </p>
+                            
+                            <p class="greeting">
+                                Thank you for registering with the Board Members Portal. Your registration has been successfully submitted and is <strong>pending admin approval</strong>.
+                            </p>
+                            
+                            <div class="registration-card">
+                                <h2 class="registration-title">📋 What happens next?</h2>
+                                <p class="registration-details">
+                                    CONSEC will review your registration. You will receive another email once your account has been approved. You can then sign in using your registered credentials.
+                                </p>
+                            </div>
+                            
+                            <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
+                                If you have any questions, please contact CONSEC.
+                            </p>
+                            @else
+                            {{-- Email for admins (new registration alert) --}}
                             <p class="greeting">
                                 Hello <strong>{{ $adminUser->first_name }} {{ $adminUser->last_name }}</strong>,
                             </p>
@@ -272,6 +294,7 @@
                                 This notification was sent to you by <strong>Board Members Portal</strong>.
                                 Please review and approve or reject this registration request.
                             </p>
+                            @endif
                         </td>
                     </tr>
                     

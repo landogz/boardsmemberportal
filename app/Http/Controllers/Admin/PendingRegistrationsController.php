@@ -20,7 +20,7 @@ class PendingRegistrationsController extends Controller
     public function index()
     {
         if (!Auth::user()->hasPermission('view pending registrations')) {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view pending registrations.');
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view pending registrations.');
         }
 
         // Get pending registrations (users with status = 'pending')
@@ -39,7 +39,7 @@ class PendingRegistrationsController extends Controller
     public function show($id)
     {
         if (!Auth::user()->hasPermission('view pending registrations')) {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view pending registrations.');
+            return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view pending registrations.');
         }
 
         $user = User::where('status', 'pending')

@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\GovernmentAgency;
 use App\Services\AuditLogger;
 use App\Mail\ApprovedRegistrationEmail;
+use App\Mail\PendingRegistrationEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -65,15 +66,28 @@ class AuthController extends Controller
             }
         }
 
-        if (!$user->is_active) {
+        // Check status first (pending users have is_active=false, so status takes precedence)
+        if ($user->status === 'pending') {
             throw ValidationException::withMessages([
-                'email' => ['Your account has been deactivated.'],
+                'email' => ['Your account is pending CONSEC approval. You will receive an email once your registration has been approved.'],
+            ]);
+        }
+
+        if ($user->status === 'rejected') {
+            throw ValidationException::withMessages([
+                'email' => ['Your registration was not approved. Please contact CONSEC if you believe this is an error.'],
             ]);
         }
 
         if ($user->status !== 'approved') {
             throw ValidationException::withMessages([
-                'email' => ['Your account is pending approval.'],
+                'email' => ['Your account cannot be accessed at this time. Please contact CONSEC for assistance.'],
+            ]);
+        }
+
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Your account has been deactivated. Please contact CONSEC for assistance.'],
             ]);
         }
 
@@ -260,10 +274,10 @@ class AuthController extends Controller
             'username_edited' => false,
             'password_hash' => Hash::make($request->password),
             'privilege' => 'user',
-            'is_active' => true,
+            'is_active' => false,
             'mobile' => $request->mobile,
             'landline' => $request->landline,
-            'status' => 'approved',
+            'status' => 'pending',
             'email_verified_at' => now(),
         ]);
 
@@ -274,7 +288,7 @@ class AuthController extends Controller
 
         AuditLogger::log(
             'auth.register',
-            'User registration completed and auto-approved',
+            'User registration submitted (pending approval)',
             $user,
             [
                 'email' => $user->email,
@@ -283,19 +297,31 @@ class AuthController extends Controller
             ]
         );
 
-        // Send approval email to user
+        // Send pending approval email to the registering user
         $user->load('governmentAgency');
         try {
             Mail::to($user->email)->send(
-                new ApprovedRegistrationEmail($user)
+                new PendingRegistrationEmail($user, null, true)
             );
         } catch (\Exception $e) {
-            \Log::error('Failed to send approval email to user ' . $user->id . ': ' . $e->getMessage());
+            \Log::error('Failed to send pending registration email to user: ' . $e->getMessage());
+        }
+
+        // Send pending registration notification to admins
+        try {
+            $adminUsers = User::permission('view pending registrations')->get();
+            foreach ($adminUsers as $adminUser) {
+                Mail::to($adminUser->email)->send(
+                    new PendingRegistrationEmail($user, $adminUser, false)
+                );
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send pending registration email to admins: ' . $e->getMessage());
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Registration successful! Your account has been approved and activated. You can now login.',
+            'message' => 'Registration submitted successfully! Your account is pending CONSEC approval. You will receive an email once your registration has been approved.',
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
