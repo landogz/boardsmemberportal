@@ -91,50 +91,29 @@ class AuthController extends Controller
             ]);
         }
 
-        // Store previous session ID if user is already logged in
-        $previousSessionId = null;
-        $previousSessionDestroyed = false;
-        if ($user->is_online && $user->current_session_id) {
-            $previousSessionId = $user->current_session_id;
+        // 1. Logout other devices first: destroy all existing sessions for this user
+        $previousSessionId = $user->current_session_id;
+        $sessionsDestroyed = DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->delete();
+
+        $previousSessionDestroyed = $sessionsDestroyed > 0;
+        if ($previousSessionDestroyed) {
+            AuditLogger::log(
+                'auth.session_destroyed',
+                'Existing session(s) destroyed due to login from new device',
+                $user,
+                [
+                    'previous_session_id' => $previousSessionId,
+                    'sessions_destroyed' => $sessionsDestroyed,
+                    'new_login_ip' => $request->ip(),
+                ]
+            );
         }
 
-        // Login the user FIRST to create the new session
+        // 2. Then login on this device (creates new session)
         Auth::login($user, $request->boolean('remember'));
-
-        // Get the new session ID immediately after login
         $currentSessionId = session()->getId();
-        
-        // Now destroy ONLY the previous session (not all sessions)
-        if ($previousSessionId && $previousSessionId !== $currentSessionId) {
-            // Delete only the specific previous session
-            $sessionsDestroyed = \DB::table('sessions')
-                ->where('id', $previousSessionId)
-                ->where('user_id', $user->id)
-                ->delete();
-            
-            $previousSessionDestroyed = $sessionsDestroyed > 0;
-            
-            // Also clean up any other orphaned sessions for this user (safety measure)
-            // but keep the current session
-            \DB::table('sessions')
-                ->where('user_id', $user->id)
-                ->where('id', '!=', $currentSessionId)
-                ->delete();
-            
-            // Log the session destruction
-            if ($previousSessionDestroyed) {
-                AuditLogger::log(
-                    'auth.session_destroyed',
-                    'Previous session destroyed due to login from another device',
-                    $user,
-                    [
-                        'previous_session_id' => $previousSessionId,
-                        'new_session_id' => $currentSessionId,
-                        'new_login_ip' => $request->ip(),
-                    ]
-                );
-            }
-        }
 
         // Store the current session ID and update user status
         $user->current_session_id = $currentSessionId;
@@ -144,7 +123,7 @@ class AuthController extends Controller
 
         AuditLogger::log(
             'auth.login',
-            'User logged in' . ($previousSessionDestroyed ? ' (previous session terminated)' : ''),
+            'User logged in' . ($previousSessionDestroyed ? ' (previous session(s) terminated)' : ''),
             $user,
             [
                 'login' => $login,

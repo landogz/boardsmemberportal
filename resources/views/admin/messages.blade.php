@@ -1135,8 +1135,8 @@
 
                     <!-- Active Chat -->
                     <div id="activeChat" class="flex flex-col h-full hidden" style="position: relative; display: flex; flex-direction: column;">
-                        <!-- Chat Header -->
-                        <div class="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-white">
+                        <!-- Chat Header (sticky on mobile so it stays on top when scrolling) -->
+                        <div class="sticky top-0 z-20 flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-white">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                                     <!-- Back button for mobile -->

@@ -336,22 +336,14 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Province <span class="text-red-500">*</span></label>
-                    <select id="province_code" name="province_code" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required>
+                    <select id="province_code" name="province_code" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required disabled>
                         <option value="">Select Province</option>
-                        @foreach($provinces as $province)
-                            <option value="{{ $province->province_code }}" data-region="{{ $province->region_code }}">{{ $province->province_name }}</option>
-                        @endforeach
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">City <span class="text-red-500">*</span></label>
-                    <select id="city_code" name="city_code" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required>
-                        <option value="">Select City</option>
-                        @if(isset($cities))
-                            @foreach($cities as $city)
-                                <option value="{{ $city->city_code }}" data-province="{{ $city->province_code }}" data-region="{{ $city->region_code }}">{{ $city->city_name }}</option>
-                            @endforeach
-                        @endif
+                    <label class="block text-sm font-medium text-gray-700 mb-2">City/Municipality <span class="text-red-500">*</span></label>
+                    <select id="city_code" name="city_code" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required disabled>
+                        <option value="">Select City/Municipality</option>
                     </select>
                 </div>
                 <div class="mb-4">
@@ -381,6 +373,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -407,6 +400,9 @@
         document.getElementById('modalTitle').textContent = 'Add New {{ ucfirst($type) }}';
         document.getElementById('addressForm').reset();
         document.getElementById('itemId').value = '';
+        @if($type === 'barangays')
+        resetBarangayCascades();
+        @endif
         document.getElementById('addressModal').classList.remove('hidden');
     }
 
@@ -446,10 +442,46 @@
             document.getElementById('psgc_code').value = itemData.psgc_code || '';
         @elseif($type === 'barangays')
             document.getElementById('region_code').value = itemData.region_code || '';
-            document.getElementById('province_code').value = itemData.province_code || '';
-            document.getElementById('city_code').value = itemData.city_code || '';
             document.getElementById('brgy_code').value = itemData.brgy_code || '';
             document.getElementById('brgy_name').value = itemData.brgy_name || '';
+            // Load provinces for region, then cities for province, then set selections
+            const regionCode = itemData.region_code;
+            const provinceCode = itemData.province_code;
+            const cityCode = itemData.city_code;
+            const provinceSelect = document.getElementById('province_code');
+            const citySelect = document.getElementById('city_code');
+            provinceSelect.innerHTML = '<option value="">Loading...</option>';
+            provinceSelect.disabled = true;
+            citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+            citySelect.disabled = true;
+            axios.get('/api/address/provinces', { params: { region_code: regionCode } })
+                .then(function(r) {
+                    provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                    r.data.forEach(function(p) {
+                        const opt = document.createElement('option');
+                        opt.value = p.province_code;
+                        opt.textContent = p.province_name;
+                        provinceSelect.appendChild(opt);
+                    });
+                    provinceSelect.value = provinceCode || '';
+                    provinceSelect.disabled = false;
+                    return axios.get('/api/address/cities', { params: { province_code: provinceCode } });
+                })
+                .then(function(r) {
+                    citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                    r.data.forEach(function(c) {
+                        const opt = document.createElement('option');
+                        opt.value = c.city_code;
+                        opt.textContent = c.city_name;
+                        citySelect.appendChild(opt);
+                    });
+                    citySelect.value = cityCode || '';
+                    citySelect.disabled = false;
+                })
+                .catch(function() {
+                    provinceSelect.innerHTML = '<option value="">Error loading</option>';
+                    provinceSelect.disabled = false;
+                });
         @endif
 
         document.getElementById('addressModal').classList.remove('hidden');
@@ -564,8 +596,8 @@
         });
     }
 
-    // Cascading dropdowns for cities and barangays
-    @if($type === 'cities' || $type === 'barangays')
+    // Cascading dropdowns: Cities tab (region filters province by data-region)
+    @if($type === 'cities')
     document.getElementById('region_code')?.addEventListener('change', function() {
         const regionCode = this.value;
         const provinceSelect = document.getElementById('province_code');
@@ -578,28 +610,79 @@
                 }
             });
             provinceSelect.value = '';
-            if (document.getElementById('city_code')) {
-                document.getElementById('city_code').value = '';
-            }
-        }
-    });
-
-    @if($type === 'barangays')
-    document.getElementById('province_code')?.addEventListener('change', function() {
-        const provinceCode = this.value;
-        const citySelect = document.getElementById('city_code');
-        if (citySelect) {
-            Array.from(citySelect.options).forEach(option => {
-                if (option.value && option.dataset.province !== provinceCode) {
-                    option.style.display = 'none';
-                } else {
-                    option.style.display = 'block';
-                }
-            });
-            citySelect.value = '';
         }
     });
     @endif
+
+    // Barangays: populate Province when Region selected, City when Province selected (via API)
+    @if($type === 'barangays')
+    function resetBarangayCascades() {
+        const provinceSelect = document.getElementById('province_code');
+        const citySelect = document.getElementById('city_code');
+        if (provinceSelect) {
+            provinceSelect.innerHTML = '<option value="">Select Province</option>';
+            provinceSelect.disabled = true;
+        }
+        if (citySelect) {
+            citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+            citySelect.disabled = true;
+        }
+    }
+
+    document.getElementById('region_code')?.addEventListener('change', function() {
+        const regionCode = this.value;
+        const provinceSelect = document.getElementById('province_code');
+        const citySelect = document.getElementById('city_code');
+        if (!provinceSelect || !citySelect) return;
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        provinceSelect.disabled = true;
+        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+        citySelect.disabled = true;
+        if (!regionCode) return;
+        provinceSelect.disabled = true;
+        provinceSelect.innerHTML = '<option value="">Loading...</option>';
+        axios.get('/api/address/provinces', { params: { region_code: regionCode } })
+            .then(function(response) {
+                provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                response.data.forEach(function(p) {
+                    const opt = document.createElement('option');
+                    opt.value = p.province_code;
+                    opt.textContent = p.province_name;
+                    provinceSelect.appendChild(opt);
+                });
+                provinceSelect.disabled = false;
+            })
+            .catch(function() {
+                provinceSelect.innerHTML = '<option value="">Error loading provinces</option>';
+                provinceSelect.disabled = false;
+            });
+    });
+
+    document.getElementById('province_code')?.addEventListener('change', function() {
+        const provinceCode = this.value;
+        const citySelect = document.getElementById('city_code');
+        if (!citySelect) return;
+        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+        citySelect.disabled = true;
+        if (!provinceCode) return;
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">Loading...</option>';
+        axios.get('/api/address/cities', { params: { province_code: provinceCode } })
+            .then(function(response) {
+                citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                response.data.forEach(function(c) {
+                    const opt = document.createElement('option');
+                    opt.value = c.city_code;
+                    opt.textContent = c.city_name;
+                    citySelect.appendChild(opt);
+                });
+                citySelect.disabled = false;
+            })
+            .catch(function() {
+                citySelect.innerHTML = '<option value="">Error loading cities</option>';
+                citySelect.disabled = false;
+            });
+    });
     @endif
 </script>
 @endpush
