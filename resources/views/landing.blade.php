@@ -810,37 +810,37 @@
         <div class="container mx-auto px-4 sm:px-6">
             <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
                 <!-- Vision -->
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                <div class="w-full min-w-0 rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">👁️</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Vision</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-justify">
                         The DDB envisions "Drug-Free Communities".
                     </p>
                 </div>
                 <!-- Mission -->
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                <div class="w-full min-w-0 rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">🎯</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mission</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-justify">
                         The Dangerous Drugs Board is committed to stamping out the illicit supply of and demand for dangerous drugs
                         and precursor chemicals, and to promote regional and international cooperation in drug abuse prevention and control.
                     </p>
                 </div>
                 <!-- Mandate -->
-                <div class="rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
+                <div class="w-full min-w-0 rounded-2xl sm:rounded-3xl p-6 sm:p-8 mx-auto md:mx-0" style="background: linear-gradient(135deg, rgba(5, 84, 152, 0.2) 0%, rgba(18, 58, 96, 0.2) 100%); border: 1px solid rgba(5, 84, 152, 0.3);">
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4 sm:mb-6 neon-glow mx-auto md:mx-0" style="background-color: #055498;">
                         <span class="text-2xl sm:text-3xl">📜</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-center md:text-left">Mandate</h2>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify mb-3">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-justify mb-3">
                         Republic Act No. 9165 or the Comprehensive Dangerous Drugs Act of 2002 mandates the DDB to be the
                         policy-making and strategy-formulating body on drug prevention and control.
                     </p>
-                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-center md:text-justify">
+                    <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-justify">
                         It shall develop and adopt a comprehensive, integrated, unified and balanced national drug abuse
                         prevention and control strategy.
                     </p>
