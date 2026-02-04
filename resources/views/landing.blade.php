@@ -623,8 +623,8 @@
                                     <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Notices</span>
                                 </div>
                             </div>
-                    </div>
-                        <!-- <div class="flex gap-2">
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
                             <button id="printCalendarBtn" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors inline-flex items-center" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                                 <i class="fas fa-print mr-2"></i>
                                 <span>Print</span>
@@ -633,8 +633,8 @@
                                 <i class="fas fa-filter mr-2"></i>
                                 <span>Filter</span>
                             </button>
-                        </div> -->
-                </div>
+                        </div>
+                    </div>
 
                     <!-- Advanced Filter Panel -->
                     <div id="filterPanelLanding" class="hidden mb-4 p-4 bg-gray-50 dark:bg-[#0F172A] rounded-lg border border-gray-200 dark:border-gray-700">
