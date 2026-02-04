@@ -2921,8 +2921,9 @@
                 });
             }
 
-            // Emoji picker toggle
-            if (emojiBtn && emojiPicker) {
+            // Emoji picker toggle (run setup once per picker to avoid duplicate listeners on mobile)
+            if (emojiBtn && emojiPicker && emojiPicker.dataset.emojiSetup !== '1') {
+                emojiPicker.dataset.emojiSetup = '1';
                 emojiBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     emojiPicker.classList.toggle('hidden');
@@ -3054,23 +3055,28 @@
                     });
                 }
 
-                // Emoji selection
-                const emojiItems = emojiPicker.querySelectorAll('.emoji-item');
-                emojiItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        const emoji = this.getAttribute('data-emoji');
+                // Emoji selection: single delegated listener + throttle to avoid duplicate insert on mobile (touch + click)
+                const emojiGrid = emojiPicker.querySelector('.emoji-grid');
+                if (emojiGrid) {
+                    let lastEmojiInsert = 0;
+                    emojiGrid.addEventListener('click', function(e) {
+                        const item = e.target.closest('.emoji-item');
+                        if (!item) return;
+                        const now = Date.now();
+                        if (now - lastEmojiInsert < 350) return;
+                        lastEmojiInsert = now;
+                        const emoji = item.getAttribute('data-emoji');
                         const input = chatElement.querySelector('.chat-input');
                         if (input) {
                             input.value += emoji;
                             input.focus();
                         }
-                        // Clear search after selection
                         if (emojiSearchInput) {
                             emojiSearchInput.value = '';
                             emojiSearchInput.dispatchEvent(new Event('input'));
                         }
                     });
-                });
+                }
 
                 // Emoji category switching
                 const categoryBtns = emojiPicker.querySelectorAll('.emoji-category-btn');
