@@ -1368,8 +1368,8 @@
                             <span>Save Changes</span>
                         </button>
 
-                        <!-- Danger zone: delete group (admin only) -->
-                        <div class="mt-6 pt-4 border-t border-gray-200">
+                        <!-- Danger zone: delete group (only visible to group admins) -->
+                        <div id="deleteGroupSection" class="mt-6 pt-4 border-t border-gray-200" style="display: none;">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="w-1 h-5 rounded-full bg-red-500"></div>
                                 <h4 class="text-sm font-semibold text-gray-800">Danger Zone</h4>
@@ -6994,6 +6994,12 @@
                     const name = currentGroupData.name || 'Group';
                     avatarPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=80&background=055498&color=fff`;
                 }
+            }
+            
+            // Show Delete Group section only to group admins (backend also enforces this)
+            const deleteGroupSection = document.getElementById('deleteGroupSection');
+            if (deleteGroupSection) {
+                deleteGroupSection.style.display = (window.currentGroupIsAdmin === true) ? '' : 'none';
             }
             
             // Populate members list
