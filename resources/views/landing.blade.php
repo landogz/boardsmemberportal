@@ -2177,6 +2177,12 @@
             text-align: center;
         }
         
+        /* Vision, Mission & Mandate: force justified text on all devices */
+        #vision .rounded-2xl p,
+        #vision .rounded-3xl p {
+            text-align: justify !important;
+        }
+        
         .no-data {
             padding: 30px;
             text-align: center;
