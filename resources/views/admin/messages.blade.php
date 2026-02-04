@@ -1367,6 +1367,21 @@
                             <i class="fas fa-save text-sm"></i>
                             <span>Save Changes</span>
                         </button>
+
+                        <!-- Danger zone: delete group (admin only) -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-1 h-5 rounded-full bg-red-500"></div>
+                                <h4 class="text-sm font-semibold text-gray-800">Danger Zone</h4>
+                            </div>
+                            <p class="text-xs sm:text-sm text-gray-500 mb-3">
+                                Deleting this group will remove the group chat for all members. This action cannot be undone.
+                            </p>
+                            <button id="deleteGroupBtn" type="button" class="w-full px-4 py-3 sm:py-2.5 text-white text-sm sm:text-base font-semibold rounded-lg bg-red-600 hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2 min-h-[44px]">
+                                <i class="fas fa-trash-alt text-sm"></i>
+                                <span>Delete Group</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -7512,6 +7527,106 @@
                 });
             });
         }
+
+        async function deleteGroup() {
+            if (!window.currentGroupId) {
+                return;
+            }
+
+            try {
+                const result = await Swal.fire({
+                    title: 'Delete Group?',
+                    text: 'This will permanently delete this group chat for all members. This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete group',
+                    cancelButtonText: 'Cancel'
+                });
+
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                // Show loading (do not await – we close it after the request)
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while we delete this group.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const response = await axios.delete(`{{ route('messages.groups.destroy', 'PLACEHOLDER') }}`.replace('PLACEHOLDER', window.currentGroupId));
+
+                Swal.close();
+
+                if (!response.data?.success) {
+                    throw new Error(response.data?.message || 'Failed to delete group.');
+                }
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: response.data.message || 'Group deleted successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                // Close group settings modal
+                const groupSettingsModal = document.getElementById('groupSettingsModal');
+                if (groupSettingsModal) {
+                    groupSettingsModal.classList.add('hidden');
+                }
+
+                // If the deleted group is the currently open chat, reset chat area to empty state
+                if (currentChatUserId === 'group_' + window.currentGroupId) {
+                    const chatArea = document.getElementById('chatArea');
+                    const activeChat = document.getElementById('activeChat');
+                    const chatEmptyState = document.getElementById('chatEmptyState');
+                    const emptyStateInput = document.getElementById('emptyStateMessageInput');
+
+                    if (chatArea && window.innerWidth <= 767) {
+                        chatArea.classList.add('hidden');
+                        chatArea.classList.remove('mobile-visible');
+                    }
+                    if (activeChat) {
+                        activeChat.classList.add('hidden');
+                    }
+                    if (chatEmptyState) {
+                        chatEmptyState.classList.remove('hidden');
+                    }
+                    if (emptyStateInput) {
+                        emptyStateInput.style.display = 'none';
+                    }
+
+                    const messageForm = document.getElementById('messageForm');
+                    const messageInputContainer = messageForm?.closest('div');
+                    if (messageInputContainer) {
+                        messageInputContainer.style.display = 'none';
+                    }
+
+                    if (window.innerWidth <= 767) {
+                        document.body.classList.remove('header-hidden-mobile');
+                    }
+
+                    currentChatUserId = null;
+                }
+
+                // Reload conversations to remove the deleted group from the list
+                loadConversations();
+            } catch (error) {
+                console.error('Error deleting group:', error);
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || error.message || 'Failed to delete group. Please try again.',
+                });
+            }
+        }
         
         // Select a theme
         function selectTheme(themeId) {
@@ -8290,6 +8405,11 @@
             const saveGroupInfoBtn = document.getElementById('saveGroupInfoBtn');
             if (saveGroupInfoBtn) {
                 saveGroupInfoBtn.addEventListener('click', saveGroupInfo);
+            }
+
+            const deleteGroupBtn = document.getElementById('deleteGroupBtn');
+            if (deleteGroupBtn) {
+                deleteGroupBtn.addEventListener('click', deleteGroup);
             }
             
             // Tab switching
