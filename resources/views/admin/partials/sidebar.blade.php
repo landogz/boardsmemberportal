@@ -205,8 +205,8 @@
                     </li>
                     @endcan
                     @if(Auth::check() && Auth::user()->hasPermission('view audit logs'))
-                    <li style="display: none;">
-                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.index') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.index') ? 'background-color:#055498;' : '' }}">
+                    <li>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-clipboard-check w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Audit Logs</span>
                         </a>
