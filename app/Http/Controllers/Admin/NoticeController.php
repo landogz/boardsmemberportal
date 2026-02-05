@@ -105,7 +105,11 @@ class NoticeController extends Controller
             'attachments.*' => 'exists:media_library,id',
             'allowed_users' => 'required|array|min:1',
             'allowed_users.*' => 'exists:users,id',
-            'cc_emails' => 'nullable|string|max:1000',
+            'cc_emails' => 'nullable|array',
+            'cc_emails.*.name' => 'required_with:cc_emails.*|string|max:255',
+            'cc_emails.*.email' => 'required_with:cc_emails.*|email|max:255',
+            'cc_emails.*.position' => 'nullable|string|max:255',
+            'cc_emails.*.agency' => 'nullable|string|max:255',
         ], [
             'title.required' => 'The title field is required.',
             'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda type.',
@@ -185,13 +189,12 @@ class NoticeController extends Controller
 
             // Send emails to CC users (non-registered users)
             if (!empty($validated['cc_emails'])) {
-                $ccEmails = array_map('trim', explode(',', $validated['cc_emails']));
-                foreach ($ccEmails as $ccEmail) {
-                    if (filter_var($ccEmail, FILTER_VALIDATE_EMAIL)) {
+                foreach ($validated['cc_emails'] as $ccData) {
+                    if (!empty($ccData['email']) && filter_var($ccData['email'], FILTER_VALIDATE_EMAIL)) {
                         try {
-                            Mail::to($ccEmail)->send(new NoticeCcEmail($notice, $ccEmail));
+                            Mail::to($ccData['email'])->send(new NoticeCcEmail($notice, $ccData['email']));
                         } catch (\Exception $e) {
-                            \Log::error('Failed to send notice CC email to ' . $ccEmail . ': ' . $e->getMessage());
+                            \Log::error('Failed to send notice CC email to ' . ($ccData['email'] ?? '') . ': ' . $e->getMessage());
                         }
                     }
                 }
