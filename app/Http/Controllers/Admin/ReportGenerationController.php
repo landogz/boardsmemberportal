@@ -41,8 +41,17 @@ class ReportGenerationController extends Controller
             ->orderBy('meeting_date', 'desc')
             ->orderBy('title')
             ->get();
+
+        // Get distinct years from Board Issuances for Summary of Regular Meeting (so year dropdown works on first load)
+        $availableYears = Notice::where('notice_type', 'Board Issuances')
+            ->whereNotNull('meeting_date')
+            ->selectRaw('YEAR(meeting_date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
         
-        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices'));
+        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices', 'availableYears'));
     }
 
     /**
