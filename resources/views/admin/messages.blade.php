@@ -2108,6 +2108,51 @@
                     }
                 }, 250);
             });
+
+            // Mobile: when keyboard closes, bring message input back to bottom and keep it tappable
+            function repositionMessageInputForMobile() {
+                if (window.innerWidth > 1024) return;
+                const input = document.getElementById('messageInput');
+                const container = input?.closest('.message-input-container');
+                if (!input || !container) return;
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        window.scrollTo(0, 0);
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        var activeChat = document.getElementById('activeChat');
+                        if (activeChat && !activeChat.classList.contains('hidden')) {
+                            var chatArea = document.getElementById('chatArea');
+                            if (chatArea && chatArea.scrollHeight > chatArea.clientHeight) {
+                                chatArea.scrollTop = chatArea.scrollHeight;
+                            }
+                            var msgs = document.getElementById('chatMessagesArea');
+                            if (msgs) msgs.scrollTop = msgs.scrollHeight;
+                        }
+                        container.style.bottom = '0';
+                        container.style.left = '0';
+                        container.style.right = '0';
+                        container.offsetHeight;
+                    });
+                });
+            }
+            const messageInputEl = document.getElementById('messageInput');
+            if (messageInputEl) {
+                messageInputEl.addEventListener('blur', function() {
+                    setTimeout(repositionMessageInputForMobile, 350);
+                });
+            }
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', function() {
+                    setTimeout(repositionMessageInputForMobile, 100);
+                });
+                window.visualViewport.addEventListener('scroll', function() {
+                    setTimeout(repositionMessageInputForMobile, 50);
+                });
+            }
+            window.addEventListener('resize', function() {
+                setTimeout(repositionMessageInputForMobile, 300);
+            });
         });
 
         // Function to reset user selection modal state (global scope)
