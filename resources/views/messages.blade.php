@@ -522,7 +522,7 @@
                 display: flex !important;
                 flex-direction: column;
             }
-            /* Fix input container at bottom on mobile and tablet (up to 1024px) */
+            /* Fix input container at bottom on mobile and tablet (up to 1024px) – compact so it doesn’t cover screen */
             @media (max-width: 1024px) {
                 #activeChat:not(.hidden) .message-input-container {
                     display: block !important;
@@ -534,9 +534,9 @@
                     background: white !important;
                     z-index: 50 !important;
                     border-top: 1px solid #e5e7eb !important;
-                    padding: 12px !important;
-                    padding-top: 10px !important;
-                    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                    padding: 6px 10px !important;
+                    padding-top: 4px !important;
+                    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.06) !important;
                     margin: 0 !important;
                 }
                 .dark #activeChat:not(.hidden) .message-input-container {
@@ -545,63 +545,94 @@
                 }
                 @supports (padding-bottom: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
-                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                        padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
                     }
                 }
+                /* Compact form row on mobile/tablet */
+                #activeChat:not(.hidden) .message-input-container #messageForm {
+                    gap: 4px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #messageForm button {
+                    min-width: 36px !important;
+                    min-height: 36px !important;
+                    padding: 6px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #messageInput {
+                    padding-top: 8px !important;
+                    padding-bottom: 8px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #replyIndicator,
+                #activeChat:not(.hidden) .message-input-container #voiceRecorder {
+                    margin-bottom: 4px !important;
+                    padding: 6px 8px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #filePreview {
+                    max-height: 64px !important;
+                }
                 #activeChat:not(.hidden) #chatMessagesArea {
-                    padding-bottom: 120px !important;
+                    padding-bottom: 88px !important;
                 }
             }
-            /* Mobile portrait: compact top, safe areas */
+            /* Mobile portrait: minimal padding so bar doesn’t cover screen */
             @media (max-width: 767px) and (orientation: portrait) {
                 #activeChat:not(.hidden) .message-input-container {
-                    padding: 10px 12px !important;
-                    padding-top: 8px !important;
+                    padding: 4px 8px !important;
+                    padding-top: 4px !important;
                 }
                 @supports (padding: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
-                        padding-left: calc(12px + env(safe-area-inset-left)) !important;
-                        padding-right: calc(12px + env(safe-area-inset-right)) !important;
-                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                        padding-left: calc(8px + env(safe-area-inset-left)) !important;
+                        padding-right: calc(8px + env(safe-area-inset-right)) !important;
+                        padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
                     }
                 }
                 #activeChat:not(.hidden) .message-input-container #replyIndicator,
                 #activeChat:not(.hidden) .message-input-container #voiceRecorder {
-                    margin-bottom: 8px !important;
+                    margin-bottom: 4px !important;
+                    padding: 4px 6px !important;
                 }
                 #activeChat:not(.hidden) #chatMessagesArea {
-                    padding-bottom: 100px !important;
+                    padding-bottom: 76px !important;
                 }
             }
-            /* Mobile landscape: minimal vertical padding, full width, safe areas */
+            /* Mobile landscape: very compact bar */
             @media (max-width: 896px) and (orientation: landscape) {
                 #activeChat:not(.hidden) .message-input-container {
                     width: 100vw !important;
                     left: 0 !important;
                     right: 0 !important;
                     max-width: 100vw !important;
-                    padding: 6px 10px !important;
-                    padding-top: 6px !important;
+                    padding: 4px 8px !important;
+                    padding-top: 4px !important;
                 }
                 @supports (padding: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
-                        padding-left: calc(10px + env(safe-area-inset-left)) !important;
-                        padding-right: calc(10px + env(safe-area-inset-right)) !important;
-                        padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+                        padding-left: calc(8px + env(safe-area-inset-left)) !important;
+                        padding-right: calc(8px + env(safe-area-inset-right)) !important;
+                        padding-bottom: calc(4px + env(safe-area-inset-bottom)) !important;
                     }
                 }
                 #activeChat:not(.hidden) .message-input-container #messageForm {
-                    gap: 6px !important;
+                    gap: 4px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #messageForm button {
+                    min-width: 32px !important;
+                    min-height: 32px !important;
+                    padding: 4px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #messageInput {
+                    padding-top: 6px !important;
+                    padding-bottom: 6px !important;
                 }
                 #activeChat:not(.hidden) .message-input-container #replyIndicator,
                 #activeChat:not(.hidden) .message-input-container #voiceRecorder {
-                    margin-bottom: 6px !important;
-                    padding: 6px 8px !important;
+                    margin-bottom: 4px !important;
+                    padding: 4px 6px !important;
                 }
                 #activeChat:not(.hidden) #chatMessagesArea {
                     width: 100% !important;
                     max-width: 100% !important;
-                    padding-bottom: 72px !important;
+                    padding-bottom: 56px !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
                 }
@@ -613,28 +644,28 @@
             /* Tablet portrait */
             @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
                 #activeChat:not(.hidden) .message-input-container {
-                    padding: 12px 16px !important;
-                    padding-top: 10px !important;
+                    padding: 6px 12px !important;
+                    padding-top: 6px !important;
                 }
                 @supports (padding-bottom: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
-                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                        padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
                     }
                 }
             }
             /* Tablet landscape */
             @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
                 #activeChat:not(.hidden) .message-input-container {
-                    padding: 8px 12px !important;
-                    padding-top: 8px !important;
+                    padding: 4px 10px !important;
+                    padding-top: 4px !important;
                 }
                 @supports (padding-bottom: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
-                        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+                        padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
                     }
                 }
                 #activeChat:not(.hidden) #chatMessagesArea {
-                    padding-bottom: 88px !important;
+                    padding-bottom: 64px !important;
                 }
             }
             /* Legacy support for older structure */
