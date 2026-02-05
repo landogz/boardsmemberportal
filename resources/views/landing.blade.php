@@ -909,8 +909,11 @@
                         </div>
                         <div>
                             <label for="contact_message" class="block text-sm font-semibold mb-2">Message <span class="text-red-500">*</span></label>
-                            <textarea id="contact_message" name="message" rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base resize-y" placeholder="Your message..." required></textarea>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                            <textarea id="contact_message" name="message" rows="5" maxlength="500" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none text-base resize-y" placeholder="Your message..." required></textarea>
+                            <div class="flex justify-between items-center mt-1">
+                                <div class="error-message text-red-500 text-xs hidden"></div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 ml-auto"><span id="contact_message_count">0</span> / 500</p>
+                            </div>
                         </div>
                         <button type="submit" id="contactSubmitBtn" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-bold hover:scale-105 transition transform shadow-lg text-sm sm:text-base min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
                             <span class="submit-text">Send Message</span>
@@ -1127,6 +1130,15 @@
                         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
                     }
                     
+                    // Contact message character count (max 500)
+                    var contactMessageMax = 500;
+                    function updateContactMessageCount() {
+                        var len = ($('#contact_message').val() || '').length;
+                        $('#contact_message_count').text(len);
+                    }
+                    $('#contact_message').on('input', updateContactMessageCount);
+                    updateContactMessageCount();
+
                     // Contact form
                     $('#contactForm').on('submit', function(e) {
                         e.preventDefault();
@@ -1201,6 +1213,7 @@
                                     }).then(() => {
                                         form[0].reset();
                                         form.find('input, textarea').removeClass('border-red-500');
+                                        updateContactMessageCount();
                                     });
                                 } else {
                                     throw new Error(response.data.message || 'Failed to send message.');

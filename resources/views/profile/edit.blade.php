@@ -696,8 +696,8 @@
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: (02) 8912-12345 (Optional)</p>
                     </div>
 
-                    <!-- Additional Information -->
-                    <div class="mb-4">
+                    <!-- Additional Information (Company hidden) -->
+                    <div class="mb-4 hidden">
                         <label for="company" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company</label>
                         <input 
                             type="text" 

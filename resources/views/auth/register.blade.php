@@ -644,8 +644,8 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Philippine mobile: +63 followed by 10 digits (e.g. +639171234567)</p>
                         </div>
 
-                        <!-- Landline -->
-                        <div>
+                        <!-- Landline (hidden) -->
+                        <div class="hidden">
                             <label for="landline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Landline / Office Number</label>
                             <input 
                                 type="text" 
