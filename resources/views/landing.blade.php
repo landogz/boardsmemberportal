@@ -587,12 +587,12 @@
     </div>
 
     @auth
-    <!-- Activities Calendar Section (Logged In Users Only) -->
+    <!-- Calendar of Activities Section (Logged In Users Only) -->
     <section id="calendar-activities" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="max-w-6xl mx-auto">
                 <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 gradient-text px-2">
-                    Activities Calendar
+                    Calendar of Activities
             </h2>
                 <p class="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-2">
                     View meetings, announcements, and scheduled events
@@ -602,7 +602,7 @@
                         <div class="flex-1 min-w-0">
                             <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">
                                 <i class="fas fa-calendar-alt mr-2" style="color: #055498;"></i>
-                                Activities Calendar
+                                Calendar of Activities
                             </h3>
                             <!-- Color Legend -->
                             <div class="flex items-center gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-0">
@@ -2279,7 +2279,7 @@
 <body>
     <div class="header">
         <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
-        <h1>Activities Calendar Report</h1>
+        <h1>Calendar of Activities Report</h1>
         <p>Board Member Portal - Calendar Events</p>
     </div>
     

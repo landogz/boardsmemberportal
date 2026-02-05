@@ -14,7 +14,7 @@
         <p class="text-xs sm:text-sm text-gray-600 mt-1">View meetings, announcements, and scheduled events</p>
     </div>
     
-    <!-- Activities Calendar Section -->
+    <!-- Calendar of Activities Section -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
         <div class="mb-3 sm:mb-4 flex flex-col gap-3 sm:gap-4">
             <!-- Header Row -->
@@ -22,7 +22,7 @@
                 <div class="flex-1 min-w-0">
                     <h3 class="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-2 sm:mb-0">
                         <i class="fas fa-calendar-alt mr-1.5 sm:mr-2" style="color: #055498;"></i>
-                        Activities Calendar
+                        Calendar of Activities
                     </h3>
                     <!-- Color Legend - Mobile Optimized -->
                     <div class="flex items-center gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-0">
@@ -674,7 +674,7 @@
 <body>
     <div class="header">
         <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
-        <h1>Activities Calendar Report</h1>
+        <h1>Calendar of Activities Report</h1>
         <p>Board Member Portal - Calendar Events</p>
     </div>
     
