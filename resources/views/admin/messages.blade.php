@@ -559,15 +559,27 @@
         }
         .chat-messages-area {
             height: calc(100% - 200px);
-            max-height: calc(100% - 200px);
+            max-height: calc(100% - 236px);
             overflow-y: auto;
             overflow-x: hidden;
         }
+        /* Mobile and tablet: fill space between header and fixed input bar (no fixed pixel calc) */
+        @media (max-width: 1024px) {
+            .chat-messages-area,
+            #chatMessagesArea {
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            }
+        }
         @media (max-width: 640px) {
             .chat-messages-area {
-                flex: 1 1 auto;
-                min-height: 0;
-                overflow-y: auto;
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
             }
             /* Ensure voice messages have proper sizing on mobile */
             .voice-message-container {
