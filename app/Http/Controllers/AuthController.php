@@ -374,38 +374,43 @@ class AuthController extends Controller
             $meta
         );
 
-        // Only send email if user exists (security: don't reveal if email exists)
-        if ($user) {
-            // Generate password reset token
-            $token = Str::random(64);
-            
-            // Store token in password_reset_tokens table
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $user->email],
-                [
-                    'token' => Hash::make($token),
-                    'created_at' => now(),
-                ]
-            );
-
-            // Send password reset email
-            try {
-                \Illuminate\Support\Facades\Mail::to($user->email)->send(
-                    new \App\Mail\PasswordResetEmail($user, $token)
-                );
-            } catch (\Exception $e) {
-                \Log::error('Failed to send password reset email to user ' . $user->id . ': ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to send password reset email. Please try again later.',
-                ], 500);
-            }
+        // Check if email/username is registered
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This email or username is not registered.',
+                'errors' => ['email' => ['This email or username is not registered.']],
+            ], 422);
         }
 
-        // Always return success message (security: don't reveal if email exists)
+        // Generate password reset token
+        $token = Str::random(64);
+
+        // Store token in password_reset_tokens table
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        // Send password reset email
+        try {
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                new \App\Mail\PasswordResetEmail($user, $token)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email to user ' . $user->id . ': ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send password reset email. Please try again later.',
+            ], 500);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'If the account exists, password reset instructions have been sent to the registered email.',
+            'message' => 'Password reset instructions have been sent to your registered email.',
         ]);
     }
 

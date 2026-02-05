@@ -191,11 +191,17 @@
                     });
                 },
                 error: function(xhr) {
+                    Swal.close();
                     if (xhr.status === 422 && xhr.responseJSON?.errors) {
                         const errors = xhr.responseJSON.errors;
                         if (errors.email) {
                             $('#email-error').removeClass('hidden').text(errors.email[0]);
                         }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Not Registered',
+                            text: xhr.responseJSON?.message || 'This email or username is not registered.'
+                        });
                     } else {
                         Swal.fire({
                             icon: 'error',
