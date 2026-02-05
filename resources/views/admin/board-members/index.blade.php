@@ -322,10 +322,12 @@
                                             </button>
                                             @endcan
                                             @can('delete board members')
+                                            @if(Auth::user()->privilege !== 'consec')
                                             <button type="button" class="delete-account-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-account-id="{{ $account->id }}">
                                                 <i class="fas fa-trash w-4 mr-3"></i>
                                                 Delete Account
                                             </button>
+                                            @endif
                                             @endcan
                                         </div>
                                     </div>
