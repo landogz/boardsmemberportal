@@ -610,16 +610,16 @@
                     font-size: 0.65rem !important;
                 }
             }
-            /* Fix message input at bottom of screen on mobile and tablet */
+        }
+        /* Fix message input at bottom + messages area: mobile AND tablet (portrait + landscape) */
+        @media (max-width: 1024px) {
             #activeChat:not(.hidden) {
                 position: relative;
                 height: 100%;
                 display: flex !important;
                 flex-direction: column;
             }
-            /* Fix input container at bottom on mobile and tablet (up to 1024px) */
-            @media (max-width: 1024px) {
-                #activeChat:not(.hidden) .message-input-container {
+            #activeChat:not(.hidden) .message-input-container {
                     display: block !important;
                     visibility: visible !important;
                     position: fixed !important;
@@ -642,7 +642,6 @@
                 #activeChat:not(.hidden) #chatMessagesArea {
                     padding-bottom: 120px !important;
                 }
-            }
             /* Mobile portrait: compact top, safe areas */
             @media (max-width: 767px) and (orientation: portrait) {
                 #activeChat:not(.hidden) .message-input-container {
