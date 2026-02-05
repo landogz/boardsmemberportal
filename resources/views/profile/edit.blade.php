@@ -674,11 +674,12 @@
                             id="mobile" 
                             name="mobile" 
                             value="{{ $user->mobile }}"
+                            maxlength="16"
                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                            placeholder="+63 912 345 6789"
+                            placeholder="+63 917 123 4567"
                         >
                         <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: +63</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Philippine mobile: +63 followed by 10 digits (e.g. +63 917 123 4567)</p>
                     </div>
 
                     <div class="mb-4">
@@ -1169,18 +1170,27 @@
                 }
             });
 
-            // Phone number formatting
+            // Philippine mobile only: +63 followed by 10 digits, formatted as +63 XXX XXX XXXX
             $('#mobile').on('input', function() {
                 let value = $(this).val().replace(/\D/g, '');
-                if (value.startsWith('63')) {
-                    value = '+' + value;
-                } else if (value.startsWith('0')) {
-                    value = '+63' + value.substring(1);
-                } else if (value && !value.startsWith('+63')) {
-                    value = '+63' + value;
+                if (value.startsWith('0')) value = value.substring(1);
+                if (value.startsWith('63')) value = value.substring(2);
+                value = value.substring(0, 10);
+                if (!value) {
+                    $(this).val('');
+                    return;
                 }
-                $(this).val(value);
+                const formatted = '+63 ' + value.substring(0, 3) + (value.length > 3 ? ' ' + value.substring(3, 6) : '') + (value.length > 6 ? ' ' + value.substring(6) : '');
+                $(this).val(formatted);
             });
+            // Format initial mobile value for display (if stored as +639171234567)
+            (function() {
+                var raw = $('#mobile').val().replace(/\s/g, '');
+                if (/^\+63[0-9]{10}$/.test(raw)) {
+                    var digits = raw.slice(3);
+                    $('#mobile').val('+63 ' + digits.substring(0, 3) + ' ' + digits.substring(3, 6) + ' ' + digits.substring(6));
+                }
+            })();
 
             $('#landline').on('input', function() {
                 let value = $(this).val().replace(/\D/g, '');
@@ -1556,7 +1566,7 @@
             // Contact Information
             formData.append('email', document.getElementById('email').value);
             formData.append('username', document.getElementById('username').value);
-            formData.append('mobile', document.getElementById('mobile').value);
+            formData.append('mobile', document.getElementById('mobile').value.replace(/\s/g, '').trim());
             formData.append('landline', document.getElementById('landline').value);
             
             // Additional Information

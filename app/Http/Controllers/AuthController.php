@@ -190,7 +190,7 @@ class AuthController extends Controller
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
-            'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
+            'mobile' => 'required|string|max:13|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:50',
             'password' => [
                 'required',

@@ -77,13 +77,15 @@ class ProfileController extends Controller
             'office_barangay' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
-            'mobile' => 'nullable|string|max:20',
+            'mobile' => 'required|string|max:13|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
             'representative_name' => 'nullable|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ], [
+            'mobile.regex' => 'Mobile number must be in format +63 followed by 10 digits.',
         ]);
 
         $data = [
