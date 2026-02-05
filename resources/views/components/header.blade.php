@@ -986,10 +986,20 @@
             document.head.appendChild(script);
         }
 
-        // Set axios defaults
+        // Set axios defaults and 419 (session/CSRF expired) interceptor
         if (typeof axios !== 'undefined') {
             axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            if (!window._axios419InterceptorAdded) {
+                window._axios419InterceptorAdded = true;
+                axios.interceptors.response.use(function(res) { return res; }, function(err) {
+                    if (err.response && err.response.status === 419) {
+                        var url = (err.response.data && err.response.data.redirect) || '{{ route("login") }}';
+                        window.location.href = url;
+                    }
+                    return Promise.reject(err);
+                });
+            }
         }
 
         // Notification icon mapping

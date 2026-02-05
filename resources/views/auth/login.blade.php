@@ -106,6 +106,12 @@
             <p class="text-gray-600">Sign in to your account</p>
         </div>
 
+        @if (session('error'))
+            <div class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <form id="loginForm" class="space-y-4">
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email or Username</label>
