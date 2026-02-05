@@ -83,11 +83,12 @@
             </div>
 
             <div>
-                <label for="pdf_file" class="block text-sm font-medium text-gray-700 mb-2">PDF File</label>
+                <label for="pdf_file" class="block text-sm font-medium text-gray-700 mb-2">PDF File *</label>
                 <input 
                     type="file" 
                     id="pdf_file" 
                     name="pdf_file" 
+                    required
                     accept=".pdf"
                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#055498] file:text-white hover:file:bg-[#123a60] file:cursor-pointer cursor-pointer"
                 >

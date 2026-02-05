@@ -50,7 +50,7 @@ class BoardRegulationController extends Controller
             'version' => 'nullable|string|max:255',
             'effective_date' => 'required|date',
             'approved_date' => 'required|date',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:30720',
+            'pdf_file' => 'required|file|mimes:pdf|max:30720',
         ]);
 
         $pdfFileId = null;
