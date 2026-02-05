@@ -110,6 +110,7 @@ class NoticeController extends Controller
             'cc_emails.*.email' => 'required_with:cc_emails.*|email|max:255',
             'cc_emails.*.position' => 'nullable|string|max:255',
             'cc_emails.*.agency' => 'nullable|string|max:255',
+            'meeting_date' => 'nullable|date|after_or_equal:today',
         ], [
             'title.required' => 'The title field is required.',
             'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda type.',

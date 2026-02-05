@@ -138,6 +138,7 @@
                             type="date" 
                             id="meeting_date" 
                             name="meeting_date" 
+                            min="{{ now()->format('Y-m-d') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
                         >
                         <span class="text-red-500 text-sm hidden" id="meeting_date-error"></span>

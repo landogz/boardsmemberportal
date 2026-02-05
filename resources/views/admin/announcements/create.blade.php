@@ -16,8 +16,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<!-- CKEditor 4.19.1 -->
-<script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
 <style>
     .user-select-item {
         padding: 0.5rem;
@@ -81,7 +79,7 @@
                         @enderror
                     </div>
 
-                    <!-- Description (Rich Text) -->
+                    <!-- Description -->
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
                         <textarea 
@@ -90,6 +88,7 @@
                             required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
                             placeholder="Enter announcement description/content"
+                            spellcheck="false" style="height: 269px;"
                         >{{ old('description') }}</textarea>
                         @error('description')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
@@ -175,7 +174,7 @@
                                         class="w-full px-4 py-2 text-white rounded font-semibold transition-all duration-300 hover:shadow-md"
                                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                                     >
-                                        <span id="submitBtnText">Publish</span>
+                                        <span id="submitBtnText">Save</span>
                                     </button>
                                     <a 
                                         href="{{ route('admin.announcements.index') }}" 
@@ -297,44 +296,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    // Initialize CKEditor with simplified toolbar
-    CKEDITOR.replace('description', {
-        height: 400,
-        toolbar: [
-            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
-            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
-            { name: 'links', items: ['Link', 'Unlink'] },
-            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-            { name: 'styles', items: ['Format', 'FontSize'] },
-            { name: 'colors', items: ['TextColor', 'BGColor'] },
-            { name: 'tools', items: ['Source', 'Maximize'] }
-        ],
-        filebrowserBrowseUrl: '{{ route("admin.media-library.browse") }}',
-        filebrowserImageBrowseUrl: '{{ route("admin.media-library.browse", ["type" => "Images"]) }}',
-        removePlugins: 'elementspath',
-        resize_enabled: false,
-        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address;div'
-    });
-
-    // Hide CKEditor security warning notification
-    CKEDITOR.on('instanceReady', function() {
-        // Hide notification area immediately
-        var notificationArea = document.getElementById('cke_notifications_area_description');
-        if (notificationArea) {
-            notificationArea.style.display = 'none';
-            notificationArea.style.visibility = 'hidden';
-        }
-        
-        // Also hide any notification areas that might appear later
-        setInterval(function() {
-            var notifications = document.querySelectorAll('.cke_notifications_area, #cke_notifications_area_description');
-            notifications.forEach(function(notif) {
-                notif.style.display = 'none';
-                notif.style.visibility = 'hidden';
-            });
-        }, 100);
-    });
-
     // Initialize date/time picker for scheduling
     flatpickr("#scheduled_at", {
         enableTime: true,
@@ -517,15 +478,6 @@
         e.preventDefault(); // Prevent default submission first
         
         try {
-            // Update textarea with CKEditor content
-            if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances) {
-                for (var instance in CKEDITOR.instances) {
-                    if (CKEDITOR.instances[instance]) {
-                        CKEDITOR.instances[instance].updateElement();
-                    }
-                }
-            }
-
             // Validate title
             const title = $('#title').val().trim();
             if (!title) {
@@ -537,19 +489,8 @@
                 return false;
             }
 
-            // Validate description
-            let description = '';
-            try {
-                if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
-                    description = CKEDITOR.instances.description.getData().trim();
-                } else {
-                    // Fallback to textarea value if CKEditor not available
-                    description = $('#description').val().trim();
-                }
-            } catch (err) {
-                console.error('Error getting CKEditor content:', err);
-                description = $('#description').val().trim();
-            }
+            // Validate description (simple textarea)
+            const description = $('#description').val().trim();
             
             if (!description) {
                 Swal.fire({
