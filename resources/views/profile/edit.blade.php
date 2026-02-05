@@ -660,8 +660,10 @@
                             name="email" 
                             value="{{ $user->email }}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            readonly
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed"
                         >
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Email cannot be changed.</p>
                         <span class="text-red-500 text-sm hidden" id="email-error"></span>
                     </div>
 

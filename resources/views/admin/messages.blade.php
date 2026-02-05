@@ -628,20 +628,20 @@
             }
             /* Legacy support for older structure */
             @media (max-width: 640px) {
-                #activeChat:not(.hidden) > div:last-child {
-                    display: block !important;
-                    visibility: visible !important;
-                    position: fixed !important;
-                    bottom: 0 !important;
-                    left: 0 !important;
-                    right: 0 !important;
-                    background: white !important;
-                    z-index: 50 !important;
-                    border-top: 1px solid #e5e7eb !important;
-                    padding: 12px !important;
-                    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-                    margin: 0 !important;
-                }
+            #activeChat:not(.hidden) > div:last-child {
+                display: block !important;
+                visibility: visible !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: white !important;
+                z-index: 50 !important;
+                border-top: 1px solid #e5e7eb !important;
+                padding: 12px !important;
+                box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                margin: 0 !important;
+            }
                 /* Account for safe area on mobile devices */
                 @supports (padding-bottom: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) > div:last-child {
@@ -1155,6 +1155,10 @@
                                 </div>
                                 <!-- Settings buttons -->
                                 <div class="flex items-center gap-2">
+                                    <!-- Delete single chat (hidden for groups) -->
+                                    <button id="deleteSingleChatBtn" class="hidden p-2 text-red-600 hover:bg-red-50 rounded-full transition flex-shrink-0" aria-label="Remove conversation">
+                                        <i class="fas fa-trash-alt text-lg"></i>
+                                    </button>
                                     <!-- Single chat settings button (hidden for groups) -->
                                     <button id="singleChatSettingsBtn" class="hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full transition flex-shrink-0" aria-label="Chat settings">
                                         <i class="fas fa-cog text-lg"></i>
@@ -2160,17 +2164,17 @@
                     e.stopPropagation();
                     const emojiPicker = document.getElementById('emojiPickerPopup');
                 
-                    // Remove any existing picker
-                    const existingPicker = document.querySelector('.emoji-picker-popup');
-                    if (existingPicker && existingPicker !== emojiPicker) {
-                        existingPicker.remove();
-                    }
+                // Remove any existing picker
+                const existingPicker = document.querySelector('.emoji-picker-popup');
+                if (existingPicker && existingPicker !== emojiPicker) {
+                    existingPicker.remove();
+                }
+                
+                // Toggle picker
+                if (emojiPicker.classList.contains('hidden')) {
+                    // Show picker
+                    emojiPicker.classList.remove('hidden');
                     
-                    // Toggle picker
-                    if (emojiPicker.classList.contains('hidden')) {
-                        // Show picker
-                        emojiPicker.classList.remove('hidden');
-                        
                         // Position picker - center on mobile/tablet, relative to button on desktop/laptop
                         const viewportWidth = window.innerWidth;
                         const viewportHeight = window.innerHeight;
@@ -2221,25 +2225,25 @@
                             top = (viewportHeight - pickerHeight) / 2;
                         } else {
                             // Desktop/Laptop: Position relative to button
-                            const buttonRect = emojiBtn.getBoundingClientRect();
+                    const buttonRect = emojiBtn.getBoundingClientRect();
                             pickerWidth = Math.min(320, window.innerWidth - 16);
                             pickerHeight = Math.min(300, window.innerHeight - 16);
                             
                             emojiPicker.style.width = `${pickerWidth}px`;
                             emojiPicker.style.height = `${pickerHeight}px`;
-                            
-                            // Position above the button, aligned to the right
+                    
+                    // Position above the button, aligned to the right
                             top = buttonRect.top - pickerHeight - 8;
                             left = buttonRect.right - pickerWidth;
+                    
+                    if (top < 8) {
+                        top = buttonRect.bottom + 8;
+                    }
                             
-                            if (top < 8) {
-                                top = buttonRect.bottom + 8;
-                            }
-                            
-                            if (left < 8) {
-                                left = 8;
-                            }
-                            if (left + pickerWidth > window.innerWidth - 8) {
+                    if (left < 8) {
+                        left = 8;
+                    }
+                    if (left + pickerWidth > window.innerWidth - 8) {
                                 left = Math.max(8, window.innerWidth - pickerWidth - 8);
                             }
                         }
@@ -2248,18 +2252,18 @@
                         if (top < 8) top = 8;
                         if (top + pickerHeight > window.innerHeight - 8) {
                             top = Math.max(8, window.innerHeight - pickerHeight - 8);
-                        }
-                        
-                        emojiPicker.style.top = `${top}px`;
-                        emojiPicker.style.left = `${left}px`;
-                        
-                        // Setup emoji picker functionality
-                        setupEmojiPicker(emojiPicker);
-                    } else {
-                        // Hide picker
-                        emojiPicker.classList.add('hidden');
                     }
-                });
+                    
+                    emojiPicker.style.top = `${top}px`;
+                    emojiPicker.style.left = `${left}px`;
+                    
+                    // Setup emoji picker functionality
+                    setupEmojiPicker(emojiPicker);
+                } else {
+                    // Hide picker
+                    emojiPicker.classList.add('hidden');
+                }
+            });
             
             // Close emoji picker when clicking outside
             document.addEventListener('click', function(e) {
@@ -2326,6 +2330,58 @@
                     }
                     
                     currentChatUserId = null;
+                });
+            }
+            
+            // Delete single chat (remove conversation from list for current user only)
+            const deleteSingleChatBtn = document.getElementById('deleteSingleChatBtn');
+            if (deleteSingleChatBtn) {
+                deleteSingleChatBtn.addEventListener('click', async function() {
+                    const userId = currentChatUserId;
+                    if (!userId || userId.startsWith('group_')) return;
+                    const result = await Swal.fire({
+                        title: 'Remove conversation?',
+                        text: 'This will remove the chat from your list. The other person will still see it. You can start a new chat with them later.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Remove'
+                    });
+                    if (!result.isConfirmed) return;
+                    try {
+                        const url = '{{ url("messages/conversation") }}/' + encodeURIComponent(userId);
+                        const res = await axios.delete(url);
+                        if (res.data && res.data.success) {
+                            conversationsData = conversationsData.filter(function(c) {
+                                return c.user_id !== userId || (c.is_group === true);
+                            });
+                            if (typeof renderConversations === 'function') {
+                                renderConversations(conversationsData);
+                            }
+                            const conversationsList = document.getElementById('conversationsList');
+                            const chatArea = document.getElementById('chatArea');
+                            const activeChat = document.getElementById('activeChat');
+                            const chatEmptyState = document.getElementById('chatEmptyState');
+                            if (conversationsList) conversationsList.classList.remove('mobile-hidden');
+                            if (chatArea) {
+                                chatArea.classList.remove('mobile-visible');
+                                if (window.innerWidth <= 767) chatArea.classList.add('hidden');
+                            }
+                            if (activeChat) activeChat.classList.add('hidden');
+                            if (chatEmptyState) chatEmptyState.classList.remove('hidden');
+                            const messageForm = document.getElementById('messageForm');
+                            const messageInputContainer = messageForm && messageForm.closest('div');
+                            if (messageInputContainer) messageInputContainer.style.display = 'none';
+                            if (window.innerWidth <= 767) document.body.classList.remove('header-hidden-mobile');
+                            currentChatUserId = null;
+                            Swal.fire({ title: 'Removed', text: 'Conversation removed from your list.', icon: 'success', timer: 2000, showConfirmButton: false });
+                        } else {
+                            Swal.fire({ title: 'Error', text: (res.data && res.data.message) || 'Could not remove conversation.', icon: 'error' });
+                        }
+                    } catch (err) {
+                        Swal.fire({ title: 'Error', text: (err.response && err.response.data && err.response.data.message) || 'Could not remove conversation.', icon: 'error' });
+                    }
                 });
             }
             
@@ -3607,12 +3663,12 @@
             // Show/hide settings buttons
             const groupSettingsBtn = document.getElementById('groupSettingsBtn');
             const singleChatSettingsBtn = document.getElementById('singleChatSettingsBtn');
+            const deleteSingleChatBtn = document.getElementById('deleteSingleChatBtn');
             
             if (isGroup) {
-                // Hide single chat settings, show group settings if admin
-                if (singleChatSettingsBtn) {
-                    singleChatSettingsBtn.classList.add('hidden');
-                }
+                // Hide single chat settings and delete, show group settings if admin
+                if (singleChatSettingsBtn) singleChatSettingsBtn.classList.add('hidden');
+                if (deleteSingleChatBtn) deleteSingleChatBtn.classList.add('hidden');
                 if (groupSettingsBtn) {
                     // Extract group ID and load group details to check admin status
                     const groupId = userId.replace('group_', '');
@@ -3620,13 +3676,10 @@
                     loadGroupDetails(groupId);
                 }
             } else {
-                // Show single chat settings, hide group settings
-                if (singleChatSettingsBtn) {
-                    singleChatSettingsBtn.classList.remove('hidden');
-                }
-                if (groupSettingsBtn) {
-                    groupSettingsBtn.classList.add('hidden');
-                }
+                // Show single chat settings and delete, hide group settings
+                if (singleChatSettingsBtn) singleChatSettingsBtn.classList.remove('hidden');
+                if (deleteSingleChatBtn) deleteSingleChatBtn.classList.remove('hidden');
+                if (groupSettingsBtn) groupSettingsBtn.classList.add('hidden');
                 window.currentGroupId = null; // Clear when not a group
                 window.currentSingleChatUserId = userId; // Store current single chat user ID
             }

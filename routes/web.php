@@ -434,6 +434,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/users', [\App\Http\Controllers\MessageController::class, 'getUsers'])->name('users');
         Route::post('/send', [\App\Http\Controllers\MessageController::class, 'sendMessage'])->name('send');
         Route::get('/conversation/{userId}', [\App\Http\Controllers\MessageController::class, 'getConversation'])->name('conversation');
+        Route::delete('/conversation/{userId}', [\App\Http\Controllers\MessageController::class, 'deleteSingleConversation'])->name('conversation.delete');
         Route::post('/decrypt', [\App\Http\Controllers\MessageController::class, 'decryptConversation'])->name('decrypt');
         Route::get('/conversations', [\App\Http\Controllers\MessageController::class, 'getConversations'])->name('conversations');
         Route::get('/recent', [\App\Http\Controllers\MessageController::class, 'getConversations'])->name('recent'); // Alias for dropdown

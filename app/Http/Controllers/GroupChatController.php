@@ -66,7 +66,7 @@ class GroupChatController extends Controller
                 'success' => true,
                 'message' => 'Group chat created successfully',
                 'group' => $this->formatGroupChat($group),
-            ], 201);
+            ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();

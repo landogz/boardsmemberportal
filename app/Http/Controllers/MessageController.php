@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\MediaLibrary;
 use App\Models\MessageReaction;
 use App\Models\ConversationTheme;
+use App\Models\DeletedSingleChat;
 use App\Events\MessageUnreadCountUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -218,6 +219,16 @@ class MessageController extends Controller
                 'timestamp' => now(),
                 'is_read' => false,
             ]);
+
+            // If single chat: restore conversation in both users' lists (so it shows again after either "deleted" it)
+            if (! $groupId && $receiverId) {
+                DeletedSingleChat::where('user_id', $senderId)
+                    ->where('other_user_id', $receiverId)
+                    ->delete();
+                DeletedSingleChat::where('user_id', $receiverId)
+                    ->where('other_user_id', $senderId)
+                    ->delete();
+            }
 
             // Load relationships
             $chat->load(['sender', 'receiver', 'group']);
@@ -488,6 +499,11 @@ class MessageController extends Controller
         try {
             $currentUserId = Auth::id();
 
+            // Single chats the current user has "deleted" (hidden for me only)
+            $deletedOtherUserIds = DeletedSingleChat::where('user_id', $currentUserId)
+                ->pluck('other_user_id')
+                ->all();
+
             // Get distinct users the current user has chatted with (exclude group messages)
             $conversations = Chat::where(function ($query) use ($currentUserId) {
                     $query->where('sender_id', $currentUserId)
@@ -600,8 +616,9 @@ class MessageController extends Controller
                     ];
                 })
                 ->filter() // Remove null entries
+                ->filter(fn ($c) => ! in_array($c['user_id'], $deletedOtherUserIds)) // Exclude "deleted for me" single chats
                 ->values();
-            
+
             // Get group chats the user is a member of
             $groupChats = \App\Models\GroupChat::whereHas('members', function ($query) use ($currentUserId) {
                     $query->where('user_id', $currentUserId);
@@ -750,6 +767,40 @@ class MessageController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load conversations: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a single (1:1) conversation for the current user only.
+     * The other user still sees the conversation; messages are not deleted.
+     */
+    public function deleteSingleConversation($userId)
+    {
+        try {
+            $currentUserId = Auth::id();
+
+            // Only for single chats (not group_*)
+            if (str_starts_with($userId, 'group_')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Use leave group to remove group chats.',
+                ], 400);
+            }
+
+            DeletedSingleChat::firstOrCreate(
+                ['user_id' => $currentUserId, 'other_user_id' => $userId],
+                ['user_id' => $currentUserId, 'other_user_id' => $userId]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Conversation removed from your list.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete conversation: ' . $e->getMessage(),
             ], 500);
         }
     }

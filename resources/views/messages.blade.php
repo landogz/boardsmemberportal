@@ -535,6 +535,7 @@
                     z-index: 50 !important;
                     border-top: 1px solid #e5e7eb !important;
                     padding: 12px !important;
+                    padding-top: 10px !important;
                     box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
                     margin: 0 !important;
                 }
@@ -542,36 +543,98 @@
                     background: #1f2937 !important;
                     border-top-color: #374151 !important;
                 }
-                /* Account for safe area on mobile devices */
                 @supports (padding-bottom: env(safe-area-inset-bottom)) {
                     #activeChat:not(.hidden) .message-input-container {
                         padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
                     }
                 }
-                /* Add padding to messages area to account for fixed input */
                 #activeChat:not(.hidden) #chatMessagesArea {
                     padding-bottom: 120px !important;
                 }
             }
-            /* Mobile landscape - ensure full width input */
+            /* Mobile portrait: compact top, safe areas */
+            @media (max-width: 767px) and (orientation: portrait) {
+                #activeChat:not(.hidden) .message-input-container {
+                    padding: 10px 12px !important;
+                    padding-top: 8px !important;
+                }
+                @supports (padding: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) .message-input-container {
+                        padding-left: calc(12px + env(safe-area-inset-left)) !important;
+                        padding-right: calc(12px + env(safe-area-inset-right)) !important;
+                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+                #activeChat:not(.hidden) .message-input-container #replyIndicator,
+                #activeChat:not(.hidden) .message-input-container #voiceRecorder {
+                    margin-bottom: 8px !important;
+                }
+                #activeChat:not(.hidden) #chatMessagesArea {
+                    padding-bottom: 100px !important;
+                }
+            }
+            /* Mobile landscape: minimal vertical padding, full width, safe areas */
             @media (max-width: 896px) and (orientation: landscape) {
                 #activeChat:not(.hidden) .message-input-container {
                     width: 100vw !important;
                     left: 0 !important;
                     right: 0 !important;
                     max-width: 100vw !important;
+                    padding: 6px 10px !important;
+                    padding-top: 6px !important;
+                }
+                @supports (padding: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) .message-input-container {
+                        padding-left: calc(10px + env(safe-area-inset-left)) !important;
+                        padding-right: calc(10px + env(safe-area-inset-right)) !important;
+                        padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+                #activeChat:not(.hidden) .message-input-container #messageForm {
+                    gap: 6px !important;
+                }
+                #activeChat:not(.hidden) .message-input-container #replyIndicator,
+                #activeChat:not(.hidden) .message-input-container #voiceRecorder {
+                    margin-bottom: 6px !important;
+                    padding: 6px 8px !important;
                 }
                 #activeChat:not(.hidden) #chatMessagesArea {
                     width: 100% !important;
                     max-width: 100% !important;
-                    padding-bottom: 100px !important;
+                    padding-bottom: 72px !important;
                     margin-left: 0 !important;
                     margin-right: 0 !important;
                 }
-                /* Ensure chat header fills width */
                 #activeChat:not(.hidden) > div:first-child {
                     width: 100% !important;
                     max-width: 100% !important;
+                }
+            }
+            /* Tablet portrait */
+            @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+                #activeChat:not(.hidden) .message-input-container {
+                    padding: 12px 16px !important;
+                    padding-top: 10px !important;
+                }
+                @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) .message-input-container {
+                        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+            }
+            /* Tablet landscape */
+            @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+                #activeChat:not(.hidden) .message-input-container {
+                    padding: 8px 12px !important;
+                    padding-top: 8px !important;
+                }
+                @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                    #activeChat:not(.hidden) .message-input-container {
+                        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+                    }
+                }
+                #activeChat:not(.hidden) #chatMessagesArea {
+                    padding-bottom: 88px !important;
                 }
             }
             /* Legacy support for older structure */
@@ -1070,6 +1133,10 @@
                                 </div>
                                 <!-- Settings buttons -->
                                 <div class="flex items-center gap-2">
+                                    <!-- Delete single chat (hidden for groups) -->
+                                    <button id="deleteSingleChatBtn" class="hidden p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition flex-shrink-0" aria-label="Remove conversation">
+                                        <i class="fas fa-trash-alt text-lg"></i>
+                                    </button>
                                     <!-- Single chat settings button (hidden for groups) -->
                                     <button id="singleChatSettingsBtn" class="hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0" aria-label="Chat settings">
                                         <i class="fas fa-cog text-lg"></i>
@@ -2257,6 +2324,64 @@
                 });
             }
             
+            // Delete single chat (remove conversation from list for current user only)
+            const deleteSingleChatBtn = document.getElementById('deleteSingleChatBtn');
+            if (deleteSingleChatBtn) {
+                deleteSingleChatBtn.addEventListener('click', async function() {
+                    const userId = currentChatUserId;
+                    if (!userId || userId.startsWith('group_')) return;
+                    const result = await Swal.fire({
+                        title: 'Remove conversation?',
+                        text: 'This will remove the chat from your list. The other person will still see it. You can start a new chat with them later.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Remove'
+                    });
+                    if (!result.isConfirmed) return;
+                    try {
+                        const url = '{{ url("messages/conversation") }}/' + encodeURIComponent(userId);
+                        const res = await axios.delete(url);
+                        if (res.data && res.data.success) {
+                            conversationsData = conversationsData.filter(function(c) {
+                                return c.user_id !== userId || (c.is_group === true);
+                            });
+                            if (typeof renderConversations === 'function') {
+                                renderConversations(conversationsData);
+                            }
+                            const conversationsList = document.getElementById('conversationsList');
+                            const chatArea = document.getElementById('chatArea');
+                            const activeChat = document.getElementById('activeChat');
+                            const chatEmptyState = document.getElementById('chatEmptyState');
+                            if (conversationsList) conversationsList.classList.remove('mobile-hidden');
+                            if (chatArea) {
+                                chatArea.classList.remove('mobile-visible');
+                                if (window.innerWidth <= 767 || (window.innerWidth <= 896 && window.innerWidth > window.innerHeight)) {
+                                    chatArea.classList.add('hidden');
+                                }
+                            }
+                            if (activeChat) {
+                                activeChat.classList.add('hidden');
+                            }
+                            if (chatEmptyState) chatEmptyState.classList.remove('hidden');
+                            const messageForm = document.getElementById('messageForm');
+                            const messageInputContainer = messageForm && messageForm.closest('div');
+                            if (messageInputContainer) messageInputContainer.style.display = 'none';
+                            if (window.innerWidth <= 767 || (window.innerWidth <= 896 && window.innerWidth > window.innerHeight)) {
+                                document.body.classList.remove('header-hidden-mobile');
+                            }
+                            currentChatUserId = null;
+                            Swal.fire({ title: 'Removed', text: 'Conversation removed from your list.', icon: 'success', timer: 2000, showConfirmButton: false });
+                        } else {
+                            Swal.fire({ title: 'Error', text: (res.data && res.data.message) || 'Could not remove conversation.', icon: 'error' });
+                        }
+                    } catch (err) {
+                        Swal.fire({ title: 'Error', text: (err.response && err.response.data && err.response.data.message) || 'Could not remove conversation.', icon: 'error' });
+                    }
+                });
+            }
+            
             // Cancel reply button
             const cancelReplyBtn = document.getElementById('cancelReplyBtn');
             if (cancelReplyBtn) {
@@ -2411,13 +2536,26 @@
                     this.textContent = 'Creating...';
                     
                     // Create group
+                    const createBtn = this;
                     axios.post('{{ route("messages.groups.create") }}', {
                         name: groupName,
                         description: groupDescription,
                         member_ids: selectedUsers.map(u => u.id)
                     })
                     .then(response => {
-                        if (response.data.success) {
+                        var data = response.data;
+                        var ok = (response.status === 200 || response.status === 201) && data && data.success;
+                        if (!ok) {
+                            createBtn.disabled = false;
+                            createBtn.textContent = 'Create Group';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: (data && data.message) || 'Failed to create group chat. Please try again.'
+                            });
+                            return;
+                        }
+                        try {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Group Created',
@@ -2425,34 +2563,34 @@
                                 timer: 1500,
                                 showConfirmButton: false
                             });
-                            
-                            // Close modal and reset
                             document.getElementById('createGroupModal').classList.add('hidden');
                             document.getElementById('groupNameInput').value = '';
                             document.getElementById('groupDescriptionInput').value = '';
                             selectedUsers = [];
                             updateSelectedCount();
-                            
-                            // Reload conversations to show new group
                             loadConversations();
-                            
-                            // Open the new group chat
-                            if (response.data.group) {
-                                const group = response.data.group;
-                                setTimeout(() => {
-                                    openChat('group_' + group.id, group.name, {
-                                        user_id: 'group_' + group.id,
-                                        user_name: group.name,
-                                        user_initials: group.name.substring(0, 2).toUpperCase(),
-                                        profile_picture_url: group.avatar || null,
-                                        is_group: true
-                                    });
-                                    
-                                    // Load group details to set admin status
-                                    loadGroupDetails(group.id);
+                            if (data.group && data.group.id != null) {
+                                var group = data.group;
+                                setTimeout(function() {
+                                    try {
+                                        openChat('group_' + group.id, group.name || ('Group ' + group.id), {
+                                            user_id: 'group_' + group.id,
+                                            user_name: group.name || ('Group ' + group.id),
+                                            user_initials: (group.name && group.name.length >= 2) ? group.name.substring(0, 2).toUpperCase() : 'GR',
+                                            profile_picture_url: group.avatar || null,
+                                            is_group: true
+                                        });
+                                        if (typeof loadGroupDetails === 'function') loadGroupDetails(group.id);
+                                    } catch (e) {
+                                        console.warn('Open group after create:', e);
+                                    }
                                 }, 500);
                             }
+                        } catch (e) {
+                            console.warn('After create group:', e);
                         }
+                        createBtn.disabled = false;
+                        createBtn.textContent = 'Create Group';
                     })
                     .catch(error => {
                         console.error('Error creating group:', error);
@@ -2461,8 +2599,8 @@
                             title: 'Error',
                             text: error.response?.data?.message || 'Failed to create group chat. Please try again.'
                         });
-                        this.disabled = false;
-                        this.textContent = 'Create Group';
+                        createBtn.disabled = false;
+                        createBtn.textContent = 'Create Group';
                     });
                 });
             }
@@ -3763,12 +3901,12 @@
             // Show/hide settings buttons
             const groupSettingsBtn = document.getElementById('groupSettingsBtn');
             const singleChatSettingsBtn = document.getElementById('singleChatSettingsBtn');
+            const deleteSingleChatBtn = document.getElementById('deleteSingleChatBtn');
             
             if (isGroup) {
-                // Hide single chat settings, show group settings if admin
-                if (singleChatSettingsBtn) {
-                    singleChatSettingsBtn.classList.add('hidden');
-                }
+                // Hide single chat settings and delete, show group settings if admin
+                if (singleChatSettingsBtn) singleChatSettingsBtn.classList.add('hidden');
+                if (deleteSingleChatBtn) deleteSingleChatBtn.classList.add('hidden');
                 if (groupSettingsBtn) {
                     // Extract group ID and load group details to check admin status
                     const groupId = userId.replace('group_', '');
@@ -3776,13 +3914,10 @@
                     loadGroupDetails(groupId);
                 }
             } else {
-                // Show single chat settings, hide group settings
-                if (singleChatSettingsBtn) {
-                    singleChatSettingsBtn.classList.remove('hidden');
-                }
-                if (groupSettingsBtn) {
-                    groupSettingsBtn.classList.add('hidden');
-                }
+                // Show single chat settings and delete, hide group settings
+                if (singleChatSettingsBtn) singleChatSettingsBtn.classList.remove('hidden');
+                if (deleteSingleChatBtn) deleteSingleChatBtn.classList.remove('hidden');
+                if (groupSettingsBtn) groupSettingsBtn.classList.add('hidden');
                 window.currentGroupId = null; // Clear when not a group
                 window.currentSingleChatUserId = userId; // Store current single chat user ID
             }
@@ -3938,34 +4073,27 @@
                                                         }
                                                     }
                                                     
-                                                    // Update unread counts immediately (don't wait for server)
+                                                    // Update unread counts and header badge immediately from local state (no API yet - avoid stale count)
                                                     updateUnreadCounts();
-                                                    
-                                                    // Also call the unread-count API directly for header badge
-                                                    if (typeof window.loadUnreadCount === 'function') {
-                                                        window.loadUnreadCount();
+                                                    let totalUnread = 0;
+                                                    conversationsData.forEach(c => {
+                                                        totalUnread += (c.unread_count || 0);
+                                                    });
+                                                    if (typeof window.updateMessagesBadge === 'function') {
+                                                        window.updateMessagesBadge(totalUnread);
                                                     }
-                                                    
-                                                    // Update dropdown item badge
                                                     if (typeof window.updateDropdownItemBadge === 'function') {
-                                                        // Calculate total unread for dropdown badge
-                                                        let totalUnread = 0;
-                                                        conversationsData.forEach(c => {
-                                                            totalUnread += (c.unread_count || 0);
-                                                        });
                                                         window.updateDropdownItemBadge(userId, 0, totalUnread);
                                                     } else if (typeof window.reloadMessagesDropdown === 'function') {
-                                                        // Fallback: reload dropdown if update function not available
                                                         window.reloadMessagesDropdown();
                                                     }
-                                                    
-                                                    // Sync with server after a delay to ensure server has processed
+                                                    // Sync with server after delay so badge stays correct
                                                     setTimeout(() => {
                                                         updateUnreadCounts();
                                                         if (typeof window.loadUnreadCount === 'function') {
                                                             window.loadUnreadCount();
                                                         }
-                                                    }, 500);
+                                                    }, 400);
                                                 })
                                                 .catch(err => {
                                                     console.error('Error marking as read:', err);
@@ -6463,15 +6591,20 @@
                             }
                         }
                         
-                        // Update unread counts
                         updateUnreadCounts();
-                        
-                        // Also call the unread-count API directly for header badge
-                        if (typeof window.loadUnreadCount === 'function') {
-                            window.loadUnreadCount();
-                        } else if (typeof updateMessagesBadge === 'function') {
-                            updateMessagesBadge(0);
+                        let totalUnread = 0;
+                        conversationsData.forEach(c => { totalUnread += (c.unread_count || 0); });
+                        if (typeof window.updateMessagesBadge === 'function') {
+                            window.updateMessagesBadge(totalUnread);
                         }
+                        if (typeof window.updateDropdownItemBadge === 'function') {
+                            window.updateDropdownItemBadge(currentChatUserId, 0, totalUnread);
+                        }
+                        setTimeout(() => {
+                            if (typeof window.loadUnreadCount === 'function') {
+                                window.loadUnreadCount();
+                            }
+                        }, 400);
                     }
                 })
                 .catch(error => {

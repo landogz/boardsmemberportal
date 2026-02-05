@@ -73,8 +73,8 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Messages Dropdown -->
-                    <div class="relative" x-data="{ open: false }" x-init="$watch('open', value => handleMessagesDropdownToggle(value, $el))">
+                    <!-- Messages Dropdown (unique id for Alpine 3 and closing from item click) -->
+                    <div id="messagesDropdownContainer" class="relative" x-data="{ open: false }" x-init="$watch('open', value => typeof handleMessagesDropdownToggle === 'function' && handleMessagesDropdownToggle(value, $el))">
                         <button @click="open = !open" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Messages">
                             <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
@@ -374,22 +374,17 @@
                    data-user-name="${userName.replace(/"/g, '&quot;')}" 
                    data-conv-data='${convDataJson.replace(/'/g, "&#39;")}'
                    onclick="event.preventDefault(); 
-                    // Check if we're on messages page
                     if (window.location.pathname === '/messages' || window.location.pathname === '/admin/messages') {
-                        // If on messages page, open chat and select conversation
                         if (typeof window.openChat === 'function') {
-                            // Get conversation data from data attribute
                             const convDataAttr = this.getAttribute('data-conv-data');
                             const convData = convDataAttr ? JSON.parse(convDataAttr) : {user_id: this.getAttribute('data-user-id')};
                             const userName = this.getAttribute('data-user-name');
                             const userId = this.getAttribute('data-user-id');
                             window.openChat(userId, userName, convData);
                         } else {
-                            // Fallback: navigate to messages page
                             window.location.href = window.location.pathname.includes('/admin') ? '/admin/messages' : '/messages';
                         }
                     } else {
-                        // If not on messages page, open popup
                         if(window.openMessagesPopup) {
                             const userId = this.getAttribute('data-user-id');
                             const userName = this.getAttribute('data-user-name');
@@ -398,8 +393,8 @@
                             window.openMessagesPopup(userId, userName, convData.user_initials || 'U');
                         }
                     }
-                    const dropdown = document.querySelector('[x-data*=\\'open\\']'); 
-                    if(dropdown && dropdown.__x) dropdown.__x.$data.open = false; 
+                    var _md = document.getElementById('messagesDropdownContainer');
+                    if (_md && typeof setMessagesDropdownOpen === 'function') setMessagesDropdownOpen(_md, false);
                     return false;">
                     <div class="flex items-start space-x-3">
                         ${avatarHtml}
@@ -441,6 +436,7 @@
             if (badgeCountMobile) badgeCountMobile.classList.add('hidden');
         }
     }
+    window.updateMessagesBadge = updateMessagesBadge;
 
     // Update dropdown item badge for a specific user
     function updateDropdownItemBadge(userId, unreadCount, totalUnread) {
@@ -534,19 +530,23 @@
         }
     };
 
-    // Load unread count on page load
+    // Load unread count on page load (cache-bust so badge updates after marking as read)
     function loadUnreadCount() {
-        fetch('{{ route("messages.unread-count") }}', {
+        const url = '{{ route("messages.unread-count") }}' + (window.__messagesUnreadCacheBust ? '?t=' + Date.now() : '');
+        if (!window.__messagesUnreadCacheBust) window.__messagesUnreadCacheBust = true;
+        fetch(url, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
             },
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            cache: 'no-store'
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
+            if (data.success && typeof data.count === 'number') {
                 updateMessagesBadge(data.count);
             }
         })
@@ -555,6 +555,32 @@
     
     // Make function globally accessible for real-time updates
     window.loadUnreadCount = loadUnreadCount;
+
+    // Alpine 3 compatible: get open state from messages dropdown element
+    function getMessagesDropdownOpen(dropdownEl) {
+        if (!dropdownEl) return false;
+        if (typeof Alpine !== 'undefined' && Alpine.$data) {
+            try {
+                var d = Alpine.$data(dropdownEl);
+                return d && d.open === true;
+            } catch (e) { return false; }
+        }
+        if (dropdownEl.__x && dropdownEl.__x.$data) return dropdownEl.__x.$data.open === true;
+        return false;
+    }
+    function setMessagesDropdownOpen(dropdownEl, open) {
+        if (!dropdownEl) return;
+        if (typeof Alpine !== 'undefined' && Alpine.$data) {
+            try {
+                var d = Alpine.$data(dropdownEl);
+                if (d && typeof d.open !== 'undefined') d.open = open;
+            } catch (e) {}
+            return;
+        }
+        if (dropdownEl.__x && dropdownEl.__x.$data) dropdownEl.__x.$data.open = open;
+    }
+    window.setMessagesDropdownOpen = setMessagesDropdownOpen;
+    window.getMessagesDropdownOpen = getMessagesDropdownOpen;
 
     // Handle messages dropdown toggle with periodic refresh
     function handleMessagesDropdownToggle(isOpen, dropdownElement) {
@@ -565,8 +591,7 @@
                 clearInterval(window.userMessagesDropdownInterval);
             }
             window.userMessagesDropdownInterval = setInterval(function() {
-                // Check if dropdown is still open using the element reference
-                if (dropdownElement && dropdownElement.__x && dropdownElement.__x.$data && dropdownElement.__x.$data.open) {
+                if (getMessagesDropdownOpen(dropdownElement)) {
                     const messagesList = document.getElementById('messagesDropdownList');
                     if (messagesList) {
                         messagesList.dataset.loaded = 'false';
@@ -618,11 +643,9 @@
             window.location.href = '{{ route('messages') }}#new-message';
         }
         
-        // Close dropdown
-        const dropdown = document.querySelector('[x-data]');
-        if (dropdown && dropdown.__x && dropdown.__x.$data && dropdown.__x.$data.open !== undefined) {
-            dropdown.__x.$data.open = false;
-        }
+        // Close messages dropdown (Alpine 3 compatible)
+        const messagesDropdown = document.getElementById('messagesDropdownContainer');
+        if (messagesDropdown) setMessagesDropdownOpen(messagesDropdown, false);
         
         return false;
     }
@@ -749,9 +772,9 @@
                 // Listen to message unread count updates
                 echo.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
-                        // Reload dropdown if it's currently open/visible
-                        const messagesDropdown = document.querySelector('[x-data*="open"]');
-                        if (messagesDropdown && messagesDropdown.__x && messagesDropdown.__x.$data.open) {
+                        // Reload dropdown if it's currently open/visible (Alpine 3 compatible)
+                        const messagesDropdown = document.getElementById('messagesDropdownContainer');
+                        if (messagesDropdown && getMessagesDropdownOpen(messagesDropdown)) {
                             // Reset loaded state and reload
                             const messagesList = document.getElementById('messagesDropdownList');
                             if (messagesList) {
@@ -889,32 +912,14 @@
             $dropdown.toggleClass('show');
         });
         
-        // Function to close Alpine.js messages dropdown
+        // Function to close Alpine.js messages dropdown (Alpine 3 compatible)
         function closeAlpineMessagesDropdown() {
-            const messagesContainer = document.querySelector('[x-data*="open"]');
-            if (messagesContainer) {
-                try {
-                    // Try accessing Alpine data directly
-                    if (typeof Alpine !== 'undefined' && Alpine.$data) {
-                        const alpineData = Alpine.$data(messagesContainer);
-                        if (alpineData && typeof alpineData.open !== 'undefined') {
-                            alpineData.open = false;
-                            return;
-                        }
-                    }
-                    // Fallback: try accessing __x property
-                    if (messagesContainer.__x && messagesContainer.__x.$data) {
-                        messagesContainer.__x.$data.open = false;
-                    }
-                } catch (e) {
-                    // Could not close Alpine dropdown
-                }
-            }
+            const messagesContainer = document.getElementById('messagesDropdownContainer');
+            if (messagesContainer) setMessagesDropdownOpen(messagesContainer, false);
         }
         
-        // Close jQuery dropdowns when Alpine.js message dropdown button is clicked
-        $(document).on('click', '[x-data*="open"] button', function(e) {
-            // Close all jQuery dropdowns when message button is clicked
+        // Close jQuery dropdowns when messages dropdown button is clicked
+        $(document).on('click', '#messagesDropdownContainer button', function(e) {
             setTimeout(function() {
                 $('.dropdown').removeClass('show');
             }, 10);
@@ -922,7 +927,7 @@
         
         // Close dropdown when clicking outside
         $(document).on('click', function(e) {
-            if (!$(e.target).closest('.dropdown').length && !$(e.target).closest('[x-data*="open"]').length) {
+            if (!$(e.target).closest('.dropdown').length && !$(e.target).closest('#messagesDropdownContainer').length) {
                 $('.dropdown').removeClass('show');
                 closeAlpineMessagesDropdown();
             }
