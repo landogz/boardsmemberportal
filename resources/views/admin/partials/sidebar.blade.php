@@ -64,12 +64,14 @@
                             </li>
                             @endcan
                             @can('view consec accounts')
+                            @if(Auth::user()->privilege !== 'consec')
                             <li>
                                 <a href="{{ route('admin.consec.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.consec.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.consec.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-users-cog w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">CONSEC</span>
                                 </a>
                             </li>
+                            @endif
                             @endcan
                             @can('view roles')
                             <li>
