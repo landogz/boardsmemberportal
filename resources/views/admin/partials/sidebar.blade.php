@@ -127,12 +127,14 @@
                             @endcan
 
                             @can('view media library')
+                            @if(Auth::user()->privilege !== 'consec')
                             <li>
                                 <a href="{{ route('admin.media-library.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.media-library.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.media-library.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-folder-open w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Media Library</span>
                                 </a>
                             </li>
+                            @endif
                             @endcan
                         </ul>
                     </li>
@@ -204,7 +206,7 @@
                         </a>
                     </li>
                     @endcan
-                    @if(Auth::check() && Auth::user()->hasPermission('view audit logs'))
+                    @if(Auth::check() && Auth::user()->privilege !== 'consec' && Auth::user()->hasPermission('view audit logs'))
                     <li>
                         <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.audit-logs.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.audit-logs.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-clipboard-check w-5" style="color: #FBD116;"></i>
