@@ -609,7 +609,7 @@
                                 placeholder="Enter your email"
                             >
                             <span class="text-red-500 text-sm hidden" id="email-error"></span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Single device login for authorized users. 30 minutes idle time.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Single device login for authorized users. 15 minutes idle time.</p>
                         </div>
 
                         <!-- Username (System Generated) -->

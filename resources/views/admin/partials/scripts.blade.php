@@ -571,7 +571,7 @@
         // User Activity Tracking for Online Status
         let activityTimeout;
         let lastActivityTime = Date.now();
-        const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+        const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
         const PING_INTERVAL = 5 * 60 * 1000; // Ping server every 5 minutes
 
         // Track user activity
@@ -592,10 +592,10 @@
             const timeSinceLastActivity = Date.now() - lastActivityTime;
             
             if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-                // User has been idle for 30 minutes, show warning
+                // User has been idle for 15 minutes, show warning
                 Swal.fire({
                     title: 'Session Timeout',
-                    text: 'You have been idle for 30 minutes. You will be logged out for security.',
+                    text: 'You have been idle for 15 minutes. You will be logged out for security.',
                     icon: 'warning',
                     confirmButtonText: 'OK',
                     allowOutsideClick: false,

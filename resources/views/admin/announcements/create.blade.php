@@ -237,7 +237,7 @@
                                             $currentPrivilege = $user->privilege;
                                             $currentRepresentativeType = null;
                                             echo '<div class="mb-2">';
-                                            echo '<div class="text-xs font-semibold text-gray-600 mb-1 uppercase">' . ucfirst($user->privilege) . '</div>';
+                                            echo '<div class="user-list-header text-xs font-semibold text-gray-600 mb-1 uppercase">' . ucfirst($user->privilege) . '</div>';
                                         }
                                         
                                         if ($user->privilege === 'user' && $currentRepresentativeType !== $user->representative_type) {
@@ -246,7 +246,7 @@
                                             }
                                             $currentRepresentativeType = $user->representative_type;
                                             echo '<div class="ml-2 mb-1">';
-                                            echo '<div class="text-xs text-gray-500 mb-1">' . ($user->representative_type ? ucfirst(str_replace('_', ' ', $user->representative_type)) : 'No Type') . '</div>';
+                                            echo '<div class="user-list-header text-xs text-gray-500 mb-1">' . ($user->representative_type ? ucfirst(str_replace('_', ' ', $user->representative_type)) : 'No Type') . '</div>';
                                         }
                                     @endphp
                                     <label class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer user-item {{ $user->privilege === 'user' ? 'ml-4' : '' }}">
@@ -306,7 +306,7 @@
 
     // User search filter
     $('#userSearch').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
+        const searchTerm = $(this).val().toLowerCase().trim();
         $('.user-item').each(function() {
             const text = $(this).text().toLowerCase();
             if (text.includes(searchTerm)) {
@@ -315,6 +315,12 @@
                 $(this).hide();
             }
         });
+        // Hide section headers when searching so they don't repeat
+        if (searchTerm.length > 0) {
+            $('#usersList .user-list-header').hide();
+        } else {
+            $('#usersList .user-list-header').show();
+        }
         updateSelectAllState();
     });
 
