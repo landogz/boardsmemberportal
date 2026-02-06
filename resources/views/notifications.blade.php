@@ -252,7 +252,7 @@
                         <!-- Banner Image -->
                         <div id="modalBanner" class="mb-6 hidden">
                             <div class="relative overflow-hidden rounded-lg mx-6 shadow-lg">
-                                <img src="" alt="Banner" class="w-full h-auto max-h-[500px] object-contain object-center" id="modalBannerImg" style="display: block;">
+                                <img src="" alt="Banner" class="w-full h-auto max-h-[70vh] min-h-[320px] object-contain object-center" id="modalBannerImg" style="display: block;">
                             </div>
                         </div>
 
