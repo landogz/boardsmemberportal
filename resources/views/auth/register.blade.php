@@ -322,7 +322,7 @@
 
                         <!-- Name Fields -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <label for="pre_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pre Nominal Title *</label>
                                 <select 
                                     id="pre_nominal_title" 
@@ -337,7 +337,7 @@
                                 <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
                                 <input 
                                     type="text" 
@@ -350,7 +350,7 @@
                                 <span class="text-red-500 text-sm hidden" id="first_name-error"></span>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="middle_initial" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Middle Initial</label>
                                 <input 
                                     type="text" 
@@ -365,7 +365,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>
                                 <input 
                                     type="text" 
@@ -378,7 +378,7 @@
                                 <span class="text-red-500 text-sm hidden" id="last_name-error"></span>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="post_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post Nominal Title</label>
                                 <select 
                                     id="post_nominal_title" 
@@ -423,7 +423,7 @@
 
                         <!-- Sex and Gender -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <label for="sex" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sex *</label>
                                 <select 
                                     id="sex" 
@@ -438,7 +438,7 @@
                                 <span class="text-red-500 text-sm hidden" id="sex-error"></span>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender *</label>
                                 <select 
                                     id="gender" 
@@ -476,7 +476,7 @@
                     <div class="space-y-4">
                         <!-- Building/House/Street Details -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <label for="office_building_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Building No.</label>
                                 <input 
                                     type="text" 
@@ -487,7 +487,7 @@
                                 >
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="office_house_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">House No.</label>
                                 <input 
                                     type="text" 
@@ -511,7 +511,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <label for="office_purok" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purok</label>
                                 <input 
                                     type="text" 
@@ -522,7 +522,7 @@
                                 >
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <label for="office_sitio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sitio</label>
                                 <input 
                                     type="text" 
