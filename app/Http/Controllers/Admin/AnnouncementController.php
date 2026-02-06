@@ -246,6 +246,11 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::findOrFail($id);
 
+        // Normalize empty scheduled_at so validation accepts it and we can clear the date
+        $request->merge([
+            'scheduled_at' => $request->input('scheduled_at') ?: null,
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -297,10 +302,10 @@ class AnnouncementController extends Controller
             $oldStatus = $announcement->status;
             $oldScheduledAt = $announcement->scheduled_at;
             
-            // Determine status: if scheduled_at is in the future, set to draft
+            // Determine status: if scheduled_at is in the future, set to draft (use validated value so clearing date works)
             $scheduledAt = isset($validated['scheduled_at']) && $validated['scheduled_at'] 
                 ? new \DateTime($validated['scheduled_at']) 
-                : ($announcement->scheduled_at ? new \DateTime($announcement->scheduled_at) : null);
+                : null;
             $requestedStatus = $validated['status'] ?? $announcement->status;
             
             // If scheduled_at is in the future, force status to draft (will be auto-published by scheduler)
@@ -315,7 +320,7 @@ class AnnouncementController extends Controller
                 'content' => $validated['description'], // Map description to content
                 'banner_image_id' => $bannerImageId,
                 'status' => $finalStatus,
-                'scheduled_at' => $validated['scheduled_at'] ?? $announcement->scheduled_at,
+                'scheduled_at' => $validated['scheduled_at'],
             ]);
 
             // Get previous allowed users

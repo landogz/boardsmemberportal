@@ -136,14 +136,17 @@
                                 <!-- Schedule Publish -->
                                 <div>
                                     <label for="scheduled_at" class="block text-xs font-medium text-gray-700 mb-2">Schedule Publish</label>
-                                    <input 
-                                        type="text" 
-                                        id="scheduled_at" 
-                                        name="scheduled_at" 
-                                        value="{{ old('scheduled_at', $announcement->scheduled_at ? $announcement->scheduled_at->format('Y-m-d H:i') : '') }}"
-                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                                        placeholder="Select date and time"
-                                    >
+                                    <div class="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            id="scheduled_at" 
+                                            name="scheduled_at" 
+                                            value="{{ old('scheduled_at', $announcement->scheduled_at ? $announcement->scheduled_at->format('Y-m-d H:i') : '') }}"
+                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                                            placeholder="Select date and time"
+                                        >
+                                        <button type="button" id="clearScheduledAt" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition whitespace-nowrap">Clear</button>
+                                    </div>
                                     <p class="text-xs text-gray-500 mt-1">Leave empty to publish immediately</p>
                                 </div>
 
@@ -151,10 +154,11 @@
                                 <div class="pt-4 border-t border-gray-200 space-y-2">
                                     <button 
                                         type="submit" 
+                                        id="submitBtn"
                                         class="w-full px-4 py-2 text-white rounded font-semibold transition-all duration-300 hover:shadow-md"
                                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                                     >
-                                        Update
+                                        <span id="submitBtnText">{{ old('status', $announcement->status) === 'published' ? 'Publish' : 'Save' }}</span>
                                     </button>
                                     <a 
                                         href="{{ route('admin.announcements.index') }}" 
@@ -311,11 +315,22 @@
         }, 100);
     });
 
-    flatpickr("#scheduled_at", {
+    const scheduledAtPicker = flatpickr("#scheduled_at", {
         enableTime: true,
         dateFormat: "Y-m-d H:i",
         time_24hr: true,
     });
+    $('#clearScheduledAt').on('click', function() {
+        scheduledAtPicker.clear();
+        $('#scheduled_at').val(''); // ensure form submits empty when cleared
+    });
+
+    // Update submit button text based on status (Publish vs Save)
+    function updateSubmitButtonText() {
+        const status = $('#status').val();
+        $('#submitBtnText').text(status === 'published' ? 'Publish' : 'Save');
+    }
+    $('#status').on('change', updateSubmitButtonText);
 
     $('#userSearch').on('input', function() {
         const searchTerm = $(this).val().toLowerCase().trim();
@@ -556,11 +571,13 @@
             }
 
             // Show loading state
-            const submitBtn = $('button[type="submit"]');
+            const submitBtn = $('#submitBtn');
+            const submitBtnText = $('#submitBtnText');
             const form = $(this);
+            const status = $('#status').val();
             
             submitBtn.prop('disabled', true);
-            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+            submitBtnText.text(status === 'published' ? 'Publishing...' : 'Saving...');
             
             // Remove the event listener temporarily to allow native form submission
             form.off('submit');

@@ -155,14 +155,17 @@
                                 <!-- Schedule Publish -->
                                 <div>
                                     <label for="scheduled_at" class="block text-xs font-medium text-gray-700 mb-2">Schedule Publish</label>
-                                    <input 
-                                        type="text" 
-                                        id="scheduled_at" 
-                                        name="scheduled_at" 
-                                        value="{{ old('scheduled_at') }}"
-                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                                        placeholder="Select date and time"
-                                    >
+                                    <div class="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            id="scheduled_at" 
+                                            name="scheduled_at" 
+                                            value="{{ old('scheduled_at') }}"
+                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                                            placeholder="Select date and time"
+                                        >
+                                        <button type="button" id="clearScheduledAt" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition whitespace-nowrap">Clear</button>
+                                    </div>
                                     <p class="text-xs text-gray-500 mt-1">Leave empty to publish immediately</p>
                                 </div>
 
@@ -174,7 +177,7 @@
                                         class="w-full px-4 py-2 text-white rounded font-semibold transition-all duration-300 hover:shadow-md"
                                         style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                                     >
-                                        <span id="submitBtnText">Save</span>
+                                        <span id="submitBtnText">{{ old('status', 'published') === 'published' ? 'Publish' : 'Save' }}</span>
                                     </button>
                                     <a 
                                         href="{{ route('admin.announcements.index') }}" 
@@ -297,11 +300,15 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     // Initialize date/time picker for scheduling
-    flatpickr("#scheduled_at", {
+    const scheduledAtPicker = flatpickr("#scheduled_at", {
         enableTime: true,
         dateFormat: "Y-m-d H:i",
         minDate: "today",
         time_24hr: true,
+    });
+    $('#clearScheduledAt').on('click', function() {
+        scheduledAtPicker.clear();
+        $('#scheduled_at').val('');
     });
 
     // User search filter
@@ -353,6 +360,13 @@
     $(document).on('change', '.user-checkbox', function() {
         updateSelectAllState();
     });
+
+    // Update submit button text based on status (Publish vs Save)
+    function updateSubmitButtonText() {
+        const status = $('#status').val();
+        $('#submitBtnText').text(status === 'published' ? 'Publish' : 'Save');
+    }
+    $('#status').on('change', updateSubmitButtonText);
 
     // Initialize select all state after DOM is ready
     $(document).ready(function() {
@@ -524,7 +538,8 @@
             const form = $(this);
             
             submitBtn.prop('disabled', true);
-            submitBtnText.text('Publishing...');
+            const status = $('#status').val();
+            submitBtnText.text(status === 'published' ? 'Publishing...' : 'Saving...');
             
             // Remove the event listener temporarily to allow native form submission
             form.off('submit');
