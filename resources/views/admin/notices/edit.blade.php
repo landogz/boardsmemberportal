@@ -382,7 +382,7 @@
                                             @if($currentPrivilege !== null)
                                                 </div>
                                             @endif
-                                            <div class="mb-2 mt-3 first:mt-0">
+                                            <div class="user-list-header mb-2 mt-3 first:mt-0">
                                                 <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                                                     @if($user->privilege === 'user')
                                                         Board Members
@@ -404,7 +404,7 @@
                                             @if($currentRepresentativeType !== null)
                                                 </div>
                                             @endif
-                                            <div class="ml-4 mb-1 mt-2">
+                                            <div class="user-list-header ml-4 mb-1 mt-2">
                                                 <h6 class="text-xs font-medium text-gray-600 uppercase tracking-wide">
                                                     @if($user->representative_type === 'Board Member')
                                                         Board Members
@@ -671,7 +671,7 @@
 
         // User search filter
         $('#userSearch').on('input', function() {
-            const searchTerm = $(this).val().toLowerCase();
+            const searchTerm = $(this).val().toLowerCase().trim();
             $('.user-item').each(function() {
                 const text = $(this).text().toLowerCase();
                 if (text.includes(searchTerm)) {
@@ -680,6 +680,12 @@
                     $(this).hide();
                 }
             });
+            // Hide section headers (Board Members / Authorized Representatives) when searching so they don't repeat
+            if (searchTerm.length > 0) {
+                $('#usersList .user-list-header').hide();
+            } else {
+                $('#usersList .user-list-header').show();
+            }
             updateSelectAllState();
         });
 
