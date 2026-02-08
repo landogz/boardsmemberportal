@@ -306,9 +306,9 @@
             // Initialize Echo with Reverb (reuse if already initialized from header)
             if (!window.echoInstance || !window.echoInstance.connector) {
                 try {
-                    const reverbScheme = '{{ env("REVERB_SCHEME", "http") }}';
-                    const reverbHost = '{{ env("REVERB_HOST", "127.0.0.1") }}';
-                    const reverbPort = {{ env("REVERB_PORT", 8080) }};
+                    const reverbScheme = '{{ config("reverb.apps.apps.0.options.scheme", "http") }}';
+                    const reverbHost = '{{ config("reverb.apps.apps.0.options.host", "127.0.0.1") }}';
+                    const reverbPort = {{ config("reverb.apps.apps.0.options.port", 8080) }};
                     const useTLS = reverbScheme === 'https';
                     
                     window.echoInstance = new window.Echo({
@@ -366,6 +366,16 @@
                             updateAdminNotificationBadge(e.count);
                         });
 
+                    // Message unsent elsewhere: dispatch so admin messages page can show trail in real time
+                    adminEcho.private(`user.${userId}`)
+                        .listen('.message.content.deleted', (e) => {
+                            try {
+                                window.dispatchEvent(new CustomEvent('message-content-deleted', { detail: e }));
+                            } catch (err) {
+                                console.warn('message-content-deleted handler:', err);
+                            }
+                        });
+
                     console.log('Laravel Echo initialized successfully (admin)');
                     console.log('Connecting to Reverb at:', reverbScheme + '://' + reverbHost + ':' + reverbPort);
                     
@@ -409,6 +419,15 @@
                 adminEcho.private(`user.${userId}`)
                     .listen('.notification.unread-count.updated', (e) => {
                         updateAdminNotificationBadge(e.count);
+                    });
+
+                adminEcho.private(`user.${userId}`)
+                    .listen('.message.content.deleted', (e) => {
+                        try {
+                            window.dispatchEvent(new CustomEvent('message-content-deleted', { detail: e }));
+                        } catch (err) {
+                            console.warn('message-content-deleted handler:', err);
+                        }
                     });
             }
         }
