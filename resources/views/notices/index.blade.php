@@ -609,12 +609,12 @@
                                     $isMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
                                 @endphp
                                 @if(!$isMeetingDone && !isset($agendaRequests[$notice->id]))
-                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});" style="display: none;">
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});">
                                         <i class="fas fa-plus"></i>
                                         <span>Request Agenda Inclusion</span>
                                     </button>
                                 @elseif($isMeetingDone && !isset($referenceMaterials[$notice->id]))
-                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});" style="display: none;">
+                                    <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});">
                                         <i class="fas fa-file-upload"></i>
                                         <span>Submit Reference Materials</span>
                                     </button>
@@ -844,13 +844,40 @@
         // Agenda form submission
         document.getElementById('agendaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            Swal.fire({
-                icon: 'info',
-                title: 'Function Not Yet Approved',
-                text: 'This function is currently under development and has not been approved yet.',
-                confirmButtonColor: '#055498',
-                confirmButtonText: 'OK'
-            });
+            const noticeId = document.getElementById('agendaNoticeId').value;
+            const description = document.getElementById('agendaDescription').value.trim();
+            if (!description) {
+                Swal.fire({ icon: 'error', title: 'Required', text: 'Please enter a description.' });
+                return;
+            }
+            try {
+                const response = await axios.post(`/notices/${noticeId}/agenda-inclusion`, {
+                    description: description,
+                    attachments: uploadedAttachmentIds
+                });
+                if (response.data.success) {
+                    closeAgendaModal();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Submitted',
+                        text: response.data.message || 'Your agenda inclusion request has been submitted.'
+                    }).then(() => {
+                        if (response.data.redirect) {
+                            window.location.href = response.data.redirect;
+                        } else {
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: response.data.message || 'Failed to submit.' });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to submit agenda inclusion request.'
+                });
+            }
         });
 
         // File upload handling for agenda attachments
@@ -888,7 +915,7 @@
             });
 
             try {
-                const uploadResponse = await axios.post('{{ route("admin.media-library.store") }}', uploadFormData, {
+                const uploadResponse = await axios.post('{{ route("notices.upload-attachment") }}', uploadFormData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
 

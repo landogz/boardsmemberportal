@@ -333,24 +333,21 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('destroy');
     });
 
+    // Master Slider (admin privilege only)
+    Route::prefix('admin/banner-slides')->name('admin.banner-slides.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BannerSlideController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\BannerSlideController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\BannerSlideController::class, 'store'])->name('store');
+        Route::post('/reorder', [\App\Http\Controllers\Admin\BannerSlideController::class, 'reorder'])->name('reorder');
+        Route::get('/{banner_slide}/edit', [\App\Http\Controllers\Admin\BannerSlideController::class, 'edit'])->name('edit');
+        Route::put('/{banner_slide}', [\App\Http\Controllers\Admin\BannerSlideController::class, 'update'])->name('update');
+        Route::delete('/{banner_slide}', [\App\Http\Controllers\Admin\BannerSlideController::class, 'destroy'])->name('destroy');
+    });
+
     // Report Generation
     Route::prefix('admin/report-generation')->name('admin.report-generation.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'index'])->name('index');
         Route::get('/search', [\App\Http\Controllers\Admin\ReportGenerationController::class, 'search'])->name('search');
-    });
-
-    // Referendum Voting and Comments (authenticated users)
-    Route::prefix('referendums')->name('referendums.')->middleware('auth')->group(function () {
-        Route::get('/', [\App\Http\Controllers\ReferendumController::class, 'index'])->name('index');
-        Route::get('/{id}', [\App\Http\Controllers\ReferendumController::class, 'show'])->name('show');
-        Route::get('/{id}/comments', [\App\Http\Controllers\ReferendumController::class, 'getComments'])->name('comments.get');
-        Route::get('/{id}/comments/new', [\App\Http\Controllers\ReferendumController::class, 'getNewComments'])->name('comments.new');
-        
-        Route::post('/{id}/vote', [\App\Http\Controllers\ReferendumVoteController::class, 'store'])->name('vote');
-        Route::get('/{id}/vote/statistics', [\App\Http\Controllers\ReferendumVoteController::class, 'statistics'])->name('vote.statistics');
-        Route::post('/{id}/comments', [\App\Http\Controllers\ReferendumCommentController::class, 'store'])->name('comments.store');
-        Route::post('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'update'])->name('comments.update');
-        Route::delete('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'destroy'])->name('comments.destroy');
     });
 
     // Admin Profile Routes
@@ -368,6 +365,20 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/check-username', [\App\Http\Controllers\ProfileController::class, 'checkUsername'])->name('profile.check-username');
 
+    // Referendum Voting and Comments (authenticated users - accessible to all users including board members)
+    Route::prefix('referendums')->name('referendums.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReferendumController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\ReferendumController::class, 'show'])->name('show');
+        Route::get('/{id}/comments', [\App\Http\Controllers\ReferendumController::class, 'getComments'])->name('comments.get');
+        Route::get('/{id}/comments/new', [\App\Http\Controllers\ReferendumController::class, 'getNewComments'])->name('comments.new');
+        
+        Route::post('/{id}/vote', [\App\Http\Controllers\ReferendumVoteController::class, 'store'])->name('vote');
+        Route::get('/{id}/vote/statistics', [\App\Http\Controllers\ReferendumVoteController::class, 'statistics'])->name('vote.statistics');
+        Route::post('/{id}/comments', [\App\Http\Controllers\ReferendumCommentController::class, 'store'])->name('comments.store');
+        Route::post('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'update'])->name('comments.update');
+        Route::delete('/{id}/comments/{commentId}', [\App\Http\Controllers\ReferendumCommentController::class, 'destroy'])->name('comments.destroy');
+    });
+
     // Announcements (authenticated users - accessible to all users, moved outside admin middleware)
     Route::prefix('announcements')->name('announcements.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('index');
@@ -383,6 +394,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     Route::prefix('notices')->name('notices.')->middleware('auth')->group(function () {
         Route::get('/pending', [\App\Http\Controllers\NoticeController::class, 'getPendingNotices'])->name('pending');
         Route::get('/', [\App\Http\Controllers\NoticeController::class, 'index'])->name('index');
+        Route::post('/upload-attachment', [\App\Http\Controllers\NoticeController::class, 'uploadAttachment'])->name('upload-attachment');
         Route::get('/{id}', [\App\Http\Controllers\NoticeController::class, 'show'])->name('show');
         Route::post('/{id}/accept', [\App\Http\Controllers\NoticeController::class, 'accept'])->name('accept');
         Route::post('/{id}/decline', [\App\Http\Controllers\NoticeController::class, 'decline'])->name('decline');

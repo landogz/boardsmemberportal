@@ -63,7 +63,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 15px;
+        padding: 0;
         font-size: 12px;
         font-family: Arial, Verdana, Tahoma, sans-serif;
         position: -webkit-sticky;
@@ -196,7 +196,7 @@
             height: auto;
             min-height: 45px;
             flex-direction: column;
-            padding: 8px 15px;
+            padding: 8px 0;
             font-size: 11px;
         }
         

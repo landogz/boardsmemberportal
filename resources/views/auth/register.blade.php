@@ -201,7 +201,7 @@
             appearance: none;
             box-sizing: border-box;
             height: auto;
-            min-height: 48px; /* Match input height (py-3 = 12px top + 12px bottom = 24px padding + 1px border top + 1px border bottom + ~22px content = ~48px) */
+            min-height: 48px;
         }
         
         /* Ensure inputs and selects have same height calculation */
@@ -234,6 +234,61 @@
         
         .dark select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%9ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        /* Align all form controls: same height and box model */
+        .register-form .form-control {
+            display: block;
+            width: 100%;
+            height: 3rem;
+            min-height: 3rem;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        .register-form textarea.form-control {
+            height: auto;
+            min-height: 3rem;
+        }
+        .register-form .form-label {
+            display: block;
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+        .register-form .form-field {
+            margin-bottom: 0;
+        }
+        .register-form #step1 .form-label {
+            margin-bottom: 0.625rem;
+        }
+        /* Government Agency: consistent gap between select and logo */
+        .register-form .form-field .form-control-wrap {
+            gap: 1.25rem;
+        }
+        /* Step 1: consistent row spacing between each form block */
+        .register-form #step1 .step1-fields > * + * {
+            margin-top: 1.75rem;
+        }
+        .register-form .form-row {
+            display: grid;
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .register-form .form-row-cols-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+        .register-form .form-row-cols-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        /* Pre Nominal / First Name / Middle Initial: first two columns wider, M.I. narrower for balanced look */
+        .register-form .form-row-cols-3-name {
+            grid-template-columns: 2fr 2fr 1fr;
+        }
+        @media (max-width: 767px) {
+            .register-form .form-row-cols-2,
+            .register-form .form-row-cols-3,
+            .register-form .form-row-cols-3-name {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     @include('components.header-footer-styles')
@@ -278,40 +333,40 @@
                 </div>
             </div>
 
-            <form id="registerForm" class="space-y-4">
+            <form id="registerForm" class="register-form space-y-4">
                 <!-- Step 1: Government Agency & Personal Information -->
                 <div class="step active" id="step1">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Government Agency & Personal Information</h2>
-                    <div class="space-y-4">
+                    <div class="step1-fields">
                         <!-- Government Agency -->
-                        <div>
-                            <label for="government_agency_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Government Agency *</label>
-                            <div class="flex items-center space-x-4">
-                                <div class="flex-1">
+                        <div class="form-field">
+                            <label for="government_agency_id" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Government Agency *</label>
+                            <div class="form-control-wrap flex items-stretch">
+                                <div class="flex-1 min-w-0">
                                     <select 
                                         id="government_agency_id" 
                                         name="government_agency_id" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                        class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     >
                                         <option value="">Loading agencies...</option>
                                     </select>
                                     <span class="text-red-500 text-sm hidden" id="government_agency_id-error"></span>
                                 </div>
-                                <div id="agencyLogoPreview" class="hidden">
+                                <div id="agencyLogoPreview" class="hidden flex-shrink-0">
                                     <img id="agencyLogoImg" src="" alt="Agency Logo" class="h-16 w-16 object-contain border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 p-2">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Representative Type -->
-                        <div>
-                            <label for="representative_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Representative Type *</label>
+                        <div class="form-field">
+                            <label for="representative_type" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Representative Type *</label>
                             <select 
                                 id="representative_type" 
                                 name="representative_type" 
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select Type</option>
                                 <option value="Board Member">Board Member</option>
@@ -321,14 +376,14 @@
                         </div>
 
                         <!-- Name Fields -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="min-w-0">
-                                <label for="pre_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pre Nominal Title *</label>
+                        <div class="form-row form-row-cols-3 form-row-cols-3-name gap-4">
+                            <div class="form-field min-w-0">
+                                <label for="pre_nominal_title" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Pre Nominal Title *</label>
                                 <select 
                                     id="pre_nominal_title" 
                                     name="pre_nominal_title" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Title</option>
                                     <option value="Mr.">Mr.</option>
@@ -337,53 +392,53 @@
                                 <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
+                            <div class="form-field min-w-0">
+                                <label for="first_name" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">First Name *</label>
                                 <input 
                                     type="text" 
                                     id="first_name" 
                                     name="first_name" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="First name"
                                 >
                                 <span class="text-red-500 text-sm hidden" id="first_name-error"></span>
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="middle_initial" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Middle Initial</label>
+                            <div class="form-field min-w-0">
+                                <label for="middle_initial" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Middle Initial</label>
                                 <input 
                                     type="text" 
                                     id="middle_initial" 
                                     name="middle_initial" 
                                     maxlength="10"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="M.I."
                                 >
                                 <span class="text-red-500 text-sm hidden" id="middle_initial-error"></span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="min-w-0">
-                                <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>
+                        <div class="form-row form-row-cols-2 gap-4">
+                            <div class="form-field min-w-0">
+                                <label for="last_name" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Last Name *</label>
                                 <input 
                                     type="text" 
                                     id="last_name" 
                                     name="last_name" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Last name"
                                 >
                                 <span class="text-red-500 text-sm hidden" id="last_name-error"></span>
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="post_nominal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post Nominal Title</label>
+                            <div class="form-field min-w-0">
+                                <label for="post_nominal_title" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Post Nominal Title</label>
                                 <select 
                                     id="post_nominal_title" 
                                     name="post_nominal_title" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Title</option>
                                     <option value="Sr.">Sr.</option>
@@ -394,13 +449,13 @@
                                     <option value="Others">Others</option>
                                 </select>
                                 <div id="post_nominal_title_custom_wrapper" class="mt-2 hidden">
-                                    <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Others:</label>
+                                    <label for="post_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Others:</label>
                                     <input 
                                         type="text" 
                                         id="post_nominal_title_custom" 
                                         name="post_nominal_title_custom" 
                                         placeholder="Specify other title"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                        class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     >
                                 </div>
                                 <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
@@ -408,28 +463,28 @@
                         </div>
 
                         <!-- Designation -->
-                        <div>
-                            <label for="designation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Designation *</label>
+                        <div class="form-field">
+                            <label for="designation" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Designation *</label>
                             <input 
                                 type="text" 
                                 id="designation" 
                                 name="designation" 
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 placeholder="Your designation"
                             >
                             <span class="text-red-500 text-sm hidden" id="designation-error"></span>
                         </div>
 
                         <!-- Sex and Gender -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="min-w-0">
-                                <label for="sex" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sex *</label>
+                        <div class="form-row form-row-cols-2 gap-4">
+                            <div class="form-field min-w-0">
+                                <label for="sex" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Sex *</label>
                                 <select 
                                     id="sex" 
                                     name="sex" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Sex</option>
                                     <option value="Male">Male</option>
@@ -438,13 +493,13 @@
                                 <span class="text-red-500 text-sm hidden" id="sex-error"></span>
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender *</label>
+                            <div class="form-field min-w-0">
+                                <label for="gender" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Gender *</label>
                                 <select 
                                     id="gender" 
                                     name="gender" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Gender</option>
                                     <option value="Male">Male</option>
@@ -455,93 +510,93 @@
                             </div>
                         </div>
 
-                        <!-- Birth Date -->
-                        <div>
-                            <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Birth Date *</label>
+                        <!-- Birth Date (Age verification: 18+) -->
+                        <div class="form-field">
+                            <label for="birth_date" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Birth Date (18 yrs+) *</label>
                             <input 
                                 type="date" 
                                 id="birth_date" 
                                 name="birth_date" 
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                             <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 2: Office Address (PSGC) -->
+                <!-- Step 2: Office Address -->
                 <div class="step" id="step2">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address (PSGC)</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address</h2>
                     <div class="space-y-4">
                         <!-- Building/House/Street Details -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="min-w-0">
-                                <label for="office_building_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Building No.</label>
+                        <div class="form-row form-row-cols-2 gap-4">
+                            <div class="form-field min-w-0">
+                                <label for="office_building_no" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Building No.</label>
                                 <input 
                                     type="text" 
                                     id="office_building_no" 
                                     name="office_building_no" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Building No."
                                 >
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="office_house_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">House No.</label>
+                            <div class="form-field min-w-0">
+                                <label for="office_house_no" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">House No.</label>
                                 <input 
                                     type="text" 
                                     id="office_house_no" 
                                     name="office_house_no" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="House No."
                                 >
                             </div>
                         </div>
 
-                        <div>
-                            <label for="office_street_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Street Name</label>
+                        <div class="form-field">
+                            <label for="office_street_name" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Street Name</label>
                             <input 
                                 type="text" 
                                 id="office_street_name" 
                                 name="office_street_name" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 placeholder="Street Name"
                             >
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="min-w-0">
-                                <label for="office_purok" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purok</label>
+                        <div class="form-row form-row-cols-2 gap-4">
+                            <div class="form-field min-w-0">
+                                <label for="office_purok" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Purok</label>
                                 <input 
                                     type="text" 
                                     id="office_purok" 
                                     name="office_purok" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Purok"
                                 >
                             </div>
 
-                            <div class="min-w-0">
-                                <label for="office_sitio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sitio</label>
+                            <div class="form-field min-w-0">
+                                <label for="office_sitio" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Sitio</label>
                                 <input 
                                     type="text" 
                                     id="office_sitio" 
                                     name="office_sitio" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Sitio"
                                 >
                             </div>
                         </div>
 
                         <!-- PSGC Dropdowns -->
-                        <div>
-                            <label for="office_region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Region *</label>
+                        <div class="form-field">
+                            <label for="office_region" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Region *</label>
                             <select 
                                 id="office_region" 
                                 name="office_region" 
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select Region</option>
                                 <!-- Regions will be populated via JavaScript -->
@@ -549,42 +604,42 @@
                             <span class="text-red-500 text-sm hidden" id="office_region-error"></span>
                         </div>
 
-                        <div>
-                            <label for="office_province" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Province *</label>
+                        <div class="form-field">
+                            <label for="office_province" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Province *</label>
                             <select 
                                 id="office_province" 
                                 name="office_province" 
                                 required
                                 disabled
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select Province</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="office_province-error"></span>
                         </div>
 
-                        <div>
-                            <label for="office_city_municipality" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City/Municipality *</label>
+                        <div class="form-field">
+                            <label for="office_city_municipality" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">City/Municipality *</label>
                             <select 
                                 id="office_city_municipality" 
                                 name="office_city_municipality" 
                                 required
                                 disabled
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select City/Municipality</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="office_city_municipality-error"></span>
                         </div>
 
-                        <div>
-                            <label for="office_barangay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Barangay *</label>
+                        <div class="form-field">
+                            <label for="office_barangay" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Barangay *</label>
                             <select 
                                 id="office_barangay" 
                                 name="office_barangay" 
                                 required
                                 disabled
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select Barangay</option>
                             </select>
@@ -598,14 +653,14 @@
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Contact Information</h2>
                     <div class="space-y-4">
                         <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address *</label>
+                        <div class="form-field">
+                            <label for="email" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Email Address *</label>
                             <input 
                                 type="email" 
                                 id="email" 
                                 name="email" 
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 placeholder="Enter your email"
                             >
                             <span class="text-red-500 text-sm hidden" id="email-error"></span>
@@ -613,15 +668,15 @@
                         </div>
 
                         <!-- Username (System Generated) -->
-                        <div style="display: none;">
-                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username *</label>
+                        <div class="form-field" style="display: none;">
+                            <label for="username" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Username *</label>
                             <input 
                                 type="text" 
                                 id="username" 
                                 name="username" 
                                 required
                                 readonly
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition bg-gray-100 dark:bg-gray-600"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition bg-gray-100 dark:bg-gray-600"
                                 placeholder="System generated username"
                             >
                             <span class="text-red-500 text-sm hidden" id="username-error"></span>
@@ -629,15 +684,15 @@
                         </div>
 
                         <!-- Mobile Number -->
-                        <div>
-                            <label for="mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile Number *</label>
+                        <div class="form-field">
+                            <label for="mobile" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Mobile Number *</label>
                             <input 
                                 type="text" 
                                 id="mobile" 
                                 name="mobile" 
                                 required
                                 maxlength="16"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 placeholder="+63 917 123 4567"
                             >
                             <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
@@ -645,13 +700,13 @@
                         </div>
 
                         <!-- Landline (hidden) -->
-                        <div class="hidden">
-                            <label for="landline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Landline / Office Number</label>
+                        <div class="form-field hidden">
+                            <label for="landline" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Company Landline / Office Number</label>
                             <input 
                                 type="text" 
                                 id="landline" 
                                 name="landline" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 placeholder="(02) 8912-12345"
                             >
                             <span class="text-red-500 text-sm hidden" id="landline-error"></span>
@@ -665,15 +720,15 @@
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Account Security</h2>
                     <div class="space-y-4">
                         <!-- Password -->
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password *</label>
+                        <div class="form-field">
+                            <label for="password" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Password *</label>
                             <div class="relative">
                                 <input 
                                     type="password" 
                                     id="password" 
                                     name="password" 
                                     required
-                                    class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Enter password"
                                 >
                                 <button 
@@ -692,21 +747,21 @@
                                     <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                     <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                     <li id="req-number" class="invalid">At least 1 number</li>
-                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                                 </ul>
                             </div>
                         </div>
 
                         <!-- Confirm Password -->
-                        <div>
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
+                        <div class="form-field">
+                            <label for="password_confirmation" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password *</label>
                             <div class="relative">
                                 <input 
                                     type="password" 
                                     id="password_confirmation" 
                                     name="password_confirmation" 
                                     required
-                                    class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    class="form-control w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     placeholder="Confirm password"
                                 >
                                 <button 
@@ -852,25 +907,19 @@
                 }
             });
 
-            // Generate username based on name and email
+            // Generate username: firstname.lastname (standardized)
             function generateUsername() {
                 const firstName = $('#first_name').val().trim();
                 const lastName = $('#last_name').val().trim();
-                const email = $('#email').val().trim();
-                
-                if (firstName && lastName && email) {
-                    const firstInitial = firstName.charAt(0).toLowerCase();
-                    const lastPart = lastName.toLowerCase().substring(0, 5);
-                    const emailPart = email.split('@')[0].substring(0, 3).toLowerCase();
-                    const randomNum = Math.floor(Math.random() * 1000);
-                    const username = `${firstInitial}${lastPart}${emailPart}${randomNum}`.substring(0, 20);
-                    $('#username').val(username);
+                if (firstName && lastName) {
+                    const firstPart = firstName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'first';
+                    const lastPart = lastName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'last';
+                    $('#username').val(firstPart + '.' + lastPart);
                 }
             }
 
-            // Auto-generate username when name or email changes
-            $('#first_name, #last_name, #email').on('blur', function() {
-                if ($('#first_name').val() && $('#last_name').val() && $('#email').val()) {
+            $('#first_name, #last_name').on('blur', function() {
+                if ($('#first_name').val() && $('#last_name').val()) {
                     generateUsername();
                 }
             });
@@ -932,17 +981,23 @@
                 }
             });
 
-            // Password validation
+            // Allow only letters, numbers, and listed special chars (~, !, #, $, %, ^, &, *, |)
+            function filterPasswordInput(el) {
+                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const val = el.value;
+                const filtered = (val.match(allowed) || []).join('');
+                if (val !== filtered) el.value = filtered;
+            }
             $('#password').on('input', function() {
+                filterPasswordInput(this);
                 const password = $(this).val();
                 const $passwordInput = $(this);
                 
-                // Check individual requirements
                 const hasLength = password.length >= 6;
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!@#$%^&*|]/.test(password);
+                const hasSpecial = /[~!#$%^&*|]/.test(password);
                 
                 // Update requirement indicators
                 if (hasLength) {
@@ -989,6 +1044,7 @@
                     $passwordInput.removeClass('password-input-valid password-input-invalid');
                 }
             });
+            $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
             // PSGC Cascading Dropdowns using API
             $('#office_region').on('change', function() {
@@ -1134,6 +1190,10 @@
                     showError('birth_date', 'Birth date is required');
                     if (!firstInvalidField) firstInvalidField = '#birth_date';
                     isValid = false;
+                } else if (!isAtLeast18(birthDate)) {
+                    showError('birth_date', 'You must be at least 18 years old to register.');
+                    if (!firstInvalidField) firstInvalidField = '#birth_date';
+                    isValid = false;
                 }
             } else if (step === 2) {
                 const region = $('#office_region').val();
@@ -1232,7 +1292,18 @@
                    /[A-Z]/.test(password) &&
                    /[a-z]/.test(password) &&
                    /[0-9]/.test(password) &&
-                   /[~!@#$%^&*|]/.test(password);
+                   /[~!#$%^&*|]/.test(password);
+        }
+
+        function isAtLeast18(birthDateStr) {
+            const birth = new Date(birthDateStr);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age >= 18;
         }
 
         function isValidEmail(email) {

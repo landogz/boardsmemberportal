@@ -22,11 +22,13 @@ class Chat extends Model
         'timestamp',
         'is_read',
         'read_at',
+        'content_deleted_at',
     ];
 
     protected $casts = [
         'timestamp' => 'datetime',
         'read_at' => 'datetime',
+        'content_deleted_at' => 'datetime',
         'is_read' => 'boolean',
         'attachments' => 'array', // Cast to array for JSON storage
     ];

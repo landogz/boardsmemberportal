@@ -4109,8 +4109,14 @@
 
             let messageContent = '';
             
-            // Handle attachments - full implementation from popup
-            if (msg.attachments && msg.attachments.length > 0) {
+            // Delete trail: show "You unsent a message" / "This message was deleted" instead of content
+            if (msg.is_deleted) {
+                const trailText = isSender ? 'You unsent a message' : 'This message was deleted';
+                messageContent = `<div class="rounded-lg p-2 shadow-sm text-gray-500 italic text-xs">${trailText}</div>`;
+            }
+            
+            // Handle attachments - full implementation from popup (skip when message is deleted)
+            if (!msg.is_deleted && msg.attachments && msg.attachments.length > 0) {
                 msg.attachments.forEach((attachment, index) => {
                     if (!attachment || (!attachment.url && !attachment.type)) {
                         console.warn('Invalid attachment:', attachment);
@@ -4358,8 +4364,8 @@
                 });
             }
 
-            // Add text message - use theme colors if available
-            if (msg.message && msg.message.trim()) {
+            // Add text message - use theme colors if available (skip when message is deleted)
+            if (!msg.is_deleted && msg.message && msg.message.trim()) {
                 const chatMessagesArea = document.getElementById('chatMessagesArea');
                 const currentThemeId = chatMessagesArea?.getAttribute('data-theme-id');
                 const currentThemeGroupId = chatMessagesArea?.getAttribute('data-theme-group-id');
@@ -4433,7 +4439,7 @@
             // Get reactions display with theme colors
             const reactions = msg.reactions || [];
             let reactionsDisplay = '';
-            if (reactions.length > 0) {
+            if (!msg.is_deleted && reactions.length > 0) {
                 const reactionEmojis = {
                     'like': '👍', 'love': '❤️', 'haha': '😂', 'wow': '😮', 'sad': '😢', 'angry': '😠'
                 };
@@ -4447,8 +4453,8 @@
             
             // Check if this is a reply and show reply indicator
             let replyIndicator = '';
-            // Check if there's actual content (message or attachments) to determine if we need margin
-            const hasContent = (msg.message && msg.message.trim()) || (msg.attachments && msg.attachments.length > 0);
+            // Check if there's actual content (message, attachments, or delete trail) to determine if we need margin
+            const hasContent = msg.is_deleted || (msg.message && msg.message.trim()) || (msg.attachments && msg.attachments.length > 0);
             
             if (msg.parent_id) {
                 let parentMessageText = 'Message';
@@ -4482,14 +4488,14 @@
                     ? `<img src="${currentUserProfilePicture}" alt="You" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">`
                     : `<div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">${currentUserInitials}</div>`;
                 
-                const hasVideo = messageContent && messageContent.includes('<video');
+                const hasVideo = messageContent && messageContent.includes('<video') && !msg.is_deleted;
                 // Only create contentWrapper if there's actual content to avoid empty divs
                 const contentWrapper = messageContent && messageContent.trim() ? `<div class="space-y-2">${messageContent}</div>` : '';
                 
                 // Add data attribute to identify sent messages for read status updates
                 messageDiv.setAttribute('data-is-sender', 'true');
                 
-                const actionButtons = `
+                const actionButtons = msg.is_deleted ? '' : `
                     <button class="message-react-btn p-0.5 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" 
                             data-message-id="${msg.id}" title="React">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4608,8 +4614,8 @@
                     receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm" ${receiverStyle}><p class="text-xs text-gray-800">${escapeHtml(msg.message)}</p></div>`;
                 }
                 
-                const hasVideo = messageContent && messageContent.includes('<video');
-                const actionButtons = `
+                const hasVideo = messageContent && messageContent.includes('<video') && !msg.is_deleted;
+                const actionButtons = msg.is_deleted ? '' : `
                     <button class="message-react-btn p-1 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-full transition" 
                             data-message-id="${msg.id}" title="React">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6744,21 +6750,20 @@
             });
         }
         
-        // Delete message
+        // Delete message (unsend): show trail "You unsent a message" instead of removing the row
         function deleteMessage(messageId, messageDiv) {
             axios.delete(`/messages/${messageId}`)
             .then(response => {
-                if (response.data.success) {
-                    messageDiv.style.transition = 'opacity 0.3s';
-                    messageDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        messageDiv.remove();
-                    }, 300);
-                    
+                if (response.data.success && response.data.is_deleted) {
+                    messageDiv.setAttribute('data-message-deleted', 'true');
+                    const flex1 = messageDiv.querySelector('.flex-1');
+                    if (flex1) {
+                        flex1.innerHTML = `<div class="max-w-[75%] relative"><div class="rounded-lg p-2 shadow-sm text-gray-500 italic text-xs">You unsent a message</div></div>`;
+                    }
                     if (window.Swal) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Deleted',
+                            title: 'Message unsent',
                             text: 'Message deleted successfully',
                             timer: 1500,
                             showConfirmButton: false
@@ -6779,6 +6784,24 @@
                 }
             });
         }
+        
+        // Real-time: when another user unsends a message, show "This message was deleted" trail
+        window.addEventListener('message-content-deleted', function(e) {
+            const payload = e.detail || e;
+            const messageId = payload.message_id;
+            const conversationId = payload.conversation_id;
+            if (messageId == null || conversationId == null) return;
+            if (!currentChatUserId || String(currentChatUserId) !== String(conversationId)) return;
+            const chatMessagesArea = document.getElementById('chatMessagesArea');
+            if (!chatMessagesArea) return;
+            const messageDiv = chatMessagesArea.querySelector('[data-message-id="' + messageId + '"]');
+            if (!messageDiv) return;
+            messageDiv.setAttribute('data-message-deleted', 'true');
+            const flex1 = messageDiv.querySelector('.flex-1');
+            if (flex1) {
+                flex1.innerHTML = '<div class="max-w-[75%] relative"><div class="rounded-lg p-2 shadow-sm text-gray-500 italic text-xs">This message was deleted</div></div>';
+            }
+        });
         
         // Show reactions modal
         function showReactionsModal(messageId, initialReactions) {

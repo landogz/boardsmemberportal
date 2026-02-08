@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GroupChat;
 use App\Models\GroupMember;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +56,31 @@ class GroupChatController extends Controller
                     'is_admin' => $memberId === $currentUserId, // Creator is admin
                     'joined_at' => now(),
                 ]);
+                // Notify members other than the creator that they were added to the group
+                if ($memberId !== $currentUserId) {
+                    $creator = User::find($currentUserId);
+                    $addedUser = User::find($memberId);
+                    if ($addedUser && $creator) {
+                        $adderName = $creator->first_name . ' ' . $creator->last_name;
+                        $messagesUrl = in_array($addedUser->privilege, ['admin', 'consec'])
+                            ? url('/admin/messages')
+                            : url('/messages');
+                        Notification::create([
+                            'user_id' => $memberId,
+                            'type' => 'group_chat_added',
+                            'title' => 'Added to Group Chat',
+                            'message' => 'You were added to the group "' . $group->name . '" by ' . $adderName . '.',
+                            'url' => $messagesUrl,
+                            'data' => [
+                                'group_id' => $group->id,
+                                'group_name' => $group->name,
+                                'added_by_id' => $currentUserId,
+                                'added_by_name' => $adderName,
+                            ],
+                            'is_read' => false,
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
@@ -286,6 +312,29 @@ class GroupChatController extends Controller
                 ]);
 
                 $addedMembers[] = $member->load('user');
+
+                // Notify the added user so it appears in the header notifications
+                $addedUser = User::find($userId);
+                if ($addedUser) {
+                    $adderName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
+                    $messagesUrl = in_array($addedUser->privilege, ['admin', 'consec'])
+                        ? url('/admin/messages')
+                        : url('/messages');
+                    Notification::create([
+                        'user_id' => $userId,
+                        'type' => 'group_chat_added',
+                        'title' => 'Added to Group Chat',
+                        'message' => 'You were added to the group "' . $group->name . '" by ' . $adderName . '.',
+                        'url' => $messagesUrl,
+                        'data' => [
+                            'group_id' => $group->id,
+                            'group_name' => $group->name,
+                            'added_by_id' => Auth::id(),
+                            'added_by_name' => $adderName,
+                        ],
+                        'is_read' => false,
+                    ]);
+                }
             }
 
             $group->load(['members.user', 'creator']);

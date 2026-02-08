@@ -396,7 +396,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                             </ul>
                         </div>
                     </div>
@@ -514,25 +514,19 @@
 
         // Provinces, cities, and barangays are now loaded on-demand via API when dropdowns change
 
-        // Generate username based on name and email
+        // Generate username: firstname.lastname (standardized)
         function generateUsername() {
             const firstName = $('#first_name').val().trim();
             const lastName = $('#last_name').val().trim();
-            const email = $('#email').val().trim();
-            
-            if (firstName && lastName && email) {
-                const firstInitial = firstName.charAt(0).toLowerCase();
-                const lastPart = lastName.toLowerCase().substring(0, 5);
-                const emailPart = email.split('@')[0].substring(0, 3).toLowerCase();
-                const randomNum = Math.floor(Math.random() * 1000);
-                const username = `${firstInitial}${lastPart}${emailPart}${randomNum}`.substring(0, 20);
-                $('#username').val(username);
+            if (firstName && lastName) {
+                const firstPart = firstName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'first';
+                const lastPart = lastName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'last';
+                $('#username').val(firstPart + '.' + lastPart);
             }
         }
 
-        // Auto-generate username when name or email changes
-        $('#first_name, #last_name, #email').on('blur', function() {
-            if ($('#first_name').val() && $('#last_name').val() && $('#email').val()) {
+        $('#first_name, #last_name').on('blur', function() {
+            if ($('#first_name').val() && $('#last_name').val()) {
                 generateUsername();
             }
         });
@@ -605,16 +599,22 @@
         });
 
         // Password validation
+        function filterPasswordInput(el) {
+            const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+            const val = el.value;
+            const filtered = (val.match(allowed) || []).join('');
+            if (val !== filtered) el.value = filtered;
+        }
         $('#password').on('input', function() {
+            filterPasswordInput(this);
             const password = $(this).val();
             const $passwordInput = $(this);
             
-            // Check individual requirements
             const hasLength = password.length >= 6;
             const hasUppercase = /[A-Z]/.test(password);
             const hasLowercase = /[a-z]/.test(password);
             const hasNumber = /[0-9]/.test(password);
-            const hasSpecial = /[~!@#$%^&*|]/.test(password);
+            const hasSpecial = /[~!#$%^&*|]/.test(password);
             
             // Update requirement indicators
             if (hasLength) {
@@ -654,13 +654,14 @@
             if (password.length > 0) {
                 if (allValid) {
                     $passwordInput.removeClass('password-input-invalid').addClass('password-input-valid');
-                } else {
-                    $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
-                }
-            } else {
-                $passwordInput.removeClass('password-input-valid password-input-invalid');
+} else {
+                $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
             }
-        });
+        } else {
+            $passwordInput.removeClass('password-input-valid password-input-invalid');
+        }
+    });
+    $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
         // PSGC Cascading Dropdowns using API
         $('#office_region').on('change', function() {
@@ -902,7 +903,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!@#$%^&*|]/.test(password);
+               /[~!#$%^&*|]/.test(password);
     }
 
     function isValidEmail(email) {

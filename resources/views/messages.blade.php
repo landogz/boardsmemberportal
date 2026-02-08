@@ -3153,37 +3153,14 @@
                         conversationsData = response.data.conversations; // Store globally
                         renderConversations(response.data.conversations);
                         
-                        // Calculate and update header badge count on initial load
+                        // Header badge: on messages page use list total so it matches; else use API
                         let totalUnread = 0;
-                        response.data.conversations.forEach(conv => {
-                            totalUnread += (conv.unread_count || 0);
-                        });
-                        
-                        if (typeof updateMessagesBadge === 'function') {
-                            updateMessagesBadge(totalUnread);
-                        } else {
-                            // Fallback: direct update if function not available
-                            const badgeCount = document.getElementById('messagesBadgeCount');
-                            const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
-                            const badgeText = totalUnread > 99 ? '99+' : totalUnread;
-                            
-                            if (badgeCount) {
-                                if (totalUnread > 0) {
-                                    badgeCount.textContent = badgeText;
-                                    badgeCount.classList.remove('hidden');
-                                } else {
-                                    badgeCount.classList.add('hidden');
-                                }
-                            }
-                            
-                            if (badgeCountMobile) {
-                                if (totalUnread > 0) {
-                                    badgeCountMobile.textContent = badgeText;
-                                    badgeCountMobile.classList.remove('hidden');
-                                } else {
-                                    badgeCountMobile.classList.add('hidden');
-                                }
-                            }
+                        (response.data.conversations || []).forEach(c => { totalUnread += (c.unread_count || 0); });
+                        const onMessagesPage = (window.location.pathname === '/messages' || window.location.pathname === '/admin/messages');
+                        if (onMessagesPage && typeof window.updateMessagesBadge === 'function') {
+                            window.updateMessagesBadge(totalUnread);
+                        } else if (typeof window.loadUnreadCount === 'function') {
+                            window.loadUnreadCount(true);
                         }
                         
                         // Update timestamps periodically
@@ -3342,40 +3319,15 @@
                             loadConversations();
                         }
 
-                        // Calculate total unread count for conversation list badges
                         let totalUnread = 0;
-                        conversationsData.forEach(conv => {
-                            totalUnread += (conv.unread_count || 0);
-                        });
+                        conversationsData.forEach(c => { totalUnread += (c.unread_count || 0); });
 
-                        // Update header badge using API for accuracy
-                        if (typeof window.loadUnreadCount === 'function') {
-                            window.loadUnreadCount();
-                        } else if (typeof updateMessagesBadge === 'function') {
-                            updateMessagesBadge(totalUnread);
-                        } else {
-                            // Fallback: direct update if function not available
-                            const badgeCount = document.getElementById('messagesBadgeCount');
-                            const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
-                            const badgeText = totalUnread > 99 ? '99+' : totalUnread;
-                            
-                            if (badgeCount) {
-                                if (totalUnread > 0) {
-                                    badgeCount.textContent = badgeText;
-                                    badgeCount.classList.remove('hidden');
-                                } else {
-                                    badgeCount.classList.add('hidden');
-                                }
-                            }
-                            
-                            if (badgeCountMobile) {
-                                if (totalUnread > 0) {
-                                    badgeCountMobile.textContent = badgeText;
-                                    badgeCountMobile.classList.remove('hidden');
-                                } else {
-                                    badgeCountMobile.classList.add('hidden');
-                                }
-                            }
+                        // On messages page: header badge = list total so it matches. Else: use API.
+                        const onMessagesPage = (window.location.pathname === '/messages' || window.location.pathname === '/admin/messages');
+                        if (onMessagesPage && typeof window.updateMessagesBadge === 'function') {
+                            window.updateMessagesBadge(totalUnread);
+                        } else if (typeof window.loadUnreadCount === 'function') {
+                            window.loadUnreadCount(true);
                         }
 
                         // Update UI badges without re-rendering entire list
@@ -4126,27 +4078,20 @@
                                                         }
                                                     }
                                                     
-                                                    // Update unread counts and header badge immediately from local state (no API yet - avoid stale count)
-                                                    updateUnreadCounts();
-                                                    let totalUnread = 0;
-                                                    conversationsData.forEach(c => {
-                                                        totalUnread += (c.unread_count || 0);
-                                                    });
-                                                    if (typeof window.updateMessagesBadge === 'function') {
-                                                        window.updateMessagesBadge(totalUnread);
-                                                    }
+                                                    // Update dropdown item badge for this conversation only; header badge from API only
                                                     if (typeof window.updateDropdownItemBadge === 'function') {
+                                                        let totalUnread = 0;
+                                                        conversationsData.forEach(c => { totalUnread += (c.unread_count || 0); });
                                                         window.updateDropdownItemBadge(userId, 0, totalUnread);
                                                     } else if (typeof window.reloadMessagesDropdown === 'function') {
                                                         window.reloadMessagesDropdown();
                                                     }
-                                                    // Sync with server after delay so badge stays correct
-                                                    setTimeout(() => {
-                                                        updateUnreadCounts();
-                                                        if (typeof window.loadUnreadCount === 'function') {
-                                                            window.loadUnreadCount();
-                                                        }
-                                                    }, 400);
+                                                    updateUnreadCounts();
+                                                    // Header badge: only from API so it shows 0 when all are read
+                                                    if (typeof window.loadUnreadCount === 'function') {
+                                                        window.loadUnreadCount(true);
+                                                    }
+                                                    setTimeout(() => { if (typeof window.loadUnreadCount === 'function') window.loadUnreadCount(true); }, 400);
                                                 })
                                                 .catch(err => {
                                                     console.error('Error marking as read:', err);
@@ -4217,16 +4162,30 @@
             return diffMinutes > 5;
         }
         
-        // Create timestamp separator element
+        // Create timestamp separator element (single separator per time group - no duplicate within 5 min)
         function createTimestampSeparator(timestamp) {
             const separatorDiv = document.createElement('div');
-            separatorDiv.className = 'flex items-center justify-center my-4';
+            separatorDiv.className = 'flex items-center justify-center my-4 timestamp-separator';
+            separatorDiv.setAttribute('data-separator-time', new Date(timestamp).getTime());
             separatorDiv.innerHTML = `
                 <div class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                     <span class="text-xs text-gray-600 dark:text-gray-400 font-medium">${formatTimestampSeparator(timestamp)}</span>
                 </div>
             `;
             return separatorDiv;
+        }
+        
+        // Avoid duplicate timestamp: don't show if last element is a separator for the same 5-min window
+        function shouldAddTimestampSeparator(msg, previousMsg, messagesArea) {
+            if (!shouldShowTimestampSeparator(msg, previousMsg)) return false;
+            const lastEl = messagesArea && messagesArea.lastElementChild;
+            if (!lastEl || !lastEl.classList.contains('timestamp-separator')) return true;
+            const lastTime = lastEl.getAttribute('data-separator-time');
+            if (!lastTime) return true;
+            const currentTime = new Date(msg.created_at).getTime();
+            const diffMinutes = (currentTime - parseInt(lastTime, 10)) / (1000 * 60);
+            if (diffMinutes >= 0 && diffMinutes <= 5) return false; // Same window, no duplicate
+            return true;
         }
 
         // Full message rendering function from popup - adapted for page
@@ -4259,15 +4218,13 @@
                 } else {
                     // Timestamps don't match, remove temp separator and let normal logic decide
                     tempSeparator.remove();
-                    // Check if we need to add a timestamp separator
-                    if (shouldShowTimestampSeparator(msg, previousMsg)) {
+                    if (shouldAddTimestampSeparator(msg, previousMsg, messagesArea)) {
                         const separator = createTimestampSeparator(msg.created_at);
                         messagesArea.appendChild(separator);
                     }
                 }
             } else {
-                // Check if we need to add a timestamp separator
-                if (shouldShowTimestampSeparator(msg, previousMsg)) {
+                if (shouldAddTimestampSeparator(msg, previousMsg, messagesArea)) {
                     const separator = createTimestampSeparator(msg.created_at);
                     messagesArea.appendChild(separator);
                 }
@@ -4287,10 +4244,32 @@
             messageDiv.setAttribute('data-message-id', msg.id);
             messageDiv.setAttribute('data-created-at', msg.created_at);
 
+            // For sent messages: hide avatar when previous message is also from me and within 5 min (no duplicate "You")
+            let showSenderAvatar = true;
+            if (isSender) {
+                const allMsgEls = messagesArea.querySelectorAll('[data-message-id][data-created-at]');
+                const lastMsgEl = allMsgEls.length ? allMsgEls[allMsgEls.length - 1] : null;
+                if (lastMsgEl && lastMsgEl.classList.contains('justify-end')) {
+                    const lastCreatedAt = lastMsgEl.getAttribute('data-created-at');
+                    if (lastCreatedAt) {
+                        const prevTime = new Date(lastCreatedAt).getTime();
+                        const currTime = new Date(msg.created_at).getTime();
+                        const diffMin = (currTime - prevTime) / (1000 * 60);
+                        if (diffMin >= 0 && diffMin <= 5) showSenderAvatar = false;
+                    }
+                }
+            }
+
             let messageContent = '';
             
-            // Handle attachments - full implementation from popup
-            if (msg.attachments && msg.attachments.length > 0) {
+            // Delete trail: show "You unsent a message" / "This message was deleted" instead of content
+            if (msg.is_deleted) {
+                const trailText = isSender ? 'You unsent a message' : 'This message was deleted';
+                messageContent = `<div class="rounded-lg p-2 shadow-sm text-gray-500 dark:text-gray-400 italic text-xs">${trailText}</div>`;
+            }
+            
+            // Handle attachments - full implementation from popup (skip when message is deleted)
+            if (!msg.is_deleted && msg.attachments && msg.attachments.length > 0) {
                 msg.attachments.forEach((attachment, index) => {
                     if (!attachment || (!attachment.url && !attachment.type)) {
                         console.warn('Invalid attachment:', attachment);
@@ -4538,8 +4517,8 @@
                 });
             }
 
-            // Add text message - use theme colors if available
-            if (msg.message && msg.message.trim()) {
+            // Add text message - use theme colors if available (skip when message is deleted)
+            if (!msg.is_deleted && msg.message && msg.message.trim()) {
                 const chatMessagesArea = document.getElementById('chatMessagesArea');
                 const currentThemeId = chatMessagesArea?.getAttribute('data-theme-id');
                 const currentThemeGroupId = chatMessagesArea?.getAttribute('data-theme-group-id');
@@ -4597,7 +4576,7 @@
             // Get reactions display with theme colors
             const reactions = msg.reactions || [];
             let reactionsDisplay = '';
-            if (reactions.length > 0) {
+            if (!msg.is_deleted && reactions.length > 0) {
                 const reactionEmojis = {
                     'like': '👍', 'love': '❤️', 'haha': '😂', 'wow': '😮', 'sad': '😢', 'angry': '😠'
                 };
@@ -4611,8 +4590,8 @@
             
             // Check if this is a reply and show reply indicator
             let replyIndicator = '';
-            // Check if there's actual content (message or attachments) to determine if we need margin
-            const hasContent = (msg.message && msg.message.trim()) || (msg.attachments && msg.attachments.length > 0);
+            // Check if there's actual content (message, attachments, or delete trail) to determine if we need margin
+            const hasContent = msg.is_deleted || (msg.message && msg.message.trim()) || (msg.attachments && msg.attachments.length > 0);
             
             if (msg.parent_id) {
                 let parentMessageText = 'Message';
@@ -4642,9 +4621,12 @@
             }
 
             if (isSender) {
-                const senderAvatar = currentUserProfilePicture 
-                    ? `<img src="${currentUserProfilePicture}" alt="You" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 flex-shrink-0">`
-                    : `<div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">${currentUserInitials}</div>`;
+                const senderAvatarContent = showSenderAvatar
+                    ? (currentUserProfilePicture 
+                        ? `<img src="${currentUserProfilePicture}" alt="You" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 flex-shrink-0">`
+                        : `<div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">${currentUserInitials}</div>`)
+                    : `<div class="w-6 h-6 flex-shrink-0" aria-hidden="true"></div>`; // Spacer so layout stays aligned
+                const senderAvatar = senderAvatarContent;
                 
                 const hasVideo = messageContent && messageContent.includes('<video');
                 // Only create contentWrapper if there's actual content to avoid empty divs
@@ -4653,7 +4635,7 @@
                 // Add data attribute to identify sent messages for read status updates
                 messageDiv.setAttribute('data-is-sender', 'true');
                 
-                const actionButtons = `
+                const actionButtons = msg.is_deleted ? '' : `
                     <button class="message-react-btn p-0.5 text-gray-500 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition" 
                             data-message-id="${msg.id}" title="React">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4674,7 +4656,7 @@
                     </button>
                 `;
                 
-                if (hasVideo) {
+                if (hasVideo && !msg.is_deleted) {
                     messageDiv.innerHTML = `
                         <div class="flex-1 flex justify-end items-start gap-2 group">
                             <div class="max-w-[75%] relative">
@@ -4772,8 +4754,8 @@
                     receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm" ${receiverStyle}><p class="text-xs text-gray-800">${escapeHtml(msg.message)}</p></div>`;
                 }
                 
-                const hasVideo = messageContent && messageContent.includes('<video');
-                const actionButtons = `
+                const hasVideo = messageContent && messageContent.includes('<video') && !msg.is_deleted;
+                const actionButtons = msg.is_deleted ? '' : `
                     <button class="message-react-btn p-1 text-gray-500 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition" 
                             data-message-id="${msg.id}" title="React">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5454,9 +5436,9 @@
                     // Update badges in real-time after sending message
                     setTimeout(() => {
                         updateUnreadCounts();
-                        // Also call the unread-count API directly for header badge
+                        // Also call the unread-count API directly for header badge (force refresh)
                         if (typeof window.loadUnreadCount === 'function') {
-                            window.loadUnreadCount();
+                            window.loadUnreadCount(true);
                         }
                     }, 800);
                 }
@@ -5596,9 +5578,9 @@
                         // Update unread counts when new messages arrive
                         updateUnreadCounts();
                         
-                        // Also call the unread-count API directly for header badge
+                        // Also call the unread-count API directly for header badge (force refresh)
                         if (typeof window.loadUnreadCount === 'function') {
-                            window.loadUnreadCount();
+                            window.loadUnreadCount(true);
                         }
                     }
                 })
@@ -6647,17 +6629,13 @@
                         updateUnreadCounts();
                         let totalUnread = 0;
                         conversationsData.forEach(c => { totalUnread += (c.unread_count || 0); });
-                        if (typeof window.updateMessagesBadge === 'function') {
-                            window.updateMessagesBadge(totalUnread);
-                        }
                         if (typeof window.updateDropdownItemBadge === 'function') {
                             window.updateDropdownItemBadge(currentChatUserId, 0, totalUnread);
                         }
-                        setTimeout(() => {
-                            if (typeof window.loadUnreadCount === 'function') {
-                                window.loadUnreadCount();
-                            }
-                        }, 400);
+                        if (typeof window.loadUnreadCount === 'function') {
+                            window.loadUnreadCount(true);
+                        }
+                        setTimeout(() => { if (typeof window.loadUnreadCount === 'function') window.loadUnreadCount(true); }, 400);
                     }
                 })
                 .catch(error => {
@@ -6866,21 +6844,20 @@
             });
         }
         
-        // Delete message
+        // Delete message (unsend): show trail "You unsent a message" instead of removing the row
         function deleteMessage(messageId, messageDiv) {
             axios.delete(`/messages/${messageId}`)
             .then(response => {
-                if (response.data.success) {
-                    messageDiv.style.transition = 'opacity 0.3s';
-                    messageDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        messageDiv.remove();
-                    }, 300);
-                    
+                if (response.data.success && response.data.is_deleted) {
+                    messageDiv.setAttribute('data-message-deleted', 'true');
+                    const flex1 = messageDiv.querySelector('.flex-1');
+                    if (flex1) {
+                        flex1.innerHTML = `<div class="max-w-[75%] relative"><div class="rounded-lg p-2 shadow-sm text-gray-500 dark:text-gray-400 italic text-xs">You unsent a message</div></div>`;
+                    }
                     if (window.Swal) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Deleted',
+                            title: 'Message unsent',
                             text: 'Message deleted successfully',
                             timer: 1500,
                             showConfirmButton: false
@@ -6901,6 +6878,24 @@
                 }
             });
         }
+        
+        // Real-time: when another user unsends a message, show "This message was deleted" trail
+        window.addEventListener('message-content-deleted', function(e) {
+            const payload = e.detail || e;
+            const messageId = payload.message_id;
+            const conversationId = payload.conversation_id;
+            if (messageId == null || conversationId == null) return;
+            if (!currentChatUserId || String(currentChatUserId) !== String(conversationId)) return;
+            const chatMessagesArea = document.getElementById('chatMessagesArea');
+            if (!chatMessagesArea) return;
+            const messageDiv = chatMessagesArea.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageDiv) return;
+            messageDiv.setAttribute('data-message-deleted', 'true');
+            const flex1 = messageDiv.querySelector('.flex-1');
+            if (flex1) {
+                flex1.innerHTML = '<div class="max-w-[75%] relative"><div class="rounded-lg p-2 shadow-sm text-gray-500 dark:text-gray-400 italic text-xs">This message was deleted</div></div>';
+            }
+        });
         
         // Show reactions modal
         function showReactionsModal(messageId, initialReactions) {

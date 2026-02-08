@@ -86,13 +86,16 @@ class BoardMemberController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Generate username if not provided or if it already exists
-        $username = $validated['username'];
-        $originalUsername = $username;
+        // Standardized username: firstname.lastname (lowercase, alphanumeric only)
+        $firstPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['first_name']));
+        $lastPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['last_name']));
+        $firstPart = $firstPart !== '' ? $firstPart : 'first';
+        $lastPart = $lastPart !== '' ? $lastPart : 'last';
+        $baseUsername = $firstPart . '.' . $lastPart;
+        $username = $baseUsername;
         $counter = 1;
-        
         while (User::where('username', $username)->exists()) {
-            $username = $originalUsername . $counter;
+            $username = $baseUsername . $counter;
             $counter++;
         }
 

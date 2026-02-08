@@ -318,9 +318,10 @@
     </style>
     @include('components.header-footer-styles')
     <style>
-        /* Banner - 1190x460px - Mandatory, Customizable */
+        /* Banner - full width, customizable */
         .banner {
             width: 100%;
+            max-width: 100vw;
             height: 460px;
             background-color: #f0f0f0;
             position: relative;
@@ -331,7 +332,7 @@
             background-color: #1e293b;
         }
         
-        /* Banner slideshow */
+        /* Banner slideshow - full width */
         .banner-slideshow {
             width: 100%;
             height: 100%;
@@ -347,6 +348,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            right: 0;
             padding: 20px;
         }
         
@@ -356,10 +358,78 @@
             justify-content: center;
         }
         
-        .banner-slide > div {
+        /* Only the text content div gets max-width; media and overlay must stay full-width */
+        .banner-slide > div.text-center {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
+        }
+        
+        .banner-slide .banner-slide-media,
+        .banner-slide .banner-slide-media-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            min-width: 100%;
+            min-height: 100%;
+        }
+        
+        .banner-slide .banner-slide-media {
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        .banner-slide .banner-slide-media-image {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Responsive: show one of desktop/tablet/mobile image per breakpoint */
+        .banner-slide .banner-slide-media-image-desktop { display: none; }
+        @media (min-width: 1025px) {
+            .banner-slide .banner-slide-media-image-desktop { display: block; }
+        }
+        .banner-slide .banner-slide-media-image-tablet { display: none; }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .banner-slide .banner-slide-media-image-tablet { display: block; }
+        }
+        .banner-slide .banner-slide-media-image-mobile { display: none; }
+        @media (max-width: 768px) {
+            .banner-slide .banner-slide-media-image-mobile { display: block; }
+        }
+        .banner-slide .banner-slide-media-video-desktop { display: none; }
+        @media (min-width: 1025px) {
+            .banner-slide .banner-slide-media-video-desktop { display: block; }
+        }
+        .banner-slide .banner-slide-media-video-tablet { display: none; }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .banner-slide .banner-slide-media-video-tablet { display: block; }
+        }
+        .banner-slide .banner-slide-media-video-mobile { display: none; }
+        @media (max-width: 768px) {
+            .banner-slide .banner-slide-media-video-mobile { display: block; }
+        }
+        
+        .banner-slide .banner-slide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: linear-gradient(135deg, rgba(5,84,152,0.4) 0%, rgba(18,58,96,0.5) 100%);
+            pointer-events: none;
+        }
+        
+        /* Keep text content above overlay and centered; do not change overlay to relative */
+        .banner-slide > div.text-center {
+            position: relative;
+            z-index: 10;
         }
         
         /* Banner navigation dots */
@@ -556,33 +626,75 @@
     <!-- Banner - 1190x460px - Mandatory, Customizable -->
     <div class="banner">
         <div class="banner-slideshow">
-            <!-- Slide 1 -->
-            <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);">
-                <div class="text-center px-2 sm:px-4 text-white relative z-10">
-                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
-                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
+            @if(isset($bannerSlides) && $bannerSlides->count() > 0)
+                @foreach($bannerSlides as $index => $slide)
+                @php
+                    $hasMedia = $slide->media || $slide->mediaTablet || $slide->mediaMobile;
+                    $desktopUrl = $slide->media ? asset('storage/' . $slide->media->file_path) : null;
+                    $tabletUrl = $slide->mediaTablet ? asset('storage/' . $slide->mediaTablet->file_path) : $desktopUrl;
+                    $mobileUrl = $slide->mediaMobile ? asset('storage/' . $slide->mediaMobile->file_path) : ($slide->mediaTablet ? asset('storage/' . $slide->mediaTablet->file_path) : $desktopUrl);
+                    $desktopMime = $slide->media?->file_type ?? null;
+                    $tabletMime = $slide->mediaTablet?->file_type ?? $desktopMime;
+                    $mobileMime = $slide->mediaMobile?->file_type ?? $tabletMime;
+                @endphp
+                <div class="banner-slide {{ $index === 0 ? 'active' : '' }}" style="{{ !$hasMedia ? 'background: linear-gradient(135deg, #055498 0%, #123a60 100%);' : '' }}">
+                    @if($slide->is_image && $desktopUrl)
+                        <div class="banner-slide-media banner-slide-media-image banner-slide-media-image-desktop" style="background-image: url('{{ e($desktopUrl) }}'); opacity: {{ $slide->media_opacity_value }};"></div>
+                        <div class="banner-slide-media banner-slide-media-image banner-slide-media-image-tablet" style="background-image: url('{{ e($tabletUrl) }}'); opacity: {{ $slide->media_opacity_value }};"></div>
+                        <div class="banner-slide-media banner-slide-media-image banner-slide-media-image-mobile" style="background-image: url('{{ e($mobileUrl) }}'); opacity: {{ $slide->media_opacity_value }};"></div>
+                    @endif
+                    @if($slide->is_video && $desktopUrl)
+                        <video class="banner-slide-media banner-slide-media-video-desktop" autoplay muted loop playsinline style="opacity: {{ $slide->media_opacity_value }};">
+                            <source src="{{ $desktopUrl }}" type="{{ $desktopMime }}">
+                        </video>
+                        <video class="banner-slide-media banner-slide-media-video-tablet" autoplay muted loop playsinline style="opacity: {{ $slide->media_opacity_value }};">
+                            <source src="{{ $tabletUrl }}" type="{{ $tabletMime }}">
+                        </video>
+                        <video class="banner-slide-media banner-slide-media-video-mobile" autoplay muted loop playsinline style="opacity: {{ $slide->media_opacity_value }};">
+                            <source src="{{ $mobileUrl }}" type="{{ $mobileMime }}">
+                        </video>
+                    @endif
+                    @if($hasMedia)
+                        <div class="banner-slide-overlay"></div>
+                    @endif
+                    <div class="text-center px-2 sm:px-4 relative z-10">
+                        <h1 class="font-bold mb-2 sm:mb-4 leading-tight" style="color: {{ !empty($slide->title_color) ? $slide->title_color : '#ffffff' }}; font-size: {{ $slide->title_font_size_css }};">{{ $slide->title }}</h1>
+                        @if($slide->subtitle)
+                            <p class="mb-4 sm:mb-6 px-2" style="color: {{ !empty($slide->subtitle_color) ? $slide->subtitle_color : 'rgba(255,255,255,0.9)' }}; font-size: {{ $slide->subtitle_font_size_css }};">{{ $slide->subtitle }}</p>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <!-- Slide 2 -->
-            <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                <div class="text-center px-2 sm:px-4 text-white relative z-10">
-                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
-                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
+                @endforeach
+                <div class="banner-dots">
+                    @foreach($bannerSlides as $index => $slide)
+                    <span class="banner-dot {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
+                    @endforeach
                 </div>
-            </div>
-            <!-- Slide 3 -->
-            <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                <div class="text-center px-2 sm:px-4 text-white relative z-10">
-                    <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure & Modern Platform</h1>
-                    <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
+            @else
+                <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);">
+                    <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                        <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
+                        <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
+                    </div>
                 </div>
-            </div>
-            <!-- Navigation Dots -->
-            <div class="banner-dots">
-                <span class="banner-dot active" data-slide="0"></span>
-                <span class="banner-dot" data-slide="1"></span>
-                <span class="banner-dot" data-slide="2"></span>
-            </div>
+                <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                    <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                        <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Efficient Board Management</h1>
+                        <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Streamline your board operations with our comprehensive portal</p>
+                    </div>
+                </div>
+                <div class="banner-slide" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                    <div class="text-center px-2 sm:px-4 text-white relative z-10">
+                        <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Secure &amp; Modern Platform</h1>
+                        <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Enterprise-grade security with intuitive design for all board members</p>
+                    </div>
+                </div>
+                <div class="banner-dots">
+                    <span class="banner-dot active" data-slide="0"></span>
+                    <span class="banner-dot" data-slide="1"></span>
+                    <span class="banner-dot" data-slide="2"></span>
+                </div>
+            @endif
         </div>
     </div>
 

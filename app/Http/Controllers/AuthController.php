@@ -178,7 +178,7 @@ class AuthController extends Controller
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Male,Female,Non-Binary',
-            'birth_date' => 'required|date|before:today',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
             'office_city_municipality' => 'required|string|max:255',
@@ -207,22 +207,27 @@ class AuthController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!@#$%^&*|]/', $value)) {
-                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |, etc.).');
+                    if (!preg_match('/[~!#$%^&*|]/', $value)) {
+                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |).');
                     }
                 },
             ],
         ], [
             'mobile.regex' => 'Mobile number must be in format +63 followed by 10 digits.',
             'password.confirmed' => 'Password confirmation does not match.',
+            'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
         ]);
 
-        // Generate username if not provided or ensure uniqueness
-        $username = $request->username;
-        $originalUsername = $username;
+        // Standardized username: firstname.lastname (lowercase, alphanumeric only)
+        $firstPart = strtolower(preg_replace('/[^a-z0-9]/', '', $request->first_name));
+        $lastPart = strtolower(preg_replace('/[^a-z0-9]/', '', $request->last_name));
+        $firstPart = $firstPart !== '' ? $firstPart : 'first';
+        $lastPart = $lastPart !== '' ? $lastPart : 'last';
+        $baseUsername = $firstPart . '.' . $lastPart;
+        $username = $baseUsername;
         $counter = 1;
         while (User::where('username', $username)->exists()) {
-            $username = $originalUsername . $counter;
+            $username = $baseUsername . $counter;
             $counter++;
         }
 
@@ -463,8 +468,8 @@ class AuthController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!@#$%^&*|]/', $value)) {
-                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |, etc.).');
+                    if (!preg_match('/[~!#$%^&*|]/', $value)) {
+                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |).');
                     }
                 },
             ],

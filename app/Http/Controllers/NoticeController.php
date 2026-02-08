@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class NoticeController extends Controller
 {
@@ -308,6 +309,85 @@ class NoticeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Invitation declined successfully.',
+        ]);
+    }
+
+    /**
+     * Upload attachment for agenda inclusion or reference materials (user-side, no admin permission required)
+     */
+    public function uploadAttachment(Request $request)
+    {
+        if (!$request->hasFile('files') && !$request->hasFile('files.*')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No files provided.',
+            ], 422);
+        }
+
+        $files = $request->file('files');
+        if (!is_array($files)) {
+            $files = [$files];
+        }
+
+        $maxSize = 30 * 1024 * 1024; // 30MB
+        $uploadedFiles = [];
+        $errors = [];
+
+        $category = 'notice-attachments';
+        if (!Storage::disk('public')->exists($category)) {
+            Storage::disk('public')->makeDirectory($category);
+        }
+
+        foreach ($files as $file) {
+            if (!$file->isValid()) {
+                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'Invalid file.'];
+                continue;
+            }
+            if ($file->getSize() > $maxSize) {
+                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'File exceeds 30MB limit.'];
+                continue;
+            }
+
+            try {
+                $fileType = $file->getMimeType();
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $category . '/' . $fileName;
+
+                $uploaded = Storage::disk('public')->put($filePath, file_get_contents($file));
+                if (!$uploaded) {
+                    $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'Failed to save file.'];
+                    continue;
+                }
+
+                $media = MediaLibrary::create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $fileType,
+                    'file_path' => $filePath,
+                    'uploaded_by' => Auth::id(),
+                ]);
+
+                if ($media) {
+                    $uploadedFiles[] = [
+                        'id' => $media->id,
+                        'name' => $media->file_name,
+                        'url' => asset('storage/' . $media->file_path),
+                        'type' => $fileType,
+                        'size' => $file->getSize(),
+                    ];
+                } else {
+                    Storage::disk('public')->delete($filePath);
+                    $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'Failed to create record.'];
+                }
+            } catch (\Exception $e) {
+                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => $e->getMessage()];
+            }
+        }
+
+        return response()->json([
+            'success' => count($uploadedFiles) > 0,
+            'message' => count($uploadedFiles) . ' file(s) uploaded successfully.',
+            'files' => $uploadedFiles,
+            'errors' => $errors,
         ]);
     }
 

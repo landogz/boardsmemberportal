@@ -150,8 +150,8 @@
                     </li>
                     @endcan
                     @can('view agenda requests')
-                    <li style="display: none;">
-                        <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'background-color: #055498;' : '' }}">
+                    <li>
+                        <a href="{{ route('admin.agenda-inclusion-requests.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.agenda-inclusion-requests.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-clipboard-list w-5 transition-colors" style="color: #FBD116;"></i>
                             <span class="ml-3">Agenda Requests</span>
                         </a>
@@ -169,7 +169,7 @@
                     <li>
                         <a href="#" class="menu-toggle flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-colors {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? 'text-white' : '' }}" style="{{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-file-alt w-5" style="color: #FBD116;"></i>
-                            <span class="ml-3 flex-1">Board Issuances</span>
+                            <span class="ml-3 flex-1">Board Library</span>
                             <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? 'rotate-180' : '' }}"></i>
                         </a>
                         <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.board-resolutions.*') || request()->routeIs('admin.board-regulations.*') || request()->routeIs('admin.referendums.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
@@ -190,8 +190,8 @@
                             </li>
                             @endcan
                             @can('view referendum')
-                            <li style="display: none;">
-                                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.referendums.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
+                            <li>
+                                <a href="{{ route('admin.referendums.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.referendums.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-vote-yea w-4 transition-colors" style="color: #FBD116;"></i>
                                     <span class="ml-3">Referendums</span>
                                 </a>
@@ -248,6 +248,14 @@
                         <a href="{{ route('admin.address-settings.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.address-settings.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.address-settings.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-map-marker-alt w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Address Settings</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if(Auth::check() && Auth::user()->privilege === 'admin')
+                    <li>
+                        <a href="{{ route('admin.banner-slides.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.banner-slides.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.banner-slides.*') ? 'background-color: #055498;' : '' }}">
+                            <i class="fas fa-images w-5" style="color: #FBD116;"></i>
+                            <span class="ml-3">Master Slider</span>
                         </a>
                     </li>
                     @endif

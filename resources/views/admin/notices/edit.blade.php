@@ -15,7 +15,17 @@
 @endphp
 
 @push('styles')
+<!-- CKEditor 4.19.1 -->
+<script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
 <style>
+    .ck-editor__editable {
+        min-height: 300px;
+    }
+    #cke_notifications_area_description,
+    .cke_notifications_area {
+        display: none !important;
+        visibility: hidden !important;
+    }
     .user-select-item {
         padding: 0.5rem;
         border: 1px solid #e5e7eb;
@@ -530,6 +540,40 @@
         }
     });
     $(document).ready(function() {
+        // Initialize CKEditor for description
+        if (typeof CKEDITOR !== 'undefined') {
+            CKEDITOR.replace('description', {
+                height: 300,
+                toolbar: [
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+                    { name: 'links', items: ['Link', 'Unlink'] },
+                    { name: 'insert', items: ['Table', 'HorizontalRule'] },
+                    { name: 'styles', items: ['Format', 'FontSize'] },
+                    { name: 'colors', items: ['TextColor', 'BGColor'] },
+                    { name: 'tools', items: ['Source', 'Maximize'] }
+                ],
+                filebrowserBrowseUrl: '{{ route("admin.media-library.browse") }}',
+                removePlugins: 'elementspath',
+                resize_enabled: false,
+                format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address;div'
+            });
+            CKEDITOR.on('instanceReady', function() {
+                var notificationArea = document.getElementById('cke_notifications_area_description');
+                if (notificationArea) {
+                    notificationArea.style.display = 'none';
+                    notificationArea.style.visibility = 'hidden';
+                }
+                setInterval(function() {
+                    var notifications = document.querySelectorAll('.cke_notifications_area, #cke_notifications_area_description');
+                    notifications.forEach(function(notif) {
+                        notif.style.display = 'none';
+                        notif.style.visibility = 'hidden';
+                    });
+                }, 100);
+            });
+        }
+
         // Initialize form based on current notice type
         const currentNoticeType = $('#notice_type').val();
         if (currentNoticeType === 'Agenda') {
@@ -1088,6 +1132,11 @@
         const submitBtnText = $('#submitBtnText');
         submitBtn.prop('disabled', true);
         submitBtnText.text('Updating...');
+
+        // Sync CKEditor content to textarea before submit
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
+            CKEDITOR.instances.description.updateElement();
+        }
 
         // Create FormData
         const formData = new FormData(this);

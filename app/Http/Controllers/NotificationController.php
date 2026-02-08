@@ -20,7 +20,8 @@ class NotificationController extends Controller
 
         return response()->json([
             'count' => $count,
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+          ->header('Pragma', 'no-cache');
     }
 
     /**
@@ -49,7 +50,8 @@ class NotificationController extends Controller
 
         return response()->json([
             'notifications' => $notifications,
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+          ->header('Pragma', 'no-cache');
     }
 
     /**

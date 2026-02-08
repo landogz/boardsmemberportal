@@ -145,7 +145,7 @@
                             <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                             <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                             <li id="req-number" class="invalid">At least 1 number</li>
-                            <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                            <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                         </ul>
                     </div>
                 </div>
@@ -206,7 +206,14 @@
             });
 
             // Password validation
+            function filterPasswordInput(el) {
+                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const val = el.value;
+                const filtered = (val.match(allowed) || []).join('');
+                if (val !== filtered) el.value = filtered;
+            }
             $('#password').on('input', function() {
+                filterPasswordInput(this);
                 const password = $(this).val();
                 const $passwordInput = $(this);
                 
@@ -214,7 +221,7 @@
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!@#$%^&*|]/.test(password);
+                const hasSpecial = /[~!#$%^&*|]/.test(password);
                 
                 // Update individual requirement indicators
                 $('#req-length').removeClass('valid invalid').addClass(hasLength ? 'valid' : 'invalid');
@@ -233,6 +240,7 @@
                     $passwordInput.removeClass('password-input-valid password-input-invalid');
                 }
             });
+            $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
             // Password toggle functionality
             function setupPasswordToggle(inputId, toggleId, iconId) {
@@ -266,7 +274,7 @@
                        /[A-Z]/.test(password) &&
                        /[a-z]/.test(password) &&
                        /[0-9]/.test(password) &&
-                       /[~!@#$%^&*|]/.test(password);
+                       /[~!#$%^&*|]/.test(password);
             }
 
             $('#resetPasswordForm').on('submit', function(e) {

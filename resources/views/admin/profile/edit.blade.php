@@ -319,9 +319,9 @@
                 </div>
             </div>
 
-            <!-- Step 2: Office Address (PSGC) -->
+            <!-- Step 2: Office Address -->
             <div class="step" id="step2">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Complete Office Address (PSGC)</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Complete Office Address</h3>
                 <div class="space-y-4">
                     <!-- Building/House/Street Details -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -474,7 +474,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                             </ul>
                         </div>
                     </div>
@@ -812,7 +812,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!@#$%^&*|]/.test(password);
+               /[~!#$%^&*|]/.test(password);
     }
 
     // Toggle password visibility
@@ -861,17 +861,23 @@
         }
     });
 
+    function filterPasswordInput(el) {
+        const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+        const val = el.value;
+        const filtered = (val.match(allowed) || []).join('');
+        if (val !== filtered) el.value = filtered;
+    }
     // Password validation
     $('#password').on('input', function() {
+        filterPasswordInput(this);
         const password = $(this).val();
         const $passwordInput = $(this);
         
-        // Check individual requirements
         const hasLength = password.length >= 6;
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
-        const hasSpecial = /[~!@#$%^&*|]/.test(password);
+        const hasSpecial = /[~!#$%^&*|]/.test(password);
         
         // Update requirement indicators
         if (hasLength) {
@@ -911,13 +917,14 @@
         if (password.length > 0) {
             if (allValid) {
                 $passwordInput.removeClass('password-input-invalid').addClass('password-input-valid');
-            } else {
-                $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
-            }
-        } else {
-            $passwordInput.removeClass('password-input-valid password-input-invalid');
+} else {
+            $passwordInput.removeClass('password-input-valid').addClass('password-input-invalid');
         }
-    });
+    } else {
+        $passwordInput.removeClass('password-input-valid password-input-invalid');
+    }
+});
+    $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
     // Username availability check
     let usernameCheckTimeout;

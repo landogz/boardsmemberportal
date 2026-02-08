@@ -54,6 +54,61 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // User side: only profile picture (and password is handled separately via /profile/password)
+        if ($request->input('profile_edit_context') === 'user') {
+            $request->validate([
+                'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            $data = [];
+
+            if ($request->hasFile('profile_picture')) {
+                if ($user->profile_picture) {
+                    $oldMedia = MediaLibrary::find($user->profile_picture);
+                    if ($oldMedia && Storage::disk('public')->exists($oldMedia->file_path)) {
+                        Storage::disk('public')->delete($oldMedia->file_path);
+                    }
+                    if ($oldMedia) {
+                        $oldMedia->delete();
+                    }
+                }
+
+                $file = $request->file('profile_picture');
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = 'profile-pictures/' . $fileName;
+                Storage::disk('public')->put($filePath, file_get_contents($file));
+
+                $media = MediaLibrary::create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getMimeType(),
+                    'file_path' => $filePath,
+                    'uploaded_by' => $user->id,
+                ]);
+
+                $data['profile_picture'] = $media->id;
+            }
+
+            if (!empty($data)) {
+                $user->update($data);
+            }
+
+            $profilePicUrl = $user->profile_picture ? asset('storage/' . MediaLibrary::find($user->profile_picture)->file_path) : null;
+            $bannerPicUrl = $user->banner_image ? asset('storage/' . MediaLibrary::find($user->banner_image)->file_path) : null;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'profile_picture_url' => $profilePicUrl,
+                    'banner_image_url' => $bannerPicUrl,
+                ],
+            ]);
+        }
+
         $request->validate([
             'government_agency_id' => 'nullable|exists:government_agencies,id',
             'representative_type' => 'nullable|in:Board Member,Authorized Representative',

@@ -319,6 +319,7 @@
                 </div>
             </div>
 
+            @php $isUserProfile = Auth::user()->privilege !== 'admin'; @endphp
             <form id="profileForm" class="space-y-4">
                 <!-- Step 1: Government Agency & Personal Information -->
                 <div class="step active" id="step1">
@@ -339,7 +340,8 @@
                                 <select 
                                     id="government_agency_id" 
                                     name="government_agency_id" 
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                    @if($isUserProfile) disabled @endif
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 >
                                     <option value="">Loading agencies...</option>
                                 </select>
@@ -358,7 +360,8 @@
                         <select 
                             id="representative_type" 
                             name="representative_type" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) disabled @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select Type</option>
                             <option value="Board Member" {{ Auth::user()->representative_type === 'Board Member' ? 'selected' : '' }}>Board Member</option>
@@ -374,7 +377,8 @@
                             <select 
                                 id="pre_nominal_title" 
                                 name="pre_nominal_title" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) disabled @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Title</option>
                                 <option value="Mr." {{ $user->pre_nominal_title == 'Mr.' ? 'selected' : '' }}>Mr.</option>
@@ -391,7 +395,8 @@
                                 name="first_name" 
                                 value="{{ $user->first_name }}"
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                             <span class="text-red-500 text-sm hidden" id="first_name-error"></span>
                         </div>
@@ -404,7 +409,8 @@
                                 name="middle_initial" 
                                 value="{{ $user->middle_initial }}"
                                 maxlength="10"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 placeholder="M.I."
                             >
                             <span class="text-red-500 text-sm hidden" id="middle_initial-error"></span>
@@ -420,7 +426,8 @@
                                 name="last_name" 
                                 value="{{ $user->last_name }}"
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                             <span class="text-red-500 text-sm hidden" id="last_name-error"></span>
                         </div>
@@ -430,7 +437,8 @@
                             <select 
                                 id="post_nominal_title" 
                                 name="post_nominal_title" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) disabled @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Title</option>
                                 <option value="Sr." {{ $user->post_nominal_title == 'Sr.' ? 'selected' : '' }}>Sr.</option>
@@ -446,7 +454,8 @@
                                 name="post_nominal_title_custom" 
                                 value="{{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? $user->post_nominal_title : '' }}"
                                 placeholder="Specify other title"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mt-2 {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? '' : 'hidden' }}"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mt-2 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? '' : 'hidden' }}"
                             >
                             <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
                         </div>
@@ -460,7 +469,8 @@
                             id="designation" 
                             name="designation" 
                             value="{{ $user->designation }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             placeholder="Your designation"
                         >
                         <span class="text-red-500 text-sm hidden" id="designation-error"></span>
@@ -473,7 +483,8 @@
                             <select 
                                 id="sex" 
                                 name="sex" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) disabled @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Sex</option>
                                 <option value="Male" {{ $user->sex == 'Male' ? 'selected' : '' }}>Male</option>
@@ -487,7 +498,8 @@
                             <select 
                                 id="gender" 
                                 name="gender" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) disabled @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Gender</option>
                                 <option value="Male" {{ $user->gender == 'Male' ? 'selected' : '' }}>Male</option>
@@ -506,16 +518,17 @@
                             id="birth_date" 
                             name="birth_date" 
                             value="{{ $user->birth_date ? $user->birth_date->format('Y-m-d') : '' }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                         <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
                     </div>
                 </div>
 
                 <!-- Office Address Section -->
-                <!-- Step 2: Office Address (PSGC) -->
+                <!-- Step 2: Office Address -->
                 <div class="step" id="step2">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address (PSGC)</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -525,7 +538,8 @@
                                 id="office_building_no" 
                                 name="office_building_no" 
                                 value="{{ $user->office_building_no }}"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 placeholder="Building No."
                             >
                         </div>
@@ -537,7 +551,8 @@
                                 id="office_house_no" 
                                 name="office_house_no" 
                                 value="{{ $user->office_house_no }}"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 placeholder="House No."
                             >
                         </div>
@@ -550,7 +565,8 @@
                             id="office_street_name" 
                             name="office_street_name" 
                             value="{{ $user->office_street_name }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             placeholder="Street Name"
                         >
                     </div>
@@ -563,7 +579,8 @@
                                 id="office_purok" 
                                 name="office_purok" 
                                 value="{{ $user->office_purok }}"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 placeholder="Purok"
                             >
                         </div>
@@ -575,7 +592,8 @@
                                 id="office_sitio" 
                                 name="office_sitio" 
                                 value="{{ $user->office_sitio }}"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                @if($isUserProfile) readonly @endif
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                                 placeholder="Sitio"
                             >
                         </div>
@@ -587,7 +605,8 @@
                         <select 
                             id="office_region" 
                             name="office_region" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) disabled @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select Region</option>
                         </select>
@@ -600,7 +619,8 @@
                             id="office_province" 
                             name="office_province" 
                             disabled
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) disabled @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select Province</option>
                         </select>
@@ -613,7 +633,8 @@
                             id="office_city_municipality" 
                             name="office_city_municipality" 
                             disabled
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) disabled @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select City/Municipality</option>
                         </select>
@@ -626,7 +647,8 @@
                             id="office_barangay" 
                             name="office_barangay" 
                             disabled
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) disabled @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select Barangay</option>
                         </select>
@@ -645,7 +667,8 @@
                             id="username" 
                             name="username" 
                             value="{{ $user->username }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             placeholder="Username"
                         >
                         <span class="text-red-500 text-sm hidden" id="username-error"></span>
@@ -675,7 +698,8 @@
                             name="mobile" 
                             value="{{ $user->mobile }}"
                             maxlength="16"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             placeholder="+63 917 123 4567"
                         >
                         <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
@@ -689,7 +713,8 @@
                             id="landline" 
                             name="landline" 
                             value="{{ $user->landline }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             placeholder="(02) 8912-12345"
                         >
                         <span class="text-red-500 text-sm hidden" id="landline-error"></span>
@@ -704,7 +729,8 @@
                             id="company" 
                             name="company" 
                             value="{{ $user->company }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            @if($isUserProfile) readonly @endif
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                         <span class="text-red-500 text-sm hidden" id="company-error"></span>
                     </div>
@@ -761,7 +787,7 @@
                                     <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                     <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                     <li id="req-number" class="invalid">At least 1 number</li>
-                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                                 </ul>
                             </div>
                         </div>
@@ -1311,16 +1337,22 @@
             });
 
             // Password validation
+            function filterPasswordInput(el) {
+                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const val = el.value;
+                const filtered = (val.match(allowed) || []).join('');
+                if (val !== filtered) el.value = filtered;
+            }
             $('#password').on('input', function() {
+                filterPasswordInput(this);
                 const password = $(this).val();
                 const $passwordInput = $(this);
                 
-                // Check individual requirements
                 const hasLength = password.length >= 6;
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!@#$%^&*|]/.test(password);
+                const hasSpecial = /[~!#$%^&*|]/.test(password);
                 
                 // Update requirement indicators
                 if (hasLength) {
@@ -1367,6 +1399,7 @@
                     $passwordInput.removeClass('password-input-valid password-input-invalid');
                 }
             });
+            $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
             // PSGC Cascading Dropdowns
             $('#office_region').on('change', function() {
@@ -1526,54 +1559,63 @@
                    /[A-Z]/.test(password) &&
                    /[a-z]/.test(password) &&
                    /[0-9]/.test(password) &&
-                   /[~!@#$%^&*|]/.test(password);
+                   /[~!#$%^&*|]/.test(password);
         }
 
         // Form submission
+        const isUserProfileEdit = {{ $isUserProfile ? 'true' : 'false' }};
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData();
             
-            // Government Agency & Personal Information
-            @if(Auth::user()->privilege !== 'admin')
-            formData.append('government_agency_id', document.getElementById('government_agency_id').value);
-            @endif
-            formData.append('representative_type', document.getElementById('representative_type').value);
-            formData.append('pre_nominal_title', document.getElementById('pre_nominal_title').value);
-            formData.append('first_name', document.getElementById('first_name').value);
-            formData.append('middle_initial', document.getElementById('middle_initial').value);
-            formData.append('last_name', document.getElementById('last_name').value);
-            const postNominalTitle = document.getElementById('post_nominal_title').value;
-            const finalPostNominal = postNominalTitle === 'Others' ? document.getElementById('post_nominal_title_custom').value : postNominalTitle;
-            formData.append('post_nominal_title', finalPostNominal);
-            formData.append('designation', document.getElementById('designation').value);
-            formData.append('sex', document.getElementById('sex').value);
-            formData.append('gender', document.getElementById('gender').value);
-            formData.append('birth_date', document.getElementById('birth_date').value);
-            
-            // Office Address
-            formData.append('office_building_no', document.getElementById('office_building_no').value);
-            formData.append('office_house_no', document.getElementById('office_house_no').value);
-            formData.append('office_street_name', document.getElementById('office_street_name').value);
-            formData.append('office_purok', document.getElementById('office_purok').value);
-            formData.append('office_sitio', document.getElementById('office_sitio').value);
-            formData.append('office_region', document.getElementById('office_region').value);
-            formData.append('office_province', document.getElementById('office_province').value);
-            formData.append('office_city_municipality', document.getElementById('office_city_municipality').value);
-            formData.append('office_barangay', document.getElementById('office_barangay').value);
-            
-            // Contact Information
-            formData.append('email', document.getElementById('email').value);
-            formData.append('username', document.getElementById('username').value);
-            formData.append('mobile', document.getElementById('mobile').value.replace(/\s/g, '').trim());
-            formData.append('landline', document.getElementById('landline').value);
-            
-            // Additional Information
-            formData.append('company', document.getElementById('company').value);
-            
-            if (profilePictureInput.files[0]) {
-                formData.append('profile_picture', profilePictureInput.files[0]);
+            if (isUserProfileEdit) {
+                // User side: only profile picture and password
+                formData.append('profile_edit_context', 'user');
+                if (profilePictureInput.files[0]) {
+                    formData.append('profile_picture', profilePictureInput.files[0]);
+                }
+            } else {
+                // Admin: full profile data
+                // Government Agency & Personal Information
+                const govAgencyEl = document.getElementById('government_agency_id');
+                if (govAgencyEl) formData.append('government_agency_id', govAgencyEl.value);
+                formData.append('representative_type', document.getElementById('representative_type').value);
+                formData.append('pre_nominal_title', document.getElementById('pre_nominal_title').value);
+                formData.append('first_name', document.getElementById('first_name').value);
+                formData.append('middle_initial', document.getElementById('middle_initial').value);
+                formData.append('last_name', document.getElementById('last_name').value);
+                const postNominalTitle = document.getElementById('post_nominal_title').value;
+                const finalPostNominal = postNominalTitle === 'Others' ? document.getElementById('post_nominal_title_custom').value : postNominalTitle;
+                formData.append('post_nominal_title', finalPostNominal);
+                formData.append('designation', document.getElementById('designation').value);
+                formData.append('sex', document.getElementById('sex').value);
+                formData.append('gender', document.getElementById('gender').value);
+                formData.append('birth_date', document.getElementById('birth_date').value);
+                
+                // Office Address
+                formData.append('office_building_no', document.getElementById('office_building_no').value);
+                formData.append('office_house_no', document.getElementById('office_house_no').value);
+                formData.append('office_street_name', document.getElementById('office_street_name').value);
+                formData.append('office_purok', document.getElementById('office_purok').value);
+                formData.append('office_sitio', document.getElementById('office_sitio').value);
+                formData.append('office_region', document.getElementById('office_region').value);
+                formData.append('office_province', document.getElementById('office_province').value);
+                formData.append('office_city_municipality', document.getElementById('office_city_municipality').value);
+                formData.append('office_barangay', document.getElementById('office_barangay').value);
+                
+                // Contact Information
+                formData.append('email', document.getElementById('email').value);
+                formData.append('username', document.getElementById('username').value);
+                formData.append('mobile', document.getElementById('mobile').value.replace(/\s/g, '').trim());
+                formData.append('landline', document.getElementById('landline').value);
+                
+                // Additional Information
+                formData.append('company', document.getElementById('company').value);
+                
+                if (profilePictureInput.files[0]) {
+                    formData.append('profile_picture', profilePictureInput.files[0]);
+                }
             }
 
             const currentPassword = document.getElementById('current_password').value;

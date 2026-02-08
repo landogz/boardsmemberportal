@@ -390,7 +390,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |, etc.)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
                             </ul>
                         </div>
                     </div>
@@ -562,21 +562,27 @@
         });
 
         // Password validation (only if password is being changed)
+        function filterPasswordInput(el) {
+            const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+            const val = el.value;
+            const filtered = (val.match(allowed) || []).join('');
+            if (val !== filtered) el.value = filtered;
+        }
         $('#password').on('input', function() {
+            filterPasswordInput(this);
             const password = $(this).val();
             
             if (password.length > 0) {
-                // Check requirements
                 $('#req-length').toggleClass('valid invalid', password.length >= 6);
                 $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
                 $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
                 $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-                $('#req-special').toggleClass('valid invalid', /[~!@#$%^&*|]/.test(password));
+                $('#req-special').toggleClass('valid invalid', /[~!#$%^&*|]/.test(password));
             } else {
-                // Reset all requirements if password is empty
                 $('#req-length, #req-uppercase, #req-lowercase, #req-number, #req-special').removeClass('valid').addClass('invalid');
             }
         });
+        $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
         // PSGC Cascading Dropdowns using API
         $('#office_region').on('change', function() {
@@ -834,7 +840,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!@#$%^&*|]/.test(password);
+               /[~!#$%^&*|]/.test(password);
     }
 
     function isValidEmail(email) {

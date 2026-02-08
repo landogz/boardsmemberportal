@@ -90,6 +90,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notice</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested By</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attachments</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -131,6 +132,32 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">{{ Str::limit($request->description, 100) }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if($request->attachment_media->count() > 0)
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($request->attachment_media as $media)
+                                            @php
+                                                $isPdf = $media->file_type === 'application/pdf' || str_ends_with(strtolower($media->file_name ?? ''), '.pdf');
+                                            @endphp
+                                            @if($isPdf)
+                                                <a href="javascript:void(0)" onclick="openGlobalPdfModal('{{ asset('storage/' . $media->file_path) }}', '{{ addslashes($media->file_name) }}'); return false;" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-800 transition-colors border border-gray-200 hover:border-red-300" title="{{ $media->file_name }}">
+                                                    <i class="fas fa-file-pdf text-red-600"></i>
+                                                    <span>View PDF</span>
+                                                    <i class="fas fa-eye text-[10px] opacity-70"></i>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('admin.media-library.download', $media->id) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-800 transition-colors border border-gray-200 hover:border-blue-300" title="{{ $media->file_name }}">
+                                                    <i class="fas fa-file-alt text-blue-600"></i>
+                                                    <span class="max-w-[120px] truncate">{{ $media->file_name }}</span>
+                                                    <i class="fas fa-external-link-alt text-[10px] opacity-70"></i>
+                                                </a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-sm text-gray-400">—</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="status-badge status-{{ $request->status }}">

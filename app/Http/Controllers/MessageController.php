@@ -409,24 +409,27 @@ class MessageController extends Controller
                 $parentMessage = null;
                 if ($chat->parent_id && $chat->parent) {
                     $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+                    $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
                     $parentMessage = [
                         'id' => $chat->parent->id,
-                        'message' => $chat->parent->message,
+                        'message' => $parentMsg,
                         'sender_name' => $parentSenderName,
                         'sender_id' => $chat->parent->sender_id,
                     ];
                 }
 
+                $isDeleted = (bool) $chat->content_deleted_at;
                 return [
                     'id' => $chat->id,
                     'sender_id' => $chat->sender_id,
                     'receiver_id' => $chat->receiver_id,
                     'parent_id' => $chat->parent_id,
-                    'message' => $chat->message,
-                    'attachments' => $attachmentUrls,
+                    'message' => $isDeleted ? null : $chat->message,
+                    'attachments' => $isDeleted ? [] : $attachmentUrls,
                     'timestamp' => $chat->timestamp->toIso8601String(),
                     'created_at' => $chat->created_at->toIso8601String(),
                     'is_sender' => $isSender,
+                    'is_deleted' => $isDeleted,
                     'reactions' => $reactions,
                     'parent_message' => $parentMessage,
                     'sender' => [
@@ -917,25 +920,28 @@ class MessageController extends Controller
                 $parentMessage = null;
                 if ($chat->parent_id && $chat->parent) {
                     $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+                    $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
                     $parentMessage = [
                         'id' => $chat->parent->id,
-                        'message' => $chat->parent->message,
+                        'message' => $parentMsg,
                         'sender_name' => $parentSenderName,
                         'sender_id' => $chat->parent->sender_id,
                     ];
                 }
 
+                $isDeleted = (bool) $chat->content_deleted_at;
                 return [
                     'id' => $chat->id,
                     'sender_id' => $chat->sender_id,
                     'receiver_id' => $chat->receiver_id,
                     'group_id' => $chat->group_id,
                     'parent_id' => $chat->parent_id,
-                    'message' => $chat->message,
-                    'attachments' => $attachmentUrls,
+                    'message' => $isDeleted ? null : $chat->message,
+                    'attachments' => $isDeleted ? [] : $attachmentUrls,
                     'timestamp' => $chat->timestamp->toIso8601String(),
                     'created_at' => $chat->created_at->toIso8601String(),
                     'is_sender' => $isSender,
+                    'is_deleted' => $isDeleted,
                     'reactions' => $reactions,
                     'parent_message' => $parentMessage,
                     'sender' => [
@@ -1021,20 +1027,28 @@ class MessageController extends Controller
     }
 
     /**
-     * Calculate unread message count for a user
+     * Calculate unread message count for a user (matches conversation list: excludes "deleted for me" single chats)
      */
     private function calculateUnreadCount($userId)
     {
-        // Count unread messages from individual chats
-        $individualUnreadCount = Chat::where('receiver_id', $userId)
-            ->where('is_read', false)
-            ->whereNull('group_id')
-            ->count();
+        // Exclude individual chats the user has hidden ("deleted for me") so count matches the conversation list
+        $deletedOtherUserIds = DeletedSingleChat::where('user_id', $userId)
+            ->pluck('other_user_id')
+            ->all();
 
-        // Count unread messages from group chats
-        $groupIds = \App\Models\GroupMember::where('user_id', $userId)
-            ->pluck('group_id')
-            ->toArray();
+        // Count unread messages from individual chats (only from senders not in deleted list)
+        $individualQuery = Chat::where('receiver_id', $userId)
+            ->where('is_read', false)
+            ->whereNull('group_id');
+        if (!empty($deletedOtherUserIds)) {
+            $individualQuery->whereNotIn('sender_id', $deletedOtherUserIds);
+        }
+        $individualUnreadCount = $individualQuery->count();
+
+        // Count unread messages from group chats (only in non-deleted groups, matching getConversations)
+        $groupIds = \App\Models\GroupChat::whereHas('members', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->pluck('id')->toArray();
 
         $groupUnreadCount = 0;
         if (!empty($groupIds)) {
@@ -1059,12 +1073,14 @@ class MessageController extends Controller
             return response()->json([
                 'success' => true,
                 'count' => $totalUnreadCount,
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+              ->header('Pragma', 'no-cache');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'count' => 0,
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+              ->header('Pragma', 'no-cache');
         }
     }
 
@@ -1187,7 +1203,8 @@ class MessageController extends Controller
     }
 
     /**
-     * Delete a message (soft delete)
+     * Delete a message (unsend): keep a trail by marking content as deleted.
+     * The message row stays so the UI can show "You unsent a message" / "This message was deleted".
      */
     public function delete($id)
     {
@@ -1203,11 +1220,34 @@ class MessageController extends Controller
                 ], 403);
             }
 
-            $chat->delete();
+            // Mark content as deleted (trail) instead of soft-deleting the row
+            // Use empty string for message (column may be NOT NULL); API returns null when is_deleted
+            $chat->content_deleted_at = now();
+            $chat->message = '';
+            $chat->attachments = [];
+            $chat->save();
+
+            // Broadcast so other users see "This message was deleted" in real time
+            if ($chat->group_id) {
+                $conversationId = 'group_' . $chat->group_id;
+                $userIds = \App\Models\GroupMember::where('group_id', $chat->group_id)
+                    ->where('user_id', '!=', $userId)
+                    ->pluck('user_id')
+                    ->toArray();
+            } else {
+                // Receiver's "current chat" is with sender, so use sender_id for conversation_id
+                $conversationId = (string) $chat->sender_id;
+                $userIds = $chat->receiver_id ? [$chat->receiver_id] : [];
+            }
+            if (!empty($userIds)) {
+                broadcast(new \App\Events\MessageContentDeleted($chat->id, $conversationId, $userIds));
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Message deleted successfully',
+                'is_deleted' => true,
+                'id' => $chat->id,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -1469,23 +1509,26 @@ class MessageController extends Controller
         $parentMessage = null;
         if ($chat->parent_id && $chat->parent) {
             $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+            $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
             $parentMessage = [
                 'id' => $chat->parent->id,
-                'message' => $chat->parent->message,
+                'message' => $parentMsg,
                 'sender_name' => $parentSenderName,
             ];
         }
 
+        $isDeleted = (bool) $chat->content_deleted_at;
         return [
             'id' => $chat->id,
             'sender_id' => $chat->sender_id,
             'receiver_id' => $chat->receiver_id,
             'parent_id' => $chat->parent_id,
-            'message' => $chat->message,
-            'attachments' => $attachmentUrls,
+            'message' => $isDeleted ? null : $chat->message,
+            'attachments' => $isDeleted ? [] : $attachmentUrls,
             'timestamp' => $chat->timestamp->toIso8601String(),
             'created_at' => $chat->created_at->toIso8601String(),
             'is_sender' => $isSender,
+            'is_deleted' => $isDeleted,
             'reactions' => $reactions,
             'parent_message' => $parentMessage,
             'sender' => [

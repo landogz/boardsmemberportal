@@ -305,8 +305,8 @@
                 <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
                 <span>Description</span>
             </h3>
-            <div class="prose max-w-none">
-                <div class="text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $notice->description }}</div>
+            <div class="prose max-w-none text-gray-700 leading-relaxed">
+                {!! $notice->description !!}
             </div>
         </div>
     @endif
