@@ -733,6 +733,7 @@
                 window.echoInstance = new window.Echo({
                     broadcaster: 'reverb',
                     key: '{{ config("reverb.apps.apps.0.key") }}',
+                    cluster: '',
                     wsHost: reverbHost,
                     wsPort: reverbPort,
                     wssPort: reverbPort,
