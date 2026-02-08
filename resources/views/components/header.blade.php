@@ -738,7 +738,7 @@
                     wsPort: reverbPort,
                     wssPort: reverbPort,
                     forceTLS: useTLS,
-                    enabledTransports: useTLS ? ['wss'] : ['ws'],
+                    enabledTransports: ['ws'],
                     disableStats: true,
                     authEndpoint: '/broadcasting/auth',
                     auth: {
