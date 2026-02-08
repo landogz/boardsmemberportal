@@ -235,9 +235,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                         </svg>
                                     </button>
-                                    <input type="file" class="hidden chat-file-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
+                                    <input type="file" class="hidden chat-file-input" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                                     <!-- Voice Clip Button -->
-                                    <button type="button" class="chat-voice-btn p-1 sm:p-1.5 text-red-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center" title="Record voice message">
+                                    <button type="button" class="hidden chat-voice-btn p-1 sm:p-1.5 text-red-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center" title="Record voice message">
                                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"></path>
                                             <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7.002 7.002 0 0 0 6 6.92V21h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7.002 7.002 0 0 0 19 11z"></path>
@@ -2755,6 +2755,16 @@
             }
         });
 
+        function messageContainsSuspiciousLink(text) {
+            if (!text || typeof text !== 'string') return false;
+            if (/\b(data|javascript|vbscript|file):/i.test(text)) return true;
+            if (/\bhttps?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/|$|\s)/.test(text)) return true;
+            const suspiciousTlds = /\.(tk|ml|ga|cf|gq|xyz|top|work|click|link|rest|buzz)\b/i;
+            if (suspiciousTlds.test(text) && /\bhttps?:\/\//i.test(text)) return true;
+            const shorteners = /https?:\/\/(www\.)?(bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|is\.gd|buff\.ly|adf\.ly|bc\.vc|short\.link)/i;
+            return shorteners.test(text);
+        }
+
         // Helper function to escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -3150,46 +3160,43 @@
                     fileInput.click();
                 });
 
+                const ALLOWED_ATTACHMENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
                 fileInput.addEventListener('change', function(e) {
                     const newFiles = Array.from(e.target.files);
                     if (newFiles.length > 0 && filePreview) {
                         const maxFileSize = 25 * 1024 * 1024; // 25MB in bytes
                         const validFiles = [];
-                        const invalidFiles = [];
-                        
-                        // Validate file sizes
+                        const invalidSize = [];
+                        const invalidType = [];
+
                         newFiles.forEach(file => {
                             if (file.size > maxFileSize) {
-                                invalidFiles.push({
-                                    name: file.name,
-                                    size: file.size
-                                });
+                                invalidSize.push({ name: file.name, size: file.size });
+                            } else if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+                                invalidType.push(file.name);
                             } else {
                                 validFiles.push(file);
                             }
                         });
-                        
-                        // Show error messages for invalid files
-                        if (invalidFiles.length > 0) {
-                            invalidFiles.forEach(invalidFile => {
-                                const sizeInMB = (invalidFile.size / (1024 * 1024)).toFixed(2);
-                                alert(`File "${invalidFile.name}" (${sizeInMB} MB) exceeds the 25MB limit and was not added.`);
+
+                        if (invalidSize.length > 0) {
+                            invalidSize.forEach(inv => {
+                                const sizeInMB = (inv.size / (1024 * 1024)).toFixed(2);
+                                alert(`File "${inv.name}" (${sizeInMB} MB) exceeds the 25MB limit and was not added.`);
                             });
                         }
-                        
-                        // Add only valid files to the attached files array
+                        if (invalidType.length > 0) {
+                            alert('Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed. Video and PowerPoint cannot be uploaded; share a link instead.');
+                        }
+
                         if (validFiles.length > 0) {
-                            validFiles.forEach(file => {
-                                attachedFiles.push(file);
-                            });
+                            validFiles.forEach(file => attachedFiles.push(file));
                             updateFilePreview();
                         }
-                        
-                        // Update file input with valid files only
+
                         const dt = new DataTransfer();
-                        attachedFiles.forEach(file => {
-                            dt.items.add(file);
-                        });
+                        attachedFiles.forEach(file => dt.items.add(file));
                         fileInput.files = dt.files;
                     }
                 });
@@ -3893,6 +3900,10 @@
                     const messageText = input ? input.value.trim() : '';
                     
                     if (messageText || files.length > 0) {
+                        if (messageText && messageContainsSuspiciousLink(messageText)) {
+                            alert('Message contains a link that is not allowed. Please remove suspicious or unsafe links.');
+                            return;
+                        }
                         // Store values before clearing
                         const textToSend = messageText;
                         const filesToSend = [...files];

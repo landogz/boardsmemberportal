@@ -108,6 +108,14 @@ class MessageController extends Controller
             $attachments = $request->file('attachments', []);
             $parentId = $request->parent_id;
 
+            // Block suspicious links in message text (PPT links and normal URLs are allowed)
+            if ($message !== '' && $this->messageContainsSuspiciousLink($message)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Message contains a link that is not allowed. Please remove suspicious or unsafe links.',
+                ], 422);
+            }
+
             // If group message, verify user is a member
             if ($groupId) {
                 $group = \App\Models\GroupChat::findOrFail($groupId);
@@ -119,6 +127,17 @@ class MessageController extends Controller
                 }
             }
 
+            // Allowed attachment types only: PNG, JPEG, Excel, Word. No video, no PPT/PDF/txt/zip/rar.
+            $allowedMimes = [
+                'image/png',
+                'image/jpeg',
+                'image/jpg',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ];
+
             // Handle file attachments
             $attachmentIds = [];
             if (!empty($attachments)) {
@@ -127,6 +146,17 @@ class MessageController extends Controller
                         $mimeType = $file->getMimeType();
                         $originalName = $file->getClientOriginalName();
                         $fileSize = $file->getSize();
+
+                        if (!in_array($mimeType, $allowedMimes)) {
+                            $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                            if (str_starts_with($mimeType, 'video/')) {
+                                throw new \Exception("Video files are not allowed. You may share a link to the video instead.");
+                            }
+                            if (in_array($ext, ['ppt', 'pptx'])) {
+                                throw new \Exception("PowerPoint files cannot be uploaded. Please share a link to your presentation instead.");
+                            }
+                            throw new \Exception("File type not allowed. Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed.");
+                        }
                         
                         // Check file size (25MB = 25600 KB = 26214400 bytes)
                         $maxSizeBytes = 25 * 1024 * 1024; // 25MB in bytes
@@ -148,34 +178,6 @@ class MessageController extends Controller
                         }
                         
                         $fullPath = Storage::disk('public')->path($filePath);
-                        
-                        // Check if this is a voice message that needs MP3 conversion
-                        $convertToMp3 = $request->has('convert_to_mp3') && 
-                                       ($mimeType === 'video/mp4' || 
-                                        $mimeType === 'audio/webm' || 
-                                        $mimeType === 'audio/mp4' ||
-                                        strpos($originalName, 'voice-message') !== false);
-                        
-                        if ($convertToMp3) {
-                            // Try to convert to MP3 using FFmpeg
-                            $mp3Path = $this->convertToMp3($fullPath, $filePath);
-                            if ($mp3Path) {
-                                // Conversion successful, use the new MP3 path
-                                $filePath = $mp3Path;
-                                $mimeType = 'audio/mpeg';
-                                $originalName = preg_replace('/\.(webm|mp4|m4a)$/i', '.mp3', $originalName);
-                            } else {
-                                // FFmpeg not available - keep original format to avoid decoding errors
-                                // Don't rename the file, keep it in its original format
-                                // The browser will handle webm/mp4 audio files correctly
-                                // Just update the MIME type to match the actual file content
-                                if (strpos($mimeType, 'video/') === 0) {
-                                    // If it's video/mp4 but it's actually audio, change to audio
-                                    $mimeType = 'audio/mp4';
-                                }
-                                // Keep original extension and MIME type
-                            }
-                        }
                         
                         // Ensure file exists before getting size
                         if (!Storage::disk('public')->exists($filePath)) {
@@ -1922,6 +1924,38 @@ class MessageController extends Controller
         ];
 
         return $themes;
+    }
+
+    /**
+     * Check if message text contains suspicious links (block or warn).
+     * Allows normal https? URLs with standard domains; blocks IP-based URLs,
+     * dangerous protocols, and known suspicious TLDs/shorteners.
+     */
+    private function messageContainsSuspiciousLink(string $text): bool
+    {
+        // Dangerous protocols
+        if (preg_match('/\b(data|javascript|vbscript|file):/i', $text)) {
+            return true;
+        }
+        // IP-based URLs (IPv4) - often used in phishing
+        if (preg_match('/\bhttps?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/|$|\s)/', $text)) {
+            return true;
+        }
+        // Suspicious TLDs commonly used for phishing (free/short domains)
+        $suspiciousTlds = ['\.tk\b', '\.ml\b', '\.ga\b', '\.cf\b', '\.gq\b', '\.xyz\b', '\.top\b', '\.work\b', '\.click\b', '\.link\b', '\.rest\b', '\.buzz\b'];
+        foreach ($suspiciousTlds as $tld) {
+            if (preg_match('/\bhttps?:\/\/[^\s\/]+' . $tld . '(\/|$|\s)/i', $text)) {
+                return true;
+            }
+        }
+        // Shortener domains (optional: block to reduce phishing; uncomment to allow)
+        $shorteners = ['bit\.ly', 'tinyurl\.com', 't\.co', 'goo\.gl', 'ow\.ly', 'is\.gd', 'buff\.ly', 'adf\.ly', 'bc\.vc', 'short\.link'];
+        foreach ($shorteners as $domain) {
+            if (preg_match('/\bhttps?:\/\/(www\.)?' . $domain . '/i', $text)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

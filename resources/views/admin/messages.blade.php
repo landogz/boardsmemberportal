@@ -1230,7 +1230,7 @@
                     <!-- Message Input for Empty State (always visible) -->
                     <div class="p-3 sm:p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0" id="emptyStateMessageInput" style="display: none;">
                         <form id="messageFormEmpty" class="flex items-center space-x-1 sm:space-x-2" style="display: flex; visibility: visible; pointer-events: none; opacity: 0.5;">
-                            <input type="file" id="fileInputEmpty" class="hidden" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
+                            <input type="file" id="fileInputEmpty" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                             <button type="button" class="p-2 sm:p-2.5 text-blue-600 hover:bg-gray-200 rounded-full transition min-w-[44px] min-h-[44px] flex items-center justify-center" disabled>
                                 <i class="fas fa-paperclip text-base sm:text-lg"></i>
                             </button>
@@ -1336,11 +1336,11 @@
                             </div>
                             <!-- Input Form -->
                             <form id="messageForm" class="flex items-center space-x-1 sm:space-x-2 flex-nowrap overflow-hidden" style="display: flex; visibility: visible; width: 100%;">
-                                <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
+                                <input type="file" id="fileInput" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                                 <button type="button" id="attachBtn" class="p-1.5 sm:p-2.5 text-blue-600 hover:bg-gray-200 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Attach files">
                                     <i class="fas fa-paperclip text-sm sm:text-lg"></i>
                                 </button>
-                                <button type="button" id="voiceBtn" class="p-1.5 sm:p-2.5 text-red-500 hover:bg-gray-200 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Record voice message">
+                                <button type="button" id="voiceBtn" class="hidden p-1.5 sm:p-2.5 text-red-500 hover:bg-gray-200 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Record voice message">
                                     <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"></path>
                                         <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7.002 7.002 0 0 0 6 6.92V21h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7.002 7.002 0 0 0 19 11z"></path>
@@ -5055,10 +5055,9 @@
                     if (file.type && file.type.startsWith('image/')) {
                         const imageUrl = URL.createObjectURL(file);
                         messageContent += `<div class="mt-2"><img src="${imageUrl}" alt="Attachment" class="max-w-[200px] max-h-[200px] rounded-lg object-cover"></div>`;
-                    } else if (file.type && file.type.startsWith('video/')) {
-                        const videoUrl = URL.createObjectURL(file);
-                        messageContent += `<div class="mt-2"><video src="${videoUrl}" controls class="max-w-[200px] max-h-[200px] rounded-lg"></video></div>`;
-                    } else {
+                    } else if (file.type && (file.type.startsWith('video/') || ['ppt', 'pptx'].some(ext => (file.name || '').toLowerCase().endsWith('.' + ext)))) {
+                        // Video and PPT not allowed
+                    } else if (file.type && ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
                         messageContent += `<div class="mt-2 bg-gray-100 rounded-lg p-2"><p class="text-xs text-gray-700">📎 ${file.name}</p></div>`;
                     }
                 });
@@ -5191,6 +5190,19 @@
             const messageText = messageInput.value.trim();
             
             if (!messageText && attachedFiles.length === 0) return;
+
+            if (messageText && messageContainsSuspiciousLink(messageText)) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Link not allowed',
+                        text: 'Message contains a link that is not allowed. Please remove suspicious or unsafe links.'
+                    });
+                } else {
+                    alert('Message contains a link that is not allowed. Please remove suspicious or unsafe links.');
+                }
+                return;
+            }
             
             // Store values before clearing
             const textToSend = messageText;
@@ -6241,8 +6253,28 @@
             }, 350);
         }
 
+        const ALLOWED_ATTACHMENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
         function handleFileSelect(files) {
-            attachedFiles = Array.from(files);
+            const invalid = [];
+            const valid = [];
+            Array.from(files).forEach(file => {
+                if (ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+                    valid.push(file);
+                } else {
+                    invalid.push(file.name);
+                }
+            });
+            if (invalid.length > 0 && typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Some files were not added',
+                    text: 'Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed. Video and PowerPoint files cannot be uploaded; share a link instead.',
+                    timer: 4000,
+                    showConfirmButton: true
+                });
+            }
+            attachedFiles = valid;
             const preview = document.getElementById('filePreview');
             const messageInputContainer = document.getElementById('messageForm')?.closest('.flex-shrink-0');
             
@@ -6250,13 +6282,10 @@
                 preview.classList.remove('hidden');
                 preview.innerHTML = attachedFiles.map((file, index) => {
                     const isImage = file.type.startsWith('image/');
-                    const isVideo = file.type.startsWith('video/');
                     let previewContent = '';
                     
                     if (isImage) {
                         previewContent = `<img src="${URL.createObjectURL(file)}" class="w-12 h-12 object-cover rounded" alt="${file.name}">`;
-                    } else if (isVideo) {
-                        previewContent = `<video src="${URL.createObjectURL(file)}" class="w-12 h-12 object-cover rounded" muted></video>`;
                     } else {
                         previewContent = `<i class="fas fa-file text-2xl text-gray-500"></i>`;
                     }
@@ -6308,6 +6337,16 @@
             handleFileSelect([]);
             const fileInput = document.getElementById('fileInput');
             fileInput.value = '';
+        }
+
+        function messageContainsSuspiciousLink(text) {
+            if (!text || typeof text !== 'string') return false;
+            if (/\b(data|javascript|vbscript|file):/i.test(text)) return true;
+            if (/\bhttps?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/|$|\s)/.test(text)) return true;
+            const suspiciousTlds = /\.(tk|ml|ga|cf|gq|xyz|top|work|click|link|rest|buzz)\b/i;
+            if (suspiciousTlds.test(text) && /\bhttps?:\/\//i.test(text)) return true;
+            const shorteners = /https?:\/\/(www\.)?(bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|is\.gd|buff\.ly|adf\.ly|bc\.vc|short\.link)/i;
+            return shorteners.test(text);
         }
 
         function escapeHtml(text) {
