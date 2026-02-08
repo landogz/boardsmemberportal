@@ -35,6 +35,22 @@
             margin: 0;
             padding: 0;
         }
+        /* Search highlight for matching messages */
+        .search-highlight-msg {
+            animation: searchHighlightPulse 2s ease-in-out;
+            border-radius: 0.75rem;
+        }
+        @keyframes searchHighlightPulse {
+            0% { background-color: rgba(250, 204, 21, 0.4); }
+            50% { background-color: rgba(250, 204, 21, 0.25); }
+            100% { background-color: transparent; }
+        }
+        mark.search-match {
+            background-color: #fde047;
+            color: inherit;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
         /* Hide footer on messages page */
         footer, .agency-footer, .standard-footer {
             display: none !important;
@@ -1116,7 +1132,7 @@
                 <div id="conversationsList" class="md:col-span-1 lg:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
                     <div class="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
                         <div class="flex items-center gap-1.5 sm:gap-2 md:gap-2.5">
-                            <input type="text" id="conversationsSearch" placeholder="Search conversations..." class="flex-1 px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 text-xs sm:text-sm md:text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none min-w-0">
+                            <input type="text" id="conversationsSearch" placeholder="Search names or messages..." class="flex-1 px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 text-xs sm:text-sm md:text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none min-w-0">
                             <button id="newMessageBtn" class="px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 text-xs sm:text-sm md:text-sm font-semibold text-white rounded-lg transition whitespace-nowrap hover:opacity-90 min-w-[44px] sm:min-w-[auto] flex items-center justify-center new-message-btn" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
                                 <i class="fas fa-plus text-xs sm:text-sm md:text-sm mr-0.5 sm:mr-1"></i> 
                                 <span>New</span>
@@ -1797,6 +1813,7 @@
         let pollingInterval = null;
         let attachedFiles = [];
         let replyToMessageId = null;
+        let _activeSearchTerm = ''; // Search term to highlight when opening a chat
         let lastMessageTimestamp = null;
         let isScrollingToParent = false; // Flag to prevent auto-scroll when scrolling to parent message
         let userHasScrolledUp = false; // Track if user has manually scrolled up
@@ -3484,6 +3501,8 @@
                 item.addEventListener('click', function() {
                     const userId = this.getAttribute('data-user-id');
                     const userName = this.getAttribute('data-user-name');
+                    // Capture active search term so chat can highlight matching messages
+                    _activeSearchTerm = document.getElementById('conversationsSearch')?.value?.trim() || '';
                     // Get user data from the stored conversations
                     const conv = conversationsData.find(c => c.user_id === userId);
                     openChat(userId, userName, conv);
@@ -4042,9 +4061,20 @@
                                 }
                             }
                             
-                            // Always scroll to bottom when loading a new conversation
+                            // Capture search term before it could be cleared
+                            const pendingSearchTerm = _activeSearchTerm;
+                            _activeSearchTerm = '';
+
+                            // Highlight search matches AFTER themes are applied (themes fire at ~500ms)
+                            if (pendingSearchTerm && pendingSearchTerm.length >= 2) {
+                                setTimeout(() => {
+                                    highlightAndScrollToSearch(messagesArea, pendingSearchTerm);
+                                }, 800);
+                            }
+
+                            // Scroll to bottom (for non-search) or make buttons visible
                             setTimeout(() => {
-                                if (messagesArea && !isScrollingToParent) {
+                                if (!(pendingSearchTerm && pendingSearchTerm.length >= 2) && messagesArea && !isScrollingToParent) {
                                     messagesArea.scrollTop = messagesArea.scrollHeight;
                                 }
                                 // Make action buttons visible on mobile
@@ -5999,17 +6029,144 @@
             }
         }
 
-        function filterConversations(searchTerm) {
-            const items = document.querySelectorAll('.conversation-item');
+        let _searchDebounceTimer = null;
+        let _lastSearchApiIds = []; // IDs matched by the server (message content search)
+
+        /**
+         * Highlight matching text in chat messages and scroll to the first match.
+         * Uses text node walking for reliable highlighting (safe with HTML entities).
+         * Returns true if a match was found and scrolled to.
+         */
+        function highlightAndScrollToSearch(messagesArea, searchTerm) {
+            if (!messagesArea || !searchTerm) return false;
+
             const term = searchTerm.toLowerCase();
-            items.forEach(item => {
-                const name = item.getAttribute('data-user-name').toLowerCase();
-                if (name.includes(term)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
+            const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedTerm, 'gi');
+            const allMessages = messagesArea.querySelectorAll('[data-message-id]');
+            let firstMatch = null;
+
+            allMessages.forEach(msgEl => {
+                // Check if the entire message row contains matching text
+                const msgText = msgEl.textContent || '';
+                if (!msgText.toLowerCase().includes(term)) return;
+
+                // Find all text-containing elements (message bubbles)
+                const bubbles = msgEl.querySelectorAll('.rounded-lg, .whitespace-pre-wrap, .message-text');
+                let matched = false;
+
+                bubbles.forEach(bubble => {
+                    // Skip reaction containers, timestamps, action buttons
+                    if (bubble.closest('[class*="reactions-container"]') ||
+                        bubble.classList.contains('conversation-timestamp') ||
+                        bubble.querySelector('button, svg')) return;
+
+                    const bubbleText = bubble.textContent || '';
+                    if (!bubbleText.toLowerCase().includes(term)) return;
+
+                    // Walk text nodes inside this bubble and wrap matches with <mark>
+                    const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT, null, false);
+                    const textNodes = [];
+                    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+                    textNodes.forEach(node => {
+                        const nodeText = node.nodeValue;
+                        if (!nodeText.toLowerCase().includes(term)) return;
+
+                        const frag = document.createDocumentFragment();
+                        let lastIndex = 0;
+                        let match;
+                        regex.lastIndex = 0;
+
+                        while ((match = regex.exec(nodeText)) !== null) {
+                            // Text before match
+                            if (match.index > lastIndex) {
+                                frag.appendChild(document.createTextNode(nodeText.slice(lastIndex, match.index)));
+                            }
+                            // The match wrapped in <mark>
+                            const mark = document.createElement('mark');
+                            mark.className = 'search-match';
+                            mark.textContent = match[0];
+                            frag.appendChild(mark);
+                            lastIndex = regex.lastIndex;
+                        }
+                        // Text after last match
+                        if (lastIndex < nodeText.length) {
+                            frag.appendChild(document.createTextNode(nodeText.slice(lastIndex)));
+                        }
+                        node.parentNode.replaceChild(frag, node);
+                        matched = true;
+                    });
+                });
+
+                if (matched) {
+                    msgEl.classList.add('search-highlight-msg');
+                    if (!firstMatch) firstMatch = msgEl;
                 }
             });
+
+            if (firstMatch) {
+                firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Remove highlights after 4 seconds
+                setTimeout(() => {
+                    messagesArea.querySelectorAll('mark.search-match').forEach(mark => {
+                        const parent = mark.parentNode;
+                        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                        parent.normalize();
+                    });
+                    messagesArea.querySelectorAll('.search-highlight-msg').forEach(el => {
+                        el.classList.remove('search-highlight-msg');
+                    });
+                }, 4000);
+
+                return true;
+            }
+            return false;
+        }
+
+        function filterConversations(searchTerm) {
+            const items = document.querySelectorAll('.conversation-item');
+            const term = searchTerm.trim().toLowerCase();
+
+            if (!term) {
+                // Empty search: show all
+                items.forEach(item => item.style.display = '');
+                _lastSearchApiIds = [];
+                if (_searchDebounceTimer) { clearTimeout(_searchDebounceTimer); _searchDebounceTimer = null; }
+                return;
+            }
+
+            // --- Instant client-side filter: name + visible last message text ---
+            items.forEach(item => {
+                const name = (item.getAttribute('data-user-name') || '').toLowerCase();
+                const lastMsg = (item.querySelector('p.text-gray-500, p.dark\\:text-gray-400')?.textContent || '').toLowerCase();
+                const matched = name.includes(term) || lastMsg.includes(term) || _lastSearchApiIds.includes(item.getAttribute('data-user-id'));
+                item.style.display = matched ? '' : 'none';
+            });
+
+            // --- Debounced server-side search (searches ALL message content) ---
+            if (_searchDebounceTimer) clearTimeout(_searchDebounceTimer);
+            _searchDebounceTimer = setTimeout(() => {
+                axios.get('{{ route("messages.conversations.search") }}', { params: { search: searchTerm.trim() } })
+                    .then(response => {
+                        if (response.data.success && response.data.matching_ids) {
+                            _lastSearchApiIds = response.data.matching_ids.map(String);
+                            // Re-apply filter with the new server results
+                            const currentTerm = document.getElementById('conversationsSearch')?.value?.trim().toLowerCase() || '';
+                            if (currentTerm) {
+                                items.forEach(item => {
+                                    const name = (item.getAttribute('data-user-name') || '').toLowerCase();
+                                    const lastMsg = (item.querySelector('p.text-gray-500, p.dark\\:text-gray-400')?.textContent || '').toLowerCase();
+                                    const userId = item.getAttribute('data-user-id');
+                                    const matched = name.includes(currentTerm) || lastMsg.includes(currentTerm) || _lastSearchApiIds.includes(userId);
+                                    item.style.display = matched ? '' : 'none';
+                                });
+                            }
+                        }
+                    })
+                    .catch(err => console.warn('Search error:', err));
+            }, 350);
         }
 
         function handleFileSelect(files) {

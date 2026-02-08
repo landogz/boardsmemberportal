@@ -775,6 +775,113 @@ class MessageController extends Controller
     }
 
     /**
+     * Search conversations by message content, user names, and group names.
+     * Returns matching conversation IDs so the frontend can show/hide items.
+     */
+    public function searchConversations(Request $request)
+    {
+        try {
+            $currentUserId = Auth::id();
+            $search = trim($request->query('search', ''));
+
+            if (strlen($search) < 2) {
+                return response()->json(['success' => true, 'matching_ids' => []]);
+            }
+
+            $matchingIds = [];
+
+            // 1. Search single-chat messages for content matches
+            $singleChatUserIds = Chat::where(function ($query) use ($currentUserId) {
+                    $query->where('sender_id', $currentUserId)
+                          ->orWhere('receiver_id', $currentUserId);
+                })
+                ->whereNull('group_id')
+                ->whereNull('content_deleted_at')
+                ->where('message', 'LIKE', '%' . $search . '%')
+                ->get()
+                ->map(function ($chat) use ($currentUserId) {
+                    return $chat->sender_id === $currentUserId
+                        ? $chat->receiver_id
+                        : $chat->sender_id;
+                })
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $matchingIds = array_merge($matchingIds, $singleChatUserIds);
+
+            // 2. Search group-chat messages for content matches
+            $groupIds = Chat::whereNotNull('group_id')
+                ->whereNull('content_deleted_at')
+                ->where('message', 'LIKE', '%' . $search . '%')
+                ->whereIn('group_id', function ($query) use ($currentUserId) {
+                    $query->select('group_id')
+                        ->from('group_members')
+                        ->where('user_id', $currentUserId);
+                })
+                ->pluck('group_id')
+                ->unique()
+                ->map(fn ($id) => 'group_' . $id)
+                ->values()
+                ->toArray();
+
+            $matchingIds = array_merge($matchingIds, $groupIds);
+
+            // 3. Search user names (only for users we have conversations with)
+            $conversationPartnerIds = Chat::where(function ($query) use ($currentUserId) {
+                    $query->where('sender_id', $currentUserId)
+                          ->orWhere('receiver_id', $currentUserId);
+                })
+                ->whereNull('group_id')
+                ->get()
+                ->map(function ($chat) use ($currentUserId) {
+                    return $chat->sender_id === $currentUserId
+                        ? $chat->receiver_id
+                        : $chat->sender_id;
+                })
+                ->unique()
+                ->toArray();
+
+            if (!empty($conversationPartnerIds)) {
+                $userNameMatches = \App\Models\User::whereIn('id', $conversationPartnerIds)
+                    ->where(function ($q) use ($search) {
+                        $q->where('first_name', 'LIKE', '%' . $search . '%')
+                          ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                          ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $search . '%']);
+                    })
+                    ->pluck('id')
+                    ->toArray();
+
+                $matchingIds = array_merge($matchingIds, $userNameMatches);
+            }
+
+            // 4. Search group names
+            $groupNameMatches = \App\Models\GroupChat::where('name', 'LIKE', '%' . $search . '%')
+                ->whereHas('members', function ($q) use ($currentUserId) {
+                    $q->where('user_id', $currentUserId);
+                })
+                ->pluck('id')
+                ->map(fn ($id) => 'group_' . $id)
+                ->toArray();
+
+            $matchingIds = array_merge($matchingIds, $groupNameMatches);
+
+            // Deduplicate and return
+            $matchingIds = array_values(array_unique(array_map('strval', $matchingIds)));
+
+            return response()->json([
+                'success' => true,
+                'matching_ids' => $matchingIds,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Search failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Delete a single (1:1) conversation for the current user only.
      * The other user still sees the conversation; messages are not deleted.
      */
