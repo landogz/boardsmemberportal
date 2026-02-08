@@ -1,10 +1,8 @@
 <!-- Top Bar - 1190x45px - Mandatory, Locked -->
 <div class="top-bar sticky top-0 z-40">
-    <div class="gov-container flex items-center justify-between w-full">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between w-full" style="padding-left:50px;">
         <div class="flex items-center gap-4">
-            <img src="{{ asset('images/republica.png') }}" 
-                 alt="Republic of the Philippines" 
-                 class="h-8 w-auto object-contain">
+            <img src="{{ asset('images/republica.png') }}" alt="Republic of the Philippines" class="h-8 w-auto object-contain">
             <span class="hidden sm:inline">REPUBLIC OF THE PHILIPPINES</span>
         </div>
         <!-- <div class="search-bar">
@@ -17,32 +15,30 @@
 <!-- Navigation -->
 <nav class="sticky top-[45px] z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
     <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between w-full">
-            <div class="flex items-center">
+        <div class="flex items-center justify-between w-full min-h-[56px]">
+            <div class="flex items-center gap-4">
                 <a href="{{ route('landing') }}" class="flex items-center">
-                <img src="{{ asset('images/DDB_Website_Header1.png') }}" 
-                     alt="Agency Logo" 
-                     class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
+                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Agency Logo" class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
                 </a>
             </div>
-            <div class="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-shrink-0">
+            <div class="hidden md:flex items-center space-x-4 xl:space-x-6 flex-shrink-0 self-center">
                 @php
                     $currentRoute = request()->route()->getName();
                     $isAuthPage = in_array($currentRoute, ['login', 'register']);
                     $isOtherPage = !in_array($currentRoute, ['landing', 'login', 'register']) && $currentRoute !== null;
                     $landingUrl = route('landing');
                 @endphp
-                <a href="{{ route('landing') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Home</a>
+                <a href="{{ route('landing') }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Home</a>
                 @auth
-                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#announcements' : '#announcements' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a>
-                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar of Activities</a>
-                <a href="{{ route('board-issuances') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
-                <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498; display: none;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
-                <a href="{{ route('notices.index') }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a>
+                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#announcements' : '#announcements' }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a>
+                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar of Activities</a>
+                <a href="{{ route('board-issuances') }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
+                <a href="{{ route('referendums.index') }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
+                <a href="{{ route('notices.index') }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a>
                 @endauth
                 @guest
-                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
-                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#contact' : '#contact' }}" class="text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a>
+                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#about' : '#about' }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a>
+                <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#contact' : '#contact' }}" class="inline-flex items-center text-sm xl:text-base transition whitespace-nowrap nav-link" style="color: inherit; hover:color: #055498;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a>
                 @endguest
                 <!-- Dark Mode Toggle -->
                 <button id="themeToggle" type="button" class="hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
@@ -131,11 +127,11 @@
                         </div>
                     </div>
                 @else
-                    <a href="/login" class="px-3 xl:px-4 py-2 text-sm xl:text-base rounded-full transition whitespace-nowrap" style="border: 1px solid #055498; color: #055498;" onmouseover="this.style.backgroundColor='#055498'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#055498';">Login</a>
-                    <a href="/register" class="px-3 xl:px-4 py-2 text-sm xl:text-base rounded-full text-white hover:shadow-lg transition whitespace-nowrap" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Register</a>
+                    <a href="/login" class="inline-flex items-center justify-center min-h-[44px] px-4 md:px-5 py-2.5 text-sm font-medium rounded-full transition whitespace-nowrap" style="border: 1px solid #055498; color: #055498;" onmouseover="this.style.backgroundColor='#055498'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#055498';">Login</a>
+                    <a href="/register" class="inline-flex items-center justify-center min-h-[44px] px-4 md:px-5 py-2.5 text-sm font-medium rounded-full text-white hover:shadow-lg transition whitespace-nowrap" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Register</a>
                 @endauth
             </div>
-            <div class="flex items-center space-x-2 lg:hidden flex-shrink-0">
+            <div class="flex items-center space-x-2 md:hidden flex-shrink-0">
                 @auth
                     <!-- Notifications Icon (Mobile) -->
                     <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
@@ -158,7 +154,7 @@
         </div>
     </div>
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden lg:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
+    <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
         <div class="container mx-auto px-4 py-4 space-y-3">
             @php
                 $currentRoute = request()->route()->getName();
@@ -171,7 +167,7 @@
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#announcements' : '#announcements' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a>
             <a href="{{ ($isAuthPage || $isOtherPage) ? $landingUrl . '#calendar-activities' : '#calendar-activities' }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Calendar of Activities</a>
             <a href="{{ route('board-issuances') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a>
-            <a href="#" onclick="event.preventDefault(); showNotApprovedModal();" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit; display: none;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
+            <a href="{{ route('referendums.index') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Referendums</a>
             <a href="{{ route('notices.index') }}" class="block py-2 transition text-base min-h-[44px] flex items-center nav-link" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Notices</a>
             @endauth
             @guest
@@ -412,17 +408,18 @@
 
         messagesList.innerHTML = html;
         
-        // Update messages badge
-        updateMessagesBadge(totalUnread);
+        // Use unread-count API for badge (single source of truth; avoids stale total from conversations)
+        loadUnreadCount();
     }
 
-    // Update messages badge count
+    // Update messages badge count (0 = hide badge and clear text)
     function updateMessagesBadge(count) {
         const badgeCount = document.getElementById('messagesBadgeCount');
         const badgeCountMobile = document.getElementById('messagesBadgeCountMobile');
-        const badgeText = count > 99 ? '99+' : count;
+        const n = Number(count);
+        const badgeText = n > 99 ? '99+' : String(n);
         
-        if (count > 0) {
+        if (n > 0) {
             if (badgeCount) {
                 badgeCount.textContent = badgeText;
                 badgeCount.classList.remove('hidden');
@@ -432,41 +429,36 @@
                 badgeCountMobile.classList.remove('hidden');
             }
         } else {
-            if (badgeCount) badgeCount.classList.add('hidden');
-            if (badgeCountMobile) badgeCountMobile.classList.add('hidden');
+            if (badgeCount) {
+                badgeCount.textContent = '';
+                badgeCount.classList.add('hidden');
+            }
+            if (badgeCountMobile) {
+                badgeCountMobile.textContent = '';
+                badgeCountMobile.classList.add('hidden');
+            }
         }
     }
     window.updateMessagesBadge = updateMessagesBadge;
 
-    // Update dropdown item badge for a specific user
+    // Update dropdown item badge for a specific user (header badge always from API)
     function updateDropdownItemBadge(userId, unreadCount, totalUnread) {
         const messagesList = document.getElementById('messagesDropdownList');
         if (!messagesList) {
-            // If dropdown list doesn't exist, just update header badge
-            if (typeof totalUnread !== 'undefined') {
-                updateMessagesBadge(totalUnread);
-            }
+            if (typeof loadUnreadCount === 'function') loadUnreadCount(true);
             return;
         }
         
         const dropdownItem = messagesList.querySelector(`[data-user-id="${userId}"]`);
         if (!dropdownItem) {
-            // If item not found, reload dropdown to get fresh data
-            if (typeof window.reloadMessagesDropdown === 'function') {
-                window.reloadMessagesDropdown();
-            }
-            // Still update header badge
-            if (typeof totalUnread !== 'undefined') {
-                updateMessagesBadge(totalUnread);
-            }
+            if (typeof window.reloadMessagesDropdown === 'function') window.reloadMessagesDropdown();
+            if (typeof loadUnreadCount === 'function') loadUnreadCount(true);
             return;
         }
         
         const avatarContainer = dropdownItem.querySelector('.relative.flex-shrink-0');
         if (!avatarContainer) {
-            if (typeof totalUnread !== 'undefined') {
-                updateMessagesBadge(totalUnread);
-            }
+            if (typeof loadUnreadCount === 'function') loadUnreadCount(true);
             return;
         }
         
@@ -512,10 +504,8 @@
             }
         }
         
-        // Update header badge if total is provided
-        if (typeof totalUnread !== 'undefined') {
-            updateMessagesBadge(totalUnread);
-        }
+        // Header badge: always from API so it never shows stale count
+        if (typeof loadUnreadCount === 'function') loadUnreadCount(true);
     }
     
     // Make function globally accessible
@@ -530,28 +520,35 @@
         }
     };
 
-    // Load unread count on page load (cache-bust so badge updates after marking as read)
-    function loadUnreadCount() {
-        const url = '{{ route("messages.unread-count") }}' + (window.__messagesUnreadCacheBust ? '?t=' + Date.now() : '');
-        if (!window.__messagesUnreadCacheBust) window.__messagesUnreadCacheBust = true;
+    // Load unread count (always use cache-bust so badge is never stale)
+    function loadUnreadCount(forceRefresh) {
+        const url = '{{ route("messages.unread-count") }}?t=' + Date.now();
         fetch(url, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
                 'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
             },
             credentials: 'same-origin',
             cache: 'no-store'
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success && typeof data.count === 'number') {
-                updateMessagesBadge(data.count);
-            }
+            const count = (data && data.success && typeof data.count !== 'undefined') ? Number(data.count) : 0;
+            updateMessagesBadge(count);
         })
-        .catch(error => console.error('Error loading unread count:', error));
+        .catch(error => {
+            console.error('Error loading unread count:', error);
+            updateMessagesBadge(0);
+        });
     }
+    // Ensure badge hides when count is 0 (defensive)
+    function refreshMessagesBadgeFromServer() {
+        loadUnreadCount(true);
+    }
+    window.refreshMessagesBadgeFromServer = refreshMessagesBadgeFromServer;
     
     // Make function globally accessible for real-time updates
     window.loadUnreadCount = loadUnreadCount;
@@ -728,14 +725,14 @@
         // Initialize Echo with Reverb (only if not already initialized)
         if (!window.echoInstance || !window.echoInstance.connector) {
             try {
-                const reverbScheme = '{{ config("reverb.apps.apps.0.options.scheme", env("REVERB_SCHEME", "http")) }}';
-                const reverbHost = '{{ config("reverb.apps.apps.0.options.host", env("REVERB_HOST", "127.0.0.1")) }}';
-                const reverbPort = {{ config("reverb.apps.apps.0.options.port", env("REVERB_PORT", 8080)) }};
+                const reverbScheme = '{{ config("reverb.apps.apps.0.options.scheme", "http") }}';
+                const reverbHost = '{{ config("reverb.apps.apps.0.options.host", "127.0.0.1") }}';
+                const reverbPort = {{ config("reverb.apps.apps.0.options.port", 8080) }};
                 const useTLS = reverbScheme === 'https';
                 
                 window.echoInstance = new window.Echo({
                     broadcaster: 'reverb',
-                    key: '{{ env("REVERB_APP_KEY") }}',
+                    key: '{{ config("reverb.apps.apps.0.key") }}',
                     wsHost: reverbHost,
                     wsPort: reverbPort,
                     wssPort: reverbPort,
@@ -769,26 +766,37 @@
                     // Reverb connection state changed: states.current
                 });
 
-                // Listen to message unread count updates
+                // Listen to message unread count updates (realtime badge)
                 echo.private(`user.${userId}`)
                     .listen('.message.unread-count.updated', (e) => {
-                        // Reload dropdown if it's currently open/visible (Alpine 3 compatible)
+                        const count = typeof e.count !== 'undefined' ? Number(e.count) : 0;
+                        updateMessagesBadge(count);
+                        if (count === 0) loadUnreadCount(true);
                         const messagesDropdown = document.getElementById('messagesDropdownContainer');
                         if (messagesDropdown && getMessagesDropdownOpen(messagesDropdown)) {
-                            // Reset loaded state and reload
                             const messagesList = document.getElementById('messagesDropdownList');
                             if (messagesList) {
                                 messagesList.dataset.loaded = 'false';
                                 loadMessagesDropdown();
                             }
                         }
-                        updateMessagesBadge(e.count);
                     });
 
                 // Listen to notification unread count updates
                 echo.private(`user.${userId}`)
                     .listen('.notification.unread-count.updated', (e) => {
                         updateNotificationBadge(e.count);
+                        loadNotifications();
+                    });
+
+                // Message unsent elsewhere: dispatch so messages page can show "This message was deleted" in real time
+                echo.private(`user.${userId}`)
+                    .listen('.message.content.deleted', (e) => {
+                        try {
+                            window.dispatchEvent(new CustomEvent('message-content-deleted', { detail: e }));
+                        } catch (err) {
+                            console.warn('message-content-deleted handler:', err);
+                        }
                     });
 
                 // Laravel Echo initialized successfully
@@ -828,19 +836,21 @@
 
     @endauth
 
-    // Update notification badge helper (available globally)
+    // Update notification badge helper (available globally); count 0 = hide and clear
     function updateNotificationBadge(count) {
         const badge = $('#notificationBadge');
         const badgeMobile = $('#notificationBadgeMobile');
-        const badgeText = count > 99 ? '99+' : count;
-        if (count > 0) {
+        const n = Number(count);
+        if (n > 0) {
+            const badgeText = n > 99 ? '99+' : String(n);
             badge.text(badgeText).removeClass('hidden');
             badgeMobile.text(badgeText).removeClass('hidden');
         } else {
-            badge.addClass('hidden');
-            badgeMobile.addClass('hidden');
+            badge.text('').addClass('hidden');
+            badgeMobile.text('').addClass('hidden');
         }
     }
+    window.updateNotificationBadge = updateNotificationBadge;
 
     function getTimeAgo(timestamp) {
         if (!timestamp) return '';
@@ -877,8 +887,10 @@
             logoutFormMobile.addEventListener('submit', handleLogout);
         }
         
-        // Load unread message count on initial page load (broadcasting will handle updates)
-        loadUnreadCount();
+        // Load unread message count on initial page load (always fetch fresh so badge is correct)
+        loadUnreadCount(true);
+        // Run again after short delay to override any stale badge set by Echo or dropdown
+        setTimeout(function() { loadUnreadCount(true); }, 600);
     });
 
     // ========== NOTIFICATIONS DROPDOWN SYSTEM ==========
@@ -1007,6 +1019,7 @@
             'pending_registration': 'fa-clock',
             'announcement': 'fa-bullhorn',
             'notice': 'fa-file-text',
+            'group_chat_added': 'fa-user-plus',
             'default': 'fa-bell'
         };
 
@@ -1017,28 +1030,31 @@
                 return;
             }
 
-            axios.get('{{ route("notifications.recent") }}', { params: { limit: 3 } })
+            axios.get('{{ route("notifications.recent") }}', { params: { limit: 10, t: Date.now() } })
                 .then(response => {
-                    const notifications = (response.data && response.data.notifications) ? response.data.notifications.slice(0, 3) : []; // Ensure max 3
+                    const notifications = (response.data && response.data.notifications) ? response.data.notifications.slice(0, 10) : [];
                     const notificationsList = $('#notificationsList');
                     const notificationBadge = $('#notificationBadge');
                     const markAllReadBtn = $('#markAllReadBtn');
                     
-                    // Update badge count
-                    axios.get('{{ route("notifications.unread-count") }}')
+                    // Update badge count (use shared helper so 0 reliably hides badge)
+                    axios.get('{{ route("notifications.unread-count") }}', { headers: { 'Cache-Control': 'no-cache' } })
                         .then(countResponse => {
-                            const count = countResponse.data.count;
-                            const notificationBadgeMobile = $('#notificationBadgeMobile');
-                            const badgeText = count > 99 ? '99+' : count;
-                            if (count > 0) {
-                                notificationBadge.text(badgeText).removeClass('hidden');
-                                notificationBadgeMobile.text(badgeText).removeClass('hidden');
-                                markAllReadBtn.removeClass('hidden');
+                            const count = countResponse.data && typeof countResponse.data.count !== 'undefined' ? Number(countResponse.data.count) : 0;
+                            if (typeof updateNotificationBadge === 'function') {
+                                updateNotificationBadge(count);
                             } else {
-                                notificationBadge.addClass('hidden');
-                                notificationBadgeMobile.addClass('hidden');
-                                markAllReadBtn.addClass('hidden');
+                                const notificationBadgeMobile = $('#notificationBadgeMobile');
+                                if (count > 0) {
+                                    const badgeText = count > 99 ? '99+' : String(count);
+                                    notificationBadge.text(badgeText).removeClass('hidden');
+                                    notificationBadgeMobile.text(badgeText).removeClass('hidden');
+                                } else {
+                                    notificationBadge.text('').addClass('hidden');
+                                    notificationBadgeMobile.text('').addClass('hidden');
+                                }
                             }
+                            if (count > 0) markAllReadBtn.removeClass('hidden'); else markAllReadBtn.addClass('hidden');
                         });
                     
                     // Render notifications (max 3)
@@ -1394,9 +1410,9 @@
                 return;
             }
 
-            axios.get('{{ route("notifications.unread-count") }}')
+            axios.get('{{ route("notifications.unread-count") }}', { headers: { 'Cache-Control': 'no-cache' }, params: { t: Date.now() } })
                 .then(response => {
-                    const count = response.data.count;
+                    const count = response.data && typeof response.data.count !== 'undefined' ? Number(response.data.count) : 0;
                     updateNotificationBadge(count);
                 })
                 .catch(error => {
