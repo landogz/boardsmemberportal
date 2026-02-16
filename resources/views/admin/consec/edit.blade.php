@@ -234,7 +234,7 @@
 
             <!-- Step 2: Office Address (PSGC) -->
             <div class="step" id="step2">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Complete Office Address (PSGC)</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Complete Office Address</h3>
                 <div class="space-y-4">
                     <!-- Building/House/Street Details -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

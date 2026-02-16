@@ -105,6 +105,7 @@ class AttendanceConfirmationController extends Controller
                 return [
                     'user' => $user,
                     'status' => $confirmation ? $confirmation->status : 'pending',
+                    'attendance_mode' => $confirmation ? $confirmation->attendance_mode : null,
                     'declined_reason' => $confirmation && $confirmation->status === 'declined' ? $confirmation->declined_reason : null,
                     'agenda_request' => $agendaRequest,
                 ];

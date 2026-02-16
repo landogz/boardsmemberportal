@@ -48,12 +48,13 @@ class PublishScheduledAnnouncements extends Command
                 $announcement->save();
 
                 // Send notifications and emails to all allowed users
+                $categoryLabel = $announcement->category_label ?? 'Announcement';
                 foreach ($announcement->allowedUsers as $user) {
                     Notification::create([
                         'user_id' => $user->id,
                         'type' => 'announcement',
-                        'title' => 'New Announcement',
-                        'message' => 'A new announcement "' . $announcement->title . '" has been published.',
+                        'title' => 'New ' . $categoryLabel,
+                        'message' => 'A new ' . strtolower($categoryLabel) . ' "' . $announcement->title . '" has been published.',
                         'data' => [
                             'announcement_id' => $announcement->id,
                             'announcement_title' => $announcement->title,

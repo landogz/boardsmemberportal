@@ -38,7 +38,7 @@
     }
     .action-dropdown-menu {
         animation: fadeIn 0.15s ease-out;
-        min-width: 180px;
+        min-width: 220px;
     }
     
     @keyframes fadeIn {
@@ -173,6 +173,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allowed Users</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -208,6 +209,16 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="status-badge {{ $announcement->status === 'published' ? 'status-published' : 'status-draft' }}">
                                 {{ ucfirst($announcement->status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @php
+                                $categoryLabel = $announcement->category_label ?? 'Public';
+                            @endphp
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
+                                {{ $announcement->category === 'board_member_activities' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700' }}">
+                                <i class="fas fa-tag mr-1 text-[10px]"></i>
+                                {{ $categoryLabel }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -251,7 +262,7 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 
-                                <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $announcement->id }}">
+                                <div class="action-dropdown-menu hidden min-w-[220px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $announcement->id }}">
                                     <div class="py-1" role="menu">
                                         <a href="{{ route('admin.announcements.show', $announcement->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-eye w-4 mr-3 text-blue-600"></i>
@@ -324,7 +335,7 @@
             const buttonOffset = $button.offset();
             const buttonWidth = $button.outerWidth();
             const buttonHeight = $button.outerHeight();
-            const dropdownWidth = 192; // w-48 = 192px
+            const dropdownWidth = 220; // min-width for "Delete Announcement" etc.
             const windowWidth = $(window).width();
             const windowHeight = $(window).height();
             

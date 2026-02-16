@@ -48,7 +48,7 @@ class BoardRegulationController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
-            'effective_date' => 'required|date',
+            'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
             'pdf_file' => 'required|file|mimes:pdf|max:30720',
         ]);
@@ -79,7 +79,7 @@ class BoardRegulationController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'version' => $validated['version'] ?? null,
-            'effective_date' => $validated['effective_date'],
+            'effective_date' => $validated['effective_date'] ?? null,
             'approved_date' => $validated['approved_date'],
             'pdf_file' => $pdfFileId,
             'uploaded_by' => Auth::id(),
@@ -129,7 +129,7 @@ class BoardRegulationController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
-            'effective_date' => 'required|date',
+            'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
             'pdf_file' => 'nullable|file|mimes:pdf|max:30720',
             'change_notes' => 'nullable|string', // Optional notes about the change

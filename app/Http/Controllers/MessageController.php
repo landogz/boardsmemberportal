@@ -1336,6 +1336,10 @@ class MessageController extends Controller
             $chat->attachments = [];
             $chat->save();
 
+            // When a message is unsent, also remove all reactions tied to it so
+            // no one sees reactions on a deleted/unsent message (user, admin, popup, etc.)
+            MessageReaction::where('chat_id', $chat->id)->delete();
+
             // Broadcast so other users see "This message was deleted" in real time
             if ($chat->group_id) {
                 $conversationId = 'group_' . $chat->group_id;

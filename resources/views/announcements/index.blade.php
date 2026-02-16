@@ -101,6 +101,14 @@
         .dark .pagination .active span {
             background: linear-gradient(135deg, #055498 0%, #123a60 100%);
         }
+
+        /* Wider container similar to other pages */
+        .announcements-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
     </style>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
@@ -113,6 +121,11 @@
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                     Announcements
+                    @if(!empty($category))
+                        <span class="block text-base sm:text-lg font-normal text-white/80 mt-2">
+                            {{ $category === 'board_member_activities' ? 'Board Member Activities' : 'Public' }}
+                        </span>
+                    @endif
                 </h1>
                 <p class="text-white/90 text-base sm:text-lg">
                     Stay informed with the latest updates and important information
@@ -125,27 +138,40 @@
     <div class="bg-white dark:bg-[#1e293b] border-b border-gray-200 dark:border-gray-700 sticky top-[109px] z-30 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 py-4">
             <div class="max-w-4xl mx-auto">
-                <form method="GET" action="{{ route('announcements.index') }}" class="flex flex-col sm:flex-row gap-3">
+                <form method="GET" action="{{ route('announcements.index') }}" class="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div class="flex-1 relative">
                         <input 
                             type="text" 
                             name="search" 
                             value="{{ $search }}" 
                             placeholder="Search announcements..." 
-                            class="w-full px-4 py-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white dark:bg-[#0F172A] text-gray-900 dark:text-white"
+                            class="w-full h-12 px-4 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white dark:bg-[#0F172A] text-gray-900 dark:text-white"
                         >
                         <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
+                    @php
+                        $currentCategory = $category ?? '';
+                    @endphp
+                    <div class="sm:w-56">
+                        <select
+                            name="category"
+                            class="w-full h-12 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#0F172A] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
+                        >
+                            <option value="" {{ $currentCategory === '' ? 'selected' : '' }}>All Categories</option>
+                            <option value="public" {{ $currentCategory === 'public' ? 'selected' : '' }}>Public</option>
+                            <option value="board_member_activities" {{ $currentCategory === 'board_member_activities' ? 'selected' : '' }}>Board Member Activities</option>
+                        </select>
+                    </div>
                     <button 
                         type="submit" 
-                        class="px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg"
+                        class="px-6 h-12 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
                     >
                         <i class="fas fa-search mr-2"></i>Search
                     </button>
                     @if($search)
                     <a 
                         href="{{ route('announcements.index') }}" 
-                        class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        class="px-6 h-12 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center"
                     >
                         <i class="fas fa-times mr-2"></i>Clear
                     </a>
@@ -156,16 +182,15 @@
     </div>
 
     <!-- Announcements Content -->
-    <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div class="max-w-4xl mx-auto">
+    <div class="announcements-container py-8 sm:py-12">
             @if($announcements->count() > 0)
-                <!-- Blog-style Posts -->
-                <div class="space-y-8">
+                <!-- Blog-style Posts in 2-column grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     @foreach($announcements as $announcement)
-                        <article class="blog-post-card bg-white dark:bg-[#1e293b] rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <article class="blog-post-card bg-white dark:bg-[#1e293b] rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 h-full flex flex-col">
                             <!-- Banner Image -->
                             @if($announcement->bannerImage)
-                                <div class="w-full h-64 sm:h-80 overflow-hidden">
+                                <div class="w-full h-64 sm:h-56 overflow-hidden">
                                     <img 
                                         src="{{ asset('storage/' . $announcement->bannerImage->file_path) }}" 
                                         alt="{{ $announcement->title }}" 
@@ -174,17 +199,17 @@
                                     >
                                 </div>
                             @else
-                                <div class="w-full h-64 sm:h-80 bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center cursor-pointer" onclick="openAnnouncementModal({{ $announcement->id }})">
+                                <div class="w-full h-64 sm:h-56 bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center cursor-pointer" onclick="openAnnouncementModal({{ $announcement->id }})">
                                     <i class="fas fa-bullhorn text-6xl text-white opacity-50"></i>
                                 </div>
                             @endif
                             
                             <!-- Post Content -->
-                            <div class="p-6 sm:p-8">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
                                 <!-- Meta Information -->
-                                <div class="flex flex-wrap items-center gap-4 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <div class="flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-semibold text-xs mr-2 overflow-hidden flex-shrink-0">
+                                <div class="flex items-center justify-between gap-4 mb-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                    <div class="flex items-center min-w-0">
+                                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-semibold text-xs mr-3 overflow-hidden flex-shrink-0 shadow-sm">
                                             @if($announcement->creator->profilePictureMedia)
                                                 <img src="{{ asset('storage/' . $announcement->creator->profilePictureMedia->file_path) }}" 
                                                      alt="{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}" 
@@ -193,15 +218,24 @@
                                                 <span>{{ strtoupper(substr($announcement->creator->first_name, 0, 1) . substr($announcement->creator->last_name, 0, 1)) }}</span>
                                             @endif
                                         </div>
-                                        <span>{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
+                                        <div class="flex flex-col min-w-0">
+                                            <span class="truncate font-semibold text-gray-800 dark:text-gray-100">
+                                                {{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}
+                                            </span>
+                                            <div class="flex items-center gap-2 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
+                                                <span>{{ $announcement->created_at->format('M d, Y') }}</span>
+                                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                <span>{{ $announcement->created_at->diffForHumans() }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center">
-                                        <i class="far fa-calendar-alt mr-2"></i>
-                                        <span>{{ $announcement->created_at->format('F d, Y') }}</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <i class="far fa-clock mr-2"></i>
-                                        <span>{{ $announcement->created_at->diffForHumans() }}</span>
+                                    <div class="flex items-center flex-shrink-0">
+                                        @php
+                                            $categoryLabel = $announcement->category_label ?? 'Public';
+                                        @endphp
+                                        <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                                            {{ $categoryLabel }}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -211,14 +245,14 @@
                                 </h2>
 
                                 <!-- Excerpt -->
-                                <div class="text-gray-700 dark:text-gray-300 mb-6 prose prose-sm max-w-none line-clamp-3">
+                                <div class="text-gray-700 dark:text-gray-300 mb-6 prose prose-sm max-w-none line-clamp-3 flex-1">
                                     {!! Str::limit(strip_tags($announcement->description), 200) !!}
                                 </div>
 
                                 <!-- Read More Button -->
                                 <button 
                                     onclick="openAnnouncementModal({{ $announcement->id }})"
-                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
                                 >
                                     Read More
                                     <i class="fas fa-arrow-right ml-2"></i>
@@ -261,7 +295,6 @@
                     @endif
                 </div>
             @endif
-        </div>
     </div>
 
     <!-- Announcement Modal -->

@@ -152,6 +152,22 @@
                                     </select>
                                 </div>
 
+                                <!-- Category -->
+                                <div>
+                                    <label for="category" class="block text-xs font-medium text-gray-700 mb-2">Category *</label>
+                                    <select
+                                        id="category"
+                                        name="category"
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                                    >
+                                        <option value="public" {{ old('category', 'public') === 'public' ? 'selected' : '' }}>Public</option>
+                                        <option value="board_member_activities" {{ old('category') === 'board_member_activities' ? 'selected' : '' }}>Board Member Activities</option>
+                                    </select>
+                                    @error('category')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
                                 <!-- Schedule Publish -->
                                 <div>
                                     <label for="scheduled_at" class="block text-xs font-medium text-gray-700 mb-2">Schedule Publish</label>

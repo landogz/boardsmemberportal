@@ -34,7 +34,15 @@
                             {{ $notice->notice_type }}
                         </span>
                     </div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">{{ $notice->title }}</h1>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">
+                        <a 
+                            href="{{ route('admin.notices.show', $notice->id) }}" 
+                            class="hover:text-[#055498] transition-colors inline-flex items-center gap-2"
+                        >
+                            <span>{{ $notice->title }}</span>
+                            <i class="fas fa-external-link-alt text-base text-[#055498]"></i>
+                        </a>
+                    </h1>
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         @if($notice->meeting_date)
                             <div class="flex items-center gap-2 text-gray-500">
@@ -124,6 +132,7 @@
                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Agency</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Mode</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Declined Reason</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Agenda Request</th>
                     </tr>
@@ -180,6 +189,24 @@
                                     </button>
                                 @endif
                             </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($item['status'] === 'accepted' && !empty($item['attendance_mode']))
+                                @php
+                                    $modeLabel = $item['attendance_mode'] === 'onsite' ? 'Onsite' : 'Online';
+                                    $modeColors = [
+                                        'onsite' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                        'online' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                    ];
+                                    $modeColor = $modeColors[$item['attendance_mode']] ?? 'bg-gray-50 text-gray-700 border-gray-200';
+                                @endphp
+                                <span class="px-3 py-1.5 rounded-lg text-xs font-semibold border {{ $modeColor }} whitespace-nowrap">
+                                    <i class="fas fa-{{ $item['attendance_mode'] === 'onsite' ? 'building' : 'wifi' }} mr-1.5"></i>
+                                    {{ $modeLabel }}
+                                </span>
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             @if($item['declined_reason'])

@@ -81,8 +81,8 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Version</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Effective Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PDF</th>
@@ -98,10 +98,10 @@
                                 <div class="text-xs text-gray-500 mt-1">{{ Str::limit($regulation->description, 60) }}</div>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden">
                             <div class="text-sm text-gray-500">{{ $regulation->version ?? 'N/A' }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden">
                             <div class="text-sm text-gray-900">{{ $regulation->effective_date ? $regulation->effective_date->format('M d, Y') : 'N/A' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -149,16 +149,20 @@
                                 <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $regulation->id }}">
                                     <div class="py-1" role="menu">
                                         @can('edit board regulations')
+                                        <div class="hidden">
                                         <a href="{{ route('admin.board-regulations.edit', $regulation->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
                                             Edit Regulation
                                         </a>
+                                        </div>
                                         @endcan
                                         @can('view board regulations')
+                                        <div class="hidden">
                                         <a href="{{ route('admin.board-regulations.history', $regulation->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem">
                                             <i class="fas fa-history w-4 mr-3 text-purple-600"></i>
                                             View History
                                         </a>
+                                        </div>
                                         @endcan
                                         @can('delete board regulations')
                                         <button type="button" class="delete-regulation-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-regulation-id="{{ $regulation->id }}">
@@ -203,9 +207,12 @@
     $(document).ready(function() {
         @if($regulations->isNotEmpty())
         $('#regulationsTable').DataTable({
-            order: [[2, 'desc']],
+            order: [[3, 'desc']],
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            columnDefs: [
+                { targets: 2, visible: false }
+            ],
             language: {
                 search: "Search regulations:",
                 lengthMenu: "Show _MENU_ regulations per page",

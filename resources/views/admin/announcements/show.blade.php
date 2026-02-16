@@ -43,6 +43,20 @@
         color: #6B7280;
         border: 1px solid rgba(156, 163, 175, 0.2);
     }
+    /* Description rendered as HTML (from CKEditor) */
+    .announcement-description-content { line-height: 1.7; }
+    .announcement-description-content p { margin-bottom: 0.75rem; }
+    .announcement-description-content p:last-child { margin-bottom: 0; }
+    .announcement-description-content ul { margin: 0.75rem 0; padding-left: 1.5rem; list-style-type: disc; list-style-position: outside; }
+    .announcement-description-content ol { margin: 0.75rem 0; padding-left: 1.5rem; list-style-type: decimal; list-style-position: outside; }
+    .announcement-description-content ul ul { list-style-type: circle; }
+    .announcement-description-content ol ol { list-style-type: lower-alpha; }
+    .announcement-description-content li { margin-bottom: 0.25rem; display: list-item; }
+    .announcement-description-content strong { font-weight: 600; }
+    .announcement-description-content a { color: #055498; text-decoration: underline; }
+    .announcement-description-content a:hover { text-decoration: none; }
+    .announcement-description-content h1, .announcement-description-content h2, .announcement-description-content h3 { font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .announcement-description-content img { max-width: 100%; height: auto; }
 </style>
 @endpush
 
@@ -65,6 +79,13 @@
                         <span class="status-badge {{ $announcement->status === 'published' ? 'status-published' : 'status-draft' }}">
                             <i class="fas fa-{{ $announcement->status === 'published' ? 'check-circle' : 'file-alt' }} mr-1.5"></i>
                             {{ ucfirst($announcement->status) }}
+                        </span>
+                        @php
+                            $categoryLabel = $announcement->category_label ?? 'Public';
+                        @endphp
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 border border-gray-200 flex items-center gap-1">
+                            <i class="fas fa-tag text-[10px]"></i>
+                            {{ $categoryLabel }}
                         </span>
                         @if($announcement->scheduled_at)
                             <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-600 border border-gray-200">
@@ -101,10 +122,10 @@
             </div>
         </div>
 
-        <!-- Description Content -->
+        <!-- Description Content (HTML from CKEditor) -->
         <div class="px-6 py-6">
             <div class="prose prose-lg max-w-none">
-                <div class="text-gray-700 leading-relaxed">{!! $announcement->description !!}</div>
+                <div class="announcement-description-content text-gray-700 leading-relaxed">{!! $announcement->description !!}</div>
             </div>
         </div>
     </div>

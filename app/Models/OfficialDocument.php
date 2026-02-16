@@ -39,11 +39,11 @@ class OfficialDocument extends Model
     }
 
     /**
-     * Get the year from effective_date
+     * Get the year from approved_date
      */
     public function getYearAttribute(): ?string
     {
-        return $this->effective_date ? $this->effective_date->format('Y') : null;
+        return $this->approved_date ? $this->approved_date->format('Y') : null;
     }
 
     /**

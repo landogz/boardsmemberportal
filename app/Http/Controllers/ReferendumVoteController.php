@@ -33,24 +33,24 @@ class ReferendumVoteController extends Controller
             ], 403);
         }
 
-        // Check if user has already voted
-        if ($referendum->hasUserVoted($userId)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already voted on this referendum.'
-            ], 422);
-        }
-
         $validated = $request->validate([
             'vote' => 'required|in:accept,decline',
         ]);
 
         try {
-            ReferendumVote::create([
-                'referendum_id' => $referendum->id,
-                'user_id' => $userId,
-                'vote' => $validated['vote'],
-            ]);
+            // Create or update the user's vote so they can change it before expiry
+            $existingVote = $referendum->votes()->where('user_id', $userId)->first();
+
+            if ($existingVote) {
+                $existingVote->vote = $validated['vote'];
+                $existingVote->save();
+            } else {
+                ReferendumVote::create([
+                    'referendum_id' => $referendum->id,
+                    'user_id' => $userId,
+                    'vote' => $validated['vote'],
+                ]);
+            }
 
             // Get updated vote counts
             $acceptCount = $referendum->acceptVotes()->count();

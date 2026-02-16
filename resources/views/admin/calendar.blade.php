@@ -772,6 +772,7 @@
                         const meetingDate = info.event.extendedProps.meeting_date || null;
                         const meetingTime = info.event.extendedProps.meeting_time || null;
                         const meetingLink = info.event.extendedProps.meeting_link || null;
+                        const venue = info.event.extendedProps.venue || null;
                         
                         // Build action buttons based on event type
                         let actionButton = '';
@@ -822,6 +823,9 @@
                             }
                             if (meetingLink && (meetingType === 'online' || meetingType === 'hybrid')) {
                                 noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Link:</strong> <a href="${meetingLink}" target="_blank" class="text-purple-700 hover:text-purple-900 underline break-all"><i class="fas fa-link mr-1"></i>${meetingLink}</a></p>`;
+                            }
+                            if (venue && (meetingType === 'onsite' || meetingType === 'hybrid')) {
+                                noticeFields += `<p class="mb-2 text-sm"><strong>Venue:</strong> <span class="text-purple-700">${venue}</span></p>`;
                             }
                             noticeFields += '</div>';
                         }

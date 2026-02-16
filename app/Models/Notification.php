@@ -61,4 +61,26 @@ class Notification extends Model
             ]);
         }
     }
+
+    /**
+     * Mark all notifications for a user that are related to a given notice as read.
+     * Used when user accepts, declines, or views a notice.
+     * @param int|string $userId User ID (int or UUID string depending on schema)
+     */
+    public static function markNoticeAsReadForUser(int|string $userId, int $noticeId): void
+    {
+        $updated = static::where('user_id', $userId)
+            ->where('type', 'notice')
+            ->where('data->notice_id', (string) $noticeId)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
+
+        if ($updated > 0) {
+            $count = static::where('user_id', $userId)->where('is_read', false)->count();
+            broadcast(new NotificationUnreadCountUpdated($userId, $count));
+        }
+    }
 }

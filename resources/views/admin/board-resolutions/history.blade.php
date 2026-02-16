@@ -185,6 +185,7 @@
                 infoFiltered: "(filtered from _MAX_ total versions)"
             },
             columnDefs: [
+                { targets: 3, visible: false }, // Hide Effective Date
                 { orderable: false, targets: [8] } // Disable sorting on PDF column
             ]
         });

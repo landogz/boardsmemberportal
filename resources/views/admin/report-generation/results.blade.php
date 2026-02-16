@@ -12,27 +12,44 @@
                     }
                 @endphp
                 <span class="result-badge {{ $typeClass }}">{{ $notice->notice_type }}</span>
-                @if($notice->meeting_type)
-                    <span class="result-badge" style="background-color: #f3f4f6; color: #374151;">{{ ucfirst($notice->meeting_type) }}</span>
-                @endif
-                @if($notice->meeting_date)
-                    <span class="result-footer-item">
-                        <i class="fas fa-calendar"></i>
-                        <span>{{ \Carbon\Carbon::parse($notice->meeting_date)->format('M d, Y') }}</span>
-                    </span>
-                @endif
             </div>
             @if($notice->description)
                 <p class="result-description">{{ Str::limit(strip_tags($notice->description), 200) }}</p>
             @endif
-            <div class="result-footer">
+            <div class="result-footer" style="flex-wrap: wrap;">
+                @if($notice->meeting_type)
+                    <span class="result-footer-item">
+                        <i class="fas fa-users"></i>
+                        <span><strong>Meeting Type:</strong> {{ ucfirst($notice->meeting_type) }}</span>
+                    </span>
+                @endif
+                @if($notice->meeting_date)
+                    <span class="result-footer-item">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Meeting Date:</strong> {{ \Carbon\Carbon::parse($notice->meeting_date)->format('F j, Y') }}</span>
+                    </span>
+                @endif
+                @if($notice->meeting_time)
+                    <span class="result-footer-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Meeting Time:</strong> {{ \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') }}</span>
+                    </span>
+                @endif
+                @if($notice->meeting_link)
+                    <span class="result-footer-item">
+                        <i class="fas fa-link"></i>
+                        <span><strong>Meeting Link:</strong> <a href="{{ $notice->meeting_link }}" target="_blank" rel="noopener" class="text-[#055498] hover:underline">{{ Str::limit($notice->meeting_link, 50) }}</a></span>
+                    </span>
+                @endif
+                @if($notice->venue)
+                    <span class="result-footer-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Venue:</strong> {{ $notice->venue }}</span>
+                    </span>
+                @endif
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
                     <span><strong>Created by:</strong> {{ $notice->creator->first_name ?? 'N/A' }} {{ $notice->creator->last_name ?? '' }}</span>
-                </span>
-                <span class="result-footer-item">
-                    <i class="fas fa-clock"></i>
-                    <span>{{ $notice->created_at->format('M d, Y h:i A') }}</span>
                 </span>
             </div>
         </div>
@@ -63,14 +80,10 @@
         <div class="result-item">
             <h4 class="result-title">{{ $regulation->title }}</h4>
             <div class="result-meta">
-                <span class="result-badge" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                    <i class="fas fa-tag mr-1.5" style="font-size: 0.75rem;"></i>
-                    Version {{ $regulation->version }}
-                </span>
-                @if($regulation->effective_date)
+                @if($regulation->approved_date)
                     <span class="result-footer-item">
                         <i class="fas fa-calendar-check"></i>
-                        <span>Effective: {{ \Carbon\Carbon::parse($regulation->effective_date)->format('M d, Y') }}</span>
+                        <span>Approved: {{ \Carbon\Carbon::parse($regulation->approved_date)->format('M d, Y') }}</span>
                     </span>
                 @endif
             </div>
@@ -82,10 +95,6 @@
                     <i class="fas fa-user"></i>
                     <span><strong>Uploaded by:</strong> {{ $regulation->uploader->first_name ?? 'N/A' }} {{ $regulation->uploader->last_name ?? '' }}</span>
                 </span>
-                <span class="result-footer-item">
-                    <i class="fas fa-clock"></i>
-                    <span>{{ $regulation->created_at->format('M d, Y h:i A') }}</span>
-                </span>
             </div>
         </div>
     @endforeach
@@ -95,14 +104,10 @@
         <div class="result-item">
             <h4 class="result-title">{{ $resolution->title }}</h4>
             <div class="result-meta">
-                <span class="result-badge" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                    <i class="fas fa-tag mr-1.5" style="font-size: 0.75rem;"></i>
-                    Version {{ $resolution->version }}
-                </span>
-                @if($resolution->effective_date)
+                @if($resolution->approved_date)
                     <span class="result-footer-item">
                         <i class="fas fa-calendar-check"></i>
-                        <span>Effective: {{ \Carbon\Carbon::parse($resolution->effective_date)->format('M d, Y') }}</span>
+                        <span>Approved: {{ \Carbon\Carbon::parse($resolution->approved_date)->format('M d, Y') }}</span>
                     </span>
                 @endif
             </div>
@@ -113,10 +118,6 @@
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
                     <span><strong>Uploaded by:</strong> {{ $resolution->uploader->first_name ?? 'N/A' }} {{ $resolution->uploader->last_name ?? '' }}</span>
-                </span>
-                <span class="result-footer-item">
-                    <i class="fas fa-clock"></i>
-                    <span>{{ $resolution->created_at->format('M d, Y h:i A') }}</span>
                 </span>
             </div>
         </div>
@@ -314,14 +315,19 @@
                                     @if(count($boardMembers) > 0)
                                         @foreach($boardMembers as $member)
                                             @php
-                                                $title = $member->pre_nominal_title ?? '';
-                                                $firstName = $member->first_name ?? '';
-                                                $lastName = $member->last_name ?? '';
-                                                $middleInitial = $member->middle_initial ?? '';
-                                                $postNominal = $member->post_nominal_title ?? '';
-                                                $designation = $member->designation ?? '';
-                                                
+                                                $user = is_array($member) && isset($member['user']) ? $member['user'] : $member;
+                                                $attendanceMode = (is_array($member) && isset($member['attendance_mode'])) ? $member['attendance_mode'] : null;
+                                                $title = $user->pre_nominal_title ?? '';
+                                                $firstName = $user->first_name ?? '';
+                                                $lastName = $user->last_name ?? '';
+                                                $middleInitial = $user->middle_initial ?? '';
+                                                $postNominal = $user->post_nominal_title ?? '';
+                                                $designation = $user->designation ?? '';
+
                                                 $fullName = trim(($title ? $title . ' ' : '') . strtoupper($firstName) . ($middleInitial ? ' ' . strtoupper($middleInitial) . '.' : '') . ' ' . strtoupper($lastName) . ($postNominal ? ' ' . $postNominal : ''));
+                                                if ($nomNotice->meeting_type === 'hybrid' && $attendanceMode) {
+                                                    $fullName .= ' (' . ucfirst($attendanceMode) . ')';
+                                                }
                                             @endphp
                                             <div class="font-semibold">{{ $fullName }}</div>
                                             @if($designation)

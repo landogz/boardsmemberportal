@@ -303,6 +303,10 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
     // Reference Materials (admin)
     Route::prefix('admin/reference-materials')->name('admin.reference-materials.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'index'])->name('index');
+        Route::get('download-all', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'downloadAll'])->name('download-all');
+        Route::post('/', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'store'])->name('store');
+        Route::post('remove-attachment', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'removeAttachment'])->name('remove-attachment');
+        Route::post('rename-file', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'renameFile'])->name('rename-file');
         Route::get('/{id}', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'show'])->name('show');
         Route::post('/{id}/approve', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [\App\Http\Controllers\Admin\ReferenceMaterialController::class, 'reject'])->name('reject');
@@ -404,6 +408,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
 
     // Board Issuances (only for authenticated users)
     Route::get('/board-issuances', [\App\Http\Controllers\BoardIssuanceController::class, 'index'])->name('board-issuances');
+    Route::get('/board-issuances/data', [\App\Http\Controllers\BoardIssuanceController::class, 'data'])->name('board-issuances.data');
 
     // Notifications (authenticated users - accessible to all users, moved outside admin middleware)
     Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {

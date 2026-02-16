@@ -77,6 +77,74 @@
         .fb-post-content {
             padding: 0 16px 12px;
         }
+        /* Referendum body HTML from CKEditor */
+        .referendum-content-html {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .referendum-content-html p {
+            margin-bottom: 0.75em;
+        }
+        .referendum-content-html p:last-child {
+            margin-bottom: 0;
+        }
+        .referendum-content-html ul, .referendum-content-html ol {
+            margin: 0.5em 0 0.75em 1.5em;
+            padding-left: 1em;
+        }
+        .referendum-content-html ul {
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+        .referendum-content-html ol {
+            list-style-type: decimal;
+            list-style-position: outside;
+        }
+        .referendum-content-html li {
+            margin-bottom: 0.25em;
+        }
+        .referendum-content-html h1, .referendum-content-html h2, .referendum-content-html h3,
+        .referendum-content-html h4, .referendum-content-html h5, .referendum-content-html h6 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .referendum-content-html h1:first-child, .referendum-content-html h2:first-child,
+        .referendum-content-html h3:first-child { margin-top: 0; }
+        .referendum-content-html a {
+            color: #1877f2;
+            text-decoration: underline;
+        }
+        .referendum-content-html a:hover {
+            text-decoration: none;
+        }
+        .dark .referendum-content-html a {
+            color: #4599ff;
+        }
+        .referendum-content-html table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0.75em 0;
+        }
+        .referendum-content-html th, .referendum-content-html td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5em 0.75em;
+            text-align: left;
+        }
+        .dark .referendum-content-html th, .dark .referendum-content-html td {
+            border-color: #374151;
+        }
+        .referendum-content-html blockquote {
+            margin: 0.75em 0;
+            padding-left: 1em;
+            border-left: 4px solid #055498;
+            color: #6b7280;
+        }
+        .dark .referendum-content-html blockquote {
+            color: #9ca3af;
+            border-left-color: #3b82f6;
+        }
         .fb-post-text {
             font-size: 15px;
             color: #050505;
@@ -526,7 +594,7 @@
                                 <!-- Title & Description -->
                                 <div>
                                     <h1 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 leading-tight tracking-tight break-words">{{ $referendum->title }}</h1>
-                                    <div class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">{{ $referendum->content }}</div>
+                                    <div class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed break-words referendum-content-html">{!! $referendum->content !!}</div>
                                 </div>
                             </div>
                         </div>
@@ -624,32 +692,44 @@
                                         Cast Your Vote
                                     </h3>
                                     @if($userVote)
-                                        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                            <p class="text-sm text-blue-800 dark:text-blue-300 flex items-center">
-                                                <i class="fas fa-check-circle mr-2"></i>
-                                                You voted: <strong class="ml-1">{{ ucfirst($userVote->vote) }}</strong>
-                                            </p>
-                                        </div>
-                                    @else
-                                        <div class="flex flex-col gap-3 mb-4">
-                                            <button 
-                                                type="button" 
-                                                id="voteAcceptBtn"
-                                                class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
-                                            >
-                                                <i class="fas fa-check-circle mr-2"></i>
-                                                Accept
-                                            </button>
-                                            <button 
-                                                type="button" 
-                                                id="voteDeclineBtn"
-                                                class="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
-                                            >
-                                                <i class="fas fa-times-circle mr-2"></i>
-                                                Decline
-                                            </button>
+                                        <div class="mb-4 px-4 py-3 rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100/70 dark:from-blue-900/40 dark:to-blue-900/10 flex items-start gap-3">
+                                            <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                                                    Your current vote
+                                                </p>
+                                                <p class="text-sm text-blue-900 dark:text-blue-100">
+                                                    You voted:
+                                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                        {{ ucfirst($userVote->vote) }}
+                                                    </span>
+                                                    <span class="text-blue-900/80 dark:text-blue-200/80">
+                                                        • You can change this while the referendum is active.
+                                                    </span>
+                                                </p>
+                                            </div>
                                         </div>
                                     @endif
+                                    <div class="flex flex-col gap-3 mb-4">
+                                        <button 
+                                            type="button" 
+                                            id="voteAcceptBtn"
+                                            class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
+                                        >
+                                            <i class="fas fa-check-circle mr-2"></i>
+                                            Accept
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            id="voteDeclineBtn"
+                                            class="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
+                                        >
+                                            <i class="fas fa-times-circle mr-2"></i>
+                                            Decline
+                                        </button>
+                                    </div>
 
                                     <!-- Vote Statistics - Gen Z Design -->
                                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -827,7 +907,7 @@
 
         const referendumId = {{ $referendum->id }};
         const isExpired = {{ $referendum->isExpired() ? 'true' : 'false' }};
-        const hasVoted = {{ $userVote ? 'true' : 'false' }};
+        let hasVoted = {{ $userVote ? 'true' : 'false' }};
 
         // Configure SweetAlert Toast
         const Toast = Swal.mixin({
@@ -1192,23 +1272,31 @@
             }, 100);
         });
 
-        // Voting functionality
+        // Voting functionality (allow changing vote before expiry)
         $('#voteAcceptBtn, #voteDeclineBtn').on('click', async function() {
-            if (isExpired || hasVoted) {
+            if (isExpired) {
                 return;
             }
 
             const vote = $(this).attr('id') === 'voteAcceptBtn' ? 'accept' : 'decline';
             const voteText = vote === 'accept' ? 'Accept' : 'Decline';
 
+            const alreadyVoted = hasVoted;
+            const questionText = alreadyVoted
+                ? `Are you sure you want to change your vote to "${voteText}"?`
+                : `Are you sure you want to vote "${voteText}"?`;
+            const confirmText = alreadyVoted
+                ? `Yes, change to ${voteText}`
+                : `Yes, vote ${voteText}`;
+
             const result = await Swal.fire({
                 title: 'Confirm Your Vote',
-                text: `Are you sure you want to vote "${voteText}"? This action cannot be changed.`,
+                text: questionText,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: vote === 'accept' ? '#10B981' : '#EF4444',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: `Yes, vote ${voteText}`,
+                confirmButtonText: confirmText,
                 cancelButtonText: 'Cancel'
             });
 
@@ -1219,15 +1307,17 @@
                     });
 
                     if (response.data.success) {
+                        hasVoted = true;
+
                         Toast.fire({
                             icon: 'success',
-                            title: 'Vote recorded successfully!'
+                            title: 'Vote saved successfully!'
                         });
                         
-                        // Reload page to show updated vote status
+                        // Reload page to show updated vote status and banner
                         setTimeout(() => {
                             window.location.reload();
-                        }, 1000);
+                        }, 800);
                     }
                 } catch (error) {
                     Swal.fire({

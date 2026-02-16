@@ -136,18 +136,17 @@
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Report Type</label>
                 <select name="report_type" id="report_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required>
-                    {{-- Hidden for now --}}
-                    {{-- <option value="notices" {{ (request('report_type') == 'notices') ? 'selected' : '' }}>Notices</option> --}}
+                    <option value="notices" {{ (request('report_type') == 'notices') ? 'selected' : '' }}>Notices</option>
                     {{-- <option value="announcements" {{ (request('report_type') == 'announcements') ? 'selected' : '' }}>Announcements</option> --}}
-                    {{-- <option value="board_regulations" {{ (request('report_type') == 'board_regulations') ? 'selected' : '' }}>Board Regulations</option> --}}
-                    {{-- <option value="board_resolutions" {{ (request('report_type') == 'board_resolutions') ? 'selected' : '' }}>Board Resolutions</option> --}}
+                    <option value="board_regulations" {{ (request('report_type') == 'board_regulations') ? 'selected' : '' }}>Board Regulations</option>
+                    <option value="board_resolutions" {{ (request('report_type') == 'board_resolutions') ? 'selected' : '' }}>Board Resolutions</option>
                     {{-- <option value="referendums" {{ (request('report_type') == 'referendums') ? 'selected' : '' }}>Referendums</option> --}}
                     {{-- <option value="agenda_requests" {{ (request('report_type') == 'agenda_requests') ? 'selected' : '' }}>Agenda Requests</option> --}}
                     {{-- <option value="reference_materials" {{ (request('report_type') == 'reference_materials') ? 'selected' : '' }}>Reference Materials</option> --}}
                     {{-- <option value="attendance_confirmations" {{ (request('report_type') == 'attendance_confirmations') ? 'selected' : '' }}>Attendance Confirmations</option> --}}
                     <option value="quorum_guide" {{ (request('report_type') == 'quorum_guide') ? 'selected' : '' }}>Quorum Guide</option>
-                    <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting</option>
-                    <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Regular Meeting by Title</option>
+                    {{-- <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting</option> --}}
+                    {{-- <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Regular Meeting by Title</option> --}}
                 </select>
             </div>
 
@@ -168,26 +167,15 @@
 
             <!-- Dynamic filters based on report type -->
             <div id="dynamicFilters">
-                <!-- Notices filters -->
+                <!-- Notices filters: date range -->
                 <div class="filter-row notices-filters" style="display: none;">
                     <div class="filter-group">
-                        <label>Notice Type</label>
-                        <select name="notice_type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                            <option value="">All Types</option>
-                            <option value="Notice of Meeting" {{ request('notice_type') == 'Notice of Meeting' ? 'selected' : '' }}>Notice of Meeting</option>
-                            <option value="Agenda" {{ request('notice_type') == 'Agenda' ? 'selected' : '' }}>Agenda</option>
-                            <option value="Board Issuances" {{ request('notice_type') == 'Board Issuances' ? 'selected' : '' }}>Board Issuances</option>
-                            <option value="Other Matters" {{ request('notice_type') == 'Other Matters' ? 'selected' : '' }}>Other Matters</option>
-                        </select>
+                        <label>Date From</label>
+                        <input type="date" name="notice_date_from" value="{{ request('notice_date_from') ?? request('date_from') }}" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                     </div>
                     <div class="filter-group">
-                        <label>Meeting Type</label>
-                        <select name="meeting_type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                            <option value="">All Types</option>
-                            <option value="onsite" {{ request('meeting_type') == 'onsite' ? 'selected' : '' }}>Onsite</option>
-                            <option value="online" {{ request('meeting_type') == 'online' ? 'selected' : '' }}>Online</option>
-                            <option value="hybrid" {{ request('meeting_type') == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
-                        </select>
+                        <label>Date To</label>
+                        <input type="date" name="notice_date_to" value="{{ request('notice_date_to') ?? request('date_to') }}" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                     </div>
                 </div>
 
@@ -196,31 +184,24 @@
                     <!-- No additional filters for announcements -->
                 </div>
 
-                <!-- Board Regulations filters -->
-                <div class="filter-row board_regulations-filters" style="display: none;">
+                <!-- Year filter (shared by Board Regulations and Board Resolutions - single name="year" to avoid duplicate params) -->
+                <div class="filter-row board_year-filters" style="display: none;">
                     <div class="filter-group">
-                        <label>Uploaded By</label>
-                        <select name="uploaded_by" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                            <option value="">All Users</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ request('uploaded_by') == $user->id ? 'selected' : '' }}>{{ $user->first_name }} {{ $user->last_name }}</option>
+                        <label>Year (Approved Date)</label>
+                        <select name="year" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
+                            <option value="">All Years</option>
+                            @foreach($regulationResolutionYears ?? [] as $y)
+                                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
-                <!-- Board Resolutions filters -->
-                <div class="filter-row board_resolutions-filters" style="display: none;">
-                    <div class="filter-group">
-                        <label>Uploaded By</label>
-                        <select name="uploaded_by" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                            <option value="">All Users</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ request('uploaded_by') == $user->id ? 'selected' : '' }}>{{ $user->first_name }} {{ $user->last_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+                <!-- Board Regulations filters (year only, in board_year-filters above) -->
+                <div class="filter-row board_regulations-filters" style="display: none;"></div>
+
+                <!-- Board Resolutions filters (year only, in board_year-filters above) -->
+                <div class="filter-row board_resolutions-filters" style="display: none;"></div>
 
                 <!-- Referendums filters -->
                 <div class="filter-row referendums-filters" style="display: none;">
@@ -460,9 +441,19 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    // Show/hide filters based on report type
+    // Show/hide filters based on report type; reset all filter values so print Applied Filters are clean
     document.getElementById('report_type').addEventListener('change', function() {
         const reportType = this.value;
+        // Reset all filter inputs and selects (so applied filters on print are not from previous report type)
+        document.querySelectorAll('.filter-row input, .filter-row select').forEach(function(field) {
+            if (field.tagName === 'INPUT') {
+                if (field.type === 'date' || field.type === 'text') {
+                    field.value = '';
+                }
+            } else if (field.tagName === 'SELECT') {
+                field.selectedIndex = 0;
+            }
+        });
         // Hide all filter groups and remove required attributes
         document.querySelectorAll('.filter-row').forEach(row => {
             row.style.display = 'none';
@@ -471,10 +462,14 @@
             });
         });
         // Show relevant filter group
-        // Note: We don't add required attributes to filter fields - they should all be optional
         const relevantFilter = document.querySelector('.' + reportType + '-filters');
         if (relevantFilter) {
             relevantFilter.style.display = 'grid';
+        }
+        // Show shared year filter for board regulations and board resolutions
+        const yearFilter = document.querySelector('.board_year-filters');
+        if (yearFilter && (reportType === 'board_regulations' || reportType === 'board_resolutions')) {
+            yearFilter.style.display = 'grid';
         }
     });
     
@@ -507,6 +502,11 @@
         const relevantFilter = document.querySelector('.' + reportType + '-filters');
         if (relevantFilter) {
             relevantFilter.style.display = 'grid';
+        }
+        // Show shared year filter for board regulations and board resolutions
+        const yearFilter = document.querySelector('.board_year-filters');
+        if (yearFilter && (reportType === 'board_regulations' || reportType === 'board_resolutions')) {
+            yearFilter.style.display = 'grid';
         }
         
         // Preserve selected values from URL parameters
@@ -557,13 +557,15 @@
                             return [
                                 'agency_name' => $agency['agency_name'] ?? 'Unknown Agency',
                                 'board_members' => array_map(function($member) {
+                                    $user = is_array($member) && isset($member['user']) ? $member['user'] : $member;
                                     return [
-                                        'pre_nominal_title' => $member->pre_nominal_title ?? '',
-                                        'first_name' => $member->first_name ?? '',
-                                        'last_name' => $member->last_name ?? '',
-                                        'middle_initial' => $member->middle_initial ?? '',
-                                        'post_nominal_title' => $member->post_nominal_title ?? '',
-                                        'designation' => $member->designation ?? '',
+                                        'pre_nominal_title' => $user->pre_nominal_title ?? '',
+                                        'first_name' => $user->first_name ?? '',
+                                        'last_name' => $user->last_name ?? '',
+                                        'middle_initial' => $user->middle_initial ?? '',
+                                        'post_nominal_title' => $user->post_nominal_title ?? '',
+                                        'designation' => $user->designation ?? '',
+                                        'attendance_mode' => (is_array($member) && isset($member['attendance_mode'])) ? $member['attendance_mode'] : null,
                                     ];
                                 }, $agency['board_members'] ?? []),
                                 'other_attendees' => array_map(function($attendee) {
@@ -663,9 +665,12 @@
                             'notice_type' => $item->notice_type ?? null,
                             'meeting_type' => $item->meeting_type ?? null,
                             'meeting_date' => $item->meeting_date ?? null,
+                            'meeting_time' => $item->meeting_time ?? null,
+                            'meeting_link' => $item->meeting_link ?? null,
+                            'venue' => $item->venue ?? null,
                             'status' => $item->status ?? null,
                             'version' => $item->version ?? null,
-                            'effective_date' => $item->effective_date ?? null,
+                            'approved_date' => $item->approved_date ?? null,
                             'created_at' => $item->created_at ? $item->created_at->toDateTimeString() : null,
                             'creator' => $item->creator ? ['first_name' => $item->creator->first_name, 'last_name' => $item->creator->last_name] : null,
                             'uploader' => $item->uploader ? ['first_name' => $item->uploader->first_name, 'last_name' => $item->uploader->last_name] : null,
@@ -681,7 +686,7 @@
             const results = [];
         @endif
         const filters = @json(isset($filters) ? $filters : []);
-        
+
         const printContent = generatePrintContent(results, reportType, filters);
         const printWindow = window.open('', '_blank');
         
@@ -728,17 +733,31 @@
             filterInfo += '<div class="info-row"><span class="info-label">Report Type:</span><span class="info-value">' + reportTypeNames[reportType] + '</span></div>';
             filterInfo += '<div class="info-row"><span class="info-label">Total Records:</span><span class="info-value">' + results.length + '</span></div>';
             
-            if (filters.date_from || filters.date_to || filters.search || Object.keys(filters).some(k => k !== 'report_type' && filters[k])) {
+            const filterLabels = {
+                date_from: 'From Date',
+                date_to: 'To Date',
+                notice_date_from: 'Notice From Date',
+                notice_date_to: 'Notice To Date',
+                search: 'Search Term',
+                year: 'Year',
+                uploaded_by: 'Uploaded By'
+            };
+            const dateKeys = ['date_from', 'date_to', 'notice_date_from', 'notice_date_to'];
+            const appliedFilterRows = [];
+            Object.keys(filters).forEach(function(k) {
+                if (k === 'report_type' || k === '_token' || k === 'notice_id' || filters[k] === '' || filters[k] == null) return;
+                const label = filterLabels[k] || (k.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }));
+                let val = filters[k];
+                if (dateKeys.indexOf(k) !== -1 && val) {
+                    val = new Date(val).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                } else if (typeof val === 'string') {
+                    val = escapeHtml(val);
+                }
+                appliedFilterRows.push('<div class="info-row"><span class="info-label">' + escapeHtml(label) + ':</span><span class="info-value">' + val + '</span></div>');
+            });
+            if (appliedFilterRows.length) {
                 filterInfo += '<div class="info-row" style="margin-top: 10px;"><span class="info-label" style="font-weight: bold; color: #055498;">Applied Filters:</span><span class="info-value"></span></div>';
-                if (filters.date_from) {
-                    filterInfo += '<div class="info-row"><span class="info-label">From Date:</span><span class="info-value">' + new Date(filters.date_from).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span></div>';
-                }
-                if (filters.date_to) {
-                    filterInfo += '<div class="info-row"><span class="info-label">To Date:</span><span class="info-value">' + new Date(filters.date_to).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span></div>';
-                }
-                if (filters.search) {
-                    filterInfo += '<div class="info-row"><span class="info-label">Search Term:</span><span class="info-value">' + escapeHtml(filters.search) + '</span></div>';
-                }
+                appliedFilterRows.forEach(function(row) { filterInfo += row; });
             }
             filterInfo += '</div>';
         }
@@ -987,6 +1006,7 @@
         const nomNotice = quorumData.nom_notice || {};
         const agendaNotice = quorumData.agenda_notice || null;
         const attendeesByAgency = quorumData.attendees_by_agency || [];
+        const isHybrid = (nomNotice.meeting_type || '').toLowerCase() === 'hybrid';
         
         let content = '<div style="text-align: center; margin-bottom: 15px;">';
         content += '<h2 style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">' + escapeHtml(nomNotice.title ? nomNotice.title.toUpperCase() : '') + '</h2>';
@@ -1078,11 +1098,15 @@
                     const middleInitial = member.middle_initial || '';
                     const postNominal = member.post_nominal_title || '';
                     const designation = member.designation || '';
-                    
-                    let fullName = (title ? title + ' ' : '') + firstName.toUpperCase() + 
-                                   (middleInitial ? ' ' + middleInitial.toUpperCase() + '.' : '') + 
-                                   ' ' + lastName.toUpperCase() + 
+                    const attendanceMode = member.attendance_mode || '';
+
+                    let fullName = (title ? title + ' ' : '') + firstName.toUpperCase() +
+                                   (middleInitial ? ' ' + middleInitial.toUpperCase() + '.' : '') +
+                                   ' ' + lastName.toUpperCase() +
                                    (postNominal ? ' ' + postNominal : '');
+                    if (isHybrid && attendanceMode) {
+                        fullName += ' (' + (attendanceMode.charAt(0).toUpperCase() + attendanceMode.slice(1).toLowerCase()) + ')';
+                    }
                     table += '<div style="font-weight: bold;">' + escapeHtml(fullName.trim()) + '</div>';
                     if (designation) {
                         table += '<div style="font-size: 8px; color: #666;">' + escapeHtml(designation) + '</div>';
@@ -1336,10 +1360,10 @@
 
     function getTableHeaders(reportType) {
         const headers = {
-            'notices': ['Title', 'Type', 'Meeting Type', 'Meeting Date', 'Created By', 'Created At'],
+            'notices': ['Title', 'Type', 'Meeting Type', 'Meeting Date', 'Meeting Time', 'Meeting Link', 'Venue', 'Created By'],
             'announcements': ['Title', 'Description', 'Created By', 'Created At'],
-            'board_regulations': ['Title', 'Version', 'Effective Date', 'Uploaded By', 'Created At'],
-            'board_resolutions': ['Title', 'Version', 'Effective Date', 'Uploaded By', 'Created At'],
+            'board_regulations': ['Title', 'Approved Date', 'Uploaded By'],
+            'board_resolutions': ['Title', 'Approved Date', 'Uploaded By'],
             'referendums': ['Title', 'Status', 'Created By', 'Created At'],
             'agenda_requests': ['Notice', 'User', 'Description', 'Status', 'Submitted At'],
             'reference_materials': ['Notice', 'User', 'Description', 'Status', 'Submitted At'],
@@ -1348,15 +1372,29 @@
         return headers[reportType] || [];
     }
 
+    function formatTimeAMPM(timeStr) {
+        if (!timeStr) return '—';
+        const s = String(timeStr).trim();
+        const match = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+        if (!match) return timeStr;
+        const h = parseInt(match[1], 10);
+        const m = match[2];
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return h12 + ':' + m + ' ' + ampm;
+    }
+
     function getTableCells(item, reportType) {
         const cells = {
             'notices': [
                 item.title || '—',
                 item.notice_type || '—',
-                item.meeting_type || '—',
-                item.meeting_date ? new Date(item.meeting_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
-                item.creator ? (item.creator.first_name + ' ' + item.creator.last_name) : '—',
-                item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
+                item.meeting_type ? (item.meeting_type.charAt(0).toUpperCase() + item.meeting_type.slice(1)) : '—',
+                item.meeting_date ? new Date(item.meeting_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—',
+                formatTimeAMPM(item.meeting_time),
+                item.meeting_link || '—',
+                item.venue || '—',
+                item.creator ? (item.creator.first_name + ' ' + item.creator.last_name) : '—'
             ],
             'announcements': [
                 item.title || '—',
@@ -1366,17 +1404,13 @@
             ],
             'board_regulations': [
                 item.title || '—',
-                item.version || '—',
-                item.effective_date ? new Date(item.effective_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
-                item.uploader ? (item.uploader.first_name + ' ' + item.uploader.last_name) : '—',
-                item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
+                item.approved_date ? new Date(item.approved_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+                item.uploader ? (item.uploader.first_name + ' ' + item.uploader.last_name) : '—'
             ],
             'board_resolutions': [
                 item.title || '—',
-                item.version || '—',
-                item.effective_date ? new Date(item.effective_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
-                item.uploader ? (item.uploader.first_name + ' ' + item.uploader.last_name) : '—',
-                item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'
+                item.approved_date ? new Date(item.approved_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+                item.uploader ? (item.uploader.first_name + ' ' + item.uploader.last_name) : '—'
             ],
             'referendums': [
                 item.title || '—',

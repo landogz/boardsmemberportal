@@ -22,17 +22,17 @@ class CheckIdleUsers extends Command
      *
      * @var string
      */
-    protected $description = 'Check for idle users and log them out after 30 minutes of inactivity';
+    protected $description = 'Check for idle users and log them out after 15 minutes of inactivity';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $idleMinutes = 30;
+        $idleMinutes = 15;
         $idleThreshold = now()->subMinutes($idleMinutes);
 
-        // Find users who are online but haven't been active for 30 minutes
+        // Find users who are online but haven't been active for 15 minutes
         $idleUsers = User::where('is_online', true)
             ->where('last_activity', '<', $idleThreshold)
             ->get();
@@ -55,7 +55,7 @@ class CheckIdleUsers extends Command
             // Log the auto-logout
             AuditLogger::log(
                 'auth.auto_logout',
-                'User automatically logged out due to inactivity (30 minutes)',
+                'User automatically logged out due to inactivity (15 minutes)',
                 $user,
                 [
                     'last_activity' => $lastActivity,

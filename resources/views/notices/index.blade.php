@@ -312,55 +312,78 @@
         
         .action-buttons {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.75rem;
         }
         
         .btn-action {
-            flex: 1;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
+            flex: none;
+            min-width: 100px;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9375rem;
+            font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: flex;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-action i {
+            font-size: 0.8125rem;
         }
         
         .btn-accept {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+            background: #059669;
+            color: #fff;
+            border-color: #047857;
         }
         
         .btn-accept:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px -1px rgba(16, 185, 129, 0.4);
+            background: #047857;
+            border-color: #065f46;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
         }
         
         .btn-decline {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+            background: #fff;
+            color: #b91c1c;
+            border-color: #e5e7eb;
+        }
+        
+        .dark .btn-decline {
+            background: #334155;
+            color: #fca5a5;
+            border-color: #475569;
         }
         
         .btn-decline:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px -1px rgba(239, 68, 68, 0.4);
+            background: #b91c1c;
+            border-color: #991b1b;
+            color: #fff;
+        }
+        
+        .dark .btn-decline:hover {
+            background: #991b1b;
+            border-color: #b91c1c;
+            color: #fff;
         }
         
         .btn-agenda {
-            background: linear-gradient(135deg, #055498 0%, #0ea5e9 100%);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(5, 84, 152, 0.3);
+            background: #055498;
+            color: #fff;
+            border: 1px solid #034a82;
+            box-shadow: 0 1px 2px rgba(5, 84, 152, 0.2);
         }
         
         .btn-agenda:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px -1px rgba(5, 84, 152, 0.4);
+            background: #034a82;
+            border-color: #023b6a;
+            box-shadow: 0 2px 4px rgba(5, 84, 152, 0.25);
         }
         
         .empty-state {
@@ -531,6 +554,12 @@
                                 <span class="detail-label">Meeting Type</span>
                                 <span class="detail-value">{{ ucfirst($notice->meeting_type) }}</span>
                             </div>
+                            @if(in_array($notice->meeting_type, ['onsite', 'hybrid']) && $notice->venue)
+                                <div class="detail-row">
+                                    <span class="detail-label">Venue</span>
+                                    <span class="detail-value">{{ $notice->venue }}</span>
+                                </div>
+                            @endif
                             @if(in_array($notice->meeting_type, ['online', 'hybrid']) && $notice->meeting_link)
                                 <div class="detail-row">
                                     <span class="detail-label">Meeting Link</span>
@@ -595,14 +624,17 @@
                     
                     <div class="notice-actions">
                         <div class="action-buttons">
-                            @if(!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending')
-                                <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }});">
+                            @php
+                                $noticeMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
+                            @endphp
+                            @if(!$noticeMeetingDone && (!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending'))
+                                <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }}, '{{ $notice->meeting_type }}');">
                                     <i class="fas fa-check"></i>
-                                    <span>Accept</span>
+                                    <span>Change response to Approve</span>
                                 </button>
                                 <button class="btn-action btn-decline" onclick="event.stopPropagation(); declineNotice({{ $notice->id }});">
                                     <i class="fas fa-times"></i>
-                                    <span>Decline</span>
+                                    <span>Change response to Decline</span>
                                 </button>
                             @elseif(isset($attendanceConfirmations[$notice->id]) && $attendanceConfirmations[$notice->id] === 'accepted')
                                 @php
@@ -613,7 +645,8 @@
                                         <i class="fas fa-plus"></i>
                                         <span>Request Agenda Inclusion</span>
                                     </button>
-                                @elseif($isMeetingDone && !isset($referenceMaterials[$notice->id]))
+                                @elseif(false && $isMeetingDone && !isset($referenceMaterials[$notice->id]))
+                                    {{-- Submit Reference Materials button hidden for now - remove "false &&" to re-enable --}}
                                     <button class="btn-action btn-agenda" onclick="event.stopPropagation(); submitReferenceMaterial({{ $notice->id }});">
                                         <i class="fas fa-file-upload"></i>
                                         <span>Submit Reference Materials</span>
@@ -731,9 +764,16 @@
                     </button>
                     <button 
                         type="submit" 
-                        class="flex-1 px-4 py-2 bg-[#055498] text-white rounded-lg hover:bg-[#123a60] transition-colors"
+                        id="agendaSubmitBtn"
+                        class="flex-1 px-4 py-2 bg-[#055498] text-white rounded-lg hover:bg-[#123a60] transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                     >
-                        Submit Request
+                        <span id="agendaSubmitBtnText">Submit Request</span>
+                        <span id="agendaSubmitBtnSpinner" class="hidden">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
                     </button>
                 </div>
             </form>
@@ -746,7 +786,7 @@
         let uploadedAttachmentIds = [];
         let currentNoticeId = null;
 
-        function acceptNotice(noticeId) {
+        function acceptNotice(noticeId, meetingType = null) {
             Swal.fire({
                 title: 'Accept Invitation?',
                 text: 'Are you sure you want to accept this meeting invitation?',
@@ -757,9 +797,18 @@
                 confirmButtonText: 'Yes, accept',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`/notices/${noticeId}/accept`)
+                if (!result.isConfirmed) return;
+
+                const proceed = (attendanceMode) => {
+                    Swal.fire({
+                        title: 'Accepting...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                    axios.post(`/notices/${noticeId}/accept`, attendanceMode ? { attendance_mode: attendanceMode } : {})
                         .then(response => {
+                            Swal.close();
                             if (response.data.success) {
                                 Swal.fire({
                                     icon: 'success',
@@ -773,12 +822,62 @@
                             }
                         })
                         .catch(error => {
+                            Swal.close();
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
                                 text: error.response?.data?.message || 'Failed to accept invitation.',
                             });
                         });
+                };
+
+                if (meetingType === 'hybrid') {
+                    Swal.fire({
+                        title: 'How will you attend?',
+                        input: 'radio',
+                        inputOptions: {
+                            onsite: 'Onsite (in person)',
+                            online: 'Online (virtual)'
+                        },
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Please select how you will attend.';
+                            }
+                        },
+                        confirmButtonText: 'Continue',
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#10B981',
+                        cancelButtonColor: '#6B7280',
+                        showLoaderOnConfirm: true,
+                        preConfirm: (value) => {
+                            return axios.post(`/notices/${noticeId}/accept`, { attendance_mode: value })
+                                .then(response => {
+                                    if (response.data.success) return response.data;
+                                    throw new Error(response.data.message || 'Failed to accept.');
+                                })
+                                .catch(error => {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: error.response?.data?.message || 'Failed to accept invitation.'
+                                    });
+                                    throw error;
+                                });
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: result.value.message || 'Invitation accepted successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => { location.reload(); });
+                        }
+                    });
+                } else {
+                    proceed(null);
                 }
             });
         }
@@ -846,10 +945,19 @@
             e.preventDefault();
             const noticeId = document.getElementById('agendaNoticeId').value;
             const description = document.getElementById('agendaDescription').value.trim();
+            const submitBtn = document.getElementById('agendaSubmitBtn');
+            const submitBtnText = document.getElementById('agendaSubmitBtnText');
+            const submitBtnSpinner = document.getElementById('agendaSubmitBtnSpinner');
+
             if (!description) {
                 Swal.fire({ icon: 'error', title: 'Required', text: 'Please enter a description.' });
                 return;
             }
+
+            submitBtn.disabled = true;
+            submitBtnText.textContent = 'Submitting...';
+            submitBtnSpinner.classList.remove('hidden');
+
             try {
                 const response = await axios.post(`/notices/${noticeId}/agenda-inclusion`, {
                     description: description,
@@ -869,9 +977,15 @@
                         }
                     });
                 } else {
+                    submitBtn.disabled = false;
+                    submitBtnText.textContent = 'Submit Request';
+                    submitBtnSpinner.classList.add('hidden');
                     Swal.fire({ icon: 'error', title: 'Error', text: response.data.message || 'Failed to submit.' });
                 }
             } catch (error) {
+                submitBtn.disabled = false;
+                submitBtnText.textContent = 'Submit Request';
+                submitBtnSpinner.classList.add('hidden');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -965,13 +1079,7 @@
 
         function submitReferenceMaterial(noticeId, e) {
             if (e) e.preventDefault();
-            Swal.fire({
-                icon: 'info',
-                title: 'Function Not Yet Approved',
-                text: 'This function is currently under development and has not been approved yet.',
-                confirmButtonColor: '#055498',
-                confirmButtonText: 'OK'
-            });
+            window.location.href = '{{ url("/notices") }}/' + noticeId + '?open=reference';
         }
     </script>
 </body>

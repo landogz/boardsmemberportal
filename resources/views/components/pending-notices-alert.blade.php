@@ -1,6 +1,8 @@
 @auth
 <div id="pendingNoticesContainer" style="position: fixed; top: 20px; left: 20px; z-index: 9999; max-width: 400px;"></div>
-
+<style>
+    .pending-notice-popup-list .swal2-icon { display: none !important; }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -54,20 +56,38 @@
             let listHTML = '<div class="pending-notices-list" style="text-align: left; max-height: 60vh; overflow-y: auto;">';
             
             notices.forEach((notice, index) => {
-                const noticeTypeBadge = getNoticeTypeBadge(notice.notice_type);
-                const meetingInfo = notice.meeting_date ? 
-                    `<p class="text-xs text-gray-600 mb-1"><i class="fas fa-calendar mr-1"></i>${notice.meeting_date}${notice.meeting_time ? ' at ' + notice.meeting_time : ''}</p>` : 
-                    '';
+                const meetingTypeLabel = notice.meeting_type ? (notice.meeting_type.charAt(0).toUpperCase() + notice.meeting_type.slice(1)) : '—';
+                const showLink = notice.meeting_link && ['online', 'hybrid'].includes(notice.meeting_type);
+                const showVenue = notice.venue && ['onsite', 'hybrid'].includes(notice.meeting_type);
+                const escapeHtml = (str) => {
+                    if (str == null) return '';
+                    const div = document.createElement('div');
+                    div.textContent = str;
+                    return div.innerHTML;
+                };
+                let detailsHtml = `
+                    <div class="notice-details-block" style="background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8125rem; color: #374151;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Notice Details</div>
+                        <div style="display: grid; gap: 0.25rem;">
+                            <div><span style="color: #6b7280;">Notice Type:</span> <span style="font-weight: 500;">${escapeHtml(notice.notice_type || '—')}</span></div>
+                            <div><span style="color: #6b7280;">Meeting Type:</span> <span style="font-weight: 500;">${meetingTypeLabel}</span></div>
+                            <div><span style="color: #6b7280;">Meeting Date:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_date_long || '—')}</span></div>
+                            <div><span style="color: #6b7280;">Meeting Time:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_time || '—')}</span></div>
+                `;
+                if (showLink) {
+                    detailsHtml += `<div><span style="color: #6b7280;">Meeting Link:</span> <a href="${escapeHtml(notice.meeting_link)}" target="_blank" rel="noopener" style="color: #055498; font-weight: 500; word-break: break-all;">${escapeHtml(notice.meeting_link)}</a></div>`;
+                }
+                if (showVenue) {
+                    detailsHtml += `<div><span style="color: #6b7280;">Venue:</span> <span style="font-weight: 500;">${escapeHtml(notice.venue)}</span></div>`;
+                }
+                detailsHtml += '</div></div>';
                 
                 listHTML += `
                     <div class="notice-item" data-notice-id="${notice.id}" style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0; ${index === notices.length - 1 ? 'border-bottom: none;' : ''}">
-                        <div class="mb-2">
-                            ${noticeTypeBadge}
-                        </div>
-                        <h3 class="notice-title" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; color: #1f2937; line-height: 1.3; word-wrap: break-word;">${notice.title}</h3>
-                        ${meetingInfo}
+                        <h3 style="font-size: 0.95rem; font-weight: 600; margin: 0 0 0.5rem 0; color: #1f2937; line-height: 1.3; word-wrap: break-word;">${escapeHtml(notice.title || 'Untitled')}</h3>
+                        ${detailsHtml}
                         <div class="notice-actions mt-2 flex flex-wrap gap-2">
-                            <button onclick="handleNoticeAction(${notice.id}, 'accept')" class="btn-accept" style="flex: 1; min-width: 80px; padding: 0.5rem 0.75rem; background: #10b981; color: white; border: none; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; font-weight: 500; min-height: 36px;">
+                            <button onclick="handleNoticeAction(${notice.id}, 'accept', '${(notice.meeting_type || '').replace(/'/g, "\\'")}')" class="btn-accept" style="flex: 1; min-width: 80px; padding: 0.5rem 0.75rem; background: #10b981; color: white; border: none; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; font-weight: 500; min-height: 36px;">
                                 <i class="fas fa-check mr-1"></i><span class="btn-text">Accept</span>
                             </button>
                             <button onclick="handleNoticeAction(${notice.id}, 'view')" class="btn-view" style="flex: 1; min-width: 80px; padding: 0.5rem 0.75rem; background: #055498; color: white; border: none; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; font-weight: 500; min-height: 36px;">
@@ -92,7 +112,7 @@
             currentModal = Swal.fire({
                 title: `Pending Notices (${notices.length})`,
                 html: listHTML,
-                icon: 'info',
+                icon: null,
                 width: modalWidth,
                 padding: isMobile ? '0.75rem' : '1rem',
                 showConfirmButton: false,
@@ -140,9 +160,9 @@
         }
         
         // Global function to handle notice actions
-        window.handleNoticeAction = function(noticeId, action) {
+        window.handleNoticeAction = function(noticeId, action, meetingType = null) {
             if (action === 'accept') {
-                acceptNotice(noticeId);
+                acceptNotice(noticeId, meetingType);
             } else if (action === 'view') {
                 window.location.href = `/notices/${noticeId}`;
             } else if (action === 'decline') {
@@ -160,14 +180,78 @@
             return badges[type] || '<span style="display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(100, 116, 139, 0.1); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.2);">' + type + '</span>';
         }
 
-        function acceptNotice(noticeId) {
-            axios.post(`/notices/${noticeId}/accept`)
-                .then(response => {
-                    if (response.data.success) {
-                        // Remove from displayed notices
+        function acceptNotice(noticeId, meetingType = null) {
+            const proceed = (attendanceMode) => {
+                Swal.fire({
+                    title: 'Accepting...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+                axios.post(`/notices/${noticeId}/accept`, attendanceMode ? { attendance_mode: attendanceMode } : {})
+                    .then(response => {
+                        Swal.close();
+                        if (response.data.success) {
+                            displayedNotices.add(noticeId);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Accepted!',
+                                text: 'You have accepted the notice invitation.',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                position: 'top-end',
+                                toast: true
+                            });
+                            setTimeout(() => { fetchPendingNotices(); }, 500);
+                        }
+                    })
+                    .catch(error => {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.response?.data?.message || 'Failed to accept notice. Please try again.'
+                        });
+                    });
+            };
+
+            if (meetingType === 'hybrid') {
+                Swal.fire({
+                    title: 'How will you attend?',
+                    input: 'radio',
+                    inputOptions: {
+                        onsite: 'Onsite (in person)',
+                        online: 'Online (virtual)'
+                    },
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Please select how you will attend.';
+                        }
+                    },
+                    confirmButtonText: 'Continue',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#10B981',
+                    cancelButtonColor: '#6B7280',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (value) => {
+                        return axios.post(`/notices/${noticeId}/accept`, { attendance_mode: value })
+                            .then(response => {
+                                if (response.data.success) return response.data;
+                                throw new Error(response.data.message || 'Failed to accept.');
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: error.response?.data?.message || 'Failed to accept notice. Please try again.'
+                                });
+                                throw error;
+                            });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed && result.value) {
                         displayedNotices.add(noticeId);
-                        
-                        // Show success message
                         Swal.fire({
                             icon: 'success',
                             title: 'Accepted!',
@@ -177,20 +261,12 @@
                             position: 'top-end',
                             toast: true
                         });
-                        
-                        // Refresh pending notices
-                        setTimeout(() => {
-                            fetchPendingNotices();
-                        }, 500);
+                        setTimeout(() => { fetchPendingNotices(); }, 500);
                     }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.response?.data?.message || 'Failed to accept notice. Please try again.'
-                    });
                 });
+            } else {
+                proceed(null);
+            }
         }
 
         function showDeclineReasonModal(noticeId, noticeTitle, originalSwal) {

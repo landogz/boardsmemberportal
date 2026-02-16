@@ -313,14 +313,31 @@
             margin-bottom: 1.25rem;
         }
         
-        #announcementModal .prose ul,
+        #announcementModal .prose ul {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+        
         #announcementModal .prose ol {
             margin-bottom: 1.25rem;
             padding-left: 1.5rem;
+            list-style-type: decimal;
+            list-style-position: outside;
+        }
+        
+        #announcementModal .prose ul ul {
+            list-style-type: circle;
+        }
+        
+        #announcementModal .prose ol ol {
+            list-style-type: lower-alpha;
         }
         
         #announcementModal .prose li {
             margin-bottom: 0.5rem;
+            display: list-item;
         }
         
         #announcementModal .prose h1,

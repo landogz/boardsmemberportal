@@ -71,6 +71,31 @@
         </div>
     </div>
 
+    <!-- Actions (Approve / Reject) -->
+    @if(
+        $material->status === 'pending' && 
+        (
+            $material->notice->created_by === Auth::id() ||
+            (Auth::check() && Auth::user()->privilege === 'consec')
+        )
+    )
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between gap-4">
+            <h3 class="text-lg font-bold text-gray-900">Actions</h3>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="approveMaterial({{ $material->id }})" class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold inline-flex items-center gap-2">
+                    <i class="fas fa-check"></i>
+                    <span>Approve</span>
+                </button>
+                <button onclick="rejectMaterial({{ $material->id }})" class="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold inline-flex items-center gap-2">
+                    <i class="fas fa-times"></i>
+                    <span>Reject</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Notice Information -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -80,7 +105,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Notice Title</label>
-                <p class="text-sm font-semibold text-gray-900 mt-1">{{ $material->notice->title }}</p>
+                <a 
+                    href="{{ route('admin.notices.show', $material->notice_id) }}" 
+                    class="text-sm font-semibold text-[#055498] mt-1 inline-flex items-center gap-1 hover:underline"
+                >
+                    {{ $material->notice->title }}
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Notice Type</label>
@@ -238,21 +269,7 @@
     </div>
     @endif
 
-    <!-- Actions -->
-    @if($material->status === 'pending' && $material->notice->created_by === Auth::id())
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Actions</h3>
-        <div class="flex gap-3">
-            <button onclick="approveMaterial({{ $material->id }})" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                <i class="fas fa-check mr-2"></i>Approve
-            </button>
-            <button onclick="rejectMaterial({{ $material->id }})" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
-                <i class="fas fa-times mr-2"></i>Reject
-            </button>
-        </div>
     </div>
-    @endif
-</div>
 
 <!-- Reject Modal -->
 <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

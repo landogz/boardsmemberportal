@@ -86,6 +86,73 @@
     .comment-item:hover {
         background-color: #f9fafb;
     }
+    /* Referendum body HTML from CKEditor */
+    .referendum-content-html {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+    .referendum-content-html p {
+        margin-bottom: 0.75rem;
+    }
+    .referendum-content-html p:last-child {
+        margin-bottom: 0;
+    }
+    .referendum-content-html ul,
+    .referendum-content-html ol {
+        margin: 0.5rem 0 0.75rem 1.5rem;
+        padding-left: 1rem;
+    }
+    .referendum-content-html ul {
+        list-style-type: disc;
+        list-style-position: outside;
+    }
+    .referendum-content-html ol {
+        list-style-type: decimal;
+        list-style-position: outside;
+    }
+    .referendum-content-html li {
+        margin-bottom: 0.25rem;
+    }
+    .referendum-content-html h1,
+    .referendum-content-html h2,
+    .referendum-content-html h3,
+    .referendum-content-html h4,
+    .referendum-content-html h5,
+    .referendum-content-html h6 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+    .referendum-content-html h1:first-child,
+    .referendum-content-html h2:first-child,
+    .referendum-content-html h3:first-child {
+        margin-top: 0;
+    }
+    .referendum-content-html a {
+        color: #055498;
+        text-decoration: underline;
+    }
+    .referendum-content-html a:hover {
+        text-decoration: none;
+    }
+    .referendum-content-html table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.75rem 0;
+    }
+    .referendum-content-html th,
+    .referendum-content-html td {
+        border: 1px solid #e5e7eb;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+    }
+    .referendum-content-html blockquote {
+        margin: 0.75rem 0;
+        padding-left: 1rem;
+        border-left: 4px solid #055498;
+        color: #6b7280;
+    }
     .online-indicator {
         position: absolute;
         bottom: 0;
@@ -153,8 +220,8 @@
             <!-- Content -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Content</h3>
-                <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                    {{ $referendum->content }}
+                <div class="prose max-w-none text-gray-700 referendum-content-html">
+                    {!! $referendum->content !!}
                 </div>
             </div>
 

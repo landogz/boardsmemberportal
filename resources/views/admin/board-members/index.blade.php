@@ -274,7 +274,7 @@
                                 <div class="text-sm text-gray-900">
                                     @if($account->representative_type)
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $account->representative_type === 'Board Member' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
-                                            {{ $account->representative_type }}
+                                            {{ $account->representative_type === 'Authorized Representative' ? 'Authorized Representative/Ex-Officio Member' : $account->representative_type }}
                                         </span>
                                     @else
                                         <span class="text-gray-400">N/A</span>
@@ -297,6 +297,7 @@
                                     <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $account->id }}">
                                         <div class="py-1" role="menu">
                                             @can('edit board members')
+                                            @if(Auth::user()->privilege !== 'consec')
                                             @php
                                                 $profileMedia = $account->profile_picture ? \App\Models\MediaLibrary::find($account->profile_picture) : null;
                                                 $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->first_name . ' ' . $account->last_name) . '&size=48&background=055498&color=fff';
@@ -305,6 +306,7 @@
                                                 <i class="fas fa-key w-4 mr-3 text-purple-600"></i>
                                                 Setup Permission
                                             </button>
+                                            @endif
                                             @endcan
                                             @can('edit board members')
                                             <a href="{{ route('admin.board-members.edit', $account->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">

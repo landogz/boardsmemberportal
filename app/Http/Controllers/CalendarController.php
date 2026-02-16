@@ -22,6 +22,12 @@ class CalendarController extends Controller
         }
 
         $user = Auth::user();
+
+        // Treat 'consec' privilege the same as admin for calendar visibility
+        $isAdminOrConsec = $user->hasRole('admin') || ($user->privilege ?? null) === 'consec';
+
+        // Ensure any scheduled announcements whose publish time has passed are marked as published
+        \App\Models\Announcement::autoPublishScheduled();
         $events = [];
 
         // Get Board Resolutions (Official Documents) - Display all resolutions
@@ -119,16 +125,35 @@ class CalendarController extends Controller
         }
 
         // Get Announcements (only if user has access)
-        if ($user->hasRole('admin')) {
-            $announcements = Announcement::published()
-                ->with(['creator', 'bannerImage'])
+        if ($isAdminOrConsec) {
+            // For admins: show all published announcements PLUS drafts that have a scheduled publish date.
+            // This allows admins to see upcoming scheduled announcements on the calendar even while they are still in draft.
+            $announcements = Announcement::with(['creator', 'bannerImage'])
+                ->where(function ($q) {
+                    // Already published (including scheduled_at <= now())
+                    $q->published()
+                      // Or draft announcements that are scheduled for a future date
+                      ->orWhere(function ($q2) {
+                          $q2->where('status', 'draft')
+                             ->whereNotNull('scheduled_at');
+                      });
+                })
                 ->get();
         } else {
-            $announcements = Announcement::published()
+            // For regular users: show announcements they have access to that are:
+            // - already effectively published, OR
+            // - drafts with a scheduled publish date (so users can see upcoming announcements on the calendar)
+            $announcements = Announcement::with(['creator', 'bannerImage'])
                 ->whereHas('allowedUsers', function($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })
-                ->with(['creator', 'bannerImage'])
+                ->where(function ($q) {
+                    $q->published()
+                      ->orWhere(function ($q2) {
+                          $q2->where('status', 'draft')
+                             ->whereNotNull('scheduled_at');
+                      });
+                })
                 ->get();
         }
 
@@ -202,6 +227,7 @@ class CalendarController extends Controller
                     'meeting_date' => $notice->meeting_date ? (is_string($notice->meeting_date) ? \Carbon\Carbon::parse($notice->meeting_date)->format('F d, Y') : $notice->meeting_date->format('F d, Y')) : null,
                     'meeting_time' => $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') : null,
                     'meeting_link' => $notice->meeting_link,
+                    'venue' => $notice->venue,
                     'url' => $url,
                 ],
             ];

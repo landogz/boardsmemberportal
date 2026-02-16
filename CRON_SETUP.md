@@ -96,7 +96,7 @@ php artisan schedule:list
 ## What Gets Scheduled
 
 Currently, these tasks run every minute:
-1. **`users:check-idle`** - Checks for idle users and logs them out after 30 minutes
+1. **`users:check-idle`** - Checks for idle users and logs them out after 15 minutes
 2. **`announcements:publish-scheduled`** - Publishes scheduled announcements automatically
 
 ## Troubleshooting

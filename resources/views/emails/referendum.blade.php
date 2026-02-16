@@ -192,7 +192,7 @@
                                 @endif
                                 
                                 <div class="referendum-content">
-                                    {{ \Illuminate\Support\Str::limit(html_entity_decode(strip_tags($referendum->content), ENT_QUOTES, 'UTF-8'), 300) }}
+                                    {!! $referendum->content !!}
                                 </div>
                             </div>
                             

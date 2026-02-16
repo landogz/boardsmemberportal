@@ -52,24 +52,29 @@
         
         .fb-post-card {
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            margin-bottom: 12px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 6px 10px rgba(15, 23, 42, 0.04);
+            margin-bottom: 16px;
             overflow: hidden;
-            transition: box-shadow 0.2s ease;
+            transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.15s ease;
         }
         
         .dark .fb-post-card {
-            background: #242526;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            background: #020617;
+            border-color: #1e293b;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.7);
         }
         
         .fb-post-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+            transform: translateY(-1px);
+            border-color: #cbd5f5;
         }
         
         .dark .fb-post-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+            border-color: #334155;
         }
         
         /* Post Header */
@@ -308,16 +313,85 @@
         
         /* Post Attachments */
         .fb-post-attachments {
-            margin: 0 -16px;
-            max-height: 500px;
+            margin: 0 16px 0;
+            max-height: 200px;
             overflow: hidden;
+            border-radius: 8px;
+            background: #f3f4f6;
+        }
+        
+        .dark .fb-post-attachments {
+            background: #1e293b;
+        }
+        
+        .fb-post-attachments a {
+            display: block;
+            line-height: 0;
         }
         
         .fb-post-attachment-img {
             width: 100%;
-            max-height: 500px;
+            max-height: 200px;
             object-fit: cover;
             display: block;
+        }
+        
+        .fb-post-attachments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+            margin: 0 16px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .dark .fb-post-attachments-list {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        
+        .fb-post-attachment-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: #1e293b;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+        
+        .dark .fb-post-attachment-file {
+            color: #e2e8f0;
+            border-color: #475569;
+            background: #0f172a;
+        }
+        
+        .fb-post-attachment-file:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .dark .fb-post-attachment-file:hover {
+            background: #334155;
+            border-color: #64748b;
+        }
+        
+        .fb-post-attachment-file i {
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .fb-post-attachment-file-name {
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         /* Post Stats */
@@ -474,44 +548,64 @@
         
         .fb-post-action-btn {
             flex: 1;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 15px;
+            gap: 6px;
+            padding: 0.55rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
             font-weight: 600;
-            color: #65676b;
+            color: #4b5563;
             text-decoration: none;
-            transition: background-color 0.2s ease;
-            border: none;
-            background: none;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
             cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
         }
         
         .dark .fb-post-action-btn {
-            color: #b0b3b8;
+            color: #e5e7eb;
+            border-color: #334155;
+            background: #020617;
         }
         
         .fb-post-action-btn:hover {
-            background: #f0f2f5;
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
         }
         
         .dark .fb-post-action-btn:hover {
-            background: #3a3b3c;
+            background: #0b1120;
+            border-color: #1d4ed8;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.9);
         }
         
         .fb-post-action-btn i {
-            font-size: 20px;
+            font-size: 0.95rem;
         }
         
         .fb-post-action-btn.primary {
-            color: #1877f2;
+            background: #059669;
+            border-color: #047857;
+            color: #ffffff;
+        }
+        
+        .fb-post-action-btn.primary:hover {
+            background: #047857;
+            border-color: #065f46;
         }
         
         .dark .fb-post-action-btn.primary {
-            color: #4599ff;
+            background: #16a34a;
+            border-color: #22c55e;
+            color: #ecfdf3;
+        }
+        
+        .dark .fb-post-action-btn.primary:hover {
+            background: #15803d;
+            border-color: #22c55e;
         }
         
         /* Empty State */
@@ -585,6 +679,8 @@
                             $declineCount = $referendum->declineVotes()->count();
                             $totalVotes = $referendum->votes()->count();
                             $totalComments = $referendum->allComments()->count();
+                            $currentUserId = auth()->id();
+                            $userVote = $currentUserId ? $referendum->votes->firstWhere('user_id', $currentUserId) : null;
                             
                             // Get creator profile picture
                             $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->first_name . ' ' . $referendum->creator->last_name) . '&size=80&background=1877f2&color=fff';
@@ -595,17 +691,26 @@
                                 }
                             }
                             
-                            // Get first image attachment for preview
+                            // Get first image and all PDF/other attachments for preview
                             $firstImage = null;
+                            $pdfAttachments = [];
+                            $otherAttachments = [];
                             if ($referendum->attachments && count($referendum->attachments) > 0) {
                                 foreach ($referendum->attachments as $attachmentId) {
                                     $attachmentMedia = \App\Models\MediaLibrary::find($attachmentId);
-                                    if ($attachmentMedia && str_starts_with($attachmentMedia->file_type, 'image/')) {
-                                        $firstImage = asset('storage/' . $attachmentMedia->file_path);
-                                        break;
+                                    if (!$attachmentMedia) continue;
+                                    if (str_starts_with($attachmentMedia->file_type, 'image/')) {
+                                        if ($firstImage === null) {
+                                            $firstImage = asset('storage/' . $attachmentMedia->file_path);
+                                        }
+                                    } elseif (Str::endsWith(strtolower($attachmentMedia->file_name), '.pdf') || $attachmentMedia->file_type === 'application/pdf') {
+                                        $pdfAttachments[] = $attachmentMedia;
+                                    } else {
+                                        $otherAttachments[] = $attachmentMedia;
                                     }
                                 }
                             }
+                            $hasNonImageAttachments = count($pdfAttachments) > 0 || count($otherAttachments) > 0;
                         @endphp
                         
                         <div class="fb-post-card">
@@ -667,7 +772,7 @@
                                     </a>
                                 </h2>
                                 <div class="fb-post-text">
-                                    {{ Str::limit(strip_tags($referendum->content), 300) }}@if(strlen(strip_tags($referendum->content)) > 300) <a href="{{ route('referendums.show', $referendum->id) }}" class="fb-see-more-link">See more...</a>@endif
+                                    {!! Str::limit(strip_tags($referendum->content), 300) !!}@if(strlen(strip_tags($referendum->content)) > 300) <a href="{{ route('referendums.show', $referendum->id) }}" class="fb-see-more-link">See more...</a>@endif
                                 </div>
                             </div>
                             
@@ -677,6 +782,24 @@
                                     <a href="{{ route('referendums.show', $referendum->id) }}">
                                         <img src="{{ $firstImage }}" alt="Referendum attachment" class="fb-post-attachment-img">
                                     </a>
+                                </div>
+                            @endif
+                            
+                            <!-- Post Attachment (PDFs / other files) -->
+                            @if($hasNonImageAttachments)
+                                <div class="fb-post-attachments-list">
+                                    @foreach($pdfAttachments as $media)
+                                        <a href="{{ asset('storage/' . $media->file_path) }}" target="_blank" rel="noopener" class="fb-post-attachment-file" title="{{ $media->file_name }}">
+                                            <i class="fas fa-file-pdf text-red-500"></i>
+                                            <span class="fb-post-attachment-file-name">{{ Str::limit($media->file_name, 24) }}</span>
+                                        </a>
+                                    @endforeach
+                                    @foreach($otherAttachments as $media)
+                                        <a href="{{ asset('storage/' . $media->file_path) }}" target="_blank" rel="noopener" class="fb-post-attachment-file" title="{{ $media->file_name }}">
+                                            <i class="fas fa-file-alt text-gray-500"></i>
+                                            <span class="fb-post-attachment-file-name">{{ Str::limit($media->file_name, 24) }}</span>
+                                        </a>
+                                    @endforeach
                                 </div>
                             @endif
                             
@@ -699,6 +822,22 @@
                                         @endphp
                                         <div class="fb-vote-bar-fill" style="width: {{ $acceptPercent }}%"></div>
                                     </div>
+                                </div>
+                            @endif
+
+                            @if($userVote)
+                                <div class="mt-2 text-xs text-blue-700 dark:text-blue-300 px-4">
+                                    You voted:
+                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ ucfirst($userVote->vote) }}
+                                    </span>
+                                    <span class="text-blue-700/80 dark:text-blue-300/80">
+                                        • You can change this vote while the referendum is active.
+                                    </span>
+                                </div>
+                            @elseif(!$isExpired)
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 px-4">
+                                    You have not voted on this referendum yet.
                                 </div>
                             @endif
                             
@@ -725,7 +864,7 @@
                             <div class="fb-post-actions">
                                 <a href="{{ route('referendums.show', $referendum->id) }}" class="fb-post-action-btn primary">
                                     <i class="fas fa-vote-yea"></i>
-                                    <span>Vote</span>
+                                    <span>{{ $userVote ? 'Change Vote' : 'Vote' }}</span>
                                 </a>
                                 <a href="{{ route('referendums.show', $referendum->id) }}#comments" class="fb-post-action-btn">
                                     <i class="fas fa-comment"></i>

@@ -17,11 +17,12 @@
     <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between w-full min-h-[56px]">
             <div class="flex items-center gap-4">
-                <a href="{{ route('landing') }}" class="flex items-center">
-                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Agency Logo" class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
+                <a href="https://ddb.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex items-center">
+                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Dangerous Drugs Board (DDB) Official Website" class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
                 </a>
             </div>
-            <div class="hidden md:flex items-center space-x-4 xl:space-x-6 flex-shrink-0 self-center">
+            <!-- Desktop navigation (xl and up) -->
+            <div class="hidden xl:flex items-center space-x-4 xl:space-x-6 flex-shrink-0 self-center">
                 @php
                     $currentRoute = request()->route()->getName();
                     $isAuthPage = in_array($currentRoute, ['login', 'register']);
@@ -131,7 +132,8 @@
                     <a href="/register" class="inline-flex items-center justify-center min-h-[44px] px-4 md:px-5 py-2.5 text-sm font-medium rounded-full text-white hover:shadow-lg transition whitespace-nowrap" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Register</a>
                 @endauth
             </div>
-            <div class="flex items-center space-x-2 md:hidden flex-shrink-0">
+            <!-- Mobile / tablet actions + hamburger (below xl, incl. 768 & 1024) -->
+            <div class="flex items-center space-x-2 xl:hidden flex-shrink-0">
                 @auth
                     <!-- Notifications Icon (Mobile) -->
                     <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
@@ -153,8 +155,8 @@
             </div>
         </div>
     </div>
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
+    <!-- Mobile / Tablet Menu (shown via JS toggle below xl) -->
+    <div id="mobileMenu" class="hidden xl:hidden bg-white dark:bg-[#0F172A] border-t border-gray-200 dark:border-gray-800">
         <div class="container mx-auto px-4 py-4 space-y-3">
             @php
                 $currentRoute = request()->route()->getName();

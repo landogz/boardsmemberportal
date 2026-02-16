@@ -27,6 +27,9 @@ class AnnouncementController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view announcements.');
         }
 
+        // Auto-publish any draft announcements whose scheduled_at is now or in the past
+        \App\Models\Announcement::autoPublishScheduled();
+
         $announcements = Announcement::with(['creator', 'bannerImage', 'allowedUsers'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
@@ -75,6 +78,7 @@ class AnnouncementController extends Controller
             'allowed_users.*' => 'exists:users,id',
             'status' => 'nullable|in:draft,published',
             'scheduled_at' => 'nullable|date',
+            'category' => 'required|in:public,board_member_activities',
         ], [
             'title.required' => 'The title field is required.',
             'description.required' => 'The description field is required.',
@@ -124,6 +128,7 @@ class AnnouncementController extends Controller
                 'created_by' => Auth::id(),
                 'status' => $finalStatus,
                 'scheduled_at' => $validated['scheduled_at'] ?? null,
+                'category' => $validated['category'],
             ]);
 
             // Attach allowed users
@@ -146,11 +151,12 @@ class AnnouncementController extends Controller
                             ->first();
                         
                         if (!$existingNotification) {
+                            $categoryLabel = $announcement->category_label ?? 'Announcement';
                             Notification::create([
                                 'user_id' => $user->id,
                                 'type' => 'announcement',
-                                'title' => 'New Announcement',
-                                'message' => 'A new announcement "' . $announcement->title . '" has been published.',
+                                'title' => 'New ' . $categoryLabel,
+                                'message' => 'A new ' . strtolower($categoryLabel) . ' "' . $announcement->title . '" has been published.',
                                 'url' => route('announcements.show', $announcement->id),
                                 'data' => [
                                     'announcement_id' => $announcement->id,
@@ -259,6 +265,7 @@ class AnnouncementController extends Controller
             'allowed_users.*' => 'exists:users,id',
             'status' => 'nullable|in:draft,published',
             'scheduled_at' => 'nullable|date',
+            'category' => 'required|in:public,board_member_activities',
         ], [
             'title.required' => 'The title field is required.',
             'description.required' => 'The description field is required.',
@@ -321,6 +328,7 @@ class AnnouncementController extends Controller
                 'banner_image_id' => $bannerImageId,
                 'status' => $finalStatus,
                 'scheduled_at' => $validated['scheduled_at'],
+                'category' => $validated['category'],
             ]);
 
             // Get previous allowed users
@@ -348,11 +356,12 @@ class AnnouncementController extends Controller
                             ->first();
                         
                         if (!$existingNotification) {
+                            $categoryLabel = $announcement->category_label ?? 'Announcement';
                             Notification::create([
                                 'user_id' => $user->id,
                                 'type' => 'announcement',
-                                'title' => 'New Announcement',
-                                'message' => 'A new announcement "' . $announcement->title . '" has been published.',
+                                'title' => 'New ' . $categoryLabel,
+                                'message' => 'A new ' . strtolower($categoryLabel) . ' "' . $announcement->title . '" has been published.',
                                 'url' => route('announcements.show', $announcement->id),
                                 'data' => [
                                     'announcement_id' => $announcement->id,

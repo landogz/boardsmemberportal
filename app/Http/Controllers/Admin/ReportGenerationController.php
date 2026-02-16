@@ -50,8 +50,26 @@ class ReportGenerationController extends Controller
             ->orderBy('year', 'desc')
             ->pluck('year')
             ->toArray();
+
+        // Distinct years from approved_date in Board Regulations and Board Resolutions (PHP so it works with any DB driver)
+        $regulationYears = BoardRegulation::whereNotNull('approved_date')
+            ->get()
+            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $resolutionYears = OfficialDocument::whereNotNull('approved_date')
+            ->get()
+            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $regulationResolutionYears = array_values(array_unique(array_merge($regulationYears, $resolutionYears)));
+        rsort($regulationResolutionYears);
         
-        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices', 'availableYears'));
+        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears'));
     }
 
     /**
@@ -75,17 +93,14 @@ class ReportGenerationController extends Controller
             case 'notices':
                 $query = Notice::with(['creator', 'allowedUsers']);
                 
-                if ($dateFrom) {
-                    $query->where('created_at', '>=', $dateFrom);
+                // Date range (use notice_date_from / notice_date_to when set, else date_from / date_to)
+                $noticeDateFrom = $request->input('notice_date_from') ? Carbon::parse($request->input('notice_date_from'))->startOfDay() : $dateFrom;
+                $noticeDateTo = $request->input('notice_date_to') ? Carbon::parse($request->input('notice_date_to'))->endOfDay() : $dateTo;
+                if ($noticeDateFrom) {
+                    $query->where('created_at', '>=', $noticeDateFrom);
                 }
-                if ($dateTo) {
-                    $query->where('created_at', '<=', $dateTo);
-                }
-                if ($request->input('notice_type')) {
-                    $query->where('notice_type', $request->input('notice_type'));
-                }
-                if ($request->input('meeting_type')) {
-                    $query->where('meeting_type', $request->input('meeting_type'));
+                if ($noticeDateTo) {
+                    $query->where('created_at', '<=', $noticeDateTo);
                 }
                 if ($request->input('search')) {
                     $search = $request->input('search');
@@ -127,8 +142,13 @@ class ReportGenerationController extends Controller
                 if ($dateTo) {
                     $query->where('created_at', '<=', $dateTo);
                 }
-                if ($request->input('uploaded_by') && $request->input('uploaded_by') !== '') {
-                    $query->where('uploaded_by', $request->input('uploaded_by'));
+                if ($request->filled('year')) {
+                    $year = (int) $request->input('year');
+                    $query->whereNotNull('approved_date')
+                        ->whereBetween('approved_date', [
+                            Carbon::create($year, 1, 1)->startOfDay()->toDateString(),
+                            Carbon::create($year, 12, 31)->endOfDay()->toDateString(),
+                        ]);
                 }
                 if ($request->input('search')) {
                     $search = $request->input('search');
@@ -151,8 +171,13 @@ class ReportGenerationController extends Controller
                 if ($dateTo) {
                     $query->where('created_at', '<=', $dateTo);
                 }
-                if ($request->input('uploaded_by') && $request->input('uploaded_by') !== '') {
-                    $query->where('uploaded_by', $request->input('uploaded_by'));
+                if ($request->filled('year')) {
+                    $year = (int) $request->input('year');
+                    $query->whereNotNull('approved_date')
+                        ->whereBetween('approved_date', [
+                            Carbon::create($year, 1, 1)->startOfDay()->toDateString(),
+                            Carbon::create($year, 12, 31)->endOfDay()->toDateString(),
+                        ]);
                 }
                 if ($request->input('search')) {
                     $search = $request->input('search');
@@ -300,14 +325,16 @@ class ReportGenerationController extends Controller
                 ];
                 
                 // Group attendees by agency
+                // All registered users (system) → ATTENDEES WHO ARE MEMBERS OF THE BOARD; CC emails only → Other Attendees
                 $agenciesData = [];
-                
-                // Process registered users (from attendance confirmations)
+                $userIdsWithConfirmation = $acceptedConfirmations->pluck('user_id')->all();
+
+                // Process registered users from attendance confirmations (all go to board_members, with attendance_mode for hybrid)
                 foreach ($acceptedConfirmations as $confirmation) {
                     $user = $confirmation->user;
                     $agencyId = $user->government_agency_id ?? 0;
                     $agencyName = $user->governmentAgency->name ?? 'Unknown Agency';
-                    
+
                     if (!isset($agenciesData[$agencyId])) {
                         $agenciesData[$agencyId] = [
                             'agency_id' => $agencyId,
@@ -317,38 +344,36 @@ class ReportGenerationController extends Controller
                             'remarks' => $nomNotice->meeting_type === 'onsite' ? 'Face to face' : ucfirst($nomNotice->meeting_type)
                         ];
                     }
-                    
-                    // Only Board Members go to board_members, others go to other_attendees
-                    if ($user->representative_type === 'Board Member') {
-                        $agenciesData[$agencyId]['board_members'][] = $user;
-                    } else {
-                        $agenciesData[$agencyId]['other_attendees'][] = $user;
-                    }
+
+                    $attendanceMode = $nomNotice->meeting_type === 'hybrid' ? ($confirmation->attendance_mode ?? null) : null;
+                    $agenciesData[$agencyId]['board_members'][] = [
+                        'user' => $user,
+                        'attendance_mode' => $attendanceMode,
+                    ];
                 }
-                
-                // Also include users who are in allowedUsers but don't have attendance confirmation yet
+
+                // Include allowedUsers who have no attendance confirmation yet (all go to board_members)
                 foreach ($nomNotice->allowedUsers as $user) {
-                    $hasConfirmation = $acceptedConfirmations->where('user_id', $user->id)->first();
-                    if (!$hasConfirmation) {
-                        $agencyId = $user->government_agency_id ?? 0;
-                        $agencyName = $user->governmentAgency->name ?? 'Unknown Agency';
-                        
-                        if (!isset($agenciesData[$agencyId])) {
-                            $agenciesData[$agencyId] = [
-                                'agency_id' => $agencyId,
-                                'agency_name' => $agencyName,
-                                'board_members' => [],
-                                'other_attendees' => [],
-                                'remarks' => $nomNotice->meeting_type === 'onsite' ? 'Face to face' : ucfirst($nomNotice->meeting_type)
-                            ];
-                        }
-                        
-                        if ($user->representative_type === 'Board Member') {
-                            $agenciesData[$agencyId]['board_members'][] = $user;
-                        } else {
-                            $agenciesData[$agencyId]['other_attendees'][] = $user;
-                        }
+                    if (in_array($user->id, $userIdsWithConfirmation)) {
+                        continue;
                     }
+                    $agencyId = $user->government_agency_id ?? 0;
+                    $agencyName = $user->governmentAgency->name ?? 'Unknown Agency';
+
+                    if (!isset($agenciesData[$agencyId])) {
+                        $agenciesData[$agencyId] = [
+                            'agency_id' => $agencyId,
+                            'agency_name' => $agencyName,
+                            'board_members' => [],
+                            'other_attendees' => [],
+                            'remarks' => $nomNotice->meeting_type === 'onsite' ? 'Face to face' : ucfirst($nomNotice->meeting_type)
+                        ];
+                    }
+
+                    $agenciesData[$agencyId]['board_members'][] = [
+                        'user' => $user,
+                        'attendance_mode' => null,
+                    ];
                 }
                 
                 // Process CC emails (non-registered users)
@@ -608,7 +633,25 @@ class ReportGenerationController extends Controller
             ->pluck('year')
             ->toArray();
 
-        return view('admin.report-generation.index', compact('results', 'reportType', 'filters', 'users', 'notices', 'nomNotices', 'availableYears'));
+        // Distinct years for Board Regulations/Resolutions year dropdown (so it stays populated and selected after search)
+        $regulationYears = BoardRegulation::whereNotNull('approved_date')
+            ->get()
+            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $resolutionYears = OfficialDocument::whereNotNull('approved_date')
+            ->get()
+            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $regulationResolutionYears = array_values(array_unique(array_merge($regulationYears, $resolutionYears)));
+        rsort($regulationResolutionYears);
+
+        return view('admin.report-generation.index', compact('results', 'reportType', 'filters', 'users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears'));
     }
 }
 

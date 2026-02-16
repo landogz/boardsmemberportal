@@ -15,6 +15,7 @@ class AttendanceConfirmation extends Model
         'notice_id',
         'user_id',
         'status',
+        'attendance_mode',
         'declined_reason',
     ];
 

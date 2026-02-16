@@ -15,8 +15,11 @@
 @endphp
 
 @push('styles')
+<script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+    .ck-editor__editable { min-height: 280px; }
+    #cke_notifications_area_content, .cke_notifications_area { display: none !important; visibility: hidden !important; }
     .user-select-item {
         padding: 0.5rem;
         border: 1px solid #e5e7eb;
@@ -320,6 +323,26 @@
         defaultMinute: 59
     });
 
+    // Initialize CKEditor for content
+    if (typeof CKEDITOR !== 'undefined') {
+        CKEDITOR.replace('content', {
+            height: 280,
+            toolbar: [
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+                { name: 'links', items: ['Link', 'Unlink'] },
+                { name: 'insert', items: ['Table', 'HorizontalRule'] },
+                { name: 'styles', items: ['Format', 'FontSize'] },
+                { name: 'colors', items: ['TextColor', 'BGColor'] },
+                { name: 'tools', items: ['Source', 'Maximize'] }
+            ],
+            filebrowserBrowseUrl: '{{ route("admin.media-library.browse") }}',
+            removePlugins: 'elementspath',
+            resize_enabled: false,
+            format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address;div'
+        });
+    }
+
     // Initialize uploaded attachment IDs from existing attachments
     let uploadedAttachmentIds = @json($referendum->attachments ?? []);
 
@@ -569,6 +592,9 @@
         submitBtnText.classList.add('hidden');
         submitBtnLoader.classList.remove('hidden');
 
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.content) {
+            CKEDITOR.instances.content.updateElement();
+        }
         const formData = new FormData();
         formData.append('title', document.getElementById('title').value.trim());
         formData.append('content', document.getElementById('content').value.trim());

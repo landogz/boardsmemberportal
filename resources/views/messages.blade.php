@@ -99,13 +99,7 @@
                 display: flex !important;
                 overflow: hidden;
             }
-            /* Keep both visible on tablet */
-            #conversationsList.mobile-hidden {
-                display: flex !important;
-            }
-            #chatArea.hidden {
-                display: flex !important;
-            }
+            /* When a chat is opened on tablet, we allow mobile-style full-screen chat via .mobile-visible (see max-width: 1024px rules below) */
             /* Better spacing for conversation items */
             .conversation-item {
                 padding: 1rem 0.875rem;
@@ -169,13 +163,7 @@
                 flex: 1;
                 display: flex !important;
             }
-            /* Keep both visible on laptop */
-            #conversationsList.mobile-hidden {
-                display: flex !important;
-            }
-            #chatArea.hidden {
-                display: flex !important;
-            }
+            /* When a chat is opened on laptop (1024px), we allow mobile-style full-screen chat via .mobile-visible (see max-width: 1024px rules below) */
             /* Better spacing for conversation items */
             .conversation-item {
                 padding: 0.875rem 1rem;
@@ -198,7 +186,16 @@
                 max-width: 70%;
             }
         }
-        /* Mobile (below 768px) */
+        /* Mobile & narrow screens (up to 1024px): enable mobile-style split behavior */
+        @media (max-width: 1024px) {
+            #conversationsList.mobile-hidden {
+                display: none !important;
+            }
+            #chatArea.mobile-visible {
+                display: flex !important;
+            }
+        }
+        /* Mobile (below 768px) height tweaks */
         @media (max-width: 767px) {
             .messages-page-container {
                 height: calc(100vh - 60px);
@@ -364,8 +361,8 @@
                 height: 100% !important;
             }
         }
-        /* Tablet portrait - fit to screen */
-        @media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+        /* Tablet portrait - fit to screen (treat <=1023px as tablet; 1024px uses desktop popup) */
+        @media (min-width: 641px) and (max-width: 1023px) and (orientation: portrait) {
             .emoji-picker-popup {
                 max-width: calc(100vw - 32px) !important;
                 max-height: calc(100vh - 150px) !important;
@@ -403,13 +400,13 @@
                 height: 100% !important;
             }
         }
-        /* Tablet landscape (e.g., 768x320, 1024x768) - fit to screen */
-        @media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+        /* Tablet landscape (e.g., up to 1023px width) - fit to screen; 1024px uses desktop popup */
+        @media (min-width: 641px) and (max-width: 1023px) and (orientation: landscape) {
             .emoji-picker-popup {
                 width: calc(100vw - 102px) !important;
-                height: calc(100vh - 80px) !important;
+                height: calc(100vh - 150px) !important;
                 max-width: calc(100vw - 32px) !important;
-                max-height: calc(100vh - 80px) !important;
+                max-height: calc(100vh - 150px) !important;
                 display: flex !important;
                 flex-direction: column !important;
             }
@@ -979,14 +976,14 @@
             }
         }
         /* Alternative method for browsers that don't support :has() */
-        @media (max-width: 767px) {
+        @media (max-width: 1024px) {
             body.header-hidden-mobile .top-bar,
             body.header-hidden-mobile nav {
                 display: none !important;
             }
         }
-        /* Mobile landscape - hide header and footer */
-        @media (max-width: 896px) and (orientation: landscape) {
+        /* Mobile / tablet landscape - hide header and footer */
+        @media (max-width: 1024px) and (orientation: landscape) {
             body.header-hidden-mobile .top-bar,
             body.header-hidden-mobile nav {
                 display: none !important;
@@ -1186,8 +1183,8 @@
                         <div class="sticky top-0 z-20 flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                                    <!-- Back button for mobile -->
-                                    <button id="backToConversations" class="lg:hidden mr-2 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0" aria-label="Back to conversations">
+                                    <!-- Back button for mobile / tablet / small laptop -->
+                                    <button id="backToConversations" class="xl:hidden mr-2 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0" aria-label="Back to conversations">
                                         <i class="fas fa-arrow-left text-lg"></i>
                                     </button>
                                     <div id="chatHeaderAvatar" class="relative flex-shrink-0">
@@ -1922,10 +1919,9 @@
             window.addEventListener('resize', function() {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(function() {
-                    // On desktop/tablet, ensure both are visible and header is shown
-                    const isMobilePortrait = window.innerWidth <= 767;
-                    const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
-                    if (!isMobilePortrait && !isMobileLandscape) {
+                    // On wide desktop (> 1024px), ensure both are visible and header is shown
+                    const isWideDesktop = window.innerWidth > 1024;
+                    if (isWideDesktop) {
                         const conversationsList = document.getElementById('conversationsList');
                         const chatArea = document.getElementById('chatArea');
                         if (conversationsList) {
@@ -1940,7 +1936,7 @@
                         // Always show header on desktop
                         document.body.classList.remove('header-hidden-mobile');
                     } else {
-                        // On mobile, ensure action buttons are visible
+                        // On mobile / tablet / small laptop, ensure action buttons are visible
                         makeActionButtonsVisible();
                     }
                 }, 250);
@@ -2363,9 +2359,9 @@
                     }
                     if (chatArea) {
                         chatArea.classList.remove('mobile-visible');
-                        const isMobilePortrait = window.innerWidth <= 767;
-                        const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
-                        if (isMobilePortrait || isMobileLandscape) {
+                        const viewportWidth = window.innerWidth;
+                        const isMobileOrNarrow = viewportWidth <= 1024;
+                        if (isMobileOrNarrow) {
                             chatArea.classList.add('hidden');
                         }
                     }
@@ -2383,12 +2379,8 @@
                         messageInputContainer.style.display = 'none';
                     }
                     
-                    // Show header again when going back to conversations on mobile
-                    const isMobilePortrait = window.innerWidth <= 767;
-                    const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
-                    if (isMobilePortrait || isMobileLandscape) {
-                        document.body.classList.remove('header-hidden-mobile');
-                    }
+                    // Show header again when going back to conversations
+                    document.body.classList.remove('header-hidden-mobile');
                     
                     currentChatUserId = null;
                 });
@@ -3776,13 +3768,15 @@
                 }
             });
             
-            // Mobile: Hide conversations list, show chat area, hide header
+            // Mobile / tablet / small laptop: hide conversations list, show chat area and hide header
             const conversationsList = document.getElementById('conversationsList');
             const chatArea = document.getElementById('chatArea');
-            const isMobilePortrait = window.innerWidth <= 767;
-            const isMobileLandscape = window.innerWidth <= 896 && window.innerWidth > window.innerHeight;
+            const viewportWidth = window.innerWidth;
+            const isMobilePortrait = viewportWidth <= 767;
+            const isMobileLandscape = viewportWidth <= 896 && viewportWidth > window.innerHeight;
+            const isTabletOrSmallLaptop = viewportWidth <= 1024;
             
-            if (isMobilePortrait || isMobileLandscape) {
+            if (isTabletOrSmallLaptop) {
                 if (conversationsList) {
                     conversationsList.classList.add('mobile-hidden');
                 }
@@ -3790,7 +3784,7 @@
                     chatArea.classList.add('mobile-visible');
                     chatArea.classList.remove('hidden');
                 }
-                // Hide header on mobile (portrait and landscape) when chat is open
+                // Hide global header/navigation up to 1024px when chat is open
                 document.body.classList.add('header-hidden-mobile');
             }
             

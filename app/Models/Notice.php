@@ -18,6 +18,7 @@ class Notice extends Model
         'related_notice_id',
         'meeting_type',
         'meeting_link',
+        'venue',
         'meeting_date',
         'meeting_time',
         'no_of_attendees',

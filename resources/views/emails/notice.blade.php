@@ -360,6 +360,12 @@
                                         <a href="{{ $notice->meeting_link }}" class="meeting-link" target="_blank">{{ $notice->meeting_link }}</a>
                                     </div>
                                     @endif
+                                    @if(in_array($notice->meeting_type, ['onsite', 'hybrid']) && $notice->venue)
+                                    <div class="notice-detail-row" style="margin-top: 12px;">
+                                        <span class="notice-detail-label">Venue:</span>
+                                        <span class="notice-detail-value">{{ $notice->venue }}</span>
+                                    </div>
+                                    @endif
                                     @if($notice->attachments && count($notice->attachments) > 0)
                                     <div class="notice-detail-row" style="margin-top: 20px;">
                                         <span class="notice-detail-label">Attachments:</span>

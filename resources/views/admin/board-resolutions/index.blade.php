@@ -82,8 +82,9 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Version</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Effective Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PDF</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -98,11 +99,14 @@
                                 <div class="text-xs text-gray-500 mt-1">{{ Str::limit($document->description, 60) }}</div>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden">
                             <div class="text-sm text-gray-500">{{ $document->version ?? 'N/A' }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden">
                             <div class="text-sm text-gray-900">{{ $document->effective_date ? $document->effective_date->format('M d, Y') : 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ $document->approved_date ? $document->approved_date->format('M d, Y') : 'N/A' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($document->uploader)
@@ -146,16 +150,20 @@
                                 <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $document->id }}">
                                     <div class="py-1" role="menu">
                                         @can('edit board resolutions')
+                                        <div class="hidden">
                                         <a href="{{ route('admin.board-resolutions.edit', $document->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
                                             Edit Resolution
                                         </a>
+                                        </div>
                                         @endcan
                                         @can('view board resolutions')
+                                        <div class="hidden">
                                         <a href="{{ route('admin.board-resolutions.history', $document->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem">
                                             <i class="fas fa-history w-4 mr-3 text-purple-600"></i>
                                             View History
                                         </a>
+                                        </div>
                                         @endcan
                                         @can('delete board resolutions')
                                         <button type="button" class="delete-resolution-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-document-id="{{ $document->id }}">
@@ -201,9 +209,12 @@
     $(document).ready(function() {
         @if($documents->isNotEmpty())
         $('#documentsTable').DataTable({
-            order: [[2, 'desc']], // Sort by effective date
+            order: [[0, 'asc']],
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            columnDefs: [
+                { targets: 2, visible: false }
+            ],
             language: {
                 search: "Search documents:",
                 lengthMenu: "Show _MENU_ documents per page",

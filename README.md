@@ -21,7 +21,7 @@ A modern board member portal built with Laravel 12, Tailwind CSS, Axios, and jQu
 - Permission matrix interface for role assignment
 - Individual user permission override system
 - Single-device login enforcement
-- Online status tracking with auto-logout after 30 minutes of inactivity
+- Online status tracking with auto-logout after 15 minutes of inactivity
 - Session management and activity tracking
 
 ### 👥 User Management

@@ -75,7 +75,6 @@
                             <option value="">Select Notice Type</option>
                             <option value="Notice of Meeting">Notice of Meeting</option>
                             <option value="Agenda">Agenda</option>
-                            <option value="Board Issuances">Board Issuances</option>
                             <option value="Other Matters">Other Matters</option>
                         </select>
                         <span class="text-red-500 text-sm hidden" id="notice_type-error"></span>
@@ -126,6 +125,19 @@
                             <option value="hybrid">Hybrid</option>
                         </select>
                         <span class="text-red-500 text-sm hidden" id="meeting_type-error"></span>
+                    </div>
+
+                    <!-- Venue (Only for Onsite/Hybrid) -->
+                    <div id="venueContainer" class="hidden">
+                        <label for="venue" class="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
+                        <input 
+                            type="text" 
+                            id="venue" 
+                            name="venue" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                            placeholder="Enter meeting venue (e.g., building, room)"
+                        >
+                        <span class="text-red-500 text-sm hidden" id="venue-error"></span>
                     </div>
 
                     <!-- Meeting Link (Only for Online/Hybrid) -->
@@ -567,21 +579,36 @@
             $('#title').val(noticeTitle);
         });
 
-        // Handle meeting type change
-        $('#meeting_type').on('change', function() {
-            const meetingType = $(this).val();
+        // Handle meeting type change: venue for onsite/hybrid, meeting link for online/hybrid
+        function toggleMeetingTypeFields() {
+            const meetingType = $('#meeting_type').val();
+            const venueContainer = $('#venueContainer');
+            const venueInput = $('#venue');
             const meetingLinkContainer = $('#meetingLinkContainer');
             const meetingLinkInput = $('#meeting_link');
 
-            if (meetingType === 'online' || meetingType === 'hybrid') {
+            if (meetingType === 'online') {
+                venueContainer.hide();
+                venueInput.prop('required', false);
+                venueInput.val('');
                 meetingLinkContainer.show();
                 meetingLinkInput.prop('required', true);
-            } else {
+            } else if (meetingType === 'onsite') {
+                venueContainer.show();
+                venueInput.prop('required', true);
                 meetingLinkContainer.hide();
                 meetingLinkInput.prop('required', false);
                 meetingLinkInput.val('');
+            } else {
+                // hybrid: show both
+                venueContainer.show();
+                venueInput.prop('required', true);
+                meetingLinkContainer.show();
+                meetingLinkInput.prop('required', true);
             }
-        });
+        }
+        $('#meeting_type').on('change', toggleMeetingTypeFields);
+        toggleMeetingTypeFields(); // initial state
 
         // Search functionality for Board Regulations
         $('#boardRegulationsSearch').on('keyup', function() {
@@ -973,12 +1000,19 @@
             }
         }
 
-        // Validate meeting type and link
+        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid)
         const meetingType = $('#meeting_type').val();
         if (meetingType === 'online' || meetingType === 'hybrid') {
             const meetingLink = $('#meeting_link').val().trim();
             if (!meetingLink) {
                 $('#meeting_link-error').text('Please enter a meeting link.').removeClass('hidden');
+                return;
+            }
+        }
+        if (meetingType === 'onsite' || meetingType === 'hybrid') {
+            const venue = $('#venue').val().trim();
+            if (!venue) {
+                $('#venue-error').text('Please enter the venue.').removeClass('hidden');
                 return;
             }
         }

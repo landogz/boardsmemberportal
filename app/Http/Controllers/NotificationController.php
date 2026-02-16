@@ -174,12 +174,15 @@ class NotificationController extends Controller
 
         $query = Notification::where('user_id', Auth::id());
 
-        // Apply filters
+        // Apply read/unread filters
         if ($filter === 'unread') {
             $query->where('is_read', false);
         } elseif ($filter === 'read') {
             $query->where('is_read', true);
         }
+
+        // For the admin notifications page, only show announcement + notice related items
+        $query->whereIn('type', ['announcement', 'notice']);
 
         $notifications = $query->orderBy('created_at', 'desc')
             ->paginate(20);

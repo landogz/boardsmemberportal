@@ -370,7 +370,7 @@
                             >
                                 <option value="">Select Type</option>
                                 <option value="Board Member">Board Member</option>
-                                <option value="Authorized Representative">Authorized Representative</option>
+                                <option value="Authorized Representative">Authorized Representative/Ex-Officio Member</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="representative_type-error"></span>
                         </div>

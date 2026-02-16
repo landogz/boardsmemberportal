@@ -1,36 +1,77 @@
 <!-- Global PDF Viewer Modal - Full Screen -->
-<div id="globalPdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="display: none;">
-    <div class="bg-white w-full h-full overflow-hidden flex flex-col">
+<div id="globalPdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-0 sm:p-4" style="display: none;">
+    <div class="bg-white w-full h-full sm:max-h-[95vh] sm:rounded-lg overflow-hidden flex flex-col max-h-[100dvh]">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 bg-gray-50">
-            <h3 id="globalPdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800">PDF Viewer</h3>
-            <button onclick="closeGlobalPdfModal()" class="text-gray-500 hover:text-gray-700 p-2">
+        <div class="flex-shrink-0 flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 bg-gray-50">
+            <h3 id="globalPdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 truncate pr-2">PDF Viewer</h3>
+            <button onclick="closeGlobalPdfModal()" class="text-gray-500 hover:text-gray-700 p-2 flex-shrink-0">
                 <i class="fas fa-times text-xl lg:text-2xl"></i>
             </button>
         </div>
         
-        <!-- PDF Viewer - Full Screen -->
-        <div class="flex-1 overflow-hidden p-4 lg:p-6 relative">
-            <div id="pdfViewerContainer" class="w-full h-full border border-gray-300 rounded-lg relative overflow-hidden">
-                <iframe id="globalPdfViewer" src="" class="w-full h-full" frameborder="0" style="clip-path: inset(56px 0 0 0); margin-top: -56px; height: calc(100% + 56px);"></iframe>
+        <!-- PDF Viewer - scrollable on tablet/mobile -->
+        <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 lg:p-6 relative pdf-modal-scroll-area">
+            <div id="pdfViewerContainer" class="w-full border border-gray-300 rounded-lg relative overflow-hidden pdf-viewer-container">
+                <!-- Tap overlay: on mobile/tablet iOS/Android often block iframe touch until "activated". One tap removes this so the iframe receives touch. -->
+                <div id="pdfTapOverlay" class="pdf-tap-overlay absolute inset-0 z-10 flex items-center justify-center bg-gray-100/90 cursor-pointer select-none" style="touch-action: none;">
+                    <div class="text-center px-6 py-4 rounded-lg bg-white/95 shadow-lg border border-gray-200">
+                        <p class="text-gray-700 font-medium mb-1">Tap to scroll PDF</p>
+                        <p class="text-sm text-gray-500">Touch the viewer below to scroll</p>
+                    </div>
+                </div>
+                <iframe id="globalPdfViewer" src="" class="w-full pdf-iframe" frameborder="0" scrolling="yes" style="position: relative; top: 100px; height: 100%;"></iframe>
             </div>
         </div>
         
         <style>
+            /* Scrollable area for tablet/mobile - smooth touch scrolling */
+            .pdf-modal-scroll-area {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            /* Minimum height so iframe gets a real height and PDF can scroll inside on mobile/tablet */
+            .pdf-viewer-container {
+                position: relative;
+                overflow: hidden;
+                min-height: 70vh;
+                height: 70vh;
+            }
+            @media (min-width: 1024px) {
+                .pdf-viewer-container {
+                    min-height: 100%;
+                    height: 100%;
+                }
+            }
+            #globalPdfViewer {
+                display: block;
+                min-height: calc(70vh + 56px);
+                height: calc(100% + 56px);
+            }
+            @media (min-width: 1024px) {
+                #globalPdfViewer {
+                    min-height: calc(100% + 56px);
+                }
+            }
             /* Hide PDF viewer title by clipping the top portion of the iframe */
             #pdfViewerContainer {
                 position: relative;
                 overflow: hidden;
             }
             
-            #globalPdfViewer {
-                /* Clip the top 56px where the title appears */
-                clip-path: inset(56px 0 0 0);
-                -webkit-clip-path: inset(56px 0 0 0);
-                /* Shift the iframe up to hide the title area */
-                margin-top: -56px;
-                /* Increase height to compensate for the shift */
-                height: calc(100% + 56px);
+            /* Allow touch events to reach iframe for scrolling on iOS/Android */
+            .pdf-viewer-container iframe {
+                touch-action: pan-y pinch-zoom;
+                pointer-events: auto;
+            }
+            /* Show tap overlay only on touch devices (mobile/tablet) */
+            .pdf-tap-overlay {
+                display: flex;
+            }
+            /* Treat up to 1279px as tablet (keep tap overlay for 1024 widths) */
+            @media (min-width: 1280px) {
+                .pdf-tap-overlay {
+                    display: none !important;
+                }
             }
         </style>
         
@@ -171,6 +212,16 @@
         // Set new tab link
         viewNewTabLink.href = absoluteUrl;
         viewNewTabLink.setAttribute('data-pdf-modal', 'false'); // Prevent interception
+        
+        // Show tap overlay on mobile/tablet so first tap "activates" the iframe for touch scrolling
+        const tapOverlay = document.getElementById('pdfTapOverlay');
+        if (tapOverlay) {
+            tapOverlay.style.display = '';
+            tapOverlay.onclick = null;
+            tapOverlay.ontouchend = null;
+            tapOverlay.onclick = function() { tapOverlay.style.display = 'none'; tapOverlay.onclick = null; tapOverlay.ontouchend = null; };
+            tapOverlay.ontouchend = function(e) { e.preventDefault(); tapOverlay.style.display = 'none'; tapOverlay.onclick = null; tapOverlay.ontouchend = null; };
+        }
         
         // Show modal
         modal.classList.remove('hidden');

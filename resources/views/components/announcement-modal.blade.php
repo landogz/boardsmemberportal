@@ -36,12 +36,12 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold text-gray-900 text-lg mb-1" id="modalAuthorName"></div>
-                                <div class="text-sm text-gray-500 flex items-center space-x-2" id="modalDate">
+                                <div class="text-sm text-gray-500 flex items-center space-x-2 flex-wrap" id="modalDate">
                                     <i class="far fa-calendar-alt text-xs"></i>
                                     <span id="modalDateText"></span>
                                     <span class="mx-1">·</span>
                                     <i class="fas fa-globe-americas text-xs"></i>
-                                    <span>Public</span>
+                                    <span id="modalCategoryText">Public</span>
                                 </div>
                             </div>
                         </div>
@@ -116,14 +116,31 @@
         margin-bottom: 1.25rem;
     }
     
-    #announcementModal .prose ul,
+    #announcementModal .prose ul {
+        margin-bottom: 1.25rem;
+        padding-left: 1.5rem;
+        list-style-type: disc;
+        list-style-position: outside;
+    }
+    
     #announcementModal .prose ol {
         margin-bottom: 1.25rem;
         padding-left: 1.5rem;
+        list-style-type: decimal;
+        list-style-position: outside;
+    }
+    
+    #announcementModal .prose ul ul {
+        list-style-type: circle;
+    }
+    
+    #announcementModal .prose ol ol {
+        list-style-type: lower-alpha;
     }
     
     #announcementModal .prose li {
         margin-bottom: 0.5rem;
+        display: list-item;
     }
     
     #announcementModal .prose h1,
@@ -252,6 +269,12 @@
                     // Render HTML description directly (from CKEditor, already sanitized)
                     const description = announcement.description || '';
                     document.getElementById('modalDescription').innerHTML = description;
+
+                    // Set category label in meta
+                    const categoryTextEl = document.getElementById('modalCategoryText');
+                    if (categoryTextEl) {
+                        categoryTextEl.textContent = announcement.category_label || 'Announcement';
+                    }
 
                     modalLoading.classList.add('hidden');
                     modalContent.classList.remove('hidden');

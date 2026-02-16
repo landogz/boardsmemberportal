@@ -50,7 +50,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
+                <div class="hidden">
                     <label for="version" class="block text-sm font-medium text-gray-700 mb-2">Version</label>
                     <input 
                         type="text" 
@@ -62,17 +62,9 @@
                     >
                 </div>
 
-                <div>
-                    <label for="effective_date" class="block text-sm font-medium text-gray-700 mb-2">Effective Date *</label>
-                    <input 
-                        type="date" 
-                        id="effective_date" 
-                        name="effective_date" 
-                        value="{{ $regulation->effective_date ? $regulation->effective_date->format('Y-m-d') : '' }}"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                    >
-            </div>
+                <div class="hidden">
+                    <input type="hidden" name="effective_date" value="{{ $regulation->effective_date ? $regulation->effective_date->format('Y-m-d') : '' }}">
+                </div>
 
             <div>
                     <label for="approved_date" class="block text-sm font-medium text-gray-700 mb-2">Approved Date *</label>

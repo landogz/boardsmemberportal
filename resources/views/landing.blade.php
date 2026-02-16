@@ -835,6 +835,38 @@
         </div>
     </section>
 
+    <!-- Board Member Activities Announcements Section (Logged-in users only) -->
+    <section id="board-activities-announcements" class="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-50 dark:bg-[#020617] border-t border-gray-100 dark:border-gray-800">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center sm:text-left gradient-text px-2">
+                    Board Member Activities
+                </h2>
+                <a href="{{ route('announcements.index', ['category' => 'board_member_activities']) }}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Board Member Activities
+                </a>
+            </div>
+
+            <!-- Loading State -->
+            <div id="boardActivitiesAnnouncementsLoading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-[#055498] mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400">Loading board member activities...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="boardActivitiesAnnouncementsEmpty" class="hidden text-center py-12">
+                <i class="fas fa-users text-6xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">No board member activities announcements available at this time.</p>
+            </div>
+
+            <!-- Cards -->
+            <div id="boardActivitiesAnnouncementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
+                <!-- Board Member Activities announcements will be loaded here dynamically (max 3) -->
+            </div>
+        </div>
+    </section>
+
     <!-- Professional Announcement Modal -->
     <div id="announcementModal" class="fixed inset-0 z-50 hidden overflow-y-auto" style="background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);">
         <div class="flex items-center justify-center min-h-screen px-4 py-8">
@@ -878,7 +910,7 @@
                                         <span id="modalDateText"></span>
                                         <span class="mx-1">·</span>
                                         <i class="fas fa-globe-americas text-xs"></i>
-                                        <span>Public</span>
+                                        <span id="modalCategoryText">Public</span>
                                     </div>
                                 </div>
                             </div>
@@ -1732,6 +1764,7 @@
                             const meetingDate = info.event.extendedProps.meeting_date || null;
                             const meetingTime = info.event.extendedProps.meeting_time || null;
                             const meetingLink = info.event.extendedProps.meeting_link || null;
+                            const venue = info.event.extendedProps.venue || null;
                             
                             // Build action buttons based on event type
                             let actionButton = '';
@@ -1780,6 +1813,9 @@
                                 }
                                 if (meetingLink && (meetingType === 'online' || meetingType === 'hybrid')) {
                                     noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Link:</strong> <a href="${meetingLink}" target="_blank" class="text-purple-700 hover:text-purple-900 underline break-all"><i class="fas fa-link mr-1"></i>${meetingLink}</a></p>`;
+                                }
+                                if (venue && (meetingType === 'onsite' || meetingType === 'hybrid')) {
+                                    noticeFields += `<p class="mb-2 text-sm"><strong>Venue:</strong> <span class="text-purple-700">${venue}</span></p>`;
                                 }
                                 noticeFields += '</div>';
                             }
@@ -2744,14 +2780,31 @@
             margin-bottom: 1.25rem;
         }
         
-        #announcementModal .prose ul,
+        #announcementModal .prose ul {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+        
         #announcementModal .prose ol {
             margin-bottom: 1.25rem;
             padding-left: 1.5rem;
+            list-style-type: decimal;
+            list-style-position: outside;
+        }
+        
+        #announcementModal .prose ul ul {
+            list-style-type: circle;
+        }
+        
+        #announcementModal .prose ol ol {
+            list-style-type: lower-alpha;
         }
         
         #announcementModal .prose li {
             margin-bottom: 0.5rem;
+            display: list-item;
         }
         
         #announcementModal .prose h1,
@@ -2947,15 +3000,17 @@
                 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
             }
 
-            // Load announcements for landing page
-            function loadAnnouncements() {
-                const loadingEl = document.getElementById('announcementsLoading');
-                const emptyEl = document.getElementById('announcementsEmpty');
-                const gridEl = document.getElementById('announcementsGrid');
+            // Load announcements for a specific section (by category)
+            function loadAnnouncementsForSection(options) {
+                const { loadingId, emptyId, gridId, category } = options;
+
+                const loadingEl = document.getElementById(loadingId);
+                const emptyEl = document.getElementById(emptyId);
+                const gridEl = document.getElementById(gridId);
 
                 if (!loadingEl || !emptyEl || !gridEl) return;
 
-                axios.get('{{ route("announcements.api.landing") }}', { params: { limit: 3 } })
+                axios.get('{{ route("announcements.api.landing") }}', { params: { limit: 3, category } })
                     .then(response => {
                         const announcements = response.data.announcements || [];
                         
@@ -2993,7 +3048,7 @@
                                         <div class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 prose prose-sm max-w-none">
                                             ${announcement.description_short || ''}
                                         </div>
-                                        <button onclick="openAnnouncementModal(${announcement.id})" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md read-more-btn" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
+                                        <button onclick="openAnnouncementModal(${announcement.id})" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md read-more-btn cursor-pointer" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
                                             READ MORE
                                         </button>
                                     </div>
@@ -3082,6 +3137,12 @@
                         const description = announcement.description || '';
                         document.getElementById('modalDescription').innerHTML = description;
 
+                        // Set category label in meta
+                        const categoryTextEl = document.getElementById('modalCategoryText');
+                        if (categoryTextEl) {
+                            categoryTextEl.textContent = announcement.category_label || 'Announcement';
+                        }
+
                         modalLoading.classList.add('hidden');
                         modalContent.classList.remove('hidden');
                         
@@ -3119,11 +3180,35 @@
                 }
             });
 
-            // Load announcements on page load
+            // Load announcements on page load (both categories)
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', loadAnnouncements);
+                document.addEventListener('DOMContentLoaded', function () {
+                    loadAnnouncementsForSection({
+                        loadingId: 'announcementsLoading',
+                        emptyId: 'announcementsEmpty',
+                        gridId: 'announcementsGrid',
+                        category: 'public',
+                    });
+                    loadAnnouncementsForSection({
+                        loadingId: 'boardActivitiesAnnouncementsLoading',
+                        emptyId: 'boardActivitiesAnnouncementsEmpty',
+                        gridId: 'boardActivitiesAnnouncementsGrid',
+                        category: 'board_member_activities',
+                    });
+                });
             } else {
-                loadAnnouncements();
+                loadAnnouncementsForSection({
+                    loadingId: 'announcementsLoading',
+                    emptyId: 'announcementsEmpty',
+                    gridId: 'announcementsGrid',
+                    category: 'public',
+                });
+                loadAnnouncementsForSection({
+                    loadingId: 'boardActivitiesAnnouncementsLoading',
+                    emptyId: 'boardActivitiesAnnouncementsEmpty',
+                    gridId: 'boardActivitiesAnnouncementsGrid',
+                    category: 'board_member_activities',
+                });
             }
         })();
     </script>

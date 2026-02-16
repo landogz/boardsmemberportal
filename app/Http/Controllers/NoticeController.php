@@ -90,6 +90,51 @@ class NoticeController extends Controller
         
         // Check if meeting is done
         $isMeetingDone = $notice->isMeetingDone();
+
+        // Reference materials uploaded via admin/backend for this notice (all approved items)
+        // Build a flat list of unique media files so the user can view them as thumbnails.
+        $referenceFiles = [];
+        $adminMaterials = ReferenceMaterial::with(['user'])
+            ->where('notice_id', $id)
+            ->whereIn('status', ['approved', null])
+            ->get();
+
+        if ($adminMaterials->count() > 0) {
+            $mediaIds = [];
+            foreach ($adminMaterials as $material) {
+                $ids = $material->attachments ?? [];
+                foreach ($ids as $mid) {
+                    $mediaIds[$mid] = true;
+                }
+            }
+            $mediaIds = array_keys($mediaIds);
+            if (!empty($mediaIds)) {
+                $mediaItems = MediaLibrary::whereIn('id', $mediaIds)->get()->keyBy('id');
+                foreach ($adminMaterials as $material) {
+                    $ids = $material->attachments ?? [];
+                    foreach ($ids as $mid) {
+                        $media = $mediaItems->get($mid);
+                        if (!$media) {
+                            continue;
+                        }
+                        // Avoid duplicates
+                        if (isset($referenceFiles[$media->id])) {
+                            continue;
+                        }
+                        $referenceFiles[$media->id] = (object)[
+                            'media_id' => $media->id,
+                            'file_name' => $media->file_name,
+                            'file_path' => $media->file_path,
+                            'file_type' => $media->file_type,
+                        ];
+                    }
+                }
+            }
+        }
+        $referenceFiles = array_values($referenceFiles);
+
+        // Mark any notice-related notifications as read when user views the notice
+        Notification::markNoticeAsReadForUser($userId, (int) $id);
         
         // Handle action from email link (accept/decline)
         $action = request()->query('action');
@@ -98,7 +143,7 @@ class NoticeController extends Controller
             $autoAction = $action;
         }
         
-        return view('notices.show', compact('notice', 'attendanceConfirmation', 'agendaRequest', 'referenceMaterial', 'isMeetingDone', 'autoAction'));
+        return view('notices.show', compact('notice', 'attendanceConfirmation', 'agendaRequest', 'referenceMaterial', 'isMeetingDone', 'autoAction', 'referenceFiles'));
     }
 
     /**
@@ -128,8 +173,12 @@ class NoticeController extends Controller
                 'id' => $notice->id,
                 'title' => $notice->title,
                 'notice_type' => $notice->notice_type,
+                'meeting_type' => $notice->meeting_type,
                 'meeting_date' => $notice->meeting_date ? $notice->meeting_date->format('M d, Y') : null,
+                'meeting_date_long' => $notice->meeting_date ? $notice->meeting_date->format('F d, Y') : null,
                 'meeting_time' => $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') : null,
+                'meeting_link' => $notice->meeting_link,
+                'venue' => $notice->venue,
                 'created_at' => $notice->created_at->format('M d, Y'),
             ];
         })->values();
@@ -156,21 +205,28 @@ class NoticeController extends Controller
             ], 403);
         }
         
+        // Optional per-user attendance mode for hybrid meetings
+        $attendanceMode = null;
+        if ($notice->meeting_type === 'hybrid') {
+            $attendanceMode = $request->input('attendance_mode');
+            if ($attendanceMode && !in_array($attendanceMode, ['onsite', 'online'], true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid attendance mode selected.',
+                ], 422);
+            }
+        }
+        
         // Check if already confirmed
         $existing = AttendanceConfirmation::where('notice_id', $id)
             ->where('user_id', $userId)
             ->first();
         
         if ($existing) {
-            if ($existing->status === 'accepted') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have already accepted this invitation.'
-                ], 400);
-            }
-            // Update existing
+            // Allow updating (e.g. change from declined to accepted or change mode)
             $existing->update([
                 'status' => 'accepted',
+                'attendance_mode' => $attendanceMode,
                 'declined_reason' => null,
             ]);
             $attendanceConfirmation = $existing;
@@ -180,6 +236,7 @@ class NoticeController extends Controller
                 'notice_id' => $id,
                 'user_id' => $userId,
                 'status' => 'accepted',
+                'attendance_mode' => $attendanceMode,
             ]);
         }
         
@@ -216,6 +273,9 @@ class NoticeController extends Controller
                 \Log::error('Failed to send notice accepted email to creator ' . $notice->creator->id . ': ' . $e->getMessage());
             }
         }
+
+        // Mark notice-related notifications as read for the user who accepted
+        Notification::markNoticeAsReadForUser($userId, (int) $id);
         
         return response()->json([
             'success' => true,
@@ -250,13 +310,7 @@ class NoticeController extends Controller
             ->first();
         
         if ($existing) {
-            if ($existing->status === 'declined') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have already declined this invitation.'
-                ], 400);
-            }
-            // Update existing
+            // Allow updating (e.g. change from accepted to declined)
             $existing->update([
                 'status' => 'declined',
                 'declined_reason' => $request->reason,
@@ -305,6 +359,9 @@ class NoticeController extends Controller
                 \Log::error('Failed to send notice declined email to creator ' . $notice->creator->id . ': ' . $e->getMessage());
             }
         }
+
+        // Mark notice-related notifications as read for the user who declined
+        Notification::markNoticeAsReadForUser($userId, (int) $id);
         
         return response()->json([
             'success' => true,

@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Announcement;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -10,24 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AnnouncementEmail extends Mailable
+class BirthdayGreetingEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $announcement;
     public $user;
-    public $announcementUrl;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Announcement $announcement, User $user)
+    public function __construct(User $user)
     {
-        $this->announcement = $announcement;
         $this->user = $user;
-        // Generate absolute URL to login page with redirect to announcements section
-        $baseUrl = config('app.url');
-        $this->announcementUrl = rtrim($baseUrl, '/') . '/login?redirect=' . urlencode('/#announcements');
     }
 
     /**
@@ -35,10 +28,8 @@ class AnnouncementEmail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $categoryLabel = $this->announcement->category_label ?? 'Announcement';
-
         return new Envelope(
-            subject: 'New ' . $categoryLabel . ': ' . $this->announcement->title,
+            subject: 'Happy Birthday from Board Members Portal!',
         );
     }
 
@@ -48,12 +39,7 @@ class AnnouncementEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.announcement',
-            with: [
-                'announcement' => $this->announcement,
-                'user' => $this->user,
-                'announcementUrl' => $this->announcementUrl,
-            ],
+            view: 'emails.birthday-greeting',
         );
     }
 
@@ -67,4 +53,3 @@ class AnnouncementEmail extends Mailable
         return [];
     }
 }
-

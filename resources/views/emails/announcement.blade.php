@@ -169,7 +169,7 @@
                     <!-- Header -->
                     <tr>
                         <td class="email-header">
-                            <h1>📢 New Announcement</h1>
+                            <h1>📢 New {{ $announcement->category_label }}</h1>
                         </td>
                     </tr>
                     
@@ -181,7 +181,7 @@
                             </p>
                             
                             <p class="greeting">
-                                A new announcement has been published and you have been invited to view it.
+                                A new {{ strtolower($announcement->category_label) }} announcement has been published and you have been invited to view it.
                             </p>
                             
                             <div class="announcement-card">

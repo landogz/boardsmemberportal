@@ -49,6 +49,60 @@
         background-color: rgba(156, 163, 175, 0.1);
         color: #6B7280;
     }
+    .notice-description {
+        text-indent: 0 !important;
+        text-align: left !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        font-size: 1rem;
+        line-height: 1.75;
+        color: #374151;
+        word-wrap: break-word;
+    }
+    .notice-description p {
+        margin: 0 0 0.25em 0 !important;
+    }
+    .notice-description p:last-child {
+        margin-bottom: 0 !important;
+    }
+    .notice-description p:empty,
+    .notice-description p:has(br:only-child) {
+        display: none;
+    }
+    .notice-description::first-line {
+        text-indent: 0 !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+    .notice-description * {
+        text-indent: 0 !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        text-align: left !important;
+    }
+    .notice-description ul,
+    .notice-description ol {
+        margin: 0 0 0.75em 1.5rem !important;
+        padding-left: 1.25rem !important;
+    }
+    .notice-description ul {
+        list-style-type: disc;
+        list-style-position: outside;
+    }
+    .notice-description ol {
+        list-style-type: decimal;
+        list-style-position: outside;
+    }
+    .notice-description li {
+        margin: 0.125em 0 0.125em 0 !important;
+    }
+    .notice-description p:first-child,
+    .notice-description div:first-child,
+    .notice-description span:first-child {
+        text-indent: 0 !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
 </style>
 @endpush
 
@@ -131,6 +185,15 @@
                                 <i class="fas fa-external-link-alt text-xs"></i>
                                 <span class="truncate max-w-xs">{{ $notice->meeting_link }}</span>
                             </a>
+                        </div>
+                    @endif
+                    @if(in_array($notice->meeting_type, ['onsite', 'hybrid']) && $notice->venue)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Venue</label>
+                            <div class="flex items-center gap-2 mt-1">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                <span class="text-sm font-medium text-gray-900">{{ $notice->venue }}</span>
+                            </div>
                         </div>
                     @endif
                     @if($notice->notice_type === 'Board Issuances' && $notice->no_of_attendees)
@@ -238,7 +301,15 @@
         $declined = $attendanceConfirmations->where('status', 'declined')->count();
         $pending = $notice->allowedUsers->count() - $accepted - $declined;
         $agendaRequests = \App\Models\AgendaInclusionRequest::where('notice_id', $notice->id)->count();
-        $referenceMaterials = \App\Models\ReferenceMaterial::where('notice_id', $notice->id)->count();
+        // Count total reference material files (items) for this notice, same logic as folder view
+        $refMatsForNotice = \App\Models\ReferenceMaterial::where('notice_id', $notice->id)
+            ->whereHas('user', function ($q) {
+                $q->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+            })
+            ->get();
+        $referenceMaterials = $refMatsForNotice->flatMap(function ($m) {
+            return $m->attachments ?? [];
+        })->unique()->count();
     @endphp
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 shadow-sm">
@@ -279,7 +350,7 @@
     <!-- Quick Actions -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <div class="flex flex-wrap items-center gap-3">
-            <a href="{{ route('admin.attendance-confirmations.index') }}?notice={{ $notice->id }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
+            <a href="{{ route('admin.attendance-confirmations.show', $notice->id) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium text-sm transition-all duration-200 border border-blue-200">
                 <i class="fas fa-check-circle"></i>
                 <span>View Attendance Confirmations</span>
             </a>
@@ -305,7 +376,7 @@
                 <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
                 <span>Description</span>
             </h3>
-            <div class="prose max-w-none text-gray-700 leading-relaxed">
+            <div class="notice-description">
                 {!! $notice->description !!}
             </div>
         </div>
@@ -433,8 +504,8 @@
         </div>
     @endif
 
-    <!-- Approved Reference Materials -->
-    @if(isset($approvedReferenceMaterials) && $approvedReferenceMaterials->count() > 0)
+    <!-- Approved Reference Materials (hidden - use Board Library / Reference Materials for this notice) -->
+    @if(false && isset($approvedReferenceMaterials) && $approvedReferenceMaterials->count() > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>

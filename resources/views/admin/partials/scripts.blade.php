@@ -19,6 +19,26 @@
             $submenu.slideToggle();
             $(this).find('.fa-chevron-down').toggleClass('rotate-180');
         });
+
+        // Right-click on table rows with action dropdown: open the actions menu at cursor
+        $(document).on('contextmenu', 'tr', function(e) {
+            const $row = $(this);
+            const $menu = $row.find('.action-dropdown-menu');
+            if ($menu.length === 0) return;
+            e.preventDefault();
+            e.stopPropagation();
+            $('.action-dropdown-menu').not($menu).addClass('hidden');
+            const pad = 8;
+            const menuW = 192;
+            const menuH = 280;
+            let left = e.clientX;
+            let top = e.clientY + 4;
+            if (left + menuW > $(window).width() - pad) left = $(window).width() - menuW - pad;
+            if (left < pad) left = pad;
+            if (top + menuH > $(window).height() - pad) top = $(window).height() - menuH - pad;
+            if (top < pad) top = pad;
+            $menu.css({ position: 'fixed', left: left + 'px', top: top + 'px', right: 'auto', zIndex: 1050 }).removeClass('hidden');
+        });
         
         // Dropdown Toggle
         $('.dropdown-toggle').on('click', function(e) {

@@ -168,20 +168,20 @@
                 max-height: calc(100vh - 200px) !important;
             }
         }
-        /* Tablet portrait - fit to screen */
-        @media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+        /* Tablet portrait - fit to screen (treat <=1023px as tablet; 1024px uses desktop popup) */
+        @media (min-width: 641px) and (max-width: 1023px) and (orientation: portrait) {
             .emoji-picker-popup {
                 max-width: calc(100vw - 32px) !important;
                 max-height: calc(100vh - 150px) !important;
             }
         }
-        /* Tablet landscape (e.g., 768x320, 1024x768) - fit to screen */
-        @media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+        /* Tablet landscape (e.g., up to 1023px width) - fit to screen; 1024px uses desktop popup */
+        @media (min-width: 641px) and (max-width: 1023px) and (orientation: landscape) {
             .emoji-picker-popup {
                 width: calc(100vw - 102px) !important;
-                height: calc(100vh - 80px) !important;
+                height: calc(100vh - 150px) !important;
                 max-width: calc(100vw - 32px) !important;
-                max-height: calc(100vh - 80px) !important;
+                max-height: calc(100vh - 150px) !important;
             }
         }
         /* Force light mode for conversation list */
@@ -918,8 +918,8 @@
             max-width: 100% !important;
             height: auto !important;
         }
-        /* Mobile-specific styles (below 768px) */
-        @media (max-width: 767px) {
+        /* Mobile & narrow screens (up to 1024px): enable mobile-style split behavior */
+        @media (max-width: 1024px) {
             #conversationsList.mobile-hidden {
                 display: none !important;
             }
@@ -946,7 +946,7 @@
             }
         }
         /* Alternative method for browsers that don't support :has() */
-        @media (max-width: 767px) {
+        @media (max-width: 1024px) {
             body.header-hidden-mobile .top-bar,
             body.header-hidden-mobile nav {
                 display: none !important;
@@ -1256,8 +1256,8 @@
                         <div class="sticky top-0 z-20 flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 bg-white">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                                    <!-- Back button for mobile -->
-                                    <button id="backToConversations" class="lg:hidden mr-2 p-2 text-gray-600 hover:bg-gray-100 rounded-full transition flex-shrink-0" aria-label="Back to conversations">
+                                    <!-- Back button for mobile / tablet / small laptop -->
+                                    <button id="backToConversations" class="xl:hidden mr-2 p-2 text-gray-600 hover:bg-gray-100 rounded-full transition flex-shrink-0" aria-label="Back to conversations">
                                         <i class="fas fa-arrow-left text-lg"></i>
                                     </button>
                                     <div id="chatHeaderAvatar" class="relative flex-shrink-0">
@@ -2104,8 +2104,8 @@
             window.addEventListener('resize', function() {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(function() {
-                    // On desktop/tablet, ensure both are visible and header is shown
-                    if (window.innerWidth > 767) {
+                    // On wide desktop (> 1024px), ensure both are visible and header is shown
+                    if (window.innerWidth > 1024) {
                         const conversationsList = document.getElementById('conversationsList');
                         const chatArea = document.getElementById('chatArea');
                         if (conversationsList) {
@@ -2120,7 +2120,7 @@
                         // Always show header on desktop
                         document.body.classList.remove('header-hidden-mobile');
                     } else {
-                        // On mobile, ensure action buttons are visible
+                        // On mobile / tablet / small laptop, ensure action buttons are visible
                         makeActionButtonsVisible();
                     }
                 }, 250);
@@ -2424,7 +2424,8 @@
                     }
                     if (chatArea) {
                         chatArea.classList.remove('mobile-visible');
-                        if (window.innerWidth <= 767) {
+                        const isMobileOrNarrow = window.innerWidth <= 1024;
+                        if (isMobileOrNarrow) {
                             chatArea.classList.add('hidden');
                         }
                     }
@@ -3634,10 +3635,13 @@
                 }
             });
             
-            // Mobile: Hide conversations list, show chat area, hide header
+            // Mobile / tablet / small laptop: hide conversations list, show chat area
             const conversationsList = document.getElementById('conversationsList');
             const chatArea = document.getElementById('chatArea');
-            if (window.innerWidth <= 767) {
+            const viewportWidth = window.innerWidth;
+            const isMobile = viewportWidth <= 767;
+            const isTabletOrSmallLaptop = viewportWidth <= 1024;
+            if (isTabletOrSmallLaptop) {
                 if (conversationsList) {
                     conversationsList.classList.add('mobile-hidden');
                 }
@@ -3645,8 +3649,10 @@
                     chatArea.classList.add('mobile-visible');
                     chatArea.classList.remove('hidden');
                 }
-                // Hide header on mobile when chat is open
-                document.body.classList.add('header-hidden-mobile');
+                // Hide header only on true mobile when chat is open
+                if (isMobile) {
+                    document.body.classList.add('header-hidden-mobile');
+                }
             }
             
             // Hide empty state, show active chat
@@ -3941,7 +3947,7 @@
 
                             // Highlight search matches AFTER themes are applied (themes fire at ~500ms)
                             if (pendingSearchTerm && pendingSearchTerm.length >= 2) {
-                                setTimeout(() => {
+                            setTimeout(() => {
                                     highlightAndScrollToSearch(messagesArea, pendingSearchTerm);
                                 }, 800);
                             }
@@ -6082,11 +6088,11 @@
                             }
                             
                             if (matches) {
-                                item.style.display = '';
-                            } else {
-                                item.style.display = 'none';
-                            }
-                        });
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
                         
                         // Hide/show section headers based on visible users in their section
                         sectionHeaders.forEach(header => {

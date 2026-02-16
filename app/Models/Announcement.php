@@ -17,11 +17,24 @@ class Announcement extends Model
         'created_by',
         'status',
         'scheduled_at',
+        'category',
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
     ];
+
+    /**
+     * Human-readable category label.
+     */
+    public function getCategoryLabelAttribute(): string
+    {
+        return match ($this->category) {
+            'board_member_activities' => 'Board Member Activities',
+            'public', null => 'Public',
+            default => ucfirst(str_replace('_', ' ', (string) $this->category)),
+        };
+    }
 
     /**
      * Accessor for description (maps to content)
@@ -37,6 +50,33 @@ class Announcement extends Model
     public function setDescriptionAttribute($value)
     {
         $this->attributes['content'] = $value;
+    }
+
+    /**
+     * Description with automatic hyperlinking of plain-text URLs.
+     * Converts http/https URLs into <a> tags that open in a new tab.
+     * If the content already contains an <a> tag, we assume the editor handled links
+     * and return the original HTML to avoid double-wrapping.
+     */
+    public function getDescriptionWithLinksAttribute()
+    {
+        $html = $this->description ?? '';
+
+        // If content already has anchor tags, don't try to auto-link
+        if (stripos($html, '<a ') !== false) {
+            return $html;
+        }
+
+        // Work on raw content, auto-link plain http/https URLs
+        $pattern = '~(https?://[^\s<]+)~i';
+
+        $callback = function ($matches) {
+            $url = $matches[1];
+            $escapedUrl = e($url);
+            return '<a href="' . $escapedUrl . '" target="_blank" rel="noopener noreferrer">' . $escapedUrl . '</a>';
+        };
+
+        return preg_replace_callback($pattern, $callback, $html);
     }
 
     /**
@@ -99,5 +139,20 @@ class Announcement extends Model
     public function scopeDraft($query)
     {
         return $query->where('status', 'draft');
+    }
+
+    /**
+     * Automatically publish any draft announcements whose scheduled_at
+     * is less than or equal to "now".
+     *
+     * This is a lightweight alternative to a scheduled task and is called
+     * from controllers that work with announcements (admin index, calendar, etc.).
+     */
+    public static function autoPublishScheduled(): void
+    {
+        static::where('status', 'draft')
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', now())
+            ->update(['status' => 'published']);
     }
 }

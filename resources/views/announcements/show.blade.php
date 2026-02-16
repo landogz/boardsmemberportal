@@ -26,11 +26,17 @@
                     <i class="fas fa-calendar mr-2"></i>
                     <span>{{ $announcement->created_at->format('F d, Y') }}</span>
                 </div>
+                <div class="flex items-center">
+                    <i class="fas fa-tag mr-2"></i>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                        {{ $announcement->category_label ?? 'Public' }}
+                    </span>
+                </div>
             </div>
 
-            <!-- Description -->
+            <!-- Description (with auto-linked URLs) -->
             <div class="prose max-w-none text-gray-700 mb-6">
-                {!! $announcement->description !!}
+                {!! $announcement->description_with_links !!}
             </div>
 
             <!-- Back Button -->

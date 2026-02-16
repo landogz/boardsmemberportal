@@ -69,7 +69,7 @@ class BoardMemberController extends Controller
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Male,Female,Non-Binary',
-            'birth_date' => 'required|date|before:today',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
             'office_city_municipality' => 'required|string|max:255',
@@ -84,6 +84,8 @@ class BoardMemberController extends Controller
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
         ]);
 
         // Standardized username: firstname.lastname (lowercase, alphanumeric only)
@@ -201,7 +203,7 @@ class BoardMemberController extends Controller
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Male,Female,Non-Binary',
-            'birth_date' => 'required|date|before:today',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
             'office_city_municipality' => 'required|string|max:255',
@@ -217,6 +219,8 @@ class BoardMemberController extends Controller
             'landline' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
             'is_active' => 'boolean',
+        ], [
+            'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
         ]);
 
         // Handle post nominal title
