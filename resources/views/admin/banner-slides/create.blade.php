@@ -4,7 +4,6 @@
 
 @push('styles')
 <style>
-    /* Make range input track and thumb visible */
     input[type="range"].opacity-range {
         -webkit-appearance: none;
         appearance: none;
@@ -34,6 +33,18 @@
         border: 2px solid #fff;
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
+    /* Checkerboard for opacity preview */
+    .opacity-preview {
+        background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+            linear-gradient(-45deg, #ccc 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #ccc 75%),
+            linear-gradient(-45deg, transparent 75%, #ccc 75%);
+        background-size: 12px 12px;
+        background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+        background-color: #f3f4f6;
+    }
+    /* Hide native color input; we trigger it from the swatch */
+    .color-input-native { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
 </style>
 @endpush
 
@@ -47,144 +58,384 @@
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
     $hideDefaultActions = false;
+    $titleSizeMap = ['sm' => '1.25rem', 'md' => '1.5rem', 'lg' => '2rem', 'xl' => '2.5rem', '2xl' => '3rem'];
+    $subtitleSizeMap = ['sm' => '0.875rem', 'md' => '1rem', 'lg' => '1.125rem', 'xl' => '1.25rem'];
 @endphp
 
 @section('content')
-<div class="p-4 lg:p-6">
+<div class="p-4 lg:p-6 pb-24 lg:pb-8">
+    {{-- Page header: title prominent, instruction muted --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Add Carousel Slide</h2>
-        <p class="text-gray-600 mt-1">Upload an image or video for the background and set title and subtitle. Max file size: 100MB.</p>
+        <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Add Carousel Slide</h2>
+        <p class="text-sm text-gray-500 mt-1">Upload an image or video for the background and set title and subtitle. Max file size: 100MB.</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form action="{{ route('admin.banner-slides.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-            @csrf
+    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        {{-- Form column --}}
+        <div class="lg:col-span-7">
+            <form action="{{ route('admin.banner-slides.store') }}" method="POST" enctype="multipart/form-data" id="banner-slide-form" class="space-y-6">
+                @csrf
 
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                <input type="text" id="title" name="title" required value="{{ old('title') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                    placeholder="e.g. Welcome to Board Member Portal">
-                @error('title')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-            </div>
-
-            <div>
-                <label for="subtitle" class="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
-                <input type="text" id="subtitle" name="subtitle" value="{{ old('subtitle') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                    placeholder="e.g. Your gateway to seamless board management">
-                @error('subtitle')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="title_color" class="block text-sm font-medium text-gray-700 mb-2">Title color</label>
-                    <div class="flex items-center gap-2">
-                        <input type="color" id="title_color_swatch" value="{{ old('title_color', '#ffffff') }}" class="h-10 w-14 rounded border border-gray-300 cursor-pointer">
-                        <input type="text" id="title_color" name="title_color" value="{{ old('title_color', '#ffffff') }}" maxlength="20"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                            placeholder="#ffffff">
+                {{-- Card: Text content --}}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/80">
+                        <h3 class="text-sm font-semibold text-gray-800">Text content</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Title and subtitle shown on the slide.</p>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Hex color for the slide title. Default: white.</p>
-                    @error('title_color')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-                <div>
-                    <label for="subtitle_color" class="block text-sm font-medium text-gray-700 mb-2">Subtitle color</label>
-                    <div class="flex items-center gap-2">
-                        <input type="color" id="subtitle_color_swatch" value="{{ old('subtitle_color', '#e5e7eb') }}" class="h-10 w-14 rounded border border-gray-300 cursor-pointer">
-                        <input type="text" id="subtitle_color" name="subtitle_color" value="{{ old('subtitle_color', '#e5e7eb') }}" maxlength="20"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                            placeholder="#e5e7eb">
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                            <input type="text" id="title" name="title" required value="{{ old('title') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
+                                placeholder="e.g. Welcome to Board Member Portal">
+                            @error('title')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
+                        <div>
+                            <label for="subtitle" class="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                            <input type="text" id="subtitle" name="subtitle" value="{{ old('subtitle') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
+                                placeholder="e.g. Your gateway to seamless board management">
+                            @error('subtitle')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Hex color for the subtitle. Default: light gray.</p>
-                    @error('subtitle_color')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
                 </div>
-            </div>
-            <script>
-            document.getElementById('title_color_swatch').addEventListener('input', function(e) { document.getElementById('title_color').value = e.target.value; });
-            document.getElementById('title_color').addEventListener('input', function(e) { var v = e.target.value; if (/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById('title_color_swatch').value = v; });
-            document.getElementById('subtitle_color_swatch').addEventListener('input', function(e) { document.getElementById('subtitle_color').value = e.target.value; });
-            document.getElementById('subtitle_color').addEventListener('input', function(e) { var v = e.target.value; if (/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById('subtitle_color_swatch').value = v; });
-            </script>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="title_font_size" class="block text-sm font-medium text-gray-700 mb-2">Title font size</label>
-                    <select id="title_font_size" name="title_font_size" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                        @foreach(\App\Models\BannerSlide::titleSizeOptions() as $value => $label)
-                            <option value="{{ $value }}" {{ old('title_font_size', 'lg') === $value ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @error('title_font_size')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-                <div>
-                    <label for="subtitle_font_size" class="block text-sm font-medium text-gray-700 mb-2">Subtitle font size</label>
-                    <select id="subtitle_font_size" name="subtitle_font_size" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                        @foreach(\App\Models\BannerSlide::subtitleSizeOptions() as $value => $label)
-                            <option value="{{ $value }}" {{ old('subtitle_font_size', 'md') === $value ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @error('subtitle_font_size')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-            </div>
+                {{-- Card: Styling --}}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/80">
+                        <h3 class="text-sm font-semibold text-gray-800">Styling</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Colors, font sizes, and background overlay.</p>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        {{-- Color pickers: swatch is main control --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Title color</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="relative flex-shrink-0">
+                                        <input type="color" id="title_color_swatch" value="{{ old('title_color', '#ffffff') }}" class="color-input-native" aria-hidden="true">
+                                        <button type="button" id="title_color_trigger" class="block h-11 w-14 rounded-lg border-2 border-gray-300 shadow-inner cursor-pointer hover:border-[#055498] transition-colors" style="background-color: {{ old('title_color', '#ffffff') }};" title="Click to pick color"></button>
+                                    </div>
+                                    <input type="text" id="title_color" name="title_color" value="{{ old('title_color', '#ffffff') }}" maxlength="20"
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none font-mono text-sm"
+                                        placeholder="#ffffff">
+                                </div>
+                                @error('title_color')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subtitle color</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="relative flex-shrink-0">
+                                        <input type="color" id="subtitle_color_swatch" value="{{ old('subtitle_color', '#e5e7eb') }}" class="color-input-native" aria-hidden="true">
+                                        <button type="button" id="subtitle_color_trigger" class="block h-11 w-14 rounded-lg border-2 border-gray-300 shadow-inner cursor-pointer hover:border-[#055498] transition-colors" style="background-color: {{ old('subtitle_color', '#e5e7eb') }};" title="Click to pick color"></button>
+                                    </div>
+                                    <input type="text" id="subtitle_color" name="subtitle_color" value="{{ old('subtitle_color', '#e5e7eb') }}" maxlength="20"
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none font-mono text-sm"
+                                        placeholder="#e5e7eb">
+                                </div>
+                                @error('subtitle_color')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                        </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Background type *</label>
-                <div class="flex gap-6">
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="media_type" value="image" {{ old('media_type', 'image') === 'image' ? 'checked' : '' }} class="rounded border-gray-300 text-[#055498] focus:ring-[#055498]">
-                        <span class="ml-2">Image</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="media_type" value="video" {{ old('media_type') === 'video' ? 'checked' : '' }} class="rounded border-gray-300 text-[#055498] focus:ring-[#055498]">
-                        <span class="ml-2">Video</span>
-                    </label>
-                </div>
-                @error('media_type')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-            </div>
+                        {{-- Font sizes with live preview label --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="title_font_size" class="block text-sm font-medium text-gray-700 mb-2">Title size</label>
+                                <select id="title_font_size" name="title_font_size" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
+                                    @foreach(\App\Models\BannerSlide::titleSizeOptions() as $value => $label)
+                                        <option value="{{ $value }}" {{ old('title_font_size', 'lg') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('title_font_size')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                            <div>
+                                <label for="subtitle_font_size" class="block text-sm font-medium text-gray-700 mb-2">Subtitle size</label>
+                                <select id="subtitle_font_size" name="subtitle_font_size" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
+                                    @foreach(\App\Models\BannerSlide::subtitleSizeOptions() as $value => $label)
+                                        <option value="{{ $value }}" {{ old('subtitle_font_size', 'md') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('subtitle_font_size')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">See the preview on the right to see how your title and subtitle will look.</p>
 
-            <div>
-                <label for="media_opacity" class="block text-sm font-medium text-gray-700 mb-2">Image / video opacity</label>
-                <div class="flex items-center gap-3">
-                    <input type="range" id="media_opacity" name="media_opacity" min="0" max="1" step="0.05" value="{{ old('media_opacity', '1') }}" class="opacity-range flex-1 min-w-0">
-                    <span id="media_opacity_display" class="text-sm font-medium text-gray-600 w-12">{{ round((float) old('media_opacity', 1) * 100) }}%</span>
+                        {{-- Opacity with checkerboard preview --}}
+                        <div>
+                            <label for="media_opacity" class="block text-sm font-medium text-gray-700 mb-2">Background overlay opacity</label>
+                            <div class="flex items-center gap-4">
+                                <div class="opacity-preview rounded-lg border border-gray-200 overflow-hidden flex-shrink-0" style="width: 48px; height: 48px;">
+                                    <div id="media_opacity_preview" class="w-full h-full bg-gray-900/80 transition-opacity" style="opacity: {{ old('media_opacity', '1') }};"></div>
+                                </div>
+                                <div class="flex-1 min-w-0 flex items-center gap-3">
+                                    <input type="range" id="media_opacity" name="media_opacity" min="0" max="1" step="0.05" value="{{ old('media_opacity', '1') }}" class="opacity-range flex-1 min-w-0">
+                                    <span id="media_opacity_display" class="text-sm font-medium text-gray-600 w-12">{{ round((float) old('media_opacity', 1) * 100) }}%</span>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Higher = darker overlay on the image/video so text stands out more.</p>
+                            @error('media_opacity')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">0% = fully transparent, 100% = fully opaque. Default: 100%.</p>
-                @error('media_opacity')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                <script>document.getElementById('media_opacity').addEventListener('input', function() { document.getElementById('media_opacity_display').textContent = Math.round(parseFloat(this.value) * 100) + '%'; });</script>
-            </div>
 
-            <p class="text-sm font-medium text-gray-700 mb-2">Background by device — max 100MB per file. Same type (image or video) for all.</p>
-            <div class="space-y-4">
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <label for="media_file" class="block text-sm font-medium text-gray-700 mb-2">Desktop (required) — shown on large screens (&gt;1024px)</label>
-                    <input type="file" id="media_file" name="media_file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
-                    <p class="mt-1 text-xs text-gray-500">Recommended: <strong>1920 × 460 px</strong> (or same ratio).</p>
-                    @error('media_file')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <label for="media_file_tablet" class="block text-sm font-medium text-gray-700 mb-2">Tablet (optional) — 769px–1024px</label>
-                    <input type="file" id="media_file_tablet" name="media_file_tablet" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
-                    <p class="mt-1 text-xs text-gray-500">Optional. Recommended: <strong>1024 × 400 px</strong>. If empty, desktop file is used.</p>
-                    @error('media_file_tablet')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <label for="media_file_mobile" class="block text-sm font-medium text-gray-700 mb-2">Mobile (optional) — ≤768px</label>
-                    <input type="file" id="media_file_mobile" name="media_file_mobile" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
-                    <p class="mt-1 text-xs text-gray-500">Optional. Recommended: <strong>768 × 350 px</strong>. If empty, tablet or desktop is used.</p>
-                    @error('media_file_mobile')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
-                </div>
-            </div>
-            <p class="mt-1 text-xs text-gray-500">Ensure php.ini upload_max_filesize and post_max_size are at least 100M for large files.</p>
+                {{-- Card: Background media --}}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/80">
+                        <h3 class="text-sm font-semibold text-gray-800">Background media</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Image or video per device. Same type for all.</p>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        {{-- Pill toggle: Image / Video --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Background type *</label>
+                            <div class="inline-flex p-1 rounded-full bg-gray-100 border border-gray-200" role="group" aria-label="Background type">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="media_type" value="image" {{ old('media_type', 'image') === 'image' ? 'checked' : '' }} class="sr-only peer">
+                                    <span class="block px-5 py-2.5 rounded-full text-sm font-medium transition-all peer-checked:bg-white peer-checked:shadow peer-checked:text-[#055498] peer-checked:ring-1 peer-checked:ring-gray-200 text-gray-600">Image</span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="media_type" value="video" {{ old('media_type') === 'video' ? 'checked' : '' }} class="sr-only peer">
+                                    <span class="block px-5 py-2.5 rounded-full text-sm font-medium transition-all peer-checked:bg-white peer-checked:shadow peer-checked:text-[#055498] peer-checked:ring-1 peer-checked:ring-gray-200 text-gray-600">Video</span>
+                                </label>
+                            </div>
+                            @error('media_type')<span class="text-red-500 text-sm block mt-1">{{ $message }}</span>@enderror
+                        </div>
 
-            <div class="flex gap-3 pt-2">
-                <button type="submit" class="px-4 py-2 text-white rounded-lg font-medium" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Save Slide</button>
-                <a href="{{ route('admin.banner-slides.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                        {{-- Desktop: always visible --}}
+                        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                            <label for="media_file" class="block text-sm font-medium text-gray-700 mb-2">Desktop (required)</label>
+                            <p class="text-xs text-gray-500 mb-2">Shown on large screens. Recommended: 1920 × 460 px.</p>
+                            <input type="file" id="media_file" name="media_file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
+                            @error('media_file')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
+
+                        {{-- Accordion: Tablet --}}
+                        <details class="group border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
+                            <summary class="px-4 py-3 cursor-pointer list-none flex items-center justify-between text-sm font-medium text-gray-700 hover:bg-gray-100/80">
+                                <span>Tablet (optional)</span>
+                                <span class="text-gray-400 group-open:rotate-180 transition-transform inline-block"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                            </summary>
+                            <div class="px-4 pb-4 pt-0">
+                                <p class="text-xs text-gray-500 mb-2">769px–1024px. Recommended: 1024 × 400 px. If empty, desktop is used.</p>
+                                <input type="file" id="media_file_tablet" name="media_file_tablet" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
+                                @error('media_file_tablet')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                        </details>
+
+                        {{-- Accordion: Mobile --}}
+                        <details class="group border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
+                            <summary class="px-4 py-3 cursor-pointer list-none flex items-center justify-between text-sm font-medium text-gray-700 hover:bg-gray-100/80">
+                                <span>Mobile (optional)</span>
+                                <span class="text-gray-400 group-open:rotate-180 transition-transform inline-block"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                            </summary>
+                            <div class="px-4 pb-4 pt-0">
+                                <p class="text-xs text-gray-500 mb-2">≤768px. Recommended: 768 × 350 px. If empty, tablet or desktop is used.</p>
+                                <input type="file" id="media_file_mobile" name="media_file_mobile" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
+                                @error('media_file_mobile')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                            </div>
+                        </details>
+
+                        <p class="text-xs text-gray-500">Ensure php.ini upload_max_filesize and post_max_size are at least 100M for large files.</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- Live preview column (right on desktop, below on mobile) --}}
+        <div class="lg:col-span-5 mt-8 lg:mt-0">
+            <div class="lg:sticky lg:top-6">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/80">
+                        <h3 class="text-sm font-semibold text-gray-800">Slide preview</h3>
+                        <p class="text-xs text-gray-500">Updates as you type and change options.</p>
+                    </div>
+                    <div class="p-4">
+                        <div id="slide-preview" class="relative rounded-lg overflow-hidden bg-gray-200 min-h-[220px] flex items-center justify-center">
+                            {{-- Background: placeholder or first file preview --}}
+                            <div id="preview-bg-wrap" class="absolute inset-0 flex items-center justify-center opacity-90">
+                                <div id="preview-bg-placeholder" class="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-600"></div>
+                                <img id="preview-bg-image" class="absolute inset-0 w-full h-full object-cover hidden" alt="">
+                                <video id="preview-bg-video" class="absolute inset-0 w-full h-full object-cover hidden" muted loop playsinline></video>
+                            </div>
+                            <div id="preview-overlay" class="absolute inset-0 bg-black transition-opacity" style="opacity: {{ 1 - (float) old('media_opacity', 1) }};"></div>
+                            <div class="relative z-10 text-center px-6 py-4 max-w-lg mx-auto">
+                                <div id="preview-title" class="font-bold text-white leading-tight" style="color: {{ old('title_color', '#ffffff') }}; font-size: 2rem;">{{ old('title') ?: 'Your title' }}</div>
+                                <div id="preview-subtitle" class="mt-2 text-gray-200" style="color: {{ old('subtitle_color', '#e5e7eb') }}; font-size: 1rem;">{{ old('subtitle') ?: 'Your subtitle' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+{{-- Sticky save bar --}}
+<div class="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 shadow-lg safe-area-pb">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row gap-3 sm:justify-end sm:items-center">
+        <a href="{{ route('admin.banner-slides.index') }}" class="order-2 sm:order-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-center font-medium">Cancel</a>
+        <button type="submit" form="banner-slide-form" class="order-1 sm:order-2 w-full sm:w-auto px-6 py-3 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition-all" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Save Slide</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    var titleSizeMap = @json($titleSizeMap);
+    var subtitleSizeMap = @json($subtitleSizeMap);
+
+    function $(id) { return document.getElementById(id); }
+    function byName(n) { return document.querySelector('[name="' + n + '"]'); }
+
+    // Color: trigger native picker from swatch button; keep hex in sync
+    function bindColor(swatchId, triggerId, hexId) {
+        var swatch = $(swatchId);
+        var trigger = $(triggerId);
+        var hex = $(hexId);
+        if (!swatch || !trigger || !hex) return;
+        trigger.addEventListener('click', function() { swatch.click(); });
+        swatch.addEventListener('input', function() {
+            var v = swatch.value;
+            hex.value = v;
+            trigger.style.backgroundColor = v;
+        });
+        hex.addEventListener('input', function() {
+            var v = hex.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(v)) {
+                swatch.value = v;
+                trigger.style.backgroundColor = v;
+            }
+        });
+    }
+    bindColor('title_color_swatch', 'title_color_trigger', 'title_color');
+    bindColor('subtitle_color_swatch', 'subtitle_color_trigger', 'subtitle_color');
+
+    // Opacity: display + checkerboard preview
+    var opacityEl = $('media_opacity');
+    var opacityDisplay = $('media_opacity_display');
+    var opacityPreview = $('media_opacity_preview');
+    if (opacityEl) {
+        function updateOpacity() {
+            var v = parseFloat(opacityEl.value);
+            if (opacityDisplay) opacityDisplay.textContent = Math.round(v * 100) + '%';
+            if (opacityPreview) opacityPreview.style.opacity = String(v);
+        }
+        opacityEl.addEventListener('input', updateOpacity);
+        updateOpacity();
+    }
+
+    // Pill toggle: ensure checked state styles (peer doesn't work across labels, so use JS)
+    var mediaTypeRadios = document.querySelectorAll('input[name="media_type"]');
+    var mediaTypeLabels = document.querySelectorAll('[role="group"] label');
+    function updatePillStyles() {
+        mediaTypeRadios.forEach(function(r) {
+            var label = r.closest('label');
+            if (!label) return;
+            var span = label.querySelector('span:last-child');
+            if (span) {
+                if (r.checked) {
+                    span.classList.add('bg-white', 'shadow', 'text-[#055498]', 'ring-1', 'ring-gray-200');
+                    span.classList.remove('text-gray-600');
+                } else {
+                    span.classList.remove('bg-white', 'shadow', 'text-[#055498]', 'ring-1', 'ring-gray-200');
+                    span.classList.add('text-gray-600');
+                }
+            }
+        });
+    }
+    mediaTypeRadios.forEach(function(r) { r.addEventListener('change', updatePillStyles); });
+    updatePillStyles();
+
+    // Live preview: title, subtitle, colors, font sizes
+    var previewTitle = $('preview-title');
+    var previewSubtitle = $('preview-subtitle');
+    var previewOverlay = $('preview-overlay');
+
+    function updatePreviewText() {
+        var title = ($('title') && $('title').value) || 'Your title';
+        var subtitle = ($('subtitle') && $('subtitle').value) || 'Your subtitle';
+        var titleColor = ($('title_color') && $('title_color').value) || '#ffffff';
+        var subtitleColor = ($('subtitle_color') && $('subtitle_color').value) || '#e5e7eb';
+        var titleSize = ($('title_font_size') && $('title_font_size').value) || 'lg';
+        var subtitleSize = ($('subtitle_font_size') && $('subtitle_font_size').value) || 'md';
+        if (previewTitle) {
+            previewTitle.textContent = title;
+            previewTitle.style.color = titleColor;
+            previewTitle.style.fontSize = titleSizeMap[titleSize] || '2rem';
+        }
+        if (previewSubtitle) {
+            previewSubtitle.textContent = subtitle;
+            previewSubtitle.style.color = subtitleColor;
+            previewSubtitle.style.fontSize = subtitleSizeMap[subtitleSize] || '1rem';
+        }
+    }
+
+    function updatePreviewOverlay() {
+        if (!previewOverlay || !opacityEl) return;
+        var v = parseFloat(opacityEl.value);
+        previewOverlay.style.opacity = String(1 - v);
+    }
+
+    ['title', 'subtitle', 'title_color', 'subtitle_color', 'title_font_size', 'subtitle_font_size'].forEach(function(id) {
+        var el = $(id);
+        if (el) el.addEventListener('input', updatePreviewText);
+        if (el) el.addEventListener('change', updatePreviewText);
+    });
+    if (opacityEl) opacityEl.addEventListener('input', updatePreviewOverlay);
+
+    updatePreviewText();
+    updatePreviewOverlay();
+
+    // Background file preview (first file only for preview)
+    var mediaFile = $('media_file');
+    var previewBgPlaceholder = $('preview-bg-placeholder');
+    var previewBgImage = $('preview-bg-image');
+    var previewBgVideo = $('preview-bg-video');
+    var mediaTypeImage = byName('media_type') && document.querySelector('input[name="media_type"][value="image"]');
+    var isImage = function() { return !mediaTypeImage || mediaTypeImage.checked; };
+
+    if (mediaFile) {
+        mediaFile.addEventListener('change', function() {
+            var file = this.files && this.files[0];
+            if (!file) {
+                previewBgImage.classList.add('hidden');
+                previewBgImage.src = '';
+                previewBgVideo.classList.add('hidden');
+                previewBgVideo.pause();
+                previewBgVideo.src = '';
+                previewBgPlaceholder.classList.remove('hidden');
+                return;
+            }
+            if (isImage() && file.type.indexOf('image/') === 0) {
+                var url = URL.createObjectURL(file);
+                previewBgImage.onload = function() { URL.revokeObjectURL(url); };
+                previewBgImage.src = url;
+                previewBgImage.classList.remove('hidden');
+                previewBgVideo.classList.add('hidden');
+                previewBgVideo.src = '';
+                previewBgPlaceholder.classList.add('hidden');
+            } else if (!isImage() && file.type.indexOf('video/') === 0) {
+                var url = URL.createObjectURL(file);
+                previewBgVideo.src = url;
+                previewBgVideo.classList.remove('hidden');
+                previewBgVideo.play().catch(function(){});
+                previewBgImage.classList.add('hidden');
+                previewBgImage.src = '';
+                previewBgPlaceholder.classList.add('hidden');
+            } else {
+                previewBgPlaceholder.classList.remove('hidden');
+                previewBgImage.classList.add('hidden');
+                previewBgVideo.classList.add('hidden');
+            }
+        });
+    }
+    mediaTypeRadios.forEach(function(r) {
+        r.addEventListener('change', function() {
+            if (mediaFile && mediaFile.files && mediaFile.files[0]) mediaFile.dispatchEvent(new Event('change'));
+        });
+    });
+})();
+</script>
 @endsection
