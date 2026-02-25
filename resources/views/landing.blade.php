@@ -1193,8 +1193,13 @@
                 // Initialize slideshow
                 function initSlideshow() {
                     if (slides.length === 0) return;
-                    
-                    showSlide(0);
+                    var initialSlide = 0;
+                    var match = window.location.search.match(/[?&]slide=(\d+)/);
+                    if (match) {
+                        initialSlide = Math.min(Math.max(0, parseInt(match[1], 10)), slides.length - 1);
+                    }
+                    currentSlide = initialSlide;
+                    showSlide(currentSlide);
                     resetInterval();
 
                     // Add click handlers to dots
