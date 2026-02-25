@@ -1,11 +1,16 @@
 <!-- Topbar -->
 <header class="bg-white shadow-sm border-b border-gray-200">
     <div class="flex items-center justify-between px-4 py-3">
-        <div class="flex items-center space-x-4">
-            <button id="sidebarCollapse" class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+        <div class="flex items-center space-x-4 min-w-0">
+            <button id="sidebarCollapse" class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 flex-shrink-0">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <h1 class="text-xl font-semibold text-gray-800 hidden sm:block">{{ $pageTitle ?? 'Admin Dashboard' }}</h1>
+            <div class="min-w-0 hidden sm:block">
+                <h1 class="text-xl font-semibold text-gray-800 truncate">{{ $pageTitle ?? 'Admin Dashboard' }}</h1>
+                @if(!empty($pageDescription))
+                    <p class="text-sm text-gray-500 mt-0.5 truncate">{{ $pageDescription }}</p>
+                @endif
+            </div>
         </div>
         
         <div class="flex items-center space-x-3">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ReferenceMaterial;
 use App\Models\Notice;
+use App\Models\AgendaInclusionRequest;
 use App\Models\Notification;
 use App\Models\MediaLibrary;
 use App\Services\AuditLogger;
@@ -43,13 +44,24 @@ class ReferenceMaterialController extends Controller
             $sort = $request->query('sort', 'date');
             $dir = $request->query('dir', 'desc');
 
-            // Load notices then compute total attachment items per notice
+            // Load notices then compute total attachment items per notice (reference materials + notice + related agenda notices + approved agenda items)
             $notices = $query->get();
             foreach ($notices as $notice) {
                 $itemIds = collect($notice->referenceMaterials)
                     ->flatMap(function ($material) {
                         return $material->attachments ?? [];
                     })
+                    ->merge($notice->attachments ?? [])
+                    ->merge(
+                        Notice::where('related_notice_id', $notice->id)->get()->flatMap(function ($agenda) {
+                            return $agenda->attachments ?? [];
+                        })
+                    )
+                    ->merge(
+                        AgendaInclusionRequest::where('notice_id', $notice->id)->where('status', 'approved')->get()->flatMap(function ($req) {
+                            return $req->attachments ?? [];
+                        })
+                    )
                     ->filter()
                     ->unique()
                     ->values();
@@ -70,7 +82,8 @@ class ReferenceMaterialController extends Controller
                     ? $notices->sortBy('meeting_date')
                     : $notices->sortByDesc('meeting_date');
             }
-            return view('admin.reference-materials.folders', compact('notices', 'q', 'sort', 'dir'));
+            $pageDescription = 'Browse and manage board meeting reference documents.';
+            return view('admin.reference-materials.folders', compact('notices', 'q', 'sort', 'dir', 'pageDescription'));
         }
 
         $materialsQuery = ReferenceMaterial::with(['notice', 'user'])
@@ -91,35 +104,98 @@ class ReferenceMaterialController extends Controller
         }
         $materials = $materialsQuery->orderBy('created_at', 'desc')->get();
 
-        // Build a flat list of files (one row per media), de‑duplicated by media_id
+        $notice = Notice::with('creator')->find($noticeId);
+        if (!$notice) {
+            return redirect()->route('admin.reference-materials.index')->with('error', 'Notice not found.');
+        }
+
+        // Build a flat list of files (one row per media), de‑duplicated by media_id.
+        // Sources: reference materials, notice's own attachments, and related Agenda notices' attachments.
         $files = [];
+
+        $addFileFromMedia = function ($media, $modifiedAt, $ownerName, $ownerAvatar, $materialId, $sourceLabel = null) use (&$files) {
+            if (!$media || isset($files[$media->id])) {
+                return;
+            }
+            $fileSize = 0;
+            if (Storage::disk('public')->exists($media->file_path)) {
+                $fileSize = Storage::disk('public')->size($media->file_path);
+            }
+            $fileName = $media->file_name;
+            $displayName = trim((string) ($media->title ?? $fileName));
+            if ($displayName === '') {
+                $displayName = $fileName;
+            }
+            $files[$media->id] = (object)[
+                'material_id' => $materialId,
+                'media_id' => $media->id,
+                'file_name' => $fileName,
+                'display_name' => $displayName,
+                'file_path' => $media->file_path,
+                'file_type' => $media->file_type,
+                'file_extension' => strtolower(pathinfo($fileName, PATHINFO_EXTENSION)),
+                'file_size' => $fileSize,
+                'owner_name' => $ownerName,
+                'owner_avatar' => $ownerAvatar,
+                'modified_at' => $modifiedAt,
+                'source_label' => $sourceLabel,
+            ];
+        };
+
         foreach ($materials as $material) {
             $attachmentIds = $material->attachments ?? [];
             $mediaItems = MediaLibrary::whereIn('id', $attachmentIds)->get()->keyBy('id');
             foreach ($attachmentIds as $mediaId) {
                 $media = $mediaItems->get($mediaId);
-                if (!$media) {
-                    continue;
-                }
-                // Avoid duplicate rows if the same media ID appears more than once
-                if (isset($files[$media->id])) {
-                    continue;
-                }
-                $fileSize = 0;
-                if (Storage::disk('public')->exists($media->file_path)) {
-                    $fileSize = Storage::disk('public')->size($media->file_path);
-                }
-                $files[$media->id] = (object)[
-                    'material_id' => $material->id,
-                    'media_id' => $media->id,
-                    'file_name' => $media->file_name,
-                    'file_path' => $media->file_path,
-                    'file_type' => $media->file_type,
-                    'file_size' => $fileSize,
-                    'owner_name' => $material->user->first_name . ' ' . $material->user->last_name,
-                    'owner_avatar' => $material->user->profile_picture ? optional(MediaLibrary::find($material->user->profile_picture))->file_path : null,
-                    'modified_at' => $material->created_at,
-                ];
+                $addFileFromMedia(
+                    $media,
+                    $material->created_at,
+                    $material->user->first_name . ' ' . $material->user->last_name,
+                    $material->user->profile_picture ? optional(MediaLibrary::find($material->user->profile_picture))->file_path : null,
+                    $material->id,
+                    null
+                );
+            }
+        }
+
+        // Notice's own attachments
+        $noticeAttachmentIds = $notice->attachments ?? [];
+        if (!empty($noticeAttachmentIds)) {
+            $creator = $notice->creator;
+            $ownerName = $creator ? ($creator->first_name . ' ' . $creator->last_name) : 'Notice';
+            $ownerAvatar = $creator && $creator->profile_picture ? optional(MediaLibrary::find($creator->profile_picture))->file_path : null;
+            foreach (MediaLibrary::whereIn('id', $noticeAttachmentIds)->get() as $media) {
+                $addFileFromMedia($media, $notice->updated_at ?? $notice->created_at, $ownerName, $ownerAvatar, null, 'Notice');
+            }
+        }
+
+        // Related Agenda notices' attachments — show uploader (agenda creator) avatar and name on hover
+        $agendaNotices = Notice::with('creator')->where('related_notice_id', $noticeId)->get();
+        foreach ($agendaNotices as $agenda) {
+            $agendaAttachmentIds = $agenda->attachments ?? [];
+            if (empty($agendaAttachmentIds)) {
+                continue;
+            }
+            $agendaCreator = $agenda->creator;
+            $ownerName = $agendaCreator ? ($agendaCreator->first_name . ' ' . $agendaCreator->last_name) : 'Agenda';
+            $ownerAvatar = $agendaCreator && $agendaCreator->profile_picture ? optional(MediaLibrary::find($agendaCreator->profile_picture))->file_path : null;
+            foreach (MediaLibrary::whereIn('id', $agendaAttachmentIds)->get() as $media) {
+                $addFileFromMedia($media, $agenda->updated_at ?? $agenda->created_at, $ownerName, $ownerAvatar, null, null);
+            }
+        }
+
+        // Approved Agenda Inclusion Request attachments (approved agenda items) — show uploader avatar and name on hover
+        $approvedAgendaRequests = AgendaInclusionRequest::with('user')->where('notice_id', $noticeId)->where('status', 'approved')->get();
+        foreach ($approvedAgendaRequests as $agendaRequest) {
+            $attachmentIds = $agendaRequest->attachments ?? [];
+            if (empty($attachmentIds)) {
+                continue;
+            }
+            $user = $agendaRequest->user;
+            $ownerName = $user ? ($user->first_name . ' ' . $user->last_name) : 'Agenda item';
+            $ownerAvatar = $user && $user->profile_picture ? optional(MediaLibrary::find($user->profile_picture))->file_path : null;
+            foreach (MediaLibrary::whereIn('id', $attachmentIds)->get() as $media) {
+                $addFileFromMedia($media, $agendaRequest->updated_at ?? $agendaRequest->created_at, $ownerName, $ownerAvatar, null, null);
             }
         }
 
@@ -144,8 +220,6 @@ class ReferenceMaterialController extends Controller
             $currentPage,
             ['path' => $request->url(), 'query' => $request->query()]
         );
-
-        $notice = Notice::find($noticeId);
 
         return view('admin.reference-materials.index', compact('filesPaginated', 'noticeId', 'notice', 'q', 'sort', 'dir'));
     }
@@ -176,8 +250,20 @@ class ReferenceMaterialController extends Controller
 
         $mediaById = [];
         foreach ($materials as $material) {
-            $ids = $material->attachments ?? [];
-            foreach ($ids as $id) {
+            foreach ($material->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+        foreach ($notice->attachments ?? [] as $id) {
+            $mediaById[$id] = true;
+        }
+        foreach (Notice::where('related_notice_id', $noticeId)->get() as $agenda) {
+            foreach ($agenda->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+        foreach (AgendaInclusionRequest::where('notice_id', $noticeId)->where('status', 'approved')->get() as $agendaRequest) {
+            foreach ($agendaRequest->attachments ?? [] as $id) {
                 $mediaById[$id] = true;
             }
         }

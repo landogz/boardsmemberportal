@@ -9,85 +9,113 @@
     $currentDir = $dir ?? 'desc';
 @endphp
 
+@php
+    $fileIconStyle = function ($ext) {
+        return match (true) {
+            $ext === 'pdf' => 'bg-red-100 text-red-700',
+            in_array($ext, ['xls', 'xlsx']) => 'bg-emerald-100 text-emerald-700',
+            in_array($ext, ['doc', 'docx']) => 'bg-blue-100 text-blue-700',
+            in_array($ext, ['ppt', 'pptx']) => 'bg-amber-100 text-amber-700',
+            in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']) => 'bg-sky-100 text-sky-600',
+            default => 'bg-gray-100 text-gray-600',
+        };
+    };
+    $fileIconName = function ($ext) {
+        return $ext === 'pdf' ? 'fa-file-pdf' : (in_array($ext, ['doc', 'docx']) ? 'fa-file-word' : (in_array($ext, ['xls', 'xlsx']) ? 'fa-file-excel' : (in_array($ext, ['ppt', 'pptx']) ? 'fa-file-powerpoint' : 'fa-file-alt')));
+    };
+@endphp
 @push('styles')
 <style>
-    .drive-search-wrap { background: #f1f3f4; border-radius: 8px; padding: 0.5rem 1rem; }
-    .drive-search-wrap:focus-within { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .drive-search-wrap input { background: transparent; border: none; }
-    .drive-search-wrap input:focus { outline: none; }
-    .drive-row:hover { background: #f8f9fa; }
-    .drive-row td:last-child { overflow: visible; }
-    .drive-table th { font-weight: 500; color: #5f6368; font-size: 0.75rem; }
-    .drive-sort-btn { color: #5f6368; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
-    .drive-sort-btn:hover { background: rgba(0,0,0,0.06); color: #202124; }
-    .drive-sort-btn.active { color: #1a73e8; }
-    .file-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: #e8f0fe; color: #1a73e8; display: flex; align-items: center; justify-content: center; }
     .ref-material-floating-menu { position: fixed; z-index: 999999; display: none; min-width: 180px; padding: 0.35rem 0; background: #fff; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); border: 1px solid #e5e7eb; }
     .ref-material-floating-menu a, .ref-material-floating-menu button { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.5rem 0.75rem; text-left; font-size: 0.875rem; color: #202124; border: none; background: none; cursor: pointer; border-radius: 0; box-sizing: border-box; font-family: inherit; }
     .ref-material-floating-menu a:hover, .ref-material-floating-menu button:hover { background: #f1f3f4; }
     .ref-material-floating-menu .menu-item-danger { color: #dc2626; }
-    .view-toggle-btn { padding: 0.5rem; border-radius: 50%; color: #5f6368; }
-    .view-toggle-btn:hover { background: rgba(0,0,0,0.06); color: #202124; }
-    .view-toggle-btn.active { color: #1a73e8; background: rgba(26, 115, 232, 0.08); }
-    .file-card { transition: all 0.15s ease; }
-    .file-card:hover { background: #f8f9fa; }
-    .file-icon-grid { width: 48px; height: 48px; border-radius: 12px; background: #e8f0fe; color: #1a73e8; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    /* Owner avatar tooltip (same as /admin/notices) */
+    .ref-owner-avatar { position: relative; display: inline-block; }
+    .ref-owner-avatar .ref-avatar-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        background-color: #1f2937;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 20;
+        margin-bottom: 8px;
+    }
+    .ref-owner-avatar .ref-avatar-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: #1f2937;
+    }
+    .ref-owner-avatar:hover .ref-avatar-tooltip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 </style>
 @endpush
 
 @section('content')
 <div id="refMaterialsPage" class="p-4 sm:p-6 bg-white min-h-screen">
-    @if($notice ?? null)
-    <div class="mb-4">
-        <form action="{{ route('admin.reference-materials.index') }}" method="get" class="drive-search-wrap flex items-center gap-3 max-w-xl">
-            <input type="hidden" name="notice" value="{{ $notice->id }}">
-            <i class="fas fa-search text-gray-500"></i>
-            <input type="search" id="materialSearch" name="q" value="{{ request()->query('q', $q ?? '') }}" placeholder="Search in this folder" class="flex-1 py-2 text-sm text-gray-900 placeholder-gray-500">
-            @if(!empty(request()->query('q', $q ?? '')))
-                <a href="{{ route('admin.reference-materials.index', ['notice' => $notice->id]) }}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times-circle"></i></a>
-            @endif
-        </form>
-    </div>
-    @endif
-
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2 pb-3 border-b border-gray-200">
-        <div class="flex items-center gap-2 flex-wrap">
-            <nav class="flex items-center gap-2 text-sm text-gray-600">
-                <a href="{{ route('admin.reference-materials.index') }}" class="text-blue-600 hover:text-blue-800 hover:underline">Reference Materials</a>
+    {{-- Single header row: breadcrumb + search + actions --}}
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3 pb-3 border-b border-gray-200">
+        <div class="flex flex-wrap items-center gap-3 min-w-0">
+            <nav class="flex items-center gap-2 text-sm text-gray-600 shrink-0">
+                <a href="{{ route('admin.reference-materials.index') }}" class="text-[#055498] hover:underline">Reference Materials</a>
                 @if($notice ?? null)
                     <span class="text-gray-400">/</span>
-                    <span class="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-md" title="{{ $notice->title }}">{{ $notice->title }}</span>
+                    <span class="text-gray-900 font-medium truncate max-w-[180px] sm:max-w-sm" title="{{ $notice->title }}">{{ $notice->title }}</span>
                 @endif
             </nav>
             @if($notice ?? null)
-                <button type="button" onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="ml-2 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
-                    <i class="fas fa-plus"></i> New
-                </button>
+            <form action="{{ route('admin.reference-materials.index') }}" method="get" class="flex items-center gap-2 flex-1 min-w-0 max-w-md rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#055498]/20 focus-within:border-[#055498]">
+                <input type="hidden" name="notice" value="{{ $notice->id }}">
+                <i class="fas fa-search text-gray-400 shrink-0"></i>
+                <input type="search" id="materialSearch" name="q" value="{{ request()->query('q', $q ?? '') }}" placeholder="Search in this folder" class="flex-1 min-w-0 py-1 text-sm text-gray-900 placeholder-gray-500 bg-transparent border-0 focus:outline-none focus:ring-0">
+                @if(!empty(request()->query('q', $q ?? '')))
+                    <a href="{{ route('admin.reference-materials.index', ['notice' => $notice->id]) }}" class="text-gray-400 hover:text-gray-600 shrink-0" title="Clear search"><i class="fas fa-times-circle"></i></a>
+                @endif
+            </form>
+            <button type="button" onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-white shrink-0" style="background-color: #055498;">
+                <i class="fas fa-plus"></i> New
+            </button>
             @endif
         </div>
         @if($notice ?? null)
-        <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center gap-2 flex-wrap shrink-0">
             <button type="button" id="refDownloadAllBtn" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium border border-gray-200 disabled:opacity-70 disabled:cursor-not-allowed" data-notice-id="{{ $notice->id }}" data-download-url="{{ route('admin.reference-materials.download-all', ['notice' => $notice->id]) }}" title="Download all files as zip">
                 <i class="ref-download-all-icon fas fa-file-archive"></i>
                 <span class="ref-download-all-text">Download all</span>
             </button>
             @php $baseUrl = route('admin.reference-materials.index', ['notice' => $notice->id]); $queryParams = request()->only(['q']); @endphp
             <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50/50 overflow-hidden">
-                <a href="{{ $baseUrl . '?' . http_build_query(array_merge($queryParams, ['sort' => 'modified', 'dir' => ($currentSort === 'modified' && $currentDir === 'asc') ? 'desc' : 'asc'])) }}" class="drive-sort-btn {{ $currentSort === 'modified' ? 'active' : '' }}">Modified</a>
-                <a href="{{ $baseUrl . '?' . http_build_query(array_merge($queryParams, ['sort' => 'name', 'dir' => ($currentSort === 'name' && $currentDir === 'asc') ? 'desc' : 'asc'])) }}" class="drive-sort-btn {{ $currentSort === 'name' ? 'active' : '' }}">Name</a>
+                <a href="{{ $baseUrl . '?' . http_build_query(array_merge($queryParams, ['sort' => 'modified', 'dir' => ($currentSort === 'modified' && $currentDir === 'asc') ? 'desc' : 'asc'])) }}" class="px-2.5 py-1 text-xs rounded {{ $currentSort === 'modified' ? 'bg-[#055498] text-white font-medium' : 'text-gray-600 hover:bg-gray-100' }}">Modified</a>
+                <a href="{{ $baseUrl . '?' . http_build_query(array_merge($queryParams, ['sort' => 'name', 'dir' => ($currentSort === 'name' && $currentDir === 'asc') ? 'desc' : 'asc'])) }}" class="px-2.5 py-1 text-xs rounded {{ $currentSort === 'name' ? 'bg-[#055498] text-white font-medium' : 'text-gray-600 hover:bg-gray-100' }}">Name</a>
             </div>
-            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50/50 p-0.5">
-                <button type="button" onclick="setFilesView('list')" id="filesViewListBtn" class="view-toggle-btn {{ ($filesView ?? 'list') === 'list' ? 'active' : '' }}" title="List view"><i class="fas fa-list"></i></button>
-                <button type="button" onclick="setFilesView('grid')" id="filesViewGridBtn" class="view-toggle-btn {{ ($filesView ?? 'list') === 'grid' ? 'active' : '' }}" title="Grid view"><i class="fas fa-th-large"></i></button>
+            <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50/80 p-0.5">
+                <button type="button" onclick="setFilesView('list')" id="filesViewListBtn" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 {{ ($filesView ?? 'list') === 'list' ? 'bg-[#055498] text-white hover:bg-[#044a85]' : '' }}" title="List view"><i class="fas fa-list"></i></button>
+                <button type="button" onclick="setFilesView('grid')" id="filesViewGridBtn" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 {{ ($filesView ?? 'list') === 'grid' ? 'bg-[#055498] text-white hover:bg-[#044a85]' : '' }}" title="Grid view"><i class="fas fa-th-large"></i></button>
             </div>
         </div>
         @endif
     </div>
 
     @if($notice ?? null)
-    <div id="refDropZone" class="mb-4 flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600" data-notice-id="{{ $notice->id }}">
-        <i class="fas fa-cloud-upload-alt text-gray-400"></i>
-        <span>Drag & drop files here to upload to this folder, or click <span class="font-semibold">New</span>.</span>
+    <div id="refDropZone" class="mb-4 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/80 px-6 py-8 text-center transition-colors" data-notice-id="{{ $notice->id }}">
+        <span class="text-3xl text-gray-400" aria-hidden="true">☁️</span>
+        <p class="text-sm font-medium text-gray-600">Drag & drop files here</p>
+        <p class="text-xs text-gray-500">or click <span class="font-semibold text-gray-700">New</span> to upload</p>
     </div>
     @endif
 
@@ -119,65 +147,77 @@
     </div>
     @endif
 
-    <div id="filesListView" class="{{ ($filesView ?? 'list') === 'grid' ? 'hidden' : '' }} bg-white rounded-lg border border-gray-200">
+    <div id="filesListView" class="{{ ($filesView ?? 'list') === 'grid' ? 'hidden' : '' }} bg-white rounded-xl border border-gray-200 overflow-hidden">
         @if(isset($filesPaginated) && $filesPaginated->count() > 0)
-        <table class="min-w-full drive-table">
+        <table class="min-w-full">
             <thead>
-                <tr class="border-b border-gray-200 bg-gray-50/50">
-                    <th class="text-left py-3 px-4 w-12"></th>
-                    <th class="text-left py-3 px-4">Name</th>
-                    <th class="text-left py-3 px-4">Owner</th>
-                    <th class="text-left py-3 px-4">Modified</th>
-                    <th class="text-left py-3 px-4">Size</th>
-                    <th class="w-12"></th>
+                <tr class="border-b border-gray-200 bg-gray-50/80">
+                    <th class="text-left py-2 px-4 w-12 text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>
+                    <th class="text-left py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="text-left py-2 px-4 w-10 text-xs font-semibold text-gray-500 uppercase tracking-wider">Owner</th>
+                    <th class="text-left py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Modified</th>
+                    <th class="text-left py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Size</th>
+                    <th class="w-32 py-2 px-4 text-right"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($filesPaginated as $file)
                 @php
-                    $ext = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
-                    $icon = ($ext === 'pdf') ? 'fa-file-pdf' : (in_array($ext, ['doc','docx']) ? 'fa-file-word' : (in_array($ext, ['xls','xlsx']) ? 'fa-file-excel' : 'fa-file-alt'));
+                    $ext = $file->file_extension ?? strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+                    $icon = $fileIconName($ext);
+                    $iconClass = $fileIconStyle($ext);
                     $fileUrl = asset('storage/' . $file->file_path);
                     $profileUrl = $file->owner_avatar ? asset('storage/' . $file->owner_avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($file->owner_name) . '&size=32&background=e8f0fe&color=1a73e8';
                     $sz = $file->file_size ?? 0;
                     $sizeFormatted = $sz >= 1048576 ? number_format($sz / 1048576, 2) . ' MB' : ($sz >= 1024 ? number_format($sz / 1024, 2) . ' KB' : ($sz > 0 ? $sz . ' B' : '—'));
+                    $displayName = $file->display_name ?? $file->file_name;
+                    $displayTruncated = Str::length($displayName) > 42 ? Str::limit($displayName, 42) : $displayName;
                 @endphp
-                <tr class="drive-row border-b border-gray-100 relative">
-                    <td class="py-3 px-4">
-                        <div class="file-icon-wrap">
-                            <i class="fas {{ $icon }}"></i>
+                <tr class="drive-row group border-b border-gray-100 hover:bg-[#f0f7ff] transition-colors">
+                    <td class="py-2 px-4">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center {{ $iconClass }}">
+                            <i class="fas {{ $icon }} text-sm"></i>
                         </div>
                     </td>
-                    <td class="py-3 px-4">
-                        <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="text-gray-900 font-medium hover:underline focus:outline-none focus:underline">
-                            {{ $file->file_name }}
+                    <td class="py-2 px-4">
+                        <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="text-gray-900 font-medium hover:underline focus:outline-none focus:underline truncate block max-w-[240px] sm:max-w-md" title="{{ $file->file_name }}">
+                            {{ $displayTruncated }}
                         </a>
                     </td>
-                    <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
-                            <img src="{{ $profileUrl }}" alt="" class="h-6 w-6 rounded-full object-cover">
-                            <span class="text-sm text-gray-700">{{ $file->owner_name }}</span>
+                    <td class="py-2 px-4">
+                        @if(!empty($file->source_label ?? null))
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded" title="{{ $file->source_label }}">{{ $file->source_label }}</span>
+                        @else
+                            <div class="ref-owner-avatar">
+                                <img src="{{ $profileUrl }}" alt="{{ $file->owner_name }}" class="h-7 w-7 rounded-full object-cover inline-block cursor-pointer">
+                                <div class="ref-avatar-tooltip">{{ $file->owner_name }}</div>
+                            </div>
+                        @endif
+                    </td>
+                    <td class="py-2 px-4 text-sm text-gray-600">{{ $file->modified_at->format('M d, Y') }}</td>
+                    <td class="py-2 px-4 text-sm text-gray-600">{{ $sizeFormatted }}</td>
+                    <td class="py-2 px-4 text-right overflow-visible">
+                        <div class="flex items-center justify-end gap-0.5">
+                            <a href="{{ $fileUrl }}" download="{{ $file->file_name }}" class="ref-action-download p-1.5 rounded-lg text-gray-400 hover:bg-gray-200 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity" title="Download"><i class="fas fa-download text-sm"></i></a>
+                            @if(!empty($file->material_id))
+                            <button type="button" class="ref-action-rename p-1.5 rounded-lg text-gray-400 hover:bg-gray-200 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity" title="Rename" data-file-url="{{ $fileUrl }}" data-file-name="{{ e($file->file_name) }}" data-material-id="{{ $file->material_id }}" data-media-id="{{ $file->media_id }}" data-action="rename"><i class="fas fa-edit text-sm"></i></button>
+                            <button type="button" class="ref-action-remove p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove" data-file-url="{{ $fileUrl }}" data-file-name="{{ e($file->file_name) }}" data-material-id="{{ $file->material_id }}" data-media-id="{{ $file->media_id }}" data-action="remove"><i class="fas fa-trash text-sm"></i></button>
+                            @endif
+                            <button type="button" class="ref-material-menu-btn p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none" aria-label="More actions"
+                                data-file-url="{{ $fileUrl }}"
+                                data-file-name="{{ e($file->file_name) }}"
+                                data-material-id="{{ $file->material_id }}"
+                                data-media-id="{{ $file->media_id }}">
+                                <i class="fas fa-ellipsis-v text-sm"></i>
+                            </button>
                         </div>
-                    </td>
-                    <td class="py-3 px-4 text-sm text-gray-600">
-                        {{ $file->modified_at->format('M d, Y') }}
-                    </td>
-                    <td class="py-3 px-4 text-sm text-gray-600">{{ $sizeFormatted }}</td>
-                    <td class="py-3 px-4 text-right">
-                        <button type="button" class="ref-material-menu-btn p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none" aria-label="Actions"
-                            data-file-url="{{ $fileUrl }}"
-                            data-file-name="{{ e($file->file_name) }}"
-                            data-material-id="{{ $file->material_id }}"
-                            data-media-id="{{ $file->media_id }}">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        <div class="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-            <p class="text-sm text-gray-600">Showing {{ $filesPaginated->firstItem() ?? 0 }}–{{ $filesPaginated->lastItem() ?? 0 }} of {{ $filesPaginated->total() }}</p>
+        <div class="px-4 py-2 border-t border-gray-200 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">Showing {{ $filesPaginated->firstItem() ?? 0 }}–{{ $filesPaginated->lastItem() ?? 0 }} of {{ $filesPaginated->total() }}</p>
             <div class="flex gap-1">{{ $filesPaginated->links() }}</div>
         </div>
         @else
@@ -197,38 +237,49 @@
     <div id="filesGridView" class="{{ ($filesView ?? 'list') === 'grid' ? '' : 'hidden' }} grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         @foreach($filesPaginated as $file)
         @php
-            $ext = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
-            $icon = ($ext === 'pdf') ? 'fa-file-pdf' : (in_array($ext, ['doc','docx']) ? 'fa-file-word' : (in_array($ext, ['xls','xlsx']) ? 'fa-file-excel' : 'fa-file-alt'));
+            $ext = $file->file_extension ?? strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+            $icon = $fileIconName($ext);
+            $iconClass = $fileIconStyle($ext);
             $fileUrl = asset('storage/' . $file->file_path);
             $profileUrl = $file->owner_avatar ? asset('storage/' . $file->owner_avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($file->owner_name) . '&size=32&background=e8f0fe&color=1a73e8';
             $sz = $file->file_size ?? 0;
             $sizeFormatted = $sz >= 1048576 ? number_format($sz / 1048576, 2) . ' MB' : ($sz >= 1024 ? number_format($sz / 1024, 2) . ' KB' : ($sz > 0 ? $sz . ' B' : '—'));
+            $displayName = $file->display_name ?? $file->file_name;
+            $displayTruncated = Str::length($displayName) > 36 ? Str::limit($displayName, 36) : $displayName;
         @endphp
-        <div class="file-card rounded-xl border border-gray-200 p-4 relative group">
+        <div class="file-card rounded-xl border border-gray-200 p-4 relative group hover:bg-[#f0f7ff] hover:border-[#055498]/30 transition-all">
             <div class="flex flex-col items-center text-center">
                 <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="block mb-3">
-                    <div class="file-icon-grid mx-auto">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto {{ $iconClass }} text-lg">
                         <i class="fas {{ $icon }}"></i>
                     </div>
                 </a>
-                <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="text-sm font-medium text-gray-900 truncate w-full hover:underline" title="{{ $file->file_name }}">{{ $file->file_name }}</a>
-                <p class="text-xs text-gray-500 mt-1">{{ $file->owner_name }}</p>
+                <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="text-sm font-medium text-gray-900 truncate w-full hover:underline" title="{{ $file->file_name }}">{{ $displayTruncated }}</a>
+                @if(!empty($file->source_label ?? null))
+                    <span class="text-xs text-gray-500 mt-1.5 inline-block truncate w-full" title="{{ $file->source_label }}">{{ $file->source_label }}</span>
+                @else
+                    <div class="ref-owner-avatar mt-1.5">
+                        <img src="{{ $profileUrl }}" alt="{{ $file->owner_name }}" class="h-6 w-6 rounded-full object-cover inline-block cursor-pointer">
+                        <div class="ref-avatar-tooltip">{{ $file->owner_name }}</div>
+                    </div>
+                @endif
                 <p class="text-xs text-gray-400 mt-0.5">{{ $file->modified_at->format('M d, Y') }} · {{ $sizeFormatted }}</p>
             </div>
-            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button type="button" class="ref-material-menu-btn p-1.5 rounded-full text-gray-500 hover:bg-gray-100"
+            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                <a href="{{ $fileUrl }}" download="{{ $file->file_name }}" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-200 hover:text-gray-700" title="Download"><i class="fas fa-download text-xs"></i></a>
+                <button type="button" class="ref-material-menu-btn p-1.5 rounded-lg text-gray-400 hover:bg-gray-200"
                     data-file-url="{{ $fileUrl }}"
                     data-file-name="{{ e($file->file_name) }}"
                     data-material-id="{{ $file->material_id }}"
                     data-media-id="{{ $file->media_id }}">
-                    <i class="fas fa-ellipsis-v text-sm"></i>
+                    <i class="fas fa-ellipsis-v text-xs"></i>
                 </button>
             </div>
         </div>
         @endforeach
     </div>
-    <div id="filesGridPagination" class="{{ ($filesView ?? 'list') === 'grid' ? '' : 'hidden' }} mt-4 flex items-center justify-between">
-        <p class="text-sm text-gray-600">Showing {{ $filesPaginated->firstItem() ?? 0 }}–{{ $filesPaginated->lastItem() ?? 0 }} of {{ $filesPaginated->total() }}</p>
+    <div id="filesGridPagination" class="{{ ($filesView ?? 'list') === 'grid' ? '' : 'hidden' }} mt-4 flex items-center justify-between flex-wrap gap-2">
+        <p class="text-xs text-gray-500">Showing {{ $filesPaginated->firstItem() ?? 0 }}–{{ $filesPaginated->lastItem() ?? 0 }} of {{ $filesPaginated->total() }}</p>
         <div class="flex gap-1">{{ $filesPaginated->links() }}</div>
     </div>
     @endif
@@ -243,18 +294,20 @@
     var listBtn = document.getElementById('filesViewListBtn');
     var gridBtn = document.getElementById('filesViewGridBtn');
     if (!listEl) return;
+    var activeCls = ['bg-[#055498]', 'text-white'];
+    var inactCls = 'text-gray-500';
     if (view === 'grid' && gridEl) {
         listEl.classList.add('hidden');
         gridEl.classList.remove('hidden');
         if (gridPagEl) gridPagEl.classList.remove('hidden');
-        if (listBtn) listBtn.classList.remove('active');
-        if (gridBtn) gridBtn.classList.add('active');
+        if (listBtn) { activeCls.forEach(function(c) { listBtn.classList.remove(c); }); listBtn.classList.add(inactCls); }
+        if (gridBtn) { inactCls.split(' ').forEach(function(c) { gridBtn.classList.remove(c); }); activeCls.forEach(function(c) { gridBtn.classList.add(c); }); }
     } else {
         listEl.classList.remove('hidden');
         if (gridEl) gridEl.classList.add('hidden');
         if (gridPagEl) gridPagEl.classList.add('hidden');
-        if (listBtn) listBtn.classList.add('active');
-        if (gridBtn) gridBtn.classList.remove('active');
+        if (listBtn) { inactCls.split(' ').forEach(function(c) { listBtn.classList.remove(c); }); activeCls.forEach(function(c) { listBtn.classList.add(c); }); }
+        if (gridBtn) { activeCls.forEach(function(c) { gridBtn.classList.remove(c); }); gridBtn.classList.add(inactCls); }
     }
 })();
 function setFilesView(v) {
@@ -264,18 +317,20 @@ function setFilesView(v) {
     var gridPagEl = document.getElementById('filesGridPagination');
     var listBtn = document.getElementById('filesViewListBtn');
     var gridBtn = document.getElementById('filesViewGridBtn');
+    var activeCls = ['bg-[#055498]', 'text-white'];
+    var inactCls = 'text-gray-500';
     if (v === 'grid' && gridEl) {
         listEl.classList.add('hidden');
         gridEl.classList.remove('hidden');
         if (gridPagEl) gridPagEl.classList.remove('hidden');
-        listBtn.classList.remove('active');
-        gridBtn.classList.add('active');
+        if (listBtn) { activeCls.forEach(function(c) { listBtn.classList.remove(c); }); listBtn.classList.add(inactCls); }
+        if (gridBtn) { inactCls.split(' ').forEach(function(c) { gridBtn.classList.remove(c); }); activeCls.forEach(function(c) { gridBtn.classList.add(c); }); }
     } else {
         listEl.classList.remove('hidden');
         if (gridEl) gridEl.classList.add('hidden');
         if (gridPagEl) gridPagEl.classList.add('hidden');
-        listBtn.classList.add('active');
-        gridBtn.classList.remove('active');
+        if (listBtn) { inactCls.split(' ').forEach(function(c) { listBtn.classList.remove(c); }); activeCls.forEach(function(c) { listBtn.classList.add(c); }); }
+        if (gridBtn) { activeCls.forEach(function(c) { gridBtn.classList.remove(c); }); gridBtn.classList.add(inactCls); }
     }
 }
 // Drag & drop upload support – upload directly on drop (no modal)
@@ -413,11 +468,14 @@ function openRefMenu(btn, contextEvent) {
     var openMarkup = isPdf
         ? '<a href="javascript:void(0)" class="ref-open-pdf" data-pdf-url="' + safeUrl + '" data-pdf-title="' + safeName + '"><i class="fas fa-external-link-alt text-gray-500 w-4"></i> Open</a>'
         : '<a href="' + safeUrl + '" target="_blank" rel="noopener"><i class="fas fa-external-link-alt text-gray-500 w-4"></i> Open</a>';
+    var renameRemoveMarkup = (materialId && materialId !== '0') ? (
+        '<button type="button" data-action="rename" data-material-id="' + materialId + '" data-media-id="' + mediaId + '" data-file-name="' + (fileName || '').replace(/"/g, '&quot;') + '"><i class="fas fa-edit text-gray-500 w-4"></i> Rename</button>' +
+        '<button type="button" class="menu-item-danger" data-action="remove" data-material-id="' + materialId + '" data-media-id="' + mediaId + '" data-file-name="' + (fileName || '').replace(/"/g, '&quot;') + '"><i class="fas fa-trash w-4"></i> Remove</button>'
+    ) : '';
     menu.innerHTML =
         openMarkup +
         '<a href="' + safeUrl + '" download="' + safeName + '"><i class="fas fa-download text-gray-500 w-4"></i> Download</a>' +
-        '<button type="button" data-action="rename" data-material-id="' + materialId + '" data-media-id="' + mediaId + '" data-file-name="' + fileName.replace(/"/g, '&quot;') + '"><i class="fas fa-edit text-gray-500 w-4"></i> Rename</button>' +
-        '<button type="button" class="menu-item-danger" data-action="remove" data-material-id="' + materialId + '" data-media-id="' + mediaId + '" data-file-name="' + fileName.replace(/"/g, '&quot;') + '"><i class="fas fa-trash w-4"></i> Remove</button>';
+        renameRemoveMarkup;
     menu.style.display = 'block';
     var menuW = 180;
     var menuH = 180;
@@ -452,6 +510,30 @@ document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
 });
 document.addEventListener('DOMContentLoaded', function() {
+    // Inline action buttons (Rename, Remove) on row hover
+    var page = document.getElementById('refMaterialsPage');
+    if (page) {
+        page.addEventListener('click', function(ev) {
+            var renameBtn = ev.target.closest('.ref-action-rename');
+            var removeBtn = ev.target.closest('.ref-action-remove');
+            if (renameBtn) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var mid = parseInt(renameBtn.getAttribute('data-material-id'), 10);
+                var vid = parseInt(renameBtn.getAttribute('data-media-id'), 10);
+                var fn = renameBtn.getAttribute('data-file-name') || '';
+                renameFile(mid, vid, fn);
+            }
+            if (removeBtn) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var mid = parseInt(removeBtn.getAttribute('data-material-id'), 10);
+                var vid = parseInt(removeBtn.getAttribute('data-media-id'), 10);
+                var fn = removeBtn.getAttribute('data-file-name') || '';
+                deleteFile(mid, vid, fn);
+            }
+        });
+    }
     document.querySelectorAll('.ref-material-menu-btn').forEach(function(btn) {
         btn.addEventListener('click', function(ev) {
             ev.preventDefault();
