@@ -187,6 +187,15 @@
                                 <option value="">Select Title</option>
                                 <option value="Mr." {{ $user->pre_nominal_title === 'Mr.' ? 'selected' : '' }}>Mr.</option>
                                 <option value="Ms." {{ $user->pre_nominal_title === 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                                <option value="Dr." {{ $user->pre_nominal_title === 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                                <option value="Atty." {{ $user->pre_nominal_title === 'Atty.' ? 'selected' : '' }}>Atty.</option>
+                                <option value="Engr." {{ $user->pre_nominal_title === 'Engr.' ? 'selected' : '' }}>Engr.</option>
+                                <option value="Secretary" {{ $user->pre_nominal_title === 'Secretary' ? 'selected' : '' }}>Secretary</option>
+                                <option value="Undersecretary" {{ $user->pre_nominal_title === 'Undersecretary' ? 'selected' : '' }}>Undersecretary</option>
+                                <option value="Assistant Secretary" {{ $user->pre_nominal_title === 'Assistant Secretary' ? 'selected' : '' }}>Assistant Secretary</option>
+                                <option value="Director General" {{ $user->pre_nominal_title === 'Director General' ? 'selected' : '' }}>Director General</option>
+                                <option value="Executive Director" {{ $user->pre_nominal_title === 'Executive Director' ? 'selected' : '' }}>Executive Director</option>
+                                <option value="Attorney" {{ $user->pre_nominal_title === 'Attorney' ? 'selected' : '' }}>Attorney</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>

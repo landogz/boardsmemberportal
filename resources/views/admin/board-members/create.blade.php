@@ -183,13 +183,15 @@
                                 <option value="">Select Title</option>
                                 <option value="Mr.">Mr.</option>
                                 <option value="Ms.">Ms.</option>
+                                <option value="Dr.">Dr.</option>
+                                <option value="Atty.">Atty.</option>
+                                <option value="Engr.">Engr.</option>
                                 <option value="Secretary">Secretary</option>
                                 <option value="Undersecretary">Undersecretary</option>
-                                <option value="Director General">Director General</option>
-                                <option value="Attorney">Attorney</option>
-                                <option value="Executive Director">Executive Director</option>
-                                <option value="Dr.">Dr.</option>
                                 <option value="Assistant Secretary">Assistant Secretary</option>
+                                <option value="Director General">Director General</option>
+                                <option value="Executive Director">Executive Director</option>
+                                <option value="Attorney">Attorney</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>
