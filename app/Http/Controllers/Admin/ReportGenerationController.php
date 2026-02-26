@@ -42,13 +42,18 @@ class ReportGenerationController extends Controller
             ->orderBy('title')
             ->get();
 
-        // Get distinct years from Board Issuances for Summary of Regular Meeting (so year dropdown works on first load)
-        $availableYears = Notice::where('notice_type', 'Board Issuances')
-            ->whereNotNull('meeting_date')
-            ->selectRaw('YEAR(meeting_date) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year')
+        // Years and meetings for Summary of Regular Meeting: use all Notice of Meeting (so dropdowns always have options)
+        $meetingNoticesForSummary = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderBy('meeting_date', 'desc')
+            ->orderBy('title')
+            ->get();
+        $availableYears = $meetingNoticesForSummary
+            ->map(function ($n) { return $n->meeting_date ? (int) $n->meeting_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->sortDesc()
+            ->values()
             ->toArray();
 
         // Distinct years from approved_date in Board Regulations and Board Resolutions (PHP so it works with any DB driver)
@@ -69,7 +74,7 @@ class ReportGenerationController extends Controller
         $regulationResolutionYears = array_values(array_unique(array_merge($regulationYears, $resolutionYears)));
         rsort($regulationResolutionYears);
         
-        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears'));
+        return view('admin.report-generation.index', compact('users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears', 'meetingNoticesForSummary'));
     }
 
     /**
@@ -412,180 +417,109 @@ class ReportGenerationController extends Controller
                 break;
 
             case 'summary_regular_meeting':
-                // Get year filter
                 $year = $request->input('year');
-                
                 if (!$year) {
                     $results = collect();
                     break;
                 }
-                
-                // Get Board Issuances notices for the selected year
-                $query = Notice::where('notice_type', 'Board Issuances')
+                // All Notice of Meeting in the selected year; resolutions are those with notice_id = each notice
+                $notices = Notice::where('notice_type', 'Notice of Meeting')
+                    ->whereNotNull('meeting_date')
                     ->whereYear('meeting_date', $year)
-                    ->orderBy('meeting_date', 'asc');
-                
-                $notices = $query->get();
-                
-                // Process each notice to get board regulations and resolutions
+                    ->orderBy('meeting_date', 'asc')
+                    ->get();
                 $summaryData = [];
                 $totalRegulations = 0;
                 $totalResolutions = 0;
-                
-                foreach ($notices as $index => $notice) {
+                foreach ($notices as $notice) {
                     $regulations = [];
                     $resolutions = [];
-                    
-                    // Get board regulations - handle both array and JSON string
+                    // Regulations: from notice board_regulations array and from regulations linked via notice_id
+                    $regulationIds = [];
                     $boardRegulations = $notice->board_regulations;
                     if (is_string($boardRegulations)) {
                         $boardRegulations = json_decode($boardRegulations, true);
                     }
                     if (!empty($boardRegulations) && is_array($boardRegulations)) {
-                        $regulationIds = array_filter($boardRegulations, function($id) {
-                            return !empty($id);
-                        });
-                        if (!empty($regulationIds)) {
-                            // Convert string IDs to integers if needed
-                            $regulationIds = array_map(function($id) {
-                                return is_numeric($id) ? (int)$id : $id;
-                            }, $regulationIds);
-                            $regulationModels = BoardRegulation::whereIn('id', $regulationIds)->get();
-                            foreach ($regulationModels as $reg) {
-                                $regulations[] = [
-                                    'title' => $reg->title,
-                                    'description' => $reg->description ?? '',
-                                    'version' => $reg->version,
-                                ];
-                                $totalRegulations++;
-                            }
+                        $regulationIds = array_filter(array_map(function($id) { return is_numeric($id) ? (int)$id : $id; }, $boardRegulations));
+                    }
+                    foreach (BoardRegulation::where('notice_id', $notice->id)->get() as $reg) {
+                        if (!in_array($reg->id, $regulationIds, true)) {
+                            $regulationIds[] = $reg->id;
                         }
                     }
-                    
-                    // Get board resolutions - handle both array and JSON string
-                    $boardResolutions = $notice->board_resolutions;
-                    if (is_string($boardResolutions)) {
-                        $boardResolutions = json_decode($boardResolutions, true);
-                    }
-                    if (!empty($boardResolutions) && is_array($boardResolutions)) {
-                        $resolutionIds = array_filter($boardResolutions, function($id) {
-                            return !empty($id);
-                        });
-                        if (!empty($resolutionIds)) {
-                            // Convert string IDs to integers if needed
-                            $resolutionIds = array_map(function($id) {
-                                return is_numeric($id) ? (int)$id : $id;
-                            }, $resolutionIds);
-                            $resolutionModels = OfficialDocument::whereIn('id', $resolutionIds)->get();
-                            foreach ($resolutionModels as $res) {
-                                $resolutions[] = [
-                                    'title' => $res->title,
-                                    'description' => $res->description ?? '',
-                                    'resolution_number' => $res->resolution_number ?? '',
-                                    'version' => $res->version,
-                                ];
-                                $totalResolutions++;
-                            }
+                    if (!empty($regulationIds)) {
+                        foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('approved_date')->get() as $reg) {
+                            $regulations[] = ['title' => $reg->title, 'description' => $reg->description ?? '', 'version' => $reg->version];
+                            $totalRegulations++;
                         }
                     }
-                    
-                    // Always add the notice, even if it has no regulations or resolutions
-                    $summaryData[] = [
-                        'notice' => $notice,
-                        'regulations' => $regulations,
-                        'resolutions' => $resolutions,
-                    ];
+                    // Resolutions linked to this meeting via notice_id
+                    foreach (OfficialDocument::where('notice_id', $notice->id)->orderBy('approved_date')->get() as $res) {
+                        $resolutions[] = [
+                            'title' => $res->title,
+                            'description' => $res->description ?? '',
+                            'resolution_number' => $res->resolution_number ?? '',
+                            'version' => $res->version,
+                        ];
+                        $totalResolutions++;
+                    }
+                    $summaryData[] = ['notice' => $notice, 'regulations' => $regulations, 'resolutions' => $resolutions];
                 }
-                
-                // Return as a collection with a single item for consistency with other report types
-                $results = collect([
-                    [
-                        'year' => (int)$year,
-                        'notices' => $summaryData,
-                        'total_meetings' => count($summaryData),
-                        'total_regulations' => $totalRegulations,
-                        'total_resolutions' => $totalResolutions,
-                    ]
-                ]);
+                $results = collect([[
+                    'year' => (int)$year,
+                    'notices' => $summaryData,
+                    'total_meetings' => count($summaryData),
+                    'total_regulations' => $totalRegulations,
+                    'total_resolutions' => $totalResolutions,
+                ]]);
                 break;
 
             case 'summary_regular_meeting_by_title':
-                // Get notice title filter
                 $noticeId = $request->input('notice_title_id');
-                
                 if (!$noticeId) {
                     $results = collect();
                     break;
                 }
-                
-                // Get the specific Board Issuances notice
-                $notice = Notice::where('notice_type', 'Board Issuances')
-                    ->where('id', $noticeId)
-                    ->first();
-                
+                $notice = Notice::find($noticeId);
                 if (!$notice) {
                     $results = collect();
                     break;
                 }
-                
-                // Process regulations and resolutions
                 $regulations = [];
                 $resolutions = [];
                 $totalRegulations = 0;
                 $totalResolutions = 0;
-                
-                // Get board regulations
+                // Regulations: from notice board_regulations array and from regulations linked via notice_id
+                $regulationIds = [];
                 $boardRegulations = $notice->board_regulations;
                 if (is_string($boardRegulations)) {
                     $boardRegulations = json_decode($boardRegulations, true);
                 }
                 if (!empty($boardRegulations) && is_array($boardRegulations)) {
-                    $regulationIds = array_filter($boardRegulations, function($id) {
-                        return !empty($id);
-                    });
-                    if (!empty($regulationIds)) {
-                        $regulationIds = array_map(function($id) {
-                            return is_numeric($id) ? (int)$id : $id;
-                        }, $regulationIds);
-                        $regulationModels = BoardRegulation::whereIn('id', $regulationIds)->get();
-                        foreach ($regulationModels as $reg) {
-                            $regulations[] = [
-                                'title' => $reg->title,
-                                'description' => $reg->description ?? '',
-                                'version' => $reg->version,
-                            ];
-                            $totalRegulations++;
-                        }
+                    $regulationIds = array_filter(array_map(function($id) { return is_numeric($id) ? (int)$id : $id; }, $boardRegulations));
+                }
+                foreach (BoardRegulation::where('notice_id', $notice->id)->get() as $reg) {
+                    if (!in_array($reg->id, $regulationIds, true)) {
+                        $regulationIds[] = $reg->id;
                     }
                 }
-                
-                // Get board resolutions
-                $boardResolutions = $notice->board_resolutions;
-                if (is_string($boardResolutions)) {
-                    $boardResolutions = json_decode($boardResolutions, true);
-                }
-                if (!empty($boardResolutions) && is_array($boardResolutions)) {
-                    $resolutionIds = array_filter($boardResolutions, function($id) {
-                        return !empty($id);
-                    });
-                    if (!empty($resolutionIds)) {
-                        $resolutionIds = array_map(function($id) {
-                            return is_numeric($id) ? (int)$id : $id;
-                        }, $resolutionIds);
-                        $resolutionModels = OfficialDocument::whereIn('id', $resolutionIds)->get();
-                        foreach ($resolutionModels as $res) {
-                            $resolutions[] = [
-                                'title' => $res->title,
-                                'description' => $res->description ?? '',
-                                'resolution_number' => $res->resolution_number ?? '',
-                                'version' => $res->version,
-                            ];
-                            $totalResolutions++;
-                        }
+                if (!empty($regulationIds)) {
+                    foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('approved_date')->get() as $reg) {
+                        $regulations[] = ['title' => $reg->title, 'description' => $reg->description ?? '', 'version' => $reg->version];
+                        $totalRegulations++;
                     }
                 }
-                
-                // Get max count for rows
+                // Resolutions linked to this meeting via notice_id
+                foreach (OfficialDocument::where('notice_id', $notice->id)->orderBy('approved_date')->get() as $res) {
+                    $resolutions[] = [
+                        'title' => $res->title,
+                        'description' => $res->description ?? '',
+                        'resolution_number' => $res->resolution_number ?? '',
+                        'version' => $res->version,
+                    ];
+                    $totalResolutions++;
+                }
                 $maxCount = max(count($regulations), count($resolutions));
                 
                 // Build rows data
@@ -624,13 +558,18 @@ class ReportGenerationController extends Controller
             ->orderBy('title')
             ->get();
         
-        // Get distinct years from Board Issuances notices for Summary of Regular Meeting
-        $availableYears = Notice::where('notice_type', 'Board Issuances')
-            ->whereNotNull('meeting_date')
-            ->selectRaw('YEAR(meeting_date) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year')
+        // Years and meetings for Summary reports: use all Notice of Meeting
+        $meetingNoticesForSummary = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderBy('meeting_date', 'desc')
+            ->orderBy('title')
+            ->get();
+        $availableYears = $meetingNoticesForSummary
+            ->map(function ($n) { return $n->meeting_date ? (int) $n->meeting_date->format('Y') : null; })
+            ->filter()
+            ->unique()
+            ->values()
+            ->sortDesc()
+            ->values()
             ->toArray();
 
         // Distinct years for Board Regulations/Resolutions year dropdown (so it stays populated and selected after search)
@@ -651,7 +590,7 @@ class ReportGenerationController extends Controller
         $regulationResolutionYears = array_values(array_unique(array_merge($regulationYears, $resolutionYears)));
         rsort($regulationResolutionYears);
 
-        return view('admin.report-generation.index', compact('results', 'reportType', 'filters', 'users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears'));
+        return view('admin.report-generation.index', compact('results', 'reportType', 'filters', 'users', 'notices', 'nomNotices', 'availableYears', 'regulationResolutionYears', 'meetingNoticesForSummary'));
     }
 }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BoardRegulation;
 use App\Models\BoardRegulationVersion;
 use App\Models\MediaLibrary;
+use App\Models\Notice;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
@@ -35,7 +36,12 @@ class BoardRegulationController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to create board regulations.');
         }
 
-        return view('admin.board-regulations.create');
+        $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderByDesc('meeting_date')
+            ->orderByDesc('created_at')
+            ->get(['id', 'title', 'meeting_date']);
+
+        return view('admin.board-regulations.create', compact('noticeOfMeetingNotices'));
     }
 
     public function store(Request $request)
@@ -51,6 +57,7 @@ class BoardRegulationController extends Controller
             'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
             'pdf_file' => 'required|file|mimes:pdf|max:30720',
+            'notice_id' => 'nullable|exists:notices,id',
         ]);
 
         $pdfFileId = null;
@@ -83,6 +90,7 @@ class BoardRegulationController extends Controller
             'approved_date' => $validated['approved_date'],
             'pdf_file' => $pdfFileId,
             'uploaded_by' => Auth::id(),
+            'notice_id' => !empty($validated['notice_id']) ? $validated['notice_id'] : null,
         ]);
 
         AuditLogger::log('board_regulation.create', 'Created board regulation: ' . $regulation->title, $regulation);
@@ -112,9 +120,14 @@ class BoardRegulationController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to edit board regulations.');
         }
 
-        $regulation = BoardRegulation::with(['pdf', 'uploader'])->findOrFail($id);
+        $regulation = BoardRegulation::with(['pdf', 'uploader', 'notice'])->findOrFail($id);
 
-        return view('admin.board-regulations.edit', compact('regulation'));
+        $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderByDesc('meeting_date')
+            ->orderByDesc('created_at')
+            ->get(['id', 'title', 'meeting_date']);
+
+        return view('admin.board-regulations.edit', compact('regulation', 'noticeOfMeetingNotices'));
     }
 
     public function update(Request $request, $id)
@@ -132,16 +145,19 @@ class BoardRegulationController extends Controller
             'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
             'pdf_file' => 'nullable|file|mimes:pdf|max:30720',
+            'notice_id' => 'nullable|exists:notices,id',
             'change_notes' => 'nullable|string', // Optional notes about the change
         ]);
 
         // Save history before updating if file is being changed or any data changed
         $hasFileChange = $request->hasFile('pdf_file');
+        $newNoticeId = !empty($validated['notice_id']) ? (int) $validated['notice_id'] : null;
         $hasDataChange = $regulation->title !== $validated['title'] ||
                         $regulation->description !== ($validated['description'] ?? null) ||
                         $regulation->version !== ($validated['version'] ?? null) ||
                         $regulation->effective_date?->format('Y-m-d') !== ($validated['effective_date'] ?? null) ||
-                        $regulation->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null);
+                        $regulation->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null) ||
+                        $regulation->notice_id !== $newNoticeId;
 
         if ($hasFileChange || $hasDataChange) {
             // Create version history entry before making changes
@@ -181,6 +197,7 @@ class BoardRegulationController extends Controller
             $validated['pdf_file'] = $regulation->pdf_file;
         }
 
+        $validated['notice_id'] = $newNoticeId;
         $regulation->update($validated);
 
         AuditLogger::log('board_regulation.update', 'Updated board regulation: ' . $regulation->title, $regulation);

@@ -150,12 +150,12 @@
                                 <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $document->id }}">
                                     <div class="py-1" role="menu">
                                         @can('edit board resolutions')
-                                        <div class="hidden">
+                                        @if(false) {{-- Edit hidden for now; remove @if(false) to show again --}}
                                         <a href="{{ route('admin.board-resolutions.edit', $document->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
                                             Edit Resolution
                                         </a>
-                                        </div>
+                                        @endif
                                         @endcan
                                         @can('view board resolutions')
                                         <div class="hidden">

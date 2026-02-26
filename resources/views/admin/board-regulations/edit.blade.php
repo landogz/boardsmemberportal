@@ -79,6 +79,21 @@
                 >
                 <p class="text-xs text-gray-500 mt-1">If left empty, approved date will default to effective date.</p>
                 </div>
+
+                <div>
+                    <label for="notice_id" class="block text-sm font-medium text-gray-700 mb-2">Notice of Meeting</label>
+                    <select
+                        id="notice_id"
+                        name="notice_id"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                    >
+                        <option value="">— Select Notice of Meeting (optional) —</option>
+                        @foreach($noticeOfMeetingNotices ?? [] as $nom)
+                            <option value="{{ $nom->id }}" {{ (isset($regulation->notice_id) && $regulation->notice_id == $nom->id) ? 'selected' : '' }}>{{ $nom->title }}{{ $nom->meeting_date ? ' (' . $nom->meeting_date->format('M d, Y') . ')' : '' }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Optionally link this regulation to a Notice of Meeting.</p>
+                </div>
             </div>
 
             <div>

@@ -16,6 +16,7 @@ class BoardRegulation extends Model
         'effective_date',
         'approved_date',
         'uploaded_by',
+        'notice_id',
     ];
 
     protected $casts = [
@@ -31,6 +32,14 @@ class BoardRegulation extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * Get the Notice of Meeting this regulation is linked to (optional).
+     */
+    public function notice(): BelongsTo
+    {
+        return $this->belongsTo(Notice::class, 'notice_id');
     }
 
     public function getYearAttribute(): ?string

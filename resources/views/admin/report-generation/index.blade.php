@@ -145,8 +145,8 @@
                     {{-- <option value="reference_materials" {{ (request('report_type') == 'reference_materials') ? 'selected' : '' }}>Reference Materials</option> --}}
                     {{-- <option value="attendance_confirmations" {{ (request('report_type') == 'attendance_confirmations') ? 'selected' : '' }}>Attendance Confirmations</option> --}}
                     <option value="quorum_guide" {{ (request('report_type') == 'quorum_guide') ? 'selected' : '' }}>Quorum Guide</option>
-                    {{-- <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting</option> --}}
-                    {{-- <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Regular Meeting by Title</option> --}}
+                    <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting</option>
+                    <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Regular Meeting by Title</option>
                 </select>
             </div>
 
@@ -345,15 +345,10 @@
                 <!-- Summary of Regular Meeting by Title filters -->
                 <div class="filter-row summary_regular_meeting_by_title-filters" style="display: none;">
                     <div class="filter-group">
-                        <label>Notice Title</label>
+                        <label>Meeting (Notice)</label>
                         <select name="notice_title_id" id="notice_title_id" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
-                            <option value="">Select Notice Title</option>
-                            @php
-                                $boardIssuancesNotices = \App\Models\Notice::where('notice_type', 'Board Issuances')
-                                    ->orderBy('meeting_date', 'desc')
-                                    ->get();
-                            @endphp
-                            @foreach($boardIssuancesNotices as $notice)
+                            <option value="">Select Meeting</option>
+                            @foreach($meetingNoticesForSummary ?? [] as $notice)
                                 <option value="{{ $notice->id }}" {{ request('notice_title_id') == $notice->id ? 'selected' : '' }}>
                                     {{ $notice->title }}
                                     @if($notice->meeting_date)
@@ -395,7 +390,7 @@
         $showResults = false;
         if (isset($results)) {
             $showResults = true;
-        } elseif (isset($reportType) && ($reportType === 'quorum_guide' || $reportType === 'summary_regular_meeting')) {
+        } elseif (isset($reportType) && in_array($reportType, ['quorum_guide', 'summary_regular_meeting', 'summary_regular_meeting_by_title'])) {
             $showResults = true;
         }
     @endphp
