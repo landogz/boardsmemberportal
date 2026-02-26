@@ -570,50 +570,46 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!url || btn.disabled) return;
             var icon = btn.querySelector('.ref-download-all-icon');
             var textEl = btn.querySelector('.ref-download-all-text');
-            var origHtml = icon ? icon.className : '';
             var origText = textEl ? textEl.textContent : 'Download all';
             btn.disabled = true;
             if (icon) { icon.className = 'ref-download-all-icon fas fa-spinner fa-spin'; }
             if (textEl) { textEl.textContent = 'Preparing...'; }
-            fetch(url, { method: 'GET', credentials: 'same-origin' })
-                .then(function(res) {
-                    var ct = res.headers.get('content-type') || '';
-                    if (res.ok && (ct.indexOf('application/zip') !== -1 || ct.indexOf('octet-stream') !== -1)) {
-                        return res.blob().then(function(blob) {
-                            var disp = res.headers.get('content-disposition');
-                            var name = 'reference-materials.zip';
-                            if (disp) {
-                                var m = disp.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i) || disp.match(/filename=["']?([^"';]+)["']?/i);
-                                if (m && m[1]) name = m[1].trim();
-                            }
-                            var a = document.createElement('a');
-                            a.href = URL.createObjectURL(blob);
-                            a.download = name;
-                            a.style.display = 'none';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(a.href);
-                        });
-                    }
-                    return res.text().then(function() { throw new Error('No files to download.'); });
-                })
-                .then(function() {
-                    if (textEl) textEl.textContent = 'Downloaded';
-                    if (icon) icon.className = 'ref-download-all-icon fas fa-check';
-                    setTimeout(function() {
-                        btn.disabled = false;
-                        if (icon) icon.className = origHtml || 'ref-download-all-icon fas fa-file-archive';
-                        if (textEl) textEl.textContent = origText;
-                    }, 1500);
-                })
-                .catch(function(err) {
+            // Use direct navigation so server gets same cookies/session as the page (fixes server vs localhost)
+            var w = window.open(url, '_blank', 'noopener,noreferrer');
+            var t = setTimeout(function() {
+                btn.disabled = false;
+                if (icon) { icon.className = 'ref-download-all-icon fas fa-file-archive'; }
+                if (textEl) { textEl.textContent = origText; }
+                if (w && !w.closed) w.close();
+            }, 3000);
+            if (w) {
+                w.addEventListener('load', function() {
+                    clearTimeout(t);
                     btn.disabled = false;
-                    if (icon) icon.className = origHtml || 'ref-download-all-icon fas fa-file-archive';
-                    if (textEl) textEl.textContent = origText;
-                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'info', title: 'Download', text: err.message || 'No files to download.' });
-                    else alert(err.message || 'Download failed.');
+                    if (icon) { icon.className = 'ref-download-all-icon fas fa-file-archive'; }
+                    if (textEl) { textEl.textContent = origText; }
+                    try { w.close(); } catch (e) {}
                 });
+                w.addEventListener('error', function() {
+                    clearTimeout(t);
+                    btn.disabled = false;
+                    if (icon) { icon.className = 'ref-download-all-icon fas fa-file-archive'; }
+                    if (textEl) { textEl.textContent = origText; }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Download', text: 'Popup was blocked or download failed. Allow popups and try again, or right‑click the button and open in a new tab.' });
+                });
+            } else {
+                clearTimeout(t);
+                btn.disabled = false;
+                if (icon) { icon.className = 'ref-download-all-icon fas fa-file-archive'; }
+                if (textEl) { textEl.textContent = origText; }
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'question', title: 'Download', text: 'Popup was blocked. Open download in this tab?', showCancelButton: true, confirmButtonText: 'Open' }).then(function(r) {
+                        if (r && r.isConfirmed) window.location.href = url;
+                    });
+                } else {
+                    window.location.href = url;
+                }
+            }
         });
     }
 });

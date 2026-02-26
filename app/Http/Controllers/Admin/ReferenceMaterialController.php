@@ -260,22 +260,37 @@ class ReferenceMaterialController extends Controller
     }
 
     /**
+     * Normalize a value to a scalar media ID (for attachments that may be stored as id or ['id' => x]).
+     */
+    private function normalizeMediaId($value): ?int
+    {
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+        if (is_array($value) && isset($value['id'])) {
+            return is_numeric($value['id']) ? (int) $value['id'] : null;
+        }
+        return null;
+    }
+
+    /**
      * Collect all media IDs that should appear for a notice (same sources as index file list).
      * Used by downloadAll so the zip always matches what the user sees.
+     * Includes all reference materials for the notice (no uploader filter) so zip is never empty when files exist.
      */
     private function getMediaIdsForNotice(Notice $notice): array
     {
         $noticeId = $notice->id;
         $mediaById = [];
 
-        $materials = ReferenceMaterial::where('notice_id', $noticeId)
-            ->whereHas('user', function ($query) {
-                $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
-            })
-            ->get();
+        // All reference materials for this notice (no user filter so download includes every file in the folder)
+        $materials = ReferenceMaterial::where('notice_id', $noticeId)->get();
         foreach ($materials as $material) {
-            foreach ($material->attachments ?? [] as $id) {
-                $mediaById[$id] = true;
+            foreach ($material->attachments ?? [] as $rawId) {
+                $id = $this->normalizeMediaId($rawId);
+                if ($id !== null) {
+                    $mediaById[$id] = true;
+                }
             }
         }
 
@@ -284,18 +299,27 @@ class ReferenceMaterialController extends Controller
             $decoded = json_decode($noticeAttachments, true);
             $noticeAttachments = is_array($decoded) ? $decoded : [];
         }
-        foreach ($noticeAttachments as $id) {
-            $mediaById[$id] = true;
-        }
-
-        foreach (Notice::where('related_notice_id', $noticeId)->get() as $agenda) {
-            foreach ($agenda->attachments ?? [] as $id) {
+        foreach ($noticeAttachments as $rawId) {
+            $id = $this->normalizeMediaId($rawId);
+            if ($id !== null) {
                 $mediaById[$id] = true;
             }
         }
+
+        foreach (Notice::where('related_notice_id', $noticeId)->get() as $agenda) {
+            foreach ($agenda->attachments ?? [] as $rawId) {
+                $id = $this->normalizeMediaId($rawId);
+                if ($id !== null) {
+                    $mediaById[$id] = true;
+                }
+            }
+        }
         foreach (AgendaInclusionRequest::where('notice_id', $noticeId)->where('status', 'approved')->get() as $agendaRequest) {
-            foreach ($agendaRequest->attachments ?? [] as $id) {
-                $mediaById[$id] = true;
+            foreach ($agendaRequest->attachments ?? [] as $rawId) {
+                $id = $this->normalizeMediaId($rawId);
+                if ($id !== null) {
+                    $mediaById[$id] = true;
+                }
             }
         }
 
@@ -315,8 +339,8 @@ class ReferenceMaterialController extends Controller
             $regQuery->orWhereIn('id', $regIds);
         }
         foreach ($regQuery->pluck('pdf_file') as $id) {
-            if ($id) {
-                $mediaById[$id] = true;
+            if ($id !== null && $id !== '') {
+                $mediaById[(int) $id] = true;
             }
         }
 
@@ -325,8 +349,8 @@ class ReferenceMaterialController extends Controller
             $resQuery->orWhereIn('id', $resIds);
         }
         foreach ($resQuery->pluck('pdf_file') as $id) {
-            if ($id) {
-                $mediaById[$id] = true;
+            if ($id !== null && $id !== '') {
+                $mediaById[(int) $id] = true;
             }
         }
 
@@ -361,17 +385,22 @@ class ReferenceMaterialController extends Controller
         $usedNames = [];
         $tempDir = storage_path('app/temp');
         if (!is_dir($tempDir)) {
-            @mkdir($tempDir, 0755, true);
+            if (!@mkdir($tempDir, 0755, true)) {
+                return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Could not create temp directory. Check storage/app is writable.');
+            }
         }
-        $zipPath = $tempDir . '/ref-mat-' . uniqid() . '.zip';
+        if (!is_writable($tempDir)) {
+            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Temp directory is not writable. Check storage/app/temp permissions.');
+        }
+        $zipPath = $tempDir . '/ref-mat-' . uniqid('', true) . '.zip';
 
         if (!class_exists(\ZipArchive::class)) {
-            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Zip support is not available.');
+            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Zip support is not available. Install php-zip on the server.');
         }
 
         $zip = new \ZipArchive();
         if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Could not create zip file.');
+            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('error', 'Could not create zip file. Check storage/app/temp is writable.');
         }
 
         foreach ($mediaFiles as $media) {
