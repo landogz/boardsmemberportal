@@ -109,6 +109,12 @@ class ProfileController extends Controller
             ]);
         }
 
+        $canChangeEmail = $user->privilege === 'consec' || $user->hasRole('consec');
+        $emailRules = ['required', 'string', 'email', 'max:255'];
+        if ($canChangeEmail) {
+            $emailRules[] = 'unique:users,email,' . $user->id;
+        }
+
         $request->validate([
             'government_agency_id' => 'nullable|exists:government_agencies,id',
             'representative_type' => 'nullable|in:Board Member,Authorized Representative',
@@ -119,7 +125,7 @@ class ProfileController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:255',
             'sex' => 'nullable|in:Male,Female',
-            'gender' => 'nullable|in:Male,Female,Non-Binary',
+            'gender' => 'nullable|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'nullable|date',
             'office_building_no' => 'nullable|string|max:255',
             'office_house_no' => 'nullable|string|max:255',
@@ -130,7 +136,7 @@ class ProfileController extends Controller
             'office_province' => 'nullable|string|max:255',
             'office_city_municipality' => 'nullable|string|max:255',
             'office_barangay' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => $emailRules,
             'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
             'mobile' => 'required|string|max:13|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:255',
@@ -164,7 +170,6 @@ class ProfileController extends Controller
             'office_province' => $request->office_province,
             'office_city_municipality' => $request->office_city_municipality,
             'office_barangay' => $request->office_barangay,
-            'email' => $request->email,
             'username' => $request->username,
             'mobile' => $request->mobile,
             'landline' => $request->landline,
@@ -173,6 +178,11 @@ class ProfileController extends Controller
             'representative_name' => $request->representative_name,
         ];
         
+        // Only CONSEC may update email
+        if ($canChangeEmail) {
+            $data['email'] = $request->email;
+        }
+
         // Mark username as edited if it was changed
         if ($request->username && $request->username !== $user->username) {
             $data['username_edited'] = true;

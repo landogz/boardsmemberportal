@@ -261,7 +261,12 @@
                                                 <img src="{{ asset('storage/' . $account->governmentAgency->logo->file_path) }}" alt="{{ $account->governmentAgency->name }}" class="h-8 w-8 object-contain">
                                             </div>
                                         @endif
-                                        <div class="text-sm font-medium text-gray-900 break-words">{{ $account->governmentAgency->name }}</div>
+                                        <div class="text-sm font-medium text-gray-900 break-words">
+                                            @if(!empty($account->governmentAgency->code))
+                                                {{ $account->governmentAgency->code }} · 
+                                            @endif
+                                            {{ $account->governmentAgency->name }}{{ $account->governmentAgency->code ? ' (' . $account->governmentAgency->code . ')' : '' }}
+                                        </div>
                                     </div>
                                 @else
                                     <span class="text-sm text-gray-400">N/A</span>
@@ -441,7 +446,10 @@
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             columnDefs: [
                 { targets: -1, orderable: false } // Actions column is not sortable
-            ]
+            ],
+            language: {
+                search: "Search by name, email, or agency code:"
+            }
         });
         @endif
     });

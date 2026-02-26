@@ -162,16 +162,16 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear Ms. {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                We received a request to reset your password for your Board Members Portal account.
+                                A request to reset the password for your Board Members Portal account has been received. The password reset link will expire in 60 minutes.
                             </p>
                             
                             <div class="info-card">
                                 <p class="info-message">
-                                    Click the button below to reset your password. This link will expire in 60 minutes for security reasons.
+                                    Click the button below to reset your password.
                                 </p>
                             </div>
                             
@@ -180,14 +180,8 @@
                             </div>
                             
                             <div class="warning-text">
-                                <strong>⚠️ Security Notice:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged.
+                                <strong>⚠️ Security Notice:</strong> If you did not request a password reset or need assistance, please contact the system administrator.
                             </div>
-                            
-                            <div class="divider"></div>
-                            
-                            <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This link will expire in 60 minutes. If you have any questions, please contact the administrator.
-                            </p>
                         </td>
                     </tr>
                     

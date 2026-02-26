@@ -106,6 +106,11 @@ Route::post('/api/track-activity', function() {
     return response()->json(['success' => false], 401);
 })->middleware('auth')->name('api.track-activity');
 
+// Return current CSRF token (for refreshing after 419 token mismatch)
+Route::get('/api/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->middleware('auth')->name('api.csrf-token');
+
 // Dashboard Routes (Protected)
 Route::middleware(['auth', 'track.activity'])->group(function () {
     Route::get('/dashboard', function () {
@@ -399,6 +404,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/pending', [\App\Http\Controllers\NoticeController::class, 'getPendingNotices'])->name('pending');
         Route::get('/', [\App\Http\Controllers\NoticeController::class, 'index'])->name('index');
         Route::post('/upload-attachment', [\App\Http\Controllers\NoticeController::class, 'uploadAttachment'])->name('upload-attachment');
+        Route::get('/{id}/attachments/{mediaId}/download', [\App\Http\Controllers\NoticeController::class, 'downloadAttachment'])->name('attachment.download');
         Route::get('/{id}', [\App\Http\Controllers\NoticeController::class, 'show'])->name('show');
         Route::post('/{id}/accept', [\App\Http\Controllers\NoticeController::class, 'accept'])->name('accept');
         Route::post('/{id}/decline', [\App\Http\Controllers\NoticeController::class, 'decline'])->name('decline');

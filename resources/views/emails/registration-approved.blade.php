@@ -164,11 +164,11 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->pre_nominal_title }} {{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear Ms. {{ $user->first_name }} {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                Great news! Your registration has been approved. You can now access the Board Members Portal.
+                                We are pleased to inform you that your registration to the Board Members Portal has been approved. You may now access the Board Members Portal using your registered credentials.
                             </p>
                             
                             <div class="success-card">
@@ -188,7 +188,7 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                If you have any questions or need assistance, please contact the administrator.
+                                For any inquiries or clarification, please coordinate with the system administrator.
                             </p>
                         </td>
                     </tr>

@@ -302,9 +302,14 @@
                             <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                             <select id="gender" name="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                                 <option value="">Select Gender</option>
-                                <option value="Male" {{ $user->gender === 'Male' ? 'selected' : '' }}>Male</option>
-                                <option value="Female" {{ $user->gender === 'Female' ? 'selected' : '' }}>Female</option>
-                                <option value="Non-Binary" {{ $user->gender === 'Non-Binary' ? 'selected' : '' }}>Non-Binary</option>
+                                <option value="Lesbian" {{ $user->gender === 'Lesbian' ? 'selected' : '' }}>Lesbian</option>
+                                <option value="Gay" {{ $user->gender === 'Gay' ? 'selected' : '' }}>Gay</option>
+                                <option value="Bisexual" {{ $user->gender === 'Bisexual' ? 'selected' : '' }}>Bisexual</option>
+                                <option value="Transgender" {{ $user->gender === 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                <option value="Queer" {{ $user->gender === 'Queer' ? 'selected' : '' }}>Queer</option>
+                                <option value="Intersex" {{ $user->gender === 'Intersex' ? 'selected' : '' }}>Intersex</option>
+                                <option value="Non-binary" {{ $user->gender === 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                <option value="Prefer not to say" {{ $user->gender === 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>
                         </div>
@@ -343,13 +348,13 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Purok</label>
-                            <input type="text" id="office_purok" name="office_purok" value="{{ $user->office_purok }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Purok">
+                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Zone</label>
+                            <input type="text" id="office_purok" name="office_purok" value="{{ $user->office_purok }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Zone">
                         </div>
 
                         <div>
-                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sitio</label>
-                            <input type="text" id="office_sitio" name="office_sitio" value="{{ $user->office_sitio }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sitio">
+                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sub-village</label>
+                            <input type="text" id="office_sitio" name="office_sitio" value="{{ $user->office_sitio }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sub-village">
                         </div>
                     </div>
 
@@ -395,7 +400,11 @@
                     <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                        <input type="email" id="email" name="email" required value="{{ $user->email }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Enter your email">
+                        @php $canChangeEmail = Auth::user()->privilege === 'consec' || Auth::user()->hasRole('consec'); @endphp
+                        <input type="email" id="email" name="email" required value="{{ $user->email }}" @if(!$canChangeEmail) readonly @endif class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition @if(!$canChangeEmail) bg-gray-100 cursor-not-allowed @endif" placeholder="Enter your email">
+                        @if(!$canChangeEmail)
+                            <p class="text-xs text-gray-500 mt-1">Users are not permitted to change their email address; only CONSEC has the authority to do so.</p>
+                        @endif
                         <span class="text-red-500 text-sm hidden" id="email-error"></span>
                     </div>
 
@@ -474,7 +483,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                             </ul>
                         </div>
                     </div>
@@ -812,7 +821,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!#$%^&*|]/.test(password);
+               /[^A-Za-z0-9]/.test(password);
     }
 
     // Toggle password visibility
@@ -862,7 +871,7 @@
     });
 
     function filterPasswordInput(el) {
-        const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+        const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
         const val = el.value;
         const filtered = (val.match(allowed) || []).join('');
         if (val !== filtered) el.value = filtered;
@@ -877,7 +886,7 @@
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
-        const hasSpecial = /[~!#$%^&*|]/.test(password);
+        const hasSpecial = /[^A-Za-z0-9]/.test(password);
         
         // Update requirement indicators
         if (hasLength) {

@@ -40,7 +40,7 @@
                         </div>
                         <div class="flex items-center gap-1 sm:gap-1.5">
                             <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #7C3AED; border: 1px solid #6D28D9;"></span>
-                            <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 whitespace-nowrap">Notices</span>
+                            <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 whitespace-nowrap">Communication</span>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                         <option value="announcement">Announcements</option>
                         <option value="resolution">Resolutions</option>
                         <option value="regulation">Regulations</option>
-                        <option value="notice">Notices</option>
+                        <option value="notice">Communication</option>
                     </select>
                 </div>
                 

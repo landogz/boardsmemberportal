@@ -1934,9 +1934,48 @@
     <script>
         // Chat popup container is not included on messages page
         
-        // Set up axios defaults
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // Set up axios defaults and CSRF handling
+        function getCsrfToken() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            return meta ? meta.getAttribute('content') : '';
+        }
+        function setCsrfToken(token) {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) meta.setAttribute('content', token);
+        }
+        setCsrfToken(getCsrfToken());
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        // Use current meta token on every request (in case it was refreshed)
+        axios.interceptors.request.use(function(config) {
+            const token = getCsrfToken();
+            if (token) config.headers['X-CSRF-TOKEN'] = token;
+            return config;
+        });
+
+        // On 419 (CSRF mismatch): fetch new token, update and retry once; then redirect if still failing
+        if (!window._adminMessagesCsrf419Interceptor) {
+            window._adminMessagesCsrf419Interceptor = true;
+            axios.interceptors.response.use(function(res) { return res; }, function(err) {
+                const config = err.config;
+                if (err.response && err.response.status === 419 && config && !config.__csrfRetried) {
+                    config.__csrfRetried = true;
+                    return axios.get('{{ route("api.csrf-token") }}').then(function(r) {
+                        const token = r.data && r.data.token;
+                        if (token) setCsrfToken(token);
+                        return axios.request(config);
+                    }).catch(function() {
+                        window.location.href = (err.response && err.response.data && err.response.data.redirect) || '{{ route("login") }}';
+                        return Promise.reject(err);
+                    });
+                }
+                if (err.response && (err.response.status === 401 || err.response.status === 419)) {
+                    window.location.href = (err.response.data && err.response.data.redirect) || '{{ route("login") }}';
+                }
+                return Promise.reject(err);
+            });
+        }
 
         const currentUserId = @json(Auth::id());
         let currentChatUserId = null;
@@ -2075,11 +2114,16 @@
             // Start the periodic refresh for conversation list (function is defined globally below)
             startConversationListRefresh();
             
-            // Also refresh when page becomes visible (user switches back to tab)
+            // When user returns to tab after switching or idle: refresh list and reload open conversation
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
-                    // Page is visible, refresh conversation list
                     updateUnreadCounts();
+                    // Reload the currently open conversation so messages are not stale or stuck on loading
+                    if (typeof currentChatUserId !== 'undefined' && currentChatUserId) {
+                        if (typeof loadChatConversation === 'function') {
+                            loadChatConversation(currentChatUserId);
+                        }
+                    }
                 }
             });
             
@@ -3912,9 +3956,11 @@
 
         function loadChatConversation(userId) {
             const messagesArea = document.getElementById('chatMessagesArea');
+            if (!messagesArea) return;
             messagesArea.innerHTML = '<div class="p-4 text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
 
-            axios.get(`{{ route('messages.conversation', ':userId') }}`.replace(':userId', userId))
+            var conversationRequestTimeout = 20000; // 20 seconds - avoid stuck "Loading messages..." after tab idle
+            axios.get(`{{ route('messages.conversation', ':userId') }}`.replace(':userId', userId), { timeout: conversationRequestTimeout })
                 .then(response => {
                     if (response.data.success) {
                         // Check if data is encrypted and decrypt it
@@ -4045,7 +4091,17 @@
                 })
                 .catch(error => {
                     console.error('Error loading conversation:', error);
-                    messagesArea.innerHTML = '<div class="p-4 text-center text-red-500">Error loading messages</div>';
+                    var isTimeout = error.code === 'ECONNABORTED' || error.message && error.message.indexOf('timeout') !== -1;
+                    var isAuth = error.response && (error.response.status === 401 || error.response.status === 419);
+                    var msg = isAuth ? 'Session expired. Please refresh the page or log in again.' : (isTimeout ? 'Request timed out. The connection may have been paused while the tab was in the background.' : 'Unable to load messages.');
+                    messagesArea.innerHTML = '<div class="p-4 text-center text-red-500">' +
+                        '<p class="mb-3">' + msg + '</p>' +
+                        '<button type="button" class="px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style="background-color: #055498;" data-retry-user-id="' + (userId || '') + '">Retry</button>' +
+                        '</div>';
+                    messagesArea.querySelector('[data-retry-user-id]').addEventListener('click', function() {
+                        var id = this.getAttribute('data-retry-user-id');
+                        if (id && typeof loadChatConversation === 'function') loadChatConversation(id);
+                    });
                 });
         }
 

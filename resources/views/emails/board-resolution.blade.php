@@ -175,11 +175,11 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear Mr. {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                A new board resolution has been published and is now available for your review.
+                                A new Board Resolution has been published and is now available for your viewing in the Board Members Portal.
                             </p>
                             
                             <div class="resolution-card">
@@ -217,8 +217,8 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This board resolution was sent to you by <strong>Board Members Portal</strong>.
-                                If you have any questions, please contact the administrator.
+                                This notice was sent through the <strong>Board Members Portal</strong>.
+                                For any inquiries or clarification, please coordinate with the system administrator.
                             </p>
                         </td>
                     </tr>

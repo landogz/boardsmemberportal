@@ -177,7 +177,7 @@ class AuthController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Male,Female,Non-Binary',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
@@ -207,8 +207,8 @@ class AuthController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!#$%^&*|]/', $value)) {
-                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |).');
+                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
+                        $fail('The password must contain at least one special character (e.g. ! @ # $ % & * ( ) - _ = + . , ).');
                     }
                 },
             ],
@@ -468,8 +468,8 @@ class AuthController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!#$%^&*|]/', $value)) {
-                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |).');
+                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
+                        $fail('The password must contain at least one special character (e.g. ! @ # $ % & * ( ) - _ = + . , ).');
                     }
                 },
             ],

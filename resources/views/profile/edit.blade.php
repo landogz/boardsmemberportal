@@ -446,16 +446,22 @@
                                 <option value="I" {{ $user->post_nominal_title == 'I' ? 'selected' : '' }}>I</option>
                                 <option value="II" {{ $user->post_nominal_title == 'II' ? 'selected' : '' }}>II</option>
                                 <option value="III" {{ $user->post_nominal_title == 'III' ? 'selected' : '' }}>III</option>
-                                <option value="Others" {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? 'selected' : '' }}>Others</option>
+                                <option value="CESO I" {{ $user->post_nominal_title == 'CESO I' ? 'selected' : '' }}>CESO I</option>
+                                <option value="CESO II" {{ $user->post_nominal_title == 'CESO II' ? 'selected' : '' }}>CESO II</option>
+                                <option value="CESO III" {{ $user->post_nominal_title == 'CESO III' ? 'selected' : '' }}>CESO III</option>
+                                <option value="CESO IV" {{ $user->post_nominal_title == 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
+                                <option value="CESO V" {{ $user->post_nominal_title == 'CESO V' ? 'selected' : '' }}>CESO V</option>
+                                <option value="CESO VI" {{ $user->post_nominal_title == 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
+                                <option value="Others" {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III','CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) ? 'selected' : '' }}>Others</option>
                             </select>
                             <input 
                                 type="text" 
                                 id="post_nominal_title_custom" 
                                 name="post_nominal_title_custom" 
-                                value="{{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? $user->post_nominal_title : '' }}"
+                                value="{{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III','CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) ? $user->post_nominal_title : '' }}"
                                 placeholder="Specify other title"
                                 @if($isUserProfile) readonly @endif
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mt-2 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III', null, '']) ? '' : 'hidden' }}"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mt-2 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif {{ !in_array($user->post_nominal_title, ['Sr.', 'Jr.', 'I', 'II', 'III','CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) ? '' : 'hidden' }}"
                             >
                             <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
                         </div>
@@ -502,9 +508,14 @@
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Gender</option>
-                                <option value="Male" {{ $user->gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                <option value="Female" {{ $user->gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                <option value="Non-Binary" {{ $user->gender == 'Non-Binary' ? 'selected' : '' }}>Non-Binary</option>
+                                <option value="Lesbian" {{ $user->gender == 'Lesbian' ? 'selected' : '' }}>Lesbian</option>
+                                <option value="Gay" {{ $user->gender == 'Gay' ? 'selected' : '' }}>Gay</option>
+                                <option value="Bisexual" {{ $user->gender == 'Bisexual' ? 'selected' : '' }}>Bisexual</option>
+                                <option value="Transgender" {{ $user->gender == 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                <option value="Queer" {{ $user->gender == 'Queer' ? 'selected' : '' }}>Queer</option>
+                                <option value="Intersex" {{ $user->gender == 'Intersex' ? 'selected' : '' }}>Intersex</option>
+                                <option value="Non-binary" {{ $user->gender == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                <option value="Prefer not to say" {{ $user->gender == 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>
                         </div>
@@ -573,7 +584,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label for="office_purok" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Purok</label>
+                            <label for="office_purok" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zone</label>
                             <input 
                                 type="text" 
                                 id="office_purok" 
@@ -581,12 +592,12 @@
                                 value="{{ $user->office_purok }}"
                                 @if($isUserProfile) readonly @endif
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
-                                placeholder="Purok"
+                                placeholder="Zone"
                             >
                         </div>
 
                         <div>
-                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sitio</label>
+                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sub-village</label>
                             <input 
                                 type="text" 
                                 id="office_sitio" 
@@ -594,7 +605,7 @@
                                 value="{{ $user->office_sitio }}"
                                 @if($isUserProfile) readonly @endif
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
-                                placeholder="Sitio"
+                                placeholder="Sub-village"
                             >
                         </div>
                     </div>
@@ -686,7 +697,7 @@
                             readonly
                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed"
                         >
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Email cannot be changed.</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Users are not permitted to change their email address; only CONSEC has the authority to do so.</p>
                         <span class="text-red-500 text-sm hidden" id="email-error"></span>
                     </div>
 
@@ -787,7 +798,7 @@
                                     <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                     <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                     <li id="req-number" class="invalid">At least 1 number</li>
-                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                                 </ul>
                             </div>
                         </div>
@@ -1338,7 +1349,7 @@
 
             // Password validation
             function filterPasswordInput(el) {
-                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
                 const val = el.value;
                 const filtered = (val.match(allowed) || []).join('');
                 if (val !== filtered) el.value = filtered;
@@ -1352,7 +1363,7 @@
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!#$%^&*|]/.test(password);
+                const hasSpecial = /[^A-Za-z0-9]/.test(password);
                 
                 // Update requirement indicators
                 if (hasLength) {
@@ -1559,7 +1570,7 @@
                    /[A-Z]/.test(password) &&
                    /[a-z]/.test(password) &&
                    /[0-9]/.test(password) &&
-                   /[~!#$%^&*|]/.test(password);
+                   /[^A-Za-z0-9]/.test(password);
         }
 
         // Form submission

@@ -51,35 +51,40 @@
                 <span class="text-red-500 text-sm hidden" id="description-error"></span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="hidden">
-                    <label for="version" class="block text-sm font-medium text-gray-700 mb-2">Version</label>
-                    <input 
-                        type="text" 
-                        id="version" 
-                        name="version" 
-                        value="{{ $document->version }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        placeholder="e.g., 2025.1"
-                    >
-                </div>
+            <div class="hidden">
+                <input type="text" id="version" name="version" value="{{ $document->version }}">
+                <input type="hidden" name="effective_date" value="{{ $document->effective_date ? $document->effective_date->format('Y-m-d') : '' }}">
+            </div>
 
-                <div class="hidden">
-                    <input type="hidden" name="effective_date" value="{{ $document->effective_date ? $document->effective_date->format('Y-m-d') : '' }}">
-                </div>
-
-            <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
                     <label for="approved_date" class="block text-sm font-medium text-gray-700 mb-2">Approved Date *</label>
-                <input 
-                    type="date" 
-                    id="approved_date" 
-                    name="approved_date" 
+                    <input 
+                        type="date" 
+                        id="approved_date" 
+                        name="approved_date" 
                         required
-                    value="{{ $document->approved_date ? $document->approved_date->format('Y-m-d') : '' }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                        value="{{ $document->approved_date ? $document->approved_date->format('Y-m-d') : '' }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
                         placeholder="mm/dd/yyyy"
-                >
-                <p class="text-xs text-gray-500 mt-1">If left empty, approved date will default to the effective date.</p>
+                    >
+                    <p class="text-xs text-gray-500 mt-1">If left empty, approved date will default to the effective date.</p>
+                </div>
+                <div>
+                    <label for="notice_id" class="block text-sm font-medium text-gray-700 mb-2">Notice of Meeting</label>
+                    <select
+                        id="notice_id"
+                        name="notice_id"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                    >
+                        <option value="">— Select Notice of Meeting (optional) —</option>
+                        @foreach($noticeOfMeetingNotices ?? [] as $nom)
+                            <option value="{{ $nom->id }}" {{ (old('notice_id', $document->notice_id) == $nom->id) ? 'selected' : '' }}>
+                                {{ $nom->title }}{{ $nom->meeting_date ? ' (' . $nom->meeting_date->format('M d, Y') . ')' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Optionally link this resolution to a Notice of Meeting.</p>
                 </div>
             </div>
 

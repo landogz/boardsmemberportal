@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ $notice->title }} - Notices</title>
+    <title>{{ $notice->title }} - Communication</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <!-- Font Awesome -->
@@ -747,7 +747,7 @@
     <div class="notice-detail-container">
         <a href="{{ route('notices.index') }}" class="back-link">
             <i class="fas fa-arrow-left"></i>
-            <span>Back to Notices</span>
+            <span>Back to Communication</span>
         </a>
 
         <!-- Notice Header Card -->
@@ -962,7 +962,7 @@
                                             <span>View PDF</span>
                                         </a>
                                     @else
-                                        <a href="{{ route('admin.media-library.download', $attachment->id) }}" target="_blank" class="attachment-action">
+                                        <a href="{{ route('notices.attachment.download', ['id' => $notice->id, 'mediaId' => $attachment->id]) }}" target="_blank" class="attachment-action">
                                             <i class="fas fa-download"></i>
                                             <span>Download</span>
                                         </a>
@@ -1007,7 +1007,7 @@
                                             <span>View PDF</span>
                                         </a>
                                     @else
-                                        <a href="{{ $fileUrl }}" target="_blank" class="attachment-action">
+                                        <a href="{{ route('notices.attachment.download', ['id' => $notice->id, 'mediaId' => $file->media_id]) }}" target="_blank" class="attachment-action">
                                             <i class="fas fa-download"></i>
                                             <span>Open</span>
                                         </a>

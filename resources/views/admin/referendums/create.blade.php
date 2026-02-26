@@ -222,7 +222,12 @@
                                     </span>
                                     <span class="text-xs text-gray-500 block truncate">{{ $user->email }}</span>
                                     @if($user->governmentAgency)
-                                        <span class="text-xs text-gray-400 block truncate">{{ $user->governmentAgency->name }}</span>
+                                        <span class="text-xs text-gray-400 block truncate">
+                                            @if(!empty($user->governmentAgency->code))
+                                                {{ $user->governmentAgency->code }} · 
+                                            @endif
+                                            {{ $user->governmentAgency->name }}
+                                        </span>
                                     @endif
                                 </div>
                                 @if($user->privilege === 'consec')

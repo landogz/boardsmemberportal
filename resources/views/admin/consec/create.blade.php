@@ -170,6 +170,12 @@
                                 <option value="I">I</option>
                                 <option value="II">II</option>
                                 <option value="III">III</option>
+                                <option value="CESO I">CESO I</option>
+                                <option value="CESO II">CESO II</option>
+                                <option value="CESO III">CESO III</option>
+                                <option value="CESO IV">CESO IV</option>
+                                <option value="CESO V">CESO V</option>
+                                <option value="CESO VI">CESO VI</option>
                                 <option value="Others">Others</option>
                             </select>
                             <div id="post_nominal_title_custom_wrapper" class="mt-2 hidden">
@@ -203,9 +209,14 @@
                             <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
                             <select id="gender" name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                                 <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Non-Binary">Non-Binary</option>
+                                <option value="Lesbian">Lesbian</option>
+                                <option value="Gay">Gay</option>
+                                <option value="Bisexual">Bisexual</option>
+                                <option value="Transgender">Transgender</option>
+                                <option value="Queer">Queer</option>
+                                <option value="Intersex">Intersex</option>
+                                <option value="Non-binary">Non-binary</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>
                         </div>
@@ -244,13 +255,13 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Purok</label>
-                            <input type="text" id="office_purok" name="office_purok" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Purok">
+                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Zone</label>
+                            <input type="text" id="office_purok" name="office_purok" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Zone">
                         </div>
 
                         <div>
-                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sitio</label>
-                            <input type="text" id="office_sitio" name="office_sitio" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sitio">
+                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sub-village</label>
+                            <input type="text" id="office_sitio" name="office_sitio" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sub-village">
                         </div>
                     </div>
 
@@ -346,7 +357,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                             </ul>
                         </div>
                     </div>
@@ -474,7 +485,7 @@
         });
 
         function filterPasswordInput(el) {
-            const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+            const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
             const val = el.value;
             const filtered = (val.match(allowed) || []).join('');
             if (val !== filtered) el.value = filtered;
@@ -487,7 +498,7 @@
             $('#req-uppercase').removeClass('valid invalid').addClass(/[A-Z]/.test(password) ? 'valid' : 'invalid');
             $('#req-lowercase').removeClass('valid invalid').addClass(/[a-z]/.test(password) ? 'valid' : 'invalid');
             $('#req-number').removeClass('valid invalid').addClass(/[0-9]/.test(password) ? 'valid' : 'invalid');
-            $('#req-special').removeClass('valid invalid').addClass(/[~!#$%^&*|]/.test(password) ? 'valid' : 'invalid');
+            $('#req-special').removeClass('valid invalid').addClass(/[^A-Za-z0-9]/.test(password) ? 'valid' : 'invalid');
         });
         $('#password_confirmation').on('input', function() { filterPasswordInput(this); });
 
@@ -743,7 +754,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!#$%^&*|]/.test(password);
+               /[^A-Za-z0-9]/.test(password);
     }
 
     function isValidEmail(email) {

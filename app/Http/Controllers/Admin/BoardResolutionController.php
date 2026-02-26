@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notice;
 use App\Models\OfficialDocument;
 use App\Models\OfficialDocumentVersion;
 use App\Models\MediaLibrary;
@@ -41,7 +42,12 @@ class BoardResolutionController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to create board resolutions.');
         }
 
-        return view('admin.board-resolutions.create');
+        $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderByDesc('meeting_date')
+            ->orderByDesc('created_at')
+            ->get(['id', 'title', 'meeting_date']);
+
+        return view('admin.board-resolutions.create', compact('noticeOfMeetingNotices'));
     }
 
     /**
@@ -63,6 +69,7 @@ class BoardResolutionController extends Controller
             'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
             'pdf_file' => 'required|file|mimes:pdf|max:30720', // 30MB
+            'notice_id' => 'nullable|exists:notices,id',
         ]);
 
         $pdfFileId = null;
@@ -100,6 +107,7 @@ class BoardResolutionController extends Controller
             'approved_date' => $validated['approved_date'],
             'pdf_file' => $pdfFileId,
             'uploaded_by' => Auth::id(),
+            'notice_id' => !empty($validated['notice_id']) ? $validated['notice_id'] : null,
         ]);
 
         AuditLogger::log(
@@ -136,9 +144,13 @@ class BoardResolutionController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to edit board resolutions.');
         }
 
-        $document = OfficialDocument::with(['pdf', 'uploader'])->findOrFail($id);
+        $document = OfficialDocument::with(['pdf', 'uploader', 'notice'])->findOrFail($id);
+        $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+            ->orderByDesc('meeting_date')
+            ->orderByDesc('created_at')
+            ->get(['id', 'title', 'meeting_date']);
 
-        return view('admin.board-resolutions.edit', compact('document'));
+        return view('admin.board-resolutions.edit', compact('document', 'noticeOfMeetingNotices'));
     }
 
     /**
@@ -163,6 +175,7 @@ class BoardResolutionController extends Controller
             'approved_date' => 'required|date',
             'pdf_file' => 'nullable|file|mimes:pdf|max:30720', // 30MB
             'change_notes' => 'nullable|string', // Optional notes about the change
+            'notice_id' => 'nullable|exists:notices,id',
         ]);
 
         // Save history before updating if file is being changed or any data changed
@@ -171,7 +184,8 @@ class BoardResolutionController extends Controller
                         $document->description !== ($validated['description'] ?? null) ||
                         $document->version !== ($validated['version'] ?? null) ||
                         $document->effective_date?->format('Y-m-d') !== ($validated['effective_date'] ?? null) ||
-                        $document->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null);
+                        $document->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null) ||
+                        $document->notice_id != ($validated['notice_id'] ?? null);
 
         if ($hasFileChange || $hasDataChange) {
             // Create version history entry before making changes
@@ -219,7 +233,9 @@ class BoardResolutionController extends Controller
             $validated['pdf_file'] = $document->pdf_file;
         }
 
-        $document->update($validated);
+        $updateData = $validated;
+        $updateData['notice_id'] = !empty($validated['notice_id']) ? $validated['notice_id'] : null;
+        $document->update($updateData);
 
         AuditLogger::log(
             'official_document.update',

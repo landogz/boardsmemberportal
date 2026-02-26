@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Notices - Board Member Portal</title>
+    <title>Communication - Board Member Portal</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <!-- Font Awesome -->
@@ -462,8 +462,8 @@
     
     <div class="notices-container">
         <div class="page-header">
-            <h1 class="page-title">Notices</h1>
-            <p class="page-subtitle">View and respond to meeting notices</p>
+            <h1 class="page-title">Communication</h1>
+            <p class="page-subtitle">View and respond to meeting communications</p>
         </div>
 
         @if($notices->count() > 0)
@@ -667,7 +667,7 @@
                 <div class="empty-icon">
                     <i class="fas fa-inbox"></i>
                 </div>
-                <p class="empty-text">No notices available</p>
+                <p class="empty-text">No communications available</p>
             </div>
         @endif
     </div>

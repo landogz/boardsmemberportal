@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserDeactivatedEmail;
 use App\Models\User;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +67,7 @@ class CONSECController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Male,Female,Non-Binary',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'required|date|before:today',
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
@@ -95,8 +97,8 @@ class CONSECController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[~!#$%^&*|]/', $value)) {
-                        $fail('The password must contain at least one special character (~, !, #, $, %, ^, &, *, |).');
+                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
+                        $fail('The password must contain at least one special character (e.g. ! @ # $ % & * ( ) - _ = + . , ).');
                     }
                 },
             ],
@@ -212,7 +214,7 @@ class CONSECController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Male,Female,Non-Binary',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'required|date|before:today',
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
@@ -331,6 +333,14 @@ class CONSECController extends Controller
 
         $status = $user->is_active ? 'activated' : 'deactivated';
         $email = $user->email;
+
+        if (!$user->is_active) {
+            try {
+                Mail::to($user->email)->send(new UserDeactivatedEmail($user));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send deactivation email to CONSEC user ' . $user->id . ': ' . $e->getMessage());
+            }
+        }
 
         AuditLogger::log(
             'consec.account_status_toggled',

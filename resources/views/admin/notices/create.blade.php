@@ -7,7 +7,7 @@
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.notices.index'),
-        'text' => 'Back to Notices',
+        'text' => 'Back to Communication',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
@@ -65,7 +65,7 @@
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Notice Type Selection -->
                     <div>
-                        <label for="notice_type" class="block text-sm font-medium text-gray-700 mb-2">Notice Type *</label>
+                        <label for="notice_type" class="block text-sm font-medium text-gray-700 mb-2">Communication type *</label>
                         <select 
                             id="notice_type" 
                             name="notice_type" 
@@ -315,7 +315,7 @@
                         <!-- Allowed Users Selection -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Users *</label>
-                            <p class="text-xs text-gray-500 mb-3">Select users who can view this notice</p>
+                            <p class="text-xs text-gray-500 mb-3">Select users who can view this notice. Ticked users receive the notice email as <strong>primary (To) recipients</strong>, not as CC. Only addresses added in “CC Emails” below are sent as CC.</p>
                             <div class="border border-gray-300 rounded-lg p-4 max-h-[calc(100vh-500px)] overflow-y-auto">
                                 <!-- Search -->
                                 <input 
@@ -410,7 +410,12 @@
                                                 </span>
                                                 <span class="text-xs text-gray-500 block truncate">{{ $user->email }}</span>
                                                 @if($user->governmentAgency)
-                                                    <span class="text-xs text-gray-400 block truncate">{{ $user->governmentAgency->name }}</span>
+                                                    <span class="text-xs text-gray-400 block truncate">
+                                                        @if(!empty($user->governmentAgency->code))
+                                                            {{ $user->governmentAgency->code }} · 
+                                                        @endif
+                                                        {{ $user->governmentAgency->name }}
+                                                    </span>
                                                 @endif
                                             </div>
                                             @if($user->privilege === 'consec')
@@ -432,7 +437,7 @@
                         <!-- CC Emails -->
                         <div class="pt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">CC Emails</label>
-                            <p class="text-xs text-gray-500 mb-3">Add non-registered users who should receive this notice</p>
+                            <p class="text-xs text-gray-500 mb-3">Add non-registered recipients who should receive a <strong>CC copy</strong> of the notice email. Only these entries are sent as CC; ticked Allowed Users above are primary recipients.</p>
                             
                             <div id="ccEmailsContainer" class="space-y-3 mb-3 max-h-[400px] overflow-y-auto">
                                 <!-- CC emails will be added here dynamically -->

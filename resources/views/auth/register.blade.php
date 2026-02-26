@@ -268,6 +268,11 @@
         .register-form #step1 .step1-fields > * + * {
             margin-top: 1.75rem;
         }
+        /* Step 2 & 3: same spacing between fields (Office Address, Contact Information) */
+        .register-form #step2 .step2-fields > * + *,
+        .register-form #step3 .step3-fields > * + * {
+            margin-top: 1.75rem;
+        }
         .register-form .form-row {
             display: grid;
             gap: 1.25rem;
@@ -296,8 +301,79 @@
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
     @include('components.header')
     @include('components.theme-toggle-script')
-    
-    <div class="min-h-[50vh] flex items-center justify-center p-4">
+
+    {{-- Terms & Conditions / Privacy Notice modal (must scroll to bottom and click Proceed to continue) --}}
+    <div id="termsModal" class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 bg-slate-950/70 backdrop-blur-sm">
+        <div class="w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-2xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="flex items-start justify-between gap-4 px-5 py-4 md:px-6 md:py-5 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 h-9 w-9 rounded-full bg-[#055498]/10 flex items-center justify-center text-[#055498]">
+                        <i class="fas fa-shield-alt text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white leading-snug">Terms and Conditions &amp; Data Privacy Notice</h2>
+                        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">Please review the Terms &amp; Conditions and Privacy Notice below. Scroll to the end to enable <span class="font-semibold">Proceed</span>.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="termsModalScroll" class="flex-1 overflow-y-auto px-5 py-4 md:px-6 md:py-5">
+                <div class="space-y-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300 max-w-2xl mx-auto">
+                <section>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Board Member’s Portal Terms &amp; Conditions</h3>
+                    <p class="mb-2">Welcome to Board Member's Portal (BMP). These Terms and Conditions ("Terms") govern your use of the BMP. By downloading, accessing, or using the App, you agree to be bound by these Terms and Conditions. All information encoded in the BMP will be considered classified. <strong>IF YOU DO NOT AGREE WITH THE TERMS, PLEASE DO NOT ACCESS THE PORTAL.</strong></p>
+                    <p class="mb-2">Some features of the BMP may require you to register. You are responsible for maintaining the confidentiality of your login information and for any activities under your account.</p>
+                    <p class="mb-2"><strong>You agree not to:</strong></p>
+                    <ul class="list-disc pl-6 mb-2 space-y-1">
+                        <li>Use the BMP for any unlawful purpose.</li>
+                        <li>Attempt to reverse engineer, decompile, or disassemble any part of it.</li>
+                        <li>Interfere with or disrupt the BMP or its servers.</li>
+                        <li>Upload or distribute viruses or harmful code.</li>
+                        <li>Violate any applicable laws.</li>
+                    </ul>
+                    <p class="mb-2"><strong>Intellectual Property</strong></p>
+                    <p class="mb-2">All content, design, graphics, logos, and materials in the BMP are the property of the Dangerous Drugs Board (DDB) and are protected by intellectual property laws. Use of these materials without written permission is strictly prohibited.</p>
+                    <p class="mb-2"><strong>Additional Provisions</strong></p>
+                    <ol class="list-decimal pl-6 mb-2 space-y-2">
+                        <li><strong>Geo-Location Information:</strong> We may request access or permission to and track location-based information from your mobile device, either continuously or while you are using the BMP, to provide location-based services. If you wish to change our access or permissions, you may do so in your device's settings.</li>
+                        <li><strong>Push Notifications:</strong> We may send you push notifications regarding your account status and updates. If you wish to opt out from receiving these types of communications, you may turn them off in your device's settings.</li>
+                        <li><strong>Disclaimer:</strong> The BMP is provided on an "as is" and "as available" basis. We do not guarantee that the BMP will be uninterrupted or error-free.</li>
+                        <li><strong>Limitation of Liability:</strong> To the fullest extent permitted by law, we are not liable for any indirect, incidental, special, or consequential damages resulting from your use of or inability to use the BMP.</li>
+                        <li><strong>Changes to These Terms:</strong> We may update these Terms and Conditions from time to time. You are encouraged to periodically review them to stay informed of updates. Continued use of the Portal after changes have been posted signifies your acceptance.</li>
+                    </ol>
+                    <p class="mb-2"><strong>Contact Us:</strong> If you have any questions about these Terms and Conditions, please email us at <a href="mailto:dpo@ddb.gov.ph" class="text-[#055498] hover:underline">dpo@ddb.gov.ph</a></p>
+                </section>
+                <section>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><strong>Data Privacy Notice</strong></h3>
+                    <p class="mb-2">Please read the herein stated Agreement carefully and evidence your acceptance of its terms by clicking on the Agree button below:</p>
+                    <ul class="list-disc pl-6 mb-2 space-y-2">
+                        <li>I hereby accept the obligations contained in this Agreement in consideration of my being granted access to classified and/or sensitive information under the Board Member's Portal (BMP). As used in this Agreement, "classified information" refers to confidential information, including but not limited to oral communications.</li>
+                        <li>I understand and accept that by being granted access to classified information within the portal, confidence and trust are placed in me by the <strong>Dangerous Drugs Board (DDB).</strong></li>
+                        <li>I acknowledge that the DDB is the agency responsible for receiving, handling, and safeguarding all reports and requests for the board submitted through the BMP by concerned board members, authorized representatives, or stakeholders.</li>
+                        <li>I am fully aware that the information gathered in the BMP shall also serve as the basis for the development and improvement of policies and drug abuse prevention programs.</li>
+                        <li>I further acknowledge that stored documents and reports generated from the BMP may be shared, when necessary, with concerned board members, authorized representatives, and other stakeholders for purposes of intervention, referral, research, policy formulation, and program development.</li>
+                        <li>I agree to ensure that all information submitted through the BMP is accurate, reliable, and provided in good faith, and to immediately notify the DDB if any errors or discrepancies are found in the data.</li>
+                        <li>I agree to immediately notify the DDB if there are any errors or discrepancies in the reported data. I also commit to ensuring that all data input into the system is accurate and reliable.</li>
+                        <li>By your (i) use and/or continued use of this Board Member's Portal, or (ii) access and use of the service provided through this Board Member's Portal, you agree to indemnify and keep the DDB, its officers, and employees fully and effectively indemnified against all actions, liabilities, costs, claims, losses, damages, proceedings, and/or expenses (including all legal costs on an indemnity basis), without prejudice to the filing of any criminal charges for violation of any statute or law.</li>
+                        <li>Violation of any of the provisions of this agreement shall constitute a breach and shall terminate this agreement immediately without need of notice, without prejudice to criminal prosecution for violation of RA 10173 (Data Privacy Act of 2012), as well as other pertinent laws.</li>
+                        <li>Unless and until I am released in writing that all conditions and obligations imposed upon me by this Agreement apply during the time, I am always granted access to classified information and thereafter.</li>
+                        <li>For inquiries and other concerns, kindly contact our DDB Data Protection Officer, Assistant Secretary <strong>MA. VICTORIA C. SORNE</strong> or email us at <a href="mailto:dpo@ddb.gov.ph" class="text-[#055498] hover:underline">dpo@ddb.gov.ph</a></li>
+                    </ul>
+                </section>
+                </div>
+            </div>
+            <div class="px-5 py-4 md:px-6 md:py-5 border-t border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 flex-shrink-0 bg-slate-50/80 dark:bg-slate-900/60">
+                <p class="text-xs text-slate-600 dark:text-slate-400 max-w-md">
+                    By clicking <span class="font-semibold">Proceed</span>, you confirm that you have read and understood these Terms &amp; Conditions and the Privacy Notice.
+                </p>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="termsModalCancel" class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">Cancel</button>
+                    <button type="button" id="termsModalProceed" disabled class="px-4 py-2.5 rounded-lg text-white font-medium transition-colors opacity-60 cursor-not-allowed hover:opacity-90 disabled:hover:opacity-60 inline-flex items-center justify-center" style="background-color: #055498;">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerContent" class="min-h-[50vh] flex items-center justify-center p-4" style="display: none;">
         <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Create Account</h1>
@@ -388,6 +464,13 @@
                                     <option value="">Select Title</option>
                                     <option value="Mr.">Mr.</option>
                                     <option value="Ms.">Ms.</option>
+                                    <option value="Secretary">Secretary</option>
+                                    <option value="Undersecretary">Undersecretary</option>
+                                    <option value="Director General">Director General</option>
+                                    <option value="Attorney">Attorney</option>
+                                    <option value="Executive Director">Executive Director</option>
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Assistant Secretary">Assistant Secretary</option>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                             </div>
@@ -446,6 +529,12 @@
                                     <option value="I">I</option>
                                     <option value="II">II</option>
                                     <option value="III">III</option>
+                                    <option value="CESO I">CESO I</option>
+                                    <option value="CESO II">CESO II</option>
+                                    <option value="CESO III">CESO III</option>
+                                    <option value="CESO IV">CESO IV</option>
+                                    <option value="CESO V">CESO V</option>
+                                    <option value="CESO VI">CESO VI</option>
                                     <option value="Others">Others</option>
                                 </select>
                                 <div id="post_nominal_title_custom_wrapper" class="mt-2 hidden">
@@ -502,9 +591,14 @@
                                     class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Non-Binary">Non-Binary</option>
+                                    <option value="Lesbian">Lesbian</option>
+                                    <option value="Gay">Gay</option>
+                                    <option value="Bisexual">Bisexual</option>
+                                    <option value="Transgender">Transgender</option>
+                                    <option value="Queer">Queer</option>
+                                    <option value="Intersex">Intersex</option>
+                                    <option value="Non-binary">Non-binary</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="gender-error"></span>
                             </div>
@@ -528,7 +622,7 @@
                 <!-- Step 2: Office Address -->
                 <div class="step" id="step2">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Complete Office Address</h2>
-                    <div class="space-y-4">
+                    <div class="step2-fields">
                         <!-- Building/House/Street Details -->
                         <div class="form-row form-row-cols-2 gap-4">
                             <div class="form-field min-w-0">
@@ -567,24 +661,24 @@
 
                         <div class="form-row form-row-cols-2 gap-4">
                             <div class="form-field min-w-0">
-                                <label for="office_purok" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Purok</label>
+                                <label for="office_purok" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Zone</label>
                                 <input 
                                     type="text" 
                                     id="office_purok" 
                                     name="office_purok" 
                                     class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                    placeholder="Purok"
+                                    placeholder="Zone"
                                 >
                             </div>
 
                             <div class="form-field min-w-0">
-                                <label for="office_sitio" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Sitio</label>
+                                <label for="office_sitio" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Sub-village</label>
                                 <input 
                                     type="text" 
                                     id="office_sitio" 
                                     name="office_sitio" 
                                     class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                                    placeholder="Sitio"
+                                    placeholder="Sub-village"
                                 >
                             </div>
                         </div>
@@ -651,7 +745,7 @@
                 <!-- Step 3: Contact Information -->
                 <div class="step" id="step3">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Contact Information</h2>
-                    <div class="space-y-4">
+                    <div class="step3-fields">
                         <!-- Email -->
                         <div class="form-field">
                             <label for="email" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Email Address *</label>
@@ -680,7 +774,7 @@
                                 placeholder="System generated username"
                             >
                             <span class="text-red-500 text-sm hidden" id="username-error"></span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">System generated. Can be edited once registration has been approved.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standardized and corrected username format: first name.surname (e.g. juan.dela).</p>
                         </div>
 
                         <!-- Mobile Number -->
@@ -747,7 +841,7 @@
                                     <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                     <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                     <li id="req-number" class="invalid">At least 1 number</li>
-                                    <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , etc.)</li>
                                 </ul>
                             </div>
                         </div>
@@ -824,6 +918,43 @@
     </div>
 
     <script>
+        // Terms modal: enable Proceed only when scrolled to bottom
+        (function() {
+            var modal = document.getElementById('termsModal');
+            var scrollEl = document.getElementById('termsModalScroll');
+            var proceedBtn = document.getElementById('termsModalProceed');
+            var cancelBtn = document.getElementById('termsModalCancel');
+            var registerContent = document.getElementById('registerContent');
+
+            function checkScroll() {
+                if (!scrollEl || !proceedBtn) return;
+                var isAtBottom = scrollEl.scrollHeight - scrollEl.scrollTop <= scrollEl.clientHeight + 20;
+                proceedBtn.disabled = !isAtBottom;
+                proceedBtn.classList.toggle('opacity-60', !isAtBottom);
+                proceedBtn.classList.toggle('cursor-not-allowed', !isAtBottom);
+                if (isAtBottom) {
+                    proceedBtn.classList.add('hover:opacity-90');
+                }
+            }
+
+            if (scrollEl) scrollEl.addEventListener('scroll', checkScroll);
+            checkScroll();
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    window.location.href = '{{ route("login") }}';
+                });
+            }
+
+            if (proceedBtn) {
+                proceedBtn.addEventListener('click', function() {
+                    if (this.disabled) return;
+                    if (modal) modal.style.display = 'none';
+                    if (registerContent) registerContent.style.display = 'flex';
+                });
+            }
+        })();
+
         // Set up axios defaults
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -983,7 +1114,7 @@
 
             // Allow only letters, numbers, and listed special chars (~, !, #, $, %, ^, &, *, |)
             function filterPasswordInput(el) {
-                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
                 const val = el.value;
                 const filtered = (val.match(allowed) || []).join('');
                 if (val !== filtered) el.value = filtered;
@@ -997,7 +1128,7 @@
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!#$%^&*|]/.test(password);
+                const hasSpecial = /[^A-Za-z0-9]/.test(password);
                 
                 // Update requirement indicators
                 if (hasLength) {
@@ -1292,7 +1423,7 @@
                    /[A-Z]/.test(password) &&
                    /[a-z]/.test(password) &&
                    /[0-9]/.test(password) &&
-                   /[~!#$%^&*|]/.test(password);
+                   /[^A-Za-z0-9]/.test(password);
         }
 
         function isAtLeast18(birthDateStr) {

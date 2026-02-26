@@ -136,7 +136,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Report Type</label>
                 <select name="report_type" id="report_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none" required>
-                    <option value="notices" {{ (request('report_type') == 'notices') ? 'selected' : '' }}>Notices</option>
+                    <option value="notices" {{ (request('report_type') == 'notices') ? 'selected' : '' }}>Communication</option>
                     {{-- <option value="announcements" {{ (request('report_type') == 'announcements') ? 'selected' : '' }}>Announcements</option> --}}
                     <option value="board_regulations" {{ (request('report_type') == 'board_regulations') ? 'selected' : '' }}>Board Regulations</option>
                     <option value="board_resolutions" {{ (request('report_type') == 'board_resolutions') ? 'selected' : '' }}>Board Resolutions</option>
@@ -713,7 +713,7 @@
         });
 
         const reportTypeNames = {
-            'notices': 'Notices',
+            'notices': 'Communication',
             'announcements': 'Announcements',
             'board_regulations': 'Board Regulations',
             'board_resolutions': 'Board Resolutions',

@@ -370,6 +370,57 @@ class NoticeController extends Controller
     }
 
     /**
+     * Download a notice attachment (member-facing; ensures user has access to the notice).
+     */
+    public function downloadAttachment($id, $mediaId)
+    {
+        $userId = Auth::id();
+        $notice = Notice::findOrFail($id);
+
+        if (!$notice->allowedUsers()->where('users.id', $userId)->exists()) {
+            abort(403, 'You do not have access to this notice.');
+        }
+
+        $allowedIds = [];
+        foreach ($notice->attachments ?? [] as $mid) {
+            $allowedIds[$mid] = true;
+        }
+        $adminMaterials = ReferenceMaterial::where('notice_id', $id)->whereIn('status', ['approved', null])->get();
+        foreach ($adminMaterials as $material) {
+            foreach ($material->attachments ?? [] as $mid) {
+                $allowedIds[$mid] = true;
+            }
+        }
+        foreach (Notice::where('related_notice_id', $id)->get() as $related) {
+            foreach ($related->attachments ?? [] as $mid) {
+                $allowedIds[$mid] = true;
+            }
+        }
+        foreach (AgendaInclusionRequest::where('notice_id', $id)->where('status', 'approved')->get() as $req) {
+            foreach ($req->attachments ?? [] as $mid) {
+                $allowedIds[$mid] = true;
+            }
+        }
+
+        if (!isset($allowedIds[(int) $mediaId])) {
+            abort(404, 'Attachment not found.');
+        }
+
+        $media = MediaLibrary::findOrFail($mediaId);
+        if (!Storage::disk('public')->exists($media->file_path)) {
+            abort(404);
+        }
+
+        $fullPath = Storage::disk('public')->path($media->file_path);
+        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+        $baseTitle = $media->title ?: pathinfo($media->file_name, PATHINFO_FILENAME);
+        $safeBase = Str::slug($baseTitle, '-') ?: 'file';
+        $downloadName = $extension ? ($safeBase . '.' . $extension) : $safeBase;
+
+        return response()->download($fullPath, $downloadName);
+    }
+
+    /**
      * Upload attachment for agenda inclusion or reference materials (user-side, no admin permission required)
      */
     public function uploadAttachment(Request $request)

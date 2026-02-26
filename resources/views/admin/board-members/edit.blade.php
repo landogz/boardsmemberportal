@@ -219,6 +219,12 @@
                                 <option value="I" {{ $user->post_nominal_title === 'I' ? 'selected' : '' }}>I</option>
                                 <option value="II" {{ $user->post_nominal_title === 'II' ? 'selected' : '' }}>II</option>
                                 <option value="III" {{ $user->post_nominal_title === 'III' ? 'selected' : '' }}>III</option>
+                                <option value="CESO I" {{ $user->post_nominal_title === 'CESO I' ? 'selected' : '' }}>CESO I</option>
+                                <option value="CESO II" {{ $user->post_nominal_title === 'CESO II' ? 'selected' : '' }}>CESO II</option>
+                                <option value="CESO III" {{ $user->post_nominal_title === 'CESO III' ? 'selected' : '' }}>CESO III</option>
+                                <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
+                                <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
+                                <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
                                 <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
                             </select>
                             <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
@@ -252,9 +258,14 @@
                             <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
                             <select id="gender" name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                                 <option value="">Select Gender</option>
-                                <option value="Male" {{ $user->gender === 'Male' ? 'selected' : '' }}>Male</option>
-                                <option value="Female" {{ $user->gender === 'Female' ? 'selected' : '' }}>Female</option>
-                                <option value="Non-Binary" {{ $user->gender === 'Non-Binary' ? 'selected' : '' }}>Non-Binary</option>
+                                <option value="Lesbian" {{ $user->gender === 'Lesbian' ? 'selected' : '' }}>Lesbian</option>
+                                <option value="Gay" {{ $user->gender === 'Gay' ? 'selected' : '' }}>Gay</option>
+                                <option value="Bisexual" {{ $user->gender === 'Bisexual' ? 'selected' : '' }}>Bisexual</option>
+                                <option value="Transgender" {{ $user->gender === 'Transgender' ? 'selected' : '' }}>Transgender</option>
+                                <option value="Queer" {{ $user->gender === 'Queer' ? 'selected' : '' }}>Queer</option>
+                                <option value="Intersex" {{ $user->gender === 'Intersex' ? 'selected' : '' }}>Intersex</option>
+                                <option value="Non-binary" {{ $user->gender === 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                <option value="Prefer not to say" {{ $user->gender === 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>
                         </div>
@@ -293,13 +304,13 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Purok</label>
-                            <input type="text" id="office_purok" name="office_purok" value="{{ $user->office_purok }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Purok">
+                            <label for="office_purok" class="block text-sm font-medium text-gray-700 mb-1">Zone</label>
+                            <input type="text" id="office_purok" name="office_purok" value="{{ $user->office_purok }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Zone">
                         </div>
 
                         <div>
-                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sitio</label>
-                            <input type="text" id="office_sitio" name="office_sitio" value="{{ $user->office_sitio }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sitio">
+                            <label for="office_sitio" class="block text-sm font-medium text-gray-700 mb-1">Sub-village</label>
+                            <input type="text" id="office_sitio" name="office_sitio" value="{{ $user->office_sitio }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Sub-village">
                         </div>
                     </div>
 
@@ -390,7 +401,7 @@
                                 <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                 <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                 <li id="req-number" class="invalid">At least 1 number</li>
-                                <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                                <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                             </ul>
                         </div>
                     </div>
@@ -563,7 +574,7 @@
 
         // Password validation (only if password is being changed)
         function filterPasswordInput(el) {
-            const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+            const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
             const val = el.value;
             const filtered = (val.match(allowed) || []).join('');
             if (val !== filtered) el.value = filtered;
@@ -577,7 +588,7 @@
                 $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
                 $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
                 $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-                $('#req-special').toggleClass('valid invalid', /[~!#$%^&*|]/.test(password));
+                $('#req-special').toggleClass('valid invalid', /[^A-Za-z0-9]/.test(password));
             } else {
                 $('#req-length, #req-uppercase, #req-lowercase, #req-number, #req-special').removeClass('valid').addClass('invalid');
             }
@@ -844,7 +855,7 @@
                /[A-Z]/.test(password) &&
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
-               /[~!#$%^&*|]/.test(password);
+               /[^A-Za-z0-9]/.test(password);
     }
 
     function isValidEmail(email) {

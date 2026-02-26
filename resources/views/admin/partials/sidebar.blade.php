@@ -112,7 +112,7 @@
                             <li>
                                 <a href="{{ route('admin.notices.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.notices.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.notices.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-bell w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">Notices</span>
+                                    <span class="ml-3">Communication</span>
                                 </a>
                             </li>
                             @endcan

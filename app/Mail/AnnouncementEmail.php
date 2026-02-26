@@ -15,16 +15,23 @@ class AnnouncementEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $announcement;
+
     public $user;
+
     public $announcementUrl;
+
+    public $isUpdate;
 
     /**
      * Create a new message instance.
+     *
+     * @param  bool  $isUpdate  When true, subject and body indicate the announcement was updated (not new).
      */
-    public function __construct(Announcement $announcement, User $user)
+    public function __construct(Announcement $announcement, User $user, bool $isUpdate = false)
     {
         $this->announcement = $announcement;
         $this->user = $user;
+        $this->isUpdate = $isUpdate;
         // Generate absolute URL to login page with redirect to announcements section
         $baseUrl = config('app.url');
         $this->announcementUrl = rtrim($baseUrl, '/') . '/login?redirect=' . urlencode('/#announcements');
@@ -37,9 +44,11 @@ class AnnouncementEmail extends Mailable
     {
         $categoryLabel = $this->announcement->category_label ?? 'Announcement';
 
-        return new Envelope(
-            subject: 'New ' . $categoryLabel . ': ' . $this->announcement->title,
-        );
+        $subject = $this->isUpdate
+            ? 'Updated ' . $categoryLabel . ': ' . $this->announcement->title
+            : 'New ' . $categoryLabel . ': ' . $this->announcement->title;
+
+        return new Envelope(subject: $subject);
     }
 
     /**
@@ -53,6 +62,7 @@ class AnnouncementEmail extends Mailable
                 'announcement' => $this->announcement,
                 'user' => $this->user,
                 'announcementUrl' => $this->announcementUrl,
+                'isUpdate' => $this->isUpdate,
             ],
         );
     }

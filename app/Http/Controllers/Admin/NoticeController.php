@@ -46,11 +46,12 @@ class NoticeController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to create notices.');
         }
 
-        $users = User::where('privilege', 'user')
+        $users = User::whereIn('privilege', ['user', 'consec'])
             ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
+            ->orderBy('privilege')
             ->orderBy('government_agencies.name')
             ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')
@@ -286,11 +287,12 @@ class NoticeController extends Controller
 
         $notice = Notice::with(['allowedUsers'])->findOrFail($id);
 
-        $users = User::where('privilege', 'user')
+        $users = User::whereIn('privilege', ['user', 'consec'])
             ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
+            ->orderBy('privilege')
             ->orderBy('government_agencies.name')
             ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')

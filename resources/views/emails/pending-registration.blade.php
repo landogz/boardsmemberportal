@@ -215,22 +215,22 @@
                             @if($forRegistrant ?? false)
                             {{-- Email for the registering user (pending approval notice) --}}
                             <p class="greeting">
-                                Hello <strong>{{ $registeredUser->pre_nominal_title }} {{ $registeredUser->first_name }} {{ $registeredUser->last_name }}</strong>,
+                                Dear Ms. {{ $registeredUser->first_name }} {{ $registeredUser->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                Thank you for registering with the Board Members Portal. Your registration has been successfully submitted and is <strong>pending admin approval</strong>.
+                                Thank you for registering with the Board Members Portal. Your registration has been successfully submitted and is pending administrative approval.
                             </p>
                             
                             <div class="registration-card">
                                 <h2 class="registration-title">📋 What happens next?</h2>
                                 <p class="registration-details">
-                                    CONSEC will review your registration. You will receive another email once your account has been approved. You can then sign in using your registered credentials.
+                                    The Conference Secretariat of the Dangerous Drugs Board will review your registration. You will receive a separate notification once your account has been approved, after which you may log in using your registered credentials.
                                 </p>
                             </div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                If you have any questions, please contact CONSEC.
+                                For any inquiries or clarification, please coordinate with the system administrator.
                             </p>
                             @else
                             {{-- Email for admins (new registration alert) --}}

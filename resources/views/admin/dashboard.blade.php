@@ -173,6 +173,25 @@
     $totalUsers = \App\Models\User::count();
     $activeUsers = \App\Models\User::where('is_active', true)->count();
     
+    // Latest Notice of Meeting (for attendance widget)
+    $latestMeetingNotice = \App\Models\Notice::noticeOfMeeting()
+        ->orderByDesc('meeting_date')
+        ->orderByDesc('created_at')
+        ->first();
+    
+    // Attendance statistics for the latest meeting only
+    if ($latestMeetingNotice) {
+        $acceptedAttendanceConfirmationsCount = \App\Models\AttendanceConfirmation::where('notice_id', $latestMeetingNotice->id)
+            ->where('status', 'accepted')
+            ->count();
+        $pendingAttendanceConfirmationsCount = \App\Models\AttendanceConfirmation::where('notice_id', $latestMeetingNotice->id)
+            ->where('status', 'pending')
+            ->count();
+    } else {
+        $acceptedAttendanceConfirmationsCount = 0;
+        $pendingAttendanceConfirmationsCount = 0;
+    }
+    
     // Widget Data - Recent Activities
     $recentActivities = \App\Models\AuditLog::with(['user'])
         ->orderBy('created_at', 'desc')
@@ -300,19 +319,27 @@
                     @if(isWidgetVisible('attendance', $widgetPreferences))
                     <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
                          style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
-                         onclick="window.location.href='#'">
+                         onclick="window.location.href='{{ route('admin.attendance-confirmations.index') }}'">
                         <div class="flex items-center justify-between mb-3 sm:mb-4">
                             <i class="fas fa-check-square text-xl sm:text-2xl opacity-80"></i>
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs sm:text-sm opacity-90">Attendance Records</span>
-                                <strong class="text-lg sm:text-xl" id="attendanceRecords">0</strong>
+                                <span class="text-xs sm:text-sm opacity-90">Accepted</span>
+                                <strong class="text-lg sm:text-xl" id="attendanceRecords">{{ $acceptedAttendanceConfirmationsCount }}</strong>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-xs sm:text-sm opacity-90">Pending Confirmations</span>
-                                <strong class="text-lg sm:text-xl" id="pendingConfirmations">0</strong>
+                                <strong class="text-lg sm:text-xl" id="pendingConfirmations">{{ $pendingAttendanceConfirmationsCount }}</strong>
                             </div>
+                            @if($latestMeetingNotice)
+                            <div class="mt-1 pt-1 border-t border-white/20 text-[11px] sm:text-xs leading-snug opacity-95 line-clamp-2">
+                                <span class="font-semibold">Latest Meeting:</span>
+                                <span title="{{ $latestMeetingNotice->title }}">
+                                    {{ \Illuminate\Support\Str::limit($latestMeetingNotice->title, 60) }}
+                                </span>
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endif

@@ -177,11 +177,15 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear Mr. {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                A new {{ strtolower($announcement->category_label) }} announcement has been published and you have been invited to view it.
+                                @if(!empty($isUpdate))
+                                    An {{ strtolower($announcement->category_label) }} announcement you have access to has been updated in the Board Members Portal and is available for your viewing.
+                                @else
+                                    A new {{ strtolower($announcement->category_label) }} announcement has been published in the Board Members Portal and is now available for your viewing.
+                                @endif
                             </p>
                             
                             <div class="announcement-card">
@@ -198,8 +202,8 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This announcement was sent to you by <strong>Board Members Portal</strong>.
-                                If you have any questions, please contact the administrator.
+                                This announcement was sent through the <strong>Board Members Portal</strong>.
+                                For any inquiries or clarification, please coordinate with the system administrator.
                             </p>
                         </td>
                     </tr>
@@ -211,7 +215,7 @@
                                 © {{ date('Y') }} Board Members Portal. All rights reserved.
                             </p>
                             <p class="footer-text" style="margin-top: 8px;">
-                                This is an automated email. Please do not reply to this message.
+                                This is an automated message. Please do not reply.
                             </p>
                         </td>
                     </tr>

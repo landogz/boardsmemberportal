@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Notification;
 use App\Models\MediaLibrary;
 use App\Mail\AnnouncementEmail;
+use App\Mail\AnnouncementDeletedEmail;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -308,7 +309,9 @@ class AnnouncementController extends Controller
 
             $oldStatus = $announcement->status;
             $oldScheduledAt = $announcement->scheduled_at;
-            
+            $oldTitle = $announcement->title;
+            $oldContent = $announcement->content;
+
             // Determine status: if scheduled_at is in the future, set to draft (use validated value so clearing date works)
             $scheduledAt = isset($validated['scheduled_at']) && $validated['scheduled_at'] 
                 ? new \DateTime($validated['scheduled_at']) 
@@ -419,6 +422,21 @@ class AnnouncementController extends Controller
                 }
             }
 
+            // If announcement is published and title or content was changed, notify all allowed users
+            if ($announcement->status === 'published' && ($oldTitle !== $validated['title'] || $oldContent !== $validated['description'])) {
+                $shouldNotifyNow = $announcement->scheduled_at === null || $announcement->scheduled_at <= now();
+                if ($shouldNotifyNow) {
+                    $announcement->load('allowedUsers');
+                    foreach ($announcement->allowedUsers as $user) {
+                        try {
+                            Mail::to($user->email)->send(new AnnouncementEmail($announcement, $user, true));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send announcement update email to user ' . $user->id . ': ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
             AuditLogger::log(
                 'announcement.updated',
                 'Updated announcement: ' . $announcement->title,
@@ -455,10 +473,20 @@ class AnnouncementController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to delete announcements.');
         }
 
-        $announcement = Announcement::findOrFail($id);
+        $announcement = Announcement::with('allowedUsers')->findOrFail($id);
 
         DB::beginTransaction();
         try {
+            // Notify allowed users that the announcement was removed (before deleting)
+            $announcementTitle = $announcement->title;
+            foreach ($announcement->allowedUsers as $user) {
+                try {
+                    Mail::to($user->email)->send(new AnnouncementDeletedEmail($announcementTitle, $user));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send announcement deleted email to user ' . $user->id . ': ' . $e->getMessage());
+                }
+            }
+
             // Delete banner image if exists
             if ($announcement->banner_image_id) {
                 $media = MediaLibrary::find($announcement->banner_image_id);

@@ -154,7 +154,7 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-xs uppercase">Purok / Sitio</p>
+                                <p class="text-gray-500 text-xs uppercase">Zone / Sub-village</p>
                                 <p class="mt-1 text-gray-900 font-medium">
                                     @if($user->office_purok || $user->office_sitio)
                                         {{ trim(($user->office_purok ?? '') . ' ' . ($user->office_sitio ?? '')) }}

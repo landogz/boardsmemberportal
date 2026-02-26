@@ -223,11 +223,11 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear {{ $user->first_name }} {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">
-                                A notice you have access to has been updated. Please review the changes below.
+                                A notice to which you have access has been updated. Please log in to the Board Members Portal to view the changes.
                             </p>
                             
                             <div class="notice-card">
@@ -322,6 +322,12 @@
                                         <a href="{{ $notice->meeting_link }}" class="meeting-link" target="_blank">{{ $notice->meeting_link }}</a>
                                     </div>
                                     @endif
+                                    @if(in_array($notice->meeting_type, ['onsite', 'hybrid']) && $notice->venue)
+                                    <div class="notice-detail-row" style="margin-top: 12px;">
+                                        <span class="notice-detail-label">Venue:</span>
+                                        <span class="notice-detail-value">{{ $notice->venue }}</span>
+                                    </div>
+                                    @endif
                                     @if($notice->attachments && count($notice->attachments) > 0)
                                     <div class="notice-detail-row" style="margin-top: 20px;">
                                         <span class="notice-detail-label">Attachments:</span>
@@ -350,8 +356,8 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This notice was sent to you by <strong>Board Members Portal</strong>.
-                                If you have any questions, please contact the administrator.
+                                This notice was sent through the <strong>Board Members Portal</strong>.
+                                For any inquiries or clarification, please coordinate with the system administrator.
                             </p>
                         </td>
                     </tr>

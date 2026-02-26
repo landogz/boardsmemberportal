@@ -1,9 +1,9 @@
 @extends('admin.layout')
 
-@section('title', 'Notices')
+@section('title', 'Communication')
 
 @php
-    $pageTitle = 'Notices';
+    $pageTitle = 'Communication';
     $headerActions = [];
     if (Auth::user()->hasPermission('create notices')) {
         $headerActions[] = [
@@ -157,8 +157,8 @@
 <div class="p-4 sm:p-6">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="mb-4">
-            <h2 class="text-xl font-semibold text-gray-800">All Notices</h2>
-            <p class="text-sm text-gray-600 mt-1">Manage notices and their visibility</p>
+            <h2 class="text-xl font-semibold text-gray-800">All Communication</h2>
+            <p class="text-sm text-gray-600 mt-1">Manage communications and their visibility</p>
         </div>
 
         @if(session('success'))
@@ -296,7 +296,7 @@
         @else
         <div class="text-center py-12">
             <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 text-lg">No notices found</p>
+            <p class="text-gray-500 text-lg">No communications found</p>
             @if(Auth::user()->hasPermission('create notices'))
             <a href="{{ route('admin.notices.create') }}" class="mt-4 inline-block px-4 py-2 bg-[#055498] text-white rounded-lg hover:bg-[#123a60] transition-colors">
                 Create Your First Notice
@@ -317,10 +317,10 @@
             pageLength: 15,
             language: {
                 search: "Search:",
-                lengthMenu: "Show _MENU_ notices per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ notices",
-                infoEmpty: "No notices found",
-                infoFiltered: "(filtered from _MAX_ total notices)",
+                lengthMenu: "Show _MENU_ communications per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ communications",
+                infoEmpty: "No communications found",
+                infoFiltered: "(filtered from _MAX_ total communications)",
             }
         });
     });

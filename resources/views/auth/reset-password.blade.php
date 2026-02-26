@@ -145,7 +145,7 @@
                             <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                             <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                             <li id="req-number" class="invalid">At least 1 number</li>
-                            <li id="req-special" class="invalid">At least 1 special character (~, !, #, $, %, ^, &, *, |)</li>
+                            <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                         </ul>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
 
             // Password validation
             function filterPasswordInput(el) {
-                const allowed = /[A-Za-z0-9~!#$%^&*|]/g;
+                const allowed = /[\s\S]/g; /* allow any character (e.g. period, parentheses) */
                 const val = el.value;
                 const filtered = (val.match(allowed) || []).join('');
                 if (val !== filtered) el.value = filtered;
@@ -221,7 +221,7 @@
                 const hasUppercase = /[A-Z]/.test(password);
                 const hasLowercase = /[a-z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[~!#$%^&*|]/.test(password);
+                const hasSpecial = /[^A-Za-z0-9]/.test(password);
                 
                 // Update individual requirement indicators
                 $('#req-length').removeClass('valid invalid').addClass(hasLength ? 'valid' : 'invalid');
@@ -274,7 +274,7 @@
                        /[A-Z]/.test(password) &&
                        /[a-z]/.test(password) &&
                        /[0-9]/.test(password) &&
-                       /[~!#$%^&*|]/.test(password);
+                       /[^A-Za-z0-9]/.test(password);
             }
 
             $('#resetPasswordForm').on('submit', function(e) {

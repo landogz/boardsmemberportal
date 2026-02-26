@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserDeactivatedEmail;
 use App\Models\User;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -64,11 +66,11 @@ class BoardMemberController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
-            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,Others',
+            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
             'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Male,Female,Non-Binary',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
@@ -198,11 +200,11 @@ class BoardMemberController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
-            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,Others',
+            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
             'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Male,Female,Non-Binary',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
             'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
@@ -330,6 +332,14 @@ class BoardMemberController extends Controller
 
         $status = $user->is_active ? 'activated' : 'deactivated';
         $email = $user->email;
+
+        if (!$user->is_active) {
+            try {
+                Mail::to($user->email)->send(new UserDeactivatedEmail($user));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send deactivation email to user ' . $user->id . ': ' . $e->getMessage());
+            }
+        }
 
         AuditLogger::log(
             'board_member.account_status_toggled',

@@ -15,6 +15,7 @@ class OfficialDocument extends Model
         'effective_date',
         'approved_date',
         'uploaded_by',
+        'notice_id',
     ];
 
     protected $casts = [
@@ -36,6 +37,14 @@ class OfficialDocument extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * Get the Notice of Meeting this resolution is linked to (optional)
+     */
+    public function notice(): BelongsTo
+    {
+        return $this->belongsTo(Notice::class, 'notice_id');
     }
 
     /**

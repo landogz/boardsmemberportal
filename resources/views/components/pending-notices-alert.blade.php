@@ -110,7 +110,7 @@
             const modalPosition = isMobile ? 'center' : 'top-left';
 
             currentModal = Swal.fire({
-                title: `Pending Notices (${notices.length})`,
+                title: `Pending Communications (${notices.length})`,
                 html: listHTML,
                 icon: null,
                 width: modalWidth,
