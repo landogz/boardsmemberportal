@@ -94,7 +94,7 @@
         </div>
         @if($notice ?? null)
         <div class="flex items-center gap-2 flex-wrap shrink-0">
-            <button type="button" id="refDownloadAllBtn" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium border border-gray-200 disabled:opacity-70 disabled:cursor-not-allowed" data-notice-id="{{ $notice->id }}" data-download-url="{{ route('admin.reference-materials.download-all', ['notice' => $notice->id]) }}" title="Download all files as zip">
+            <button type="button" id="refDownloadAllBtn" class="hidden inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium border border-gray-200 disabled:opacity-70 disabled:cursor-not-allowed" data-notice-id="{{ $notice->id }}" data-download-url="{{ route('admin.reference-materials.download-all', ['notice' => $notice->id]) }}" title="Download all files as zip">
                 <i class="ref-download-all-icon fas fa-file-archive"></i>
                 <span class="ref-download-all-text">Download all</span>
             </button>
