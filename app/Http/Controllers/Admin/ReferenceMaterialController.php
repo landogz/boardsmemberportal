@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ReferenceMaterial;
 use App\Models\Notice;
 use App\Models\AgendaInclusionRequest;
+use App\Models\BoardRegulation;
+use App\Models\OfficialDocument;
 use App\Models\Notification;
 use App\Models\MediaLibrary;
 use App\Services\AuditLogger;
@@ -44,9 +46,17 @@ class ReferenceMaterialController extends Controller
             $sort = $request->query('sort', 'date');
             $dir = $request->query('dir', 'desc');
 
-            // Load notices then compute total attachment items per notice (reference materials + notice + related agenda notices + approved agenda items)
+            // Load notices then compute total attachment items per notice (reference materials + notice + related agenda notices + approved agenda items + board regulations/resolutions PDFs)
             $notices = $query->get();
             foreach ($notices as $notice) {
+                $regPdfIds = BoardRegulation::where('notice_id', $notice->id)
+                    ->orWhereIn('id', $notice->board_regulations ?? [])
+                    ->pluck('pdf_file')
+                    ->filter();
+                $resPdfIds = OfficialDocument::where('notice_id', $notice->id)
+                    ->orWhereIn('id', $notice->board_resolutions ?? [])
+                    ->pluck('pdf_file')
+                    ->filter();
                 $itemIds = collect($notice->referenceMaterials)
                     ->flatMap(function ($material) {
                         return $material->attachments ?? [];
@@ -62,6 +72,8 @@ class ReferenceMaterialController extends Controller
                             return $req->attachments ?? [];
                         })
                     )
+                    ->merge($regPdfIds)
+                    ->merge($resPdfIds)
                     ->filter()
                     ->unique()
                     ->values();
@@ -199,6 +211,29 @@ class ReferenceMaterialController extends Controller
             }
         }
 
+        // Board Regulation PDFs linked to this notice (notice_id or in notice's board_regulations)
+        $regulations = BoardRegulation::with('pdf')->where('notice_id', $noticeId)
+            ->orWhereIn('id', $notice->board_regulations ?? [])
+            ->get();
+        $creator = $notice->creator;
+        $noticeOwnerName = $creator ? ($creator->first_name . ' ' . $creator->last_name) : 'Notice';
+        $noticeOwnerAvatar = $creator && $creator->profile_picture ? optional(MediaLibrary::find($creator->profile_picture))->file_path : null;
+        foreach ($regulations as $regulation) {
+            if ($regulation->pdf_file && ($media = MediaLibrary::find($regulation->pdf_file))) {
+                $addFileFromMedia($media, $regulation->updated_at ?? $regulation->created_at, $noticeOwnerName, $noticeOwnerAvatar, null, 'Notice');
+            }
+        }
+
+        // Board Resolution (OfficialDocument) PDFs linked to this notice (notice_id or in notice's board_resolutions)
+        $resolutions = OfficialDocument::with('pdf')->where('notice_id', $noticeId)
+            ->orWhereIn('id', $notice->board_resolutions ?? [])
+            ->get();
+        foreach ($resolutions as $resolution) {
+            if ($resolution->pdf_file && ($media = MediaLibrary::find($resolution->pdf_file))) {
+                $addFileFromMedia($media, $resolution->updated_at ?? $resolution->created_at, $noticeOwnerName, $noticeOwnerAvatar, null, 'Notice');
+            }
+        }
+
         $sort = $request->query('sort', 'modified');
         $dir = $request->query('dir', 'desc');
         $coll = collect(array_values($files));
@@ -264,6 +299,17 @@ class ReferenceMaterialController extends Controller
         }
         foreach (AgendaInclusionRequest::where('notice_id', $noticeId)->where('status', 'approved')->get() as $agendaRequest) {
             foreach ($agendaRequest->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+        // Board Regulation and Board Resolution PDFs linked to this notice
+        foreach (BoardRegulation::where('notice_id', $noticeId)->orWhereIn('id', $notice->board_regulations ?? [])->pluck('pdf_file') as $id) {
+            if ($id) {
+                $mediaById[$id] = true;
+            }
+        }
+        foreach (OfficialDocument::where('notice_id', $noticeId)->orWhereIn('id', $notice->board_resolutions ?? [])->pluck('pdf_file') as $id) {
+            if ($id) {
                 $mediaById[$id] = true;
             }
         }
