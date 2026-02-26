@@ -260,6 +260,80 @@ class ReferenceMaterialController extends Controller
     }
 
     /**
+     * Collect all media IDs that should appear for a notice (same sources as index file list).
+     * Used by downloadAll so the zip always matches what the user sees.
+     */
+    private function getMediaIdsForNotice(Notice $notice): array
+    {
+        $noticeId = $notice->id;
+        $mediaById = [];
+
+        $materials = ReferenceMaterial::where('notice_id', $noticeId)
+            ->whereHas('user', function ($query) {
+                $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
+            })
+            ->get();
+        foreach ($materials as $material) {
+            foreach ($material->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+
+        $noticeAttachments = $notice->attachments ?? [];
+        if (is_string($noticeAttachments)) {
+            $decoded = json_decode($noticeAttachments, true);
+            $noticeAttachments = is_array($decoded) ? $decoded : [];
+        }
+        foreach ($noticeAttachments as $id) {
+            $mediaById[$id] = true;
+        }
+
+        foreach (Notice::where('related_notice_id', $noticeId)->get() as $agenda) {
+            foreach ($agenda->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+        foreach (AgendaInclusionRequest::where('notice_id', $noticeId)->where('status', 'approved')->get() as $agendaRequest) {
+            foreach ($agendaRequest->attachments ?? [] as $id) {
+                $mediaById[$id] = true;
+            }
+        }
+
+        $regIds = $notice->board_regulations ?? [];
+        $resIds = $notice->board_resolutions ?? [];
+        if (is_string($regIds)) {
+            $decoded = json_decode($regIds, true);
+            $regIds = is_array($decoded) ? $decoded : [];
+        }
+        if (is_string($resIds)) {
+            $decoded = json_decode($resIds, true);
+            $resIds = is_array($decoded) ? $decoded : [];
+        }
+
+        $regQuery = BoardRegulation::where('notice_id', $noticeId);
+        if (!empty($regIds)) {
+            $regQuery->orWhereIn('id', $regIds);
+        }
+        foreach ($regQuery->pluck('pdf_file') as $id) {
+            if ($id) {
+                $mediaById[$id] = true;
+            }
+        }
+
+        $resQuery = OfficialDocument::where('notice_id', $noticeId);
+        if (!empty($resIds)) {
+            $resQuery->orWhereIn('id', $resIds);
+        }
+        foreach ($resQuery->pluck('pdf_file') as $id) {
+            if ($id) {
+                $mediaById[$id] = true;
+            }
+        }
+
+        return array_keys($mediaById);
+    }
+
+    /**
      * Download all reference material files for a notice as a zip named after the meeting
      */
     public function downloadAll(Request $request)
@@ -276,44 +350,8 @@ class ReferenceMaterialController extends Controller
         }
 
         $notice = Notice::findOrFail($noticeId);
-        $materials = ReferenceMaterial::with([])
-            ->where('notice_id', $noticeId)
-            ->whereHas('user', function ($query) {
-                $query->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com');
-            })
-            ->get();
+        $mediaIds = $this->getMediaIdsForNotice($notice);
 
-        $mediaById = [];
-        foreach ($materials as $material) {
-            foreach ($material->attachments ?? [] as $id) {
-                $mediaById[$id] = true;
-            }
-        }
-        foreach ($notice->attachments ?? [] as $id) {
-            $mediaById[$id] = true;
-        }
-        foreach (Notice::where('related_notice_id', $noticeId)->get() as $agenda) {
-            foreach ($agenda->attachments ?? [] as $id) {
-                $mediaById[$id] = true;
-            }
-        }
-        foreach (AgendaInclusionRequest::where('notice_id', $noticeId)->where('status', 'approved')->get() as $agendaRequest) {
-            foreach ($agendaRequest->attachments ?? [] as $id) {
-                $mediaById[$id] = true;
-            }
-        }
-        // Board Regulation and Board Resolution PDFs linked to this notice
-        foreach (BoardRegulation::where('notice_id', $noticeId)->orWhereIn('id', $notice->board_regulations ?? [])->pluck('pdf_file') as $id) {
-            if ($id) {
-                $mediaById[$id] = true;
-            }
-        }
-        foreach (OfficialDocument::where('notice_id', $noticeId)->orWhereIn('id', $notice->board_resolutions ?? [])->pluck('pdf_file') as $id) {
-            if ($id) {
-                $mediaById[$id] = true;
-            }
-        }
-        $mediaIds = array_keys($mediaById);
         if (empty($mediaIds)) {
             return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('info', 'No files to download.');
         }
