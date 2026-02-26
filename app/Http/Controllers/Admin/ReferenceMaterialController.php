@@ -377,7 +377,8 @@ class ReferenceMaterialController extends Controller
         $mediaIds = $this->getMediaIdsForNotice($notice);
 
         if (empty($mediaIds)) {
-            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('info', 'No files to download.');
+            $hint = 'Ensure reference materials are uploaded to this meeting, notice attachments are added, or board regulations/resolutions are linked to this notice.';
+            return redirect()->route('admin.reference-materials.index', ['notice' => $noticeId])->with('info', 'No files to download for this meeting. ' . $hint);
         }
 
         $mediaFiles = MediaLibrary::whereIn('id', $mediaIds)->get();
