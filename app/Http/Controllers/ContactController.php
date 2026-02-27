@@ -47,12 +47,12 @@ class ContactController extends Controller
             // Get validated data
             $data = $validator->validated();
 
-            // Get admin email from config or use a default
-            $adminEmail = config('mail.admin_email', config('mail.from.address'));
+            // Contact form emails go to Board Secretariat
+            $recipientEmail = 'boardsec@ddb.gov.ph';
 
             // Send email notification
             try {
-                Mail::to($adminEmail)->send(new ContactFormMail($data));
+                Mail::to($recipientEmail)->send(new ContactFormMail($data));
             } catch (\Exception $mailException) {
                 \Log::error('Failed to send contact form email: ' . $mailException->getMessage());
                 // Continue even if email fails - we still want to acknowledge the submission

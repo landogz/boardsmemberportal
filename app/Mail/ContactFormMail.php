@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -35,7 +36,8 @@ class ContactFormMail extends Mailable
     {
         return new Envelope(
             subject: 'Contact Form: ' . $this->subject,
-            replyTo: [$this->email => $this->name],
+            // Reply-To = person who filled the form, so boardsec can reply directly to them
+            replyTo: [new Address($this->email, $this->name)],
         );
     }
 
