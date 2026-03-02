@@ -1,9 +1,9 @@
 <!-- Top Bar - 1190x45px - Mandatory, Locked -->
 <div class="top-bar z-40">
     <div class="container mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex items-center justify-between w-full pl-4 sm:pl-8 md:pl-12 lg:pl-[50px]">
-        <div class="flex items-center gap-3 sm:gap-4 min-h-[36px] sm:min-h-[40px] items-center" style="margin-left: -8px;">
+        <div class="flex items-center gap-3 sm:gap-4 min-h-[36px] sm:min-h-[40px] ml-2 sm:ml-3">
             <img src="{{ asset('images/republica.png') }}" alt="Republic of the Philippines" class="h-7 sm:h-8 w-auto object-contain flex-shrink-0">
-            <span class="hidden sm:inline text-sm md:text-base">REPUBLIC OF THE PHILIPPINES</span>
+            <span class="hidden sm:inline text-xs sm:text-sm md:text-base tracking-wide">REPUBLIC OF THE PHILIPPINES</span>
         </div>
         <!-- <div class="search-bar">
             <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
