@@ -74,6 +74,39 @@ class User extends Authenticatable
     ];
 
     /**
+     * Generate a unique username in format firstname.lastname (lowercase, alphanumeric only).
+     * If the base username exists, appends a number (e.g. juan.delacruz2).
+     *
+     * @param string $firstName
+     * @param string $lastName
+     * @param string|null $excludeUserId Exclude this user ID when checking uniqueness (for updates).
+     * @return string
+     */
+    public static function usernameFromName(string $firstName, string $lastName, ?string $excludeUserId = null): string
+    {
+        // Lowercase first so uppercase letters (R, B, etc.) are kept when stripping non-alphanumeric
+        $firstPart = preg_replace('/[^a-z0-9]/', '', strtolower($firstName));
+        $lastPart = preg_replace('/[^a-z0-9]/', '', strtolower($lastName));
+        $firstPart = $firstPart !== '' ? $firstPart : 'first';
+        $lastPart = $lastPart !== '' ? $lastPart : 'last';
+        $baseUsername = $firstPart . '.' . $lastPart;
+        $username = $baseUsername;
+        $counter = 1;
+        while (true) {
+            $query = self::where('username', $username);
+            if ($excludeUserId !== null) {
+                $query->where('id', '!=', $excludeUserId);
+            }
+            if (!$query->exists()) {
+                break;
+            }
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+        return $username;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

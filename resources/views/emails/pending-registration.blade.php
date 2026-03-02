@@ -215,7 +215,7 @@
                             @if($forRegistrant ?? false)
                             {{-- Email for the registering user (pending approval notice) --}}
                             <p class="greeting">
-                                Dear Ms. {{ $registeredUser->first_name }} {{ $registeredUser->last_name }},
+                                Dear {{ $registeredUser->pre_nominal_title ?? '' }} {{ $registeredUser->first_name }} {{ $registeredUser->last_name }},
                             </p>
                             
                             <p class="greeting">

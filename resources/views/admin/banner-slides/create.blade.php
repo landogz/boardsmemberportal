@@ -201,10 +201,20 @@
                             @error('media_type')<span class="text-red-500 text-sm block mt-1">{{ $message }}</span>@enderror
                         </div>
 
+                        {{-- Video URL (YouTube / Vimeo) – shown when Video is selected --}}
+                        <div id="media_url_wrapper" class="p-4 border border-gray-200 rounded-lg bg-gray-50 {{ old('media_type', 'image') === 'video' ? '' : 'hidden' }}">
+                            <label for="media_url" class="block text-sm font-medium text-gray-700 mb-2">Video link (optional)</label>
+                            <p class="text-xs text-gray-500 mb-2">Paste a YouTube or Vimeo link to use as the background instead of uploading a file. Same video is used on all screen sizes.</p>
+                            <input type="text" id="media_url" name="media_url" value="{{ old('media_url') }}"
+                                placeholder="e.g. https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white" autocomplete="url">
+                            @error('media_url')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
+
                         {{-- Desktop: always visible --}}
-                        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                            <label for="media_file" class="block text-sm font-medium text-gray-700 mb-2">Desktop (required)</label>
-                            <p class="text-xs text-gray-500 mb-2">Shown on large screens. Recommended: 1920 × 460 px.</p>
+                        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50" id="desktop_upload_wrapper">
+                            <label for="media_file" class="block text-sm font-medium text-gray-700 mb-2">Desktop <span id="desktop_required_label">(required)</span></label>
+                            <p class="text-xs text-gray-500 mb-2">Shown on large screens. Recommended: 1920 × 460 px. For video, upload a file or paste a YouTube/Vimeo link above.</p>
                             <input type="file" id="media_file" name="media_file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
                             @error('media_file')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
@@ -254,11 +264,12 @@
                     </div>
                     <div class="p-4">
                         <div id="slide-preview" class="relative rounded-lg overflow-hidden bg-gray-200 min-h-[220px] flex items-center justify-center">
-                            {{-- Background: placeholder or first file preview --}}
+                            {{-- Background: placeholder, file preview, or YouTube/Vimeo embed --}}
                             <div id="preview-bg-wrap" class="absolute inset-0 flex items-center justify-center opacity-90">
                                 <div id="preview-bg-placeholder" class="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-600"></div>
                                 <img id="preview-bg-image" class="absolute inset-0 w-full h-full object-cover hidden" alt="">
                                 <video id="preview-bg-video" class="absolute inset-0 w-full h-full object-cover hidden" muted loop playsinline></video>
+                                <iframe id="preview-bg-embed" class="absolute inset-0 w-full h-full border-0 hidden" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Video preview"></iframe>
                             </div>
                             <div id="preview-overlay" class="absolute inset-0 bg-black transition-opacity" style="opacity: {{ 1 - (float) old('media_opacity', 1) }};"></div>
                             <div class="relative z-10 text-center px-6 py-4 max-w-lg mx-auto">
@@ -388,54 +399,107 @@
     updatePreviewText();
     updatePreviewOverlay();
 
-    // Background file preview (first file only for preview)
+    // Build embed URL from YouTube or Vimeo watch URL (for preview)
+    function getEmbedUrlFromInput(url) {
+        var u = (url || '').trim();
+        if (!u) return null;
+        var m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+        if (m) return 'https://www.youtube.com/embed/' + m[1] + '?autoplay=1&mute=1&loop=1&playlist=' + m[1] + '&controls=0&showinfo=0&rel=0';
+        m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (m) return 'https://player.vimeo.com/video/' + m[1] + '?autoplay=1&muted=1&loop=1&background=1';
+        return null;
+    }
+
+    // Background: file or video link preview
     var mediaFile = $('media_file');
     var previewBgPlaceholder = $('preview-bg-placeholder');
     var previewBgImage = $('preview-bg-image');
     var previewBgVideo = $('preview-bg-video');
+    var previewBgEmbed = $('preview-bg-embed');
+    var mediaUrlInput = $('media_url');
     var mediaTypeImage = byName('media_type') && document.querySelector('input[name="media_type"][value="image"]');
     var isImage = function() { return !mediaTypeImage || mediaTypeImage.checked; };
 
-    if (mediaFile) {
-        mediaFile.addEventListener('change', function() {
-            var file = this.files && this.files[0];
-            if (!file) {
+    function updatePreviewBackground() {
+        var urlInput = $('media_url');
+        var linkUrl = urlInput && urlInput.value.trim();
+        var embedUrl = linkUrl ? getEmbedUrlFromInput(linkUrl) : null;
+        var isVideoType = !isImage();
+
+        if (previewBgEmbed) {
+            if (embedUrl && isVideoType) {
+                previewBgEmbed.src = embedUrl;
+                previewBgEmbed.classList.remove('hidden');
+                previewBgPlaceholder.classList.add('hidden');
                 previewBgImage.classList.add('hidden');
                 previewBgImage.src = '';
                 previewBgVideo.classList.add('hidden');
-                previewBgVideo.pause();
                 previewBgVideo.src = '';
-                previewBgPlaceholder.classList.remove('hidden');
                 return;
             }
-            if (isImage() && file.type.indexOf('image/') === 0) {
-                var url = URL.createObjectURL(file);
-                previewBgImage.onload = function() { URL.revokeObjectURL(url); };
-                previewBgImage.src = url;
-                previewBgImage.classList.remove('hidden');
-                previewBgVideo.classList.add('hidden');
-                previewBgVideo.src = '';
-                previewBgPlaceholder.classList.add('hidden');
-            } else if (!isImage() && file.type.indexOf('video/') === 0) {
-                var url = URL.createObjectURL(file);
-                previewBgVideo.src = url;
-                previewBgVideo.classList.remove('hidden');
-                previewBgVideo.play().catch(function(){});
-                previewBgImage.classList.add('hidden');
-                previewBgImage.src = '';
-                previewBgPlaceholder.classList.add('hidden');
-            } else {
-                previewBgPlaceholder.classList.remove('hidden');
-                previewBgImage.classList.add('hidden');
-                previewBgVideo.classList.add('hidden');
-            }
-        });
+            previewBgEmbed.classList.add('hidden');
+            previewBgEmbed.src = '';
+        }
+
+        var file = mediaFile && mediaFile.files && mediaFile.files[0];
+        if (!file) {
+            previewBgImage.classList.add('hidden');
+            previewBgImage.src = '';
+            previewBgVideo.classList.add('hidden');
+            previewBgVideo.pause();
+            previewBgVideo.src = '';
+            previewBgPlaceholder.classList.remove('hidden');
+            return;
+        }
+        if (isImage() && file.type.indexOf('image/') === 0) {
+            var url = URL.createObjectURL(file);
+            previewBgImage.onload = function() { URL.revokeObjectURL(url); };
+            previewBgImage.src = url;
+            previewBgImage.classList.remove('hidden');
+            previewBgVideo.classList.add('hidden');
+            previewBgVideo.src = '';
+            previewBgPlaceholder.classList.add('hidden');
+        } else if (!isImage() && file.type.indexOf('video/') === 0) {
+            var url = URL.createObjectURL(file);
+            previewBgVideo.src = url;
+            previewBgVideo.classList.remove('hidden');
+            previewBgVideo.play().catch(function(){});
+            previewBgImage.classList.add('hidden');
+            previewBgImage.src = '';
+            previewBgPlaceholder.classList.add('hidden');
+        } else {
+            previewBgPlaceholder.classList.remove('hidden');
+            previewBgImage.classList.add('hidden');
+            previewBgVideo.classList.add('hidden');
+        }
+    }
+
+    if (mediaFile) {
+        mediaFile.addEventListener('change', updatePreviewBackground);
+    }
+    if (mediaUrlInput) {
+        mediaUrlInput.addEventListener('input', updatePreviewBackground);
+        mediaUrlInput.addEventListener('paste', function() { setTimeout(updatePreviewBackground, 50); });
     }
     mediaTypeRadios.forEach(function(r) {
         r.addEventListener('change', function() {
+            updatePreviewBackground();
             if (mediaFile && mediaFile.files && mediaFile.files[0]) mediaFile.dispatchEvent(new Event('change'));
         });
     });
+
+    // Show/hide Video URL field when Video is selected
+    var mediaUrlWrapper = $('media_url_wrapper');
+    var desktopRequiredLabel = $('desktop_required_label');
+    function toggleMediaUrlAndRequired() {
+        var isVideo = byName('media_type') && document.querySelector('input[name="media_type"][value="video"]:checked');
+        if (mediaUrlWrapper) mediaUrlWrapper.classList.toggle('hidden', !isVideo);
+        if (desktopRequiredLabel) desktopRequiredLabel.textContent = (isVideo && mediaUrlInput && mediaUrlInput.value.trim()) ? '(optional)' : '(required)';
+    }
+    mediaTypeRadios.forEach(function(r) { r.addEventListener('change', toggleMediaUrlAndRequired); });
+    if (mediaUrlInput) mediaUrlInput.addEventListener('input', toggleMediaUrlAndRequired);
+    toggleMediaUrlAndRequired();
+    updatePreviewBackground();
 })();
 </script>
 @endsection

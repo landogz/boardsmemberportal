@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Edit Notice')
+@section('title', 'Edit Communication')
 
 @php
     $pageTitle = 'Edit Notice';
@@ -50,8 +50,8 @@
 <div class="p-4 lg:p-6">
     <!-- Page Title -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Edit Notice</h2>
-        <p class="text-gray-600 mt-1">Update notice information</p>
+        <h2 class="text-2xl font-bold text-gray-800">Edit Communication</h2>
+        <p class="text-gray-600 mt-1">Update communication information</p>
     </div>
 
     <!-- Form -->
@@ -523,7 +523,7 @@
                                 class="w-full px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                             >
-                                <span id="submitBtnText">Update Notice</span>
+                                <span id="submitBtnText">Update Communication</span>
                             </button>
                             <a 
                                 href="{{ route('admin.notices.index') }}" 
@@ -1204,10 +1204,10 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: response.message || 'Failed to update notice.',
+                        text: response.message || 'Failed to update communication.',
                     });
                     submitBtn.prop('disabled', false);
-                    submitBtnText.text('Update Notice');
+                    submitBtnText.text('Update Communication');
                 }
             },
             error: function(xhr) {
@@ -1218,10 +1218,10 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: xhr.responseJSON?.message || 'Failed to update notice.',
+                    text: xhr.responseJSON?.message || 'Failed to update communication.',
                 });
                 submitBtn.prop('disabled', false);
-                submitBtnText.text('Update Notice');
+                submitBtnText.text('Update Communication');
             }
         });
     });

@@ -175,7 +175,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Dear Mr. {{ $user->last_name }},
+                                Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">

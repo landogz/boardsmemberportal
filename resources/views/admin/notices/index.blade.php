@@ -8,7 +8,7 @@
     if (Auth::user()->hasPermission('create notices')) {
         $headerActions[] = [
             'url' => route('admin.notices.create'),
-            'text' => 'Create Notice',
+            'text' => 'Create Communication',
             'icon' => 'fas fa-plus',
             'class' => 'px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300',
             'style' => 'background: linear-gradient(135deg, #055498 0%, #123a60 100%);'
@@ -84,6 +84,20 @@
         position: relative;
         overflow: visible;
     }
+    
+    /* Wide columns, no wrap */
+    #noticesTable td,
+    #noticesTable th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    #noticesTable th:nth-child(1), #noticesTable td:nth-child(1) { min-width: 140px; }
+    #noticesTable th:nth-child(2), #noticesTable td:nth-child(2) { min-width: 320px; }
+    #noticesTable th:nth-child(3), #noticesTable td:nth-child(3) { min-width: 120px; }
+    #noticesTable th:nth-child(4), #noticesTable td:nth-child(4) { min-width: 180px; }
+    #noticesTable th:nth-child(5), #noticesTable td:nth-child(5) { min-width: 160px; }
+    #noticesTable th:nth-child(6), #noticesTable td:nth-child(6) { min-width: 110px; }
+    #noticesTable th:nth-child(7), #noticesTable td:nth-child(7) { min-width: 100px; }
     
     /* Ensure dropdown menu doesn't cause scrollbar */
     .action-dropdown-menu {
@@ -281,7 +295,7 @@
                                         @if(Auth::user()->hasPermission('delete notices'))
                                         <button type="button" class="delete-notice-btn w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center" role="menuitem" data-notice-id="{{ $notice->id }}">
                                             <i class="fas fa-trash w-4 mr-3"></i>
-                                            Delete Notice
+                                            Delete Communication
                                         </button>
                                         @endif
                                     </div>
@@ -299,7 +313,7 @@
             <p class="text-gray-500 text-lg">No communications found</p>
             @if(Auth::user()->hasPermission('create notices'))
             <a href="{{ route('admin.notices.create') }}" class="mt-4 inline-block px-4 py-2 bg-[#055498] text-white rounded-lg hover:bg-[#123a60] transition-colors">
-                Create Your First Notice
+                Create Your First Communication
             </a>
             @endif
         </div>

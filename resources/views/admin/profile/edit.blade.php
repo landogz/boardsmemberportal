@@ -235,8 +235,17 @@
                             <label for="pre_nominal_title" class="block text-sm font-medium text-gray-700 mb-1">Pre Nominal Title</label>
                             <select id="pre_nominal_title" name="pre_nominal_title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                                 <option value="">Select Title</option>
-                                <option value="Mr." {{ $user->pre_nominal_title === 'Mr.' ? 'selected' : '' }}>Mr.</option>
-                                <option value="Ms." {{ $user->pre_nominal_title === 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                                <option value="Mr." {{ ($user->pre_nominal_title ?? '') === 'Mr.' ? 'selected' : '' }}>Mr.</option>
+                                <option value="Ms." {{ ($user->pre_nominal_title ?? '') === 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                                <option value="Dr." {{ ($user->pre_nominal_title ?? '') === 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                                <option value="Atty." {{ ($user->pre_nominal_title ?? '') === 'Atty.' ? 'selected' : '' }}>Atty.</option>
+                                <option value="Engr." {{ ($user->pre_nominal_title ?? '') === 'Engr.' ? 'selected' : '' }}>Engr.</option>
+                                <option value="Secretary" {{ ($user->pre_nominal_title ?? '') === 'Secretary' ? 'selected' : '' }}>Secretary</option>
+                                <option value="Undersecretary" {{ ($user->pre_nominal_title ?? '') === 'Undersecretary' ? 'selected' : '' }}>Undersecretary</option>
+                                <option value="Assistant Secretary" {{ ($user->pre_nominal_title ?? '') === 'Assistant Secretary' ? 'selected' : '' }}>Assistant Secretary</option>
+                                <option value="Director General" {{ ($user->pre_nominal_title ?? '') === 'Director General' ? 'selected' : '' }}>Director General</option>
+                                <option value="Executive Director" {{ ($user->pre_nominal_title ?? '') === 'Executive Director' ? 'selected' : '' }}>Executive Director</option>
+                                <option value="Attorney" {{ ($user->pre_nominal_title ?? '') === 'Attorney' ? 'selected' : '' }}>Attorney</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>
@@ -408,12 +417,11 @@
                         <span class="text-red-500 text-sm hidden" id="email-error"></span>
                     </div>
 
-                    <!-- Username -->
+                    <!-- Username (auto-set from firstname.lastname) -->
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                        <input type="text" id="username" name="username" value="{{ $user->username }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Username">
-                        <span class="text-red-500 text-sm hidden" id="username-error"></span>
-                        <span class="text-green-500 text-sm hidden" id="username-success"></span>
+                        <input type="text" id="username" name="username" value="{{ $user->username }}" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" placeholder="Username">
+                        <p class="text-xs text-gray-500 mt-1">Set from your name (firstname.lastname).</p>
                     </div>
 
                     <!-- Mobile Number -->

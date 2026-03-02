@@ -126,31 +126,31 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Allowed Users -->
+                <!-- Right Column: Allowed Users and Action Buttons -->
                 <div class="lg:col-span-1">
-                    <div class="sticky top-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Users *</label>
-                        <p class="text-xs text-gray-500 mb-3">Select users who can view, vote, and comment on this referendum</p>
-                        <div class="border border-gray-300 rounded-lg p-4 max-h-[calc(100vh-300px)] overflow-y-auto">
-                    <div class="mb-3">
-                        <input 
-                            type="text" 
-                            id="userSearch" 
-                            placeholder="Search users..."
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                        >
-                    </div>
-                    <div class="mb-3 pb-3 border-b border-gray-200">
-                        <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer font-medium">
-                            <input 
-                                type="checkbox" 
-                                id="selectAllUsers"
-                                class="h-4 w-4 text-[#055498] border-gray-300 rounded focus:ring-[#055498]"
-                            >
-                            <span class="ml-3 text-sm text-gray-700">Select All</span>
-                        </label>
-                    </div>
-                    <div id="usersList" class="space-y-2">
+                    <div class="sticky top-6 space-y-6">
+                        <!-- Allowed Users Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Users *</label>
+                            <p class="text-xs text-gray-500 mb-3">Select users who can view, vote, and comment on this referendum</p>
+                            <div class="border border-gray-300 rounded-lg p-4 max-h-[calc(100vh-500px)] overflow-y-auto">
+                                <input 
+                                    type="text" 
+                                    id="userSearch" 
+                                    placeholder="Search users..."
+                                    class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
+                                >
+                                <div class="mb-3 pb-3 border-b border-gray-200">
+                                    <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer font-medium">
+                                        <input 
+                                            type="checkbox" 
+                                            id="selectAllUsers"
+                                            class="h-4 w-4 text-[#055498] border-gray-300 rounded focus:ring-[#055498]"
+                                        >
+                                        <span class="ml-3 text-sm text-gray-700">Select All</span>
+                                    </label>
+                                </div>
+                                <div id="usersList" class="space-y-2">
                         @php
                             $currentPrivilege = null;
                             $currentRepresentativeType = null;
@@ -241,12 +241,13 @@
                         @if($currentPrivilege !== null)
                             </div>
                         @endif
-                    </div>
+                                </div>
+                            </div>
+                            <span class="text-red-500 text-sm hidden" id="allowed_users-error"></span>
                         </div>
-                        <span class="text-red-500 text-sm hidden" id="allowed_users-error"></span>
-                        
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col space-y-3 mt-4 pt-4 border-t">
+
+                        <!-- Action Buttons (outside scroll, fixed below Allowed Users) -->
+                        <div class="flex flex-col space-y-3 pt-4 border-t">
                             <button 
                                 type="submit" 
                                 id="submitBtn"

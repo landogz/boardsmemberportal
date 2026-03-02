@@ -18,6 +18,7 @@ class BannerSlide extends Model
         'subtitle_font_size',
         'media_opacity',
         'media_type',
+        'media_url',
         'media_id',
         'media_id_tablet',
         'media_id_mobile',
@@ -102,7 +103,8 @@ class BannerSlide extends Model
         return $this->media;
     }
 
-    public function getMediaUrlAttribute(): ?string
+    /** URL of the uploaded file (from media library). Use attributes['media_url'] for YouTube/Vimeo link. */
+    public function getMediaFileUrlAttribute(): ?string
     {
         if (!$this->media) {
             return null;
@@ -118,5 +120,60 @@ class BannerSlide extends Model
     public function getIsImageAttribute(): bool
     {
         return $this->media_type === 'image';
+    }
+
+    /** Check if a URL is a supported video link (YouTube or Vimeo). */
+    public static function isSupportedVideoUrl(?string $url): bool
+    {
+        $url = trim((string) $url);
+        if ($url === '') {
+            return false;
+        }
+        return (bool) preg_match('#(?:youtube\.com|youtu\.be|vimeo\.com)#', $url);
+    }
+
+    /**
+     * Whether this slide uses an external video URL (YouTube, Vimeo, etc.) instead of uploaded file.
+     */
+    public function getIsVideoUrlAttribute(): bool
+    {
+        return $this->media_type === 'video' && ! empty($this->media_url);
+    }
+
+    /**
+     * Get embed URL for YouTube or Vimeo (for iframe). Returns null if not a supported link.
+     */
+    public function getEmbedUrlAttribute(): ?string
+    {
+        $url = trim((string) $this->media_url);
+        if ($url === '') {
+            return null;
+        }
+
+        // YouTube: watch, youtu.be, embed, shorts, live (11-char video ID)
+        if (preg_match(
+            '#(?:youtube\.com/(?:watch\?v=|embed/|shorts/|live/)|youtu\.be/)([a-zA-Z0-9_-]{11})#',
+            $url,
+            $m
+        )) {
+            $id = $m[1];
+            return 'https://www.youtube.com/embed/' . $id
+                . '?autoplay=1&mute=1&loop=1&playlist=' . $id
+                . '&controls=0&showinfo=0&rel=0';
+        }
+
+        // Vimeo: https://vimeo.com/ID or https://vimeo.com/video/ID
+        if (preg_match('#vimeo\.com/(?:video/)?(\d+)#', $url, $m)) {
+            return 'https://player.vimeo.com/video/' . $m[1]
+                . '?autoplay=1&muted=1&loop=1&background=1';
+        }
+
+        // Fallback: if it's some other playable URL, just return it as-is
+        // so it can still be used in an iframe.
+        if (preg_match('#^https?://#i', $url)) {
+            return $url;
+        }
+
+        return null;
     }
 }

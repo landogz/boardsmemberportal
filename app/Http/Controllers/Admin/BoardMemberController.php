@@ -82,7 +82,6 @@ class BoardMemberController extends Controller
             'office_purok' => 'nullable|string|max:255',
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
@@ -90,18 +89,8 @@ class BoardMemberController extends Controller
             'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
         ]);
 
-        // Standardized username: firstname.lastname (lowercase, alphanumeric only)
-        $firstPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['first_name']));
-        $lastPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['last_name']));
-        $firstPart = $firstPart !== '' ? $firstPart : 'first';
-        $lastPart = $lastPart !== '' ? $lastPart : 'last';
-        $baseUsername = $firstPart . '.' . $lastPart;
-        $username = $baseUsername;
-        $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
-        }
+        // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
+        $username = User::usernameFromName($validated['first_name'], $validated['last_name']);
 
         // Handle post nominal title
         $postNominalTitle = $validated['post_nominal_title'] === 'Others' 
@@ -216,7 +205,6 @@ class BoardMemberController extends Controller
             'office_purok' => 'nullable|string|max:255',
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
@@ -229,6 +217,9 @@ class BoardMemberController extends Controller
         $postNominalTitle = isset($validated['post_nominal_title']) && $validated['post_nominal_title'] === 'Others' 
             ? $validated['post_nominal_title_custom'] 
             : ($validated['post_nominal_title'] ?? $user->post_nominal_title);
+
+        // Always recalculate and persist username to DB from first_name + last_name (even when unchanged)
+        $username = User::usernameFromName($validated['first_name'], $validated['last_name'], $id);
 
         $updateData = [
             'government_agency_id' => $validated['government_agency_id'],
@@ -252,7 +243,8 @@ class BoardMemberController extends Controller
             'office_purok' => $validated['office_purok'] ?? null,
             'office_sitio' => $validated['office_sitio'] ?? null,
             'email' => $validated['email'],
-            'username' => $validated['username'],
+            'username' => $username,
+            'username_edited' => false,
             'mobile' => $validated['mobile'],
             'landline' => $validated['landline'] ?? null,
             'is_active' => $request->has('is_active') ? (bool)$request->is_active : $user->is_active,
@@ -278,6 +270,7 @@ class BoardMemberController extends Controller
             'success' => true,
             'message' => 'Board member account updated successfully.',
             'redirect' => route('admin.board-members.index'),
+            'username' => $username,
         ]);
     }
 

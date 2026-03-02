@@ -54,6 +54,31 @@
         background-color: rgba(156, 163, 175, 0.1);
         color: #6B7280;
     }
+    .dataTables_wrapper {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+    .dataTables_scrollBody {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+    #agendaRequestsTable td {
+        position: relative;
+        overflow: visible;
+    }
+    /* Wide columns, no wrap */
+    #agendaRequestsTable td,
+    #agendaRequestsTable th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    #agendaRequestsTable th:nth-child(1), #agendaRequestsTable td:nth-child(1) { min-width: 280px; }
+    #agendaRequestsTable th:nth-child(2), #agendaRequestsTable td:nth-child(2) { min-width: 220px; }
+    #agendaRequestsTable th:nth-child(3), #agendaRequestsTable td:nth-child(3) { min-width: 260px; }
+    #agendaRequestsTable th:nth-child(4), #agendaRequestsTable td:nth-child(4) { min-width: 180px; }
+    #agendaRequestsTable th:nth-child(5), #agendaRequestsTable td:nth-child(5) { min-width: 100px; }
+    #agendaRequestsTable th:nth-child(6), #agendaRequestsTable td:nth-child(6) { min-width: 140px; }
+    #agendaRequestsTable th:nth-child(7), #agendaRequestsTable td:nth-child(7) { min-width: 200px; }
 </style>
 @endpush
 
@@ -99,21 +124,23 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($requests as $request)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900 mb-1">{{ Str::limit($request->notice->title, 40) }}</div>
-                                @php
-                                    $typeClass = 'type-other';
-                                    if ($request->notice->notice_type === 'Notice of Meeting') {
-                                        $typeClass = 'type-meeting';
-                                    } elseif ($request->notice->notice_type === 'Agenda') {
-                                        $typeClass = 'type-agenda';
-                                    } elseif ($request->notice->notice_type === 'Board Issuances') {
-                                        $typeClass = 'type-board-issuances';
-                                    }
-                                @endphp
-                                <span class="notice-type-badge {{ $typeClass }}">
-                                    {{ $request->notice->notice_type }}
-                                </span>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2 flex-nowrap">
+                                    <span class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($request->notice->title, 40) }}</span>
+                                    @php
+                                        $typeClass = 'type-other';
+                                        if ($request->notice->notice_type === 'Notice of Meeting') {
+                                            $typeClass = 'type-meeting';
+                                        } elseif ($request->notice->notice_type === 'Agenda') {
+                                            $typeClass = 'type-agenda';
+                                        } elseif ($request->notice->notice_type === 'Board Issuances') {
+                                            $typeClass = 'type-board-issuances';
+                                        }
+                                    @endphp
+                                    <span class="notice-type-badge {{ $typeClass }} flex-shrink-0">
+                                        {{ $request->notice->notice_type }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center space-x-3">
@@ -130,10 +157,10 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ Str::limit($request->description, 100) }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @if($request->attachment_media->count() > 0)
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($request->attachment_media as $media)

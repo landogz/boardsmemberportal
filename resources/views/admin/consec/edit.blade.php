@@ -325,9 +325,9 @@
 
                     <!-- Username -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username *</label>
-                        <input type="text" id="username" name="username" required value="{{ $user->username }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Username">
-                        <span class="text-red-500 text-sm hidden" id="username-error"></span>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="username" name="username" readonly value="{{ $user->username }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" placeholder="Username">
+                        <p class="text-xs text-gray-500 mt-1">Set from first name and last name (firstname.lastname).</p>
                     </div>
 
                     <!-- Mobile Number -->
@@ -702,11 +702,7 @@
                 if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             }
-            if (!username) {
-                showError('username', 'Username is required');
-                if (!firstInvalidField) firstInvalidField = '#username';
-                isValid = false;
-            }
+            // Username is set from firstname.lastname by the server
             if (!mobile) {
                 showError('mobile', 'Mobile number is required');
                 if (!firstInvalidField) firstInvalidField = '#mobile';

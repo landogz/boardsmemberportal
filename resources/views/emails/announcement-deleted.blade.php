@@ -29,7 +29,7 @@
                     </tr>
                     <tr>
                         <td class="email-body">
-                            <p class="greeting">Dear Mr. {{ $user->last_name }},</p>
+                            <p class="greeting">Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->last_name }},</p>
                             <p class="greeting">The following announcement has been removed from the Board Members Portal and is no longer available for viewing.</p>
                             <div class="info-card">
                                 <p class="info-message" style="font-size: 14px; color: #4b5563; line-height: 1.7; margin: 0;"><strong>{{ $announcementTitle }}</strong></p>

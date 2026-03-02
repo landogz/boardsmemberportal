@@ -371,9 +371,9 @@
 
                     <!-- Username -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username *</label>
-                        <input type="text" id="username" name="username" required value="{{ $user->username }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Username">
-                        <span class="text-red-500 text-sm hidden" id="username-error"></span>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="username" name="username" readonly value="{{ $user->username }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" placeholder="Username">
+                        <p class="text-xs text-gray-500 mt-1">Set from first name and last name (firstname.lastname).</p>
                     </div>
 
                     <!-- Mobile Number -->
@@ -544,6 +544,22 @@
             });
 
         // Provinces, cities, and barangays are now loaded on-demand via API when dropdowns change
+
+        // Preview username only when user changes first/last name (never overwrite server username on load)
+        var initialFirstName = $('#first_name').val().trim();
+        var initialLastName = $('#last_name').val().trim();
+        function previewUsernameIfNameChanged() {
+            var firstName = $('#first_name').val().trim();
+            var lastName = $('#last_name').val().trim();
+            if (firstName && lastName && (firstName !== initialFirstName || lastName !== initialLastName)) {
+                var firstPart = firstName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'first';
+                var lastPart = lastName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'last';
+                $('#username').val(firstPart + '.' + lastPart);
+            }
+        }
+        $('#first_name, #last_name').on('input blur', function() {
+            previewUsernameIfNameChanged();
+        });
 
         // Handle post nominal title "Others" option
         $('#post_nominal_title').on('change', function() {
@@ -808,11 +824,7 @@
                 if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             }
-            if (!username) {
-                showError('username', 'Username is required');
-                if (!firstInvalidField) firstInvalidField = '#username';
-                isValid = false;
-            }
+            // Username is set from firstname.lastname by the server
             if (!mobile) {
                 showError('mobile', 'Mobile number is required');
                 if (!firstInvalidField) firstInvalidField = '#mobile';
@@ -995,6 +1007,9 @@
             const response = await axios.put(`{{ route('admin.board-members.update', $user->id) }}`, formData);
 
             if (response.data.success) {
+                if (response.data.username) {
+                    $('#username').val(response.data.username);
+                }
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',

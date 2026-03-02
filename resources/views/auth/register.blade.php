@@ -1366,11 +1366,7 @@
                     if (!firstInvalidField) firstInvalidField = '#email';
                     isValid = false;
                 }
-                if (!username) {
-                    showError('username', 'Username is required');
-                    if (!firstInvalidField) firstInvalidField = '#username';
-                    isValid = false;
-                }
+                // Username is auto-generated as firstname.lastname by the server
                 if (!mobile) {
                     showError('mobile', 'Mobile number is required');
                     if (!firstInvalidField) firstInvalidField = '#mobile';

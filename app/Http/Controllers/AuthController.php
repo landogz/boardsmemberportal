@@ -170,7 +170,7 @@ class AuthController extends Controller
         $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
             'representative_type' => 'required|in:Board Member,Authorized Representative',
-            'pre_nominal_title' => 'required|in:Mr.,Ms.',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -189,7 +189,6 @@ class AuthController extends Controller
             'office_purok' => 'nullable|string|max:255',
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
             'mobile' => 'required|string|max:13|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:50',
             'password' => [
@@ -218,18 +217,8 @@ class AuthController extends Controller
             'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
         ]);
 
-        // Standardized username: firstname.lastname (lowercase, alphanumeric only)
-        $firstPart = strtolower(preg_replace('/[^a-z0-9]/', '', $request->first_name));
-        $lastPart = strtolower(preg_replace('/[^a-z0-9]/', '', $request->last_name));
-        $firstPart = $firstPart !== '' ? $firstPart : 'first';
-        $lastPart = $lastPart !== '' ? $lastPart : 'last';
-        $baseUsername = $firstPart . '.' . $lastPart;
-        $username = $baseUsername;
-        $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
-        }
+        // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
+        $username = User::usernameFromName($request->first_name, $request->last_name);
 
         $user = User::create([
             'id' => Str::uuid(),

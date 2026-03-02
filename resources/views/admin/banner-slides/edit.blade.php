@@ -63,6 +63,7 @@
     $subtitleSizeMap = ['sm' => '0.875rem', 'md' => '1rem', 'lg' => '1.125rem', 'xl' => '1.25rem'];
     $currentMediaUrl = $slide->media ? asset('storage/' . $slide->media->file_path) : null;
     $currentMediaIsVideo = $slide->media_type === 'video' && $slide->media;
+    $currentMediaEmbedUrl = $slide->embed_url; // YouTube/Vimeo embed when media_url is set
 @endphp
 
 @section('content')
@@ -197,12 +198,23 @@
                             @error('media_type')<span class="text-red-500 text-sm block mt-1">{{ $message }}</span>@enderror
                         </div>
 
+                        <div id="media_url_wrapper" class="p-4 border border-gray-200 rounded-lg bg-gray-50 {{ old('media_type', $slide->media_type) === 'video' ? '' : 'hidden' }}">
+                            <label for="media_url" class="block text-sm font-medium text-gray-700 mb-2">Video link (optional)</label>
+                            <p class="text-xs text-gray-500 mb-2">Paste a YouTube or Vimeo link to use as the background instead of uploading. Same video on all screen sizes.</p>
+                            <input type="text" id="media_url" name="media_url" value="{{ old('media_url', $slide->media_url) }}"
+                                placeholder="e.g. https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white" autocomplete="url">
+                            @error('media_url')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
+                        </div>
+
                         <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
                             <label for="media_file" class="block text-sm font-medium text-gray-700 mb-2">Desktop</label>
-                            @if($slide->media)
+                            @if($slide->media_url)
+                                <p class="text-xs text-gray-600 mb-2">Current: Video link (YouTube/Vimeo)</p>
+                            @elseif($slide->media)
                                 <p class="text-xs text-gray-600 mb-2">Current: @if($slide->media_type === 'video') {{ $slide->media->file_name }} @else <img src="{{ asset('storage/' . $slide->media->file_path) }}" alt="" class="inline-block max-h-16 rounded object-cover"> @endif</p>
                             @endif
-                            <p class="text-xs text-gray-500 mb-2">Shown on large screens. Recommended: 1920 × 460 px. Leave empty to keep.</p>
+                            <p class="text-xs text-gray-500 mb-2">Shown on large screens. Recommended: 1920 × 460 px. Leave empty to keep. For video, you can paste a link above instead.</p>
                             <input type="file" id="media_file" name="media_file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none bg-white">
                             @error('media_file')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
@@ -261,9 +273,10 @@
                     <div class="p-4">
                         <div id="slide-preview" class="relative rounded-lg overflow-hidden bg-gray-200 min-h-[220px] flex items-center justify-center">
                             <div id="preview-bg-wrap" class="absolute inset-0 flex items-center justify-center opacity-90">
-                                <div id="preview-bg-placeholder" class="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-600 {{ $currentMediaUrl ? 'hidden' : '' }}"></div>
-                                <img id="preview-bg-image" class="absolute inset-0 w-full h-full object-cover {{ $currentMediaUrl && !$currentMediaIsVideo ? '' : 'hidden' }}" src="{{ $currentMediaUrl && !$currentMediaIsVideo ? $currentMediaUrl : '' }}" alt="">
-                                <video id="preview-bg-video" class="absolute inset-0 w-full h-full object-cover {{ $currentMediaIsVideo ? '' : 'hidden' }}" muted loop playsinline src="{{ $currentMediaIsVideo ? $currentMediaUrl : '' }}"></video>
+                                <div id="preview-bg-placeholder" class="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-600 {{ ($currentMediaUrl || $currentMediaEmbedUrl) ? 'hidden' : '' }}"></div>
+                                <img id="preview-bg-image" class="absolute inset-0 w-full h-full object-cover {{ $currentMediaUrl && !$currentMediaIsVideo && !$currentMediaEmbedUrl ? '' : 'hidden' }}" src="{{ $currentMediaUrl && !$currentMediaIsVideo ? $currentMediaUrl : '' }}" alt="">
+                                <video id="preview-bg-video" class="absolute inset-0 w-full h-full object-cover {{ $currentMediaIsVideo && !$currentMediaEmbedUrl ? '' : 'hidden' }}" muted loop playsinline src="{{ $currentMediaIsVideo && !$currentMediaEmbedUrl ? $currentMediaUrl : '' }}"></video>
+                                <iframe id="preview-bg-embed" class="absolute inset-0 w-full h-full border-0 {{ $currentMediaEmbedUrl ? '' : 'hidden' }}" src="{{ $currentMediaEmbedUrl ? e($currentMediaEmbedUrl) : '' }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Video preview"></iframe>
                             </div>
                             <div id="preview-overlay" class="absolute inset-0 bg-black transition-opacity" style="opacity: {{ 1 - (float) $mediaOpacity }};"></div>
                             <div class="relative z-10 text-center px-6 py-4 max-w-lg mx-auto">
@@ -387,55 +400,105 @@
     updatePreviewText();
     updatePreviewOverlay();
 
+    // Build embed URL from YouTube or Vimeo watch URL (for preview)
+    function getEmbedUrlFromInput(url) {
+        var u = (url || '').trim();
+        if (!u) return null;
+        var m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+        if (m) return 'https://www.youtube.com/embed/' + m[1] + '?autoplay=1&mute=1&loop=1&playlist=' + m[1] + '&controls=0&showinfo=0&rel=0';
+        m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (m) return 'https://player.vimeo.com/video/' + m[1] + '?autoplay=1&muted=1&loop=1&background=1';
+        return null;
+    }
+
     var mediaFile = $('media_file');
     var previewBgPlaceholder = $('preview-bg-placeholder');
     var previewBgImage = $('preview-bg-image');
     var previewBgVideo = $('preview-bg-video');
+    var previewBgEmbed = $('preview-bg-embed');
+    var mediaUrlInput = $('media_url');
     var mediaTypeImage = document.querySelector('input[name="media_type"][value="image"]');
     var isImage = function() { return !mediaTypeImage || mediaTypeImage.checked; };
 
-    if (mediaFile) {
-        mediaFile.addEventListener('change', function() {
-            var file = this.files && this.files[0];
-            if (!file) {
+    function updatePreviewBackground() {
+        var linkUrl = mediaUrlInput && mediaUrlInput.value.trim();
+        var embedUrl = linkUrl ? getEmbedUrlFromInput(linkUrl) : null;
+        var isVideoType = !isImage();
+
+        if (previewBgEmbed) {
+            if (embedUrl && isVideoType) {
+                previewBgEmbed.src = embedUrl;
+                previewBgEmbed.classList.remove('hidden');
+                previewBgPlaceholder.classList.add('hidden');
                 previewBgImage.classList.add('hidden');
                 previewBgImage.src = '';
                 previewBgVideo.classList.add('hidden');
-                previewBgVideo.pause();
                 previewBgVideo.src = '';
-                previewBgPlaceholder.classList.remove('hidden');
                 return;
             }
-            if (isImage() && file.type.indexOf('image/') === 0) {
-                var url = URL.createObjectURL(file);
-                previewBgImage.onload = function() { URL.revokeObjectURL(url); };
-                previewBgImage.src = url;
-                previewBgImage.classList.remove('hidden');
-                previewBgVideo.classList.add('hidden');
-                previewBgVideo.src = '';
-                previewBgPlaceholder.classList.add('hidden');
-            } else if (!isImage() && file.type.indexOf('video/') === 0) {
-                var url = URL.createObjectURL(file);
-                previewBgVideo.src = url;
-                previewBgVideo.classList.remove('hidden');
-                previewBgVideo.play().catch(function(){});
-                previewBgImage.classList.add('hidden');
-                previewBgImage.src = '';
-                previewBgPlaceholder.classList.add('hidden');
-            } else {
-                previewBgPlaceholder.classList.remove('hidden');
-                previewBgImage.classList.add('hidden');
-                previewBgVideo.classList.add('hidden');
-            }
-        });
+            previewBgEmbed.classList.add('hidden');
+            if (!embedUrl) previewBgEmbed.removeAttribute('src');
+        }
+
+        var file = mediaFile && mediaFile.files && mediaFile.files[0];
+        if (!file) {
+            previewBgImage.classList.add('hidden');
+            previewBgImage.src = '';
+            previewBgVideo.classList.add('hidden');
+            previewBgVideo.pause();
+            previewBgVideo.src = '';
+            previewBgPlaceholder.classList.remove('hidden');
+            return;
+        }
+        if (isImage() && file.type.indexOf('image/') === 0) {
+            var url = URL.createObjectURL(file);
+            previewBgImage.onload = function() { URL.revokeObjectURL(url); };
+            previewBgImage.src = url;
+            previewBgImage.classList.remove('hidden');
+            previewBgVideo.classList.add('hidden');
+            previewBgVideo.src = '';
+            previewBgPlaceholder.classList.add('hidden');
+        } else if (!isImage() && file.type.indexOf('video/') === 0) {
+            var url = URL.createObjectURL(file);
+            previewBgVideo.src = url;
+            previewBgVideo.classList.remove('hidden');
+            previewBgVideo.play().catch(function(){});
+            previewBgImage.classList.add('hidden');
+            previewBgImage.src = '';
+            previewBgPlaceholder.classList.add('hidden');
+        } else {
+            previewBgPlaceholder.classList.remove('hidden');
+            previewBgImage.classList.add('hidden');
+            previewBgVideo.classList.add('hidden');
+        }
+    }
+
+    if (mediaFile) {
+        mediaFile.addEventListener('change', updatePreviewBackground);
+    }
+    if (mediaUrlInput) {
+        mediaUrlInput.addEventListener('input', updatePreviewBackground);
+        mediaUrlInput.addEventListener('paste', function() { setTimeout(updatePreviewBackground, 50); });
     }
     mediaTypeRadios.forEach(function(r) {
         r.addEventListener('change', function() {
+            updatePreviewBackground();
             if (mediaFile && mediaFile.files && mediaFile.files[0]) mediaFile.dispatchEvent(new Event('change'));
         });
     });
 
+    var mediaUrlWrapper = $('media_url_wrapper');
+    if (mediaUrlWrapper) {
+        function toggleMediaUrlVisibility() {
+            var isVideo = document.querySelector('input[name="media_type"][value="video"]:checked');
+            mediaUrlWrapper.classList.toggle('hidden', !isVideo);
+        }
+        mediaTypeRadios.forEach(function(r) { r.addEventListener('change', toggleMediaUrlVisibility); });
+        toggleMediaUrlVisibility();
+    }
+
     if (previewBgVideo && previewBgVideo.src) previewBgVideo.play().catch(function(){});
+    updatePreviewBackground();
 })();
 </script>
 @endsection

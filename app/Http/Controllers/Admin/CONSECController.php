@@ -79,7 +79,6 @@ class CONSECController extends Controller
             'office_purok' => 'nullable|string|max:255',
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
             'password' => [
@@ -106,18 +105,8 @@ class CONSECController extends Controller
             'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
-        // Standardized username: firstname.lastname (lowercase, alphanumeric only)
-        $firstPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['first_name']));
-        $lastPart = strtolower(preg_replace('/[^a-z0-9]/', '', $validated['last_name']));
-        $firstPart = $firstPart !== '' ? $firstPart : 'first';
-        $lastPart = $lastPart !== '' ? $lastPart : 'last';
-        $baseUsername = $firstPart . '.' . $lastPart;
-        $username = $baseUsername;
-        $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
-        }
+        // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
+        $username = User::usernameFromName($validated['first_name'], $validated['last_name']);
 
         $user = User::create([
             'id' => Str::uuid(),
@@ -226,7 +215,6 @@ class CONSECController extends Controller
             'office_purok' => 'nullable|string|max:255',
             'office_sitio' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
             'mobile' => 'required|string|max:20|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
@@ -253,7 +241,8 @@ class CONSECController extends Controller
             'office_purok' => $validated['office_purok'] ?? null,
             'office_sitio' => $validated['office_sitio'] ?? null,
             'email' => $validated['email'],
-            'username' => $validated['username'],
+            'username' => User::usernameFromName($validated['first_name'], $validated['last_name'], $id),
+            'username_edited' => false,
             'mobile' => $validated['mobile'],
             'landline' => $validated['landline'] ?? null,
             'is_active' => $request->has('is_active') ? (bool)$request->is_active : $user->is_active,

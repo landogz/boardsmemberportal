@@ -1,9 +1,9 @@
 @extends('admin.layout')
 
-@section('title', 'Create Notice')
+@section('title', 'Create Communication')
 
 @php
-    $pageTitle = 'Create Notice';
+    $pageTitle = 'Create Communication';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.notices.index'),
@@ -50,7 +50,7 @@
 <div class="p-4 lg:p-6">
     <!-- Page Title -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Create Notice</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Create Communication</h2>
         <p class="text-gray-600 mt-1">Create a new notice with all required information</p>
     </div>
 
@@ -462,7 +462,7 @@
                                 class="w-full px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                             >
-                                <span id="submitBtnText">Create Notice</span>
+                                <span id="submitBtnText">Create Communication</span>
                             </button>
                             <a 
                                 href="{{ route('admin.notices.index') }}" 
@@ -1080,7 +1080,7 @@
                         text: response.message || 'Failed to create notice.',
                     });
                     submitBtn.prop('disabled', false);
-                    submitBtnText.text('Create Notice');
+                    submitBtnText.text('Create Communication');
                 }
             },
             error: function(xhr) {
@@ -1091,10 +1091,10 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: xhr.responseJSON?.message || 'Failed to create notice.',
+                    text: xhr.responseJSON?.message || 'Failed to create communication.',
                 });
                 submitBtn.prop('disabled', false);
-                submitBtnText.text('Create Notice');
+                submitBtnText.text('Create Communication');
             }
         });
     });

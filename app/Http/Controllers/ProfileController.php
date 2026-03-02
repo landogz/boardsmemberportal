@@ -118,7 +118,7 @@ class ProfileController extends Controller
         $request->validate([
             'government_agency_id' => 'nullable|exists:government_agencies,id',
             'representative_type' => 'nullable|in:Board Member,Authorized Representative',
-            'pre_nominal_title' => 'nullable|in:Mr.,Ms.',
+            'pre_nominal_title' => 'nullable|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -137,7 +137,6 @@ class ProfileController extends Controller
             'office_city_municipality' => 'nullable|string|max:255',
             'office_barangay' => 'nullable|string|max:255',
             'email' => $emailRules,
-            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
             'mobile' => 'required|string|max:13|regex:/^\+63[0-9]{10}$/',
             'landline' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
@@ -170,7 +169,8 @@ class ProfileController extends Controller
             'office_province' => $request->office_province,
             'office_city_municipality' => $request->office_city_municipality,
             'office_barangay' => $request->office_barangay,
-            'username' => $request->username,
+            'username' => User::usernameFromName($request->first_name, $request->last_name, $user->id),
+            'username_edited' => false,
             'mobile' => $request->mobile,
             'landline' => $request->landline,
             'company' => $request->company,
@@ -181,11 +181,6 @@ class ProfileController extends Controller
         // Only CONSEC may update email
         if ($canChangeEmail) {
             $data['email'] = $request->email;
-        }
-
-        // Mark username as edited if it was changed
-        if ($request->username && $request->username !== $user->username) {
-            $data['username_edited'] = true;
         }
 
         // Handle profile picture upload

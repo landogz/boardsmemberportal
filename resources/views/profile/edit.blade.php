@@ -610,14 +610,14 @@
                         </div>
                     </div>
 
-                    <!-- PSGC Dropdowns -->
+                    <!-- PSGC Dropdowns (read-only on profile edit: address cannot be changed) -->
                     <div class="mb-4">
                         <label for="office_region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Region</label>
                         <select 
                             id="office_region" 
                             name="office_region" 
-                            @if($isUserProfile) disabled @endif
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
+                            disabled
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-900 dark:text-gray-100"
                         >
                             <option value="">Select Region</option>
                         </select>
@@ -630,8 +630,7 @@
                             id="office_province" 
                             name="office_province" 
                             disabled
-                            @if($isUserProfile) disabled @endif
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-900 dark:text-gray-100"
                         >
                             <option value="">Select Province</option>
                         </select>
@@ -644,8 +643,7 @@
                             id="office_city_municipality" 
                             name="office_city_municipality" 
                             disabled
-                            @if($isUserProfile) disabled @endif
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-900 dark:text-gray-100"
                         >
                             <option value="">Select City/Municipality</option>
                         </select>
@@ -658,8 +656,7 @@
                             id="office_barangay" 
                             name="office_barangay" 
                             disabled
-                            @if($isUserProfile) disabled @endif
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-900 dark:text-gray-100"
                         >
                             <option value="">Select Barangay</option>
                         </select>
@@ -678,12 +675,11 @@
                             id="username" 
                             name="username" 
                             value="{{ $user->username }}"
-                            @if($isUserProfile) readonly @endif
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
+                            readonly
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-900 dark:text-gray-100"
                             placeholder="Username"
                         >
-                        <span class="text-red-500 text-sm hidden" id="username-error"></span>
-                        <span class="text-green-500 text-sm hidden" id="username-success"></span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Set from your name (firstname.lastname).</p>
                     </div>
 
                     <div class="mb-4">
@@ -1167,7 +1163,8 @@
             });
             @endif
 
-            // Load PSGC data
+            // Load PSGC data (address dropdowns are disabled on profile edit - read-only)
+            const addressReadOnly = true;
             const userOfficeRegion = '{{ $user->office_region }}';
             const userOfficeProvince = '{{ $user->office_province }}';
             const userOfficeCity = '{{ $user->office_city_municipality }}';
@@ -1424,7 +1421,8 @@
                     provinceSelect.prop('disabled', true).html('<option value="">Loading...</option>');
                     axios.get('/api/address/provinces', { params: { region_code: regionCode } })
                         .then(function(response) {
-                            provinceSelect.prop('disabled', false).html('<option value="">Select Province</option>');
+                            provinceSelect.html('<option value="">Select Province</option>');
+                            if (!addressReadOnly) provinceSelect.prop('disabled', false);
                             response.data.forEach(province => {
                                 const selected = userOfficeProvince == province.province_code ? 'selected' : '';
                                 provinceSelect.append(`<option value="${province.province_code}" ${selected}>${province.province_name}</option>`);
@@ -1461,7 +1459,8 @@
                     citySelect.prop('disabled', true).html('<option value="">Loading...</option>');
                     axios.get('/api/address/cities', { params: { province_code: provinceCode } })
                         .then(function(response) {
-                            citySelect.prop('disabled', false).html('<option value="">Select City/Municipality</option>');
+                            citySelect.html('<option value="">Select City/Municipality</option>');
+                            if (!addressReadOnly) citySelect.prop('disabled', false);
                             response.data.forEach(city => {
                                 const selected = userOfficeCity == city.city_code ? 'selected' : '';
                                 citySelect.append(`<option value="${city.city_code}" ${selected}>${city.city_name}</option>`);
@@ -1495,7 +1494,8 @@
                     barangaySelect.prop('disabled', true).html('<option value="">Loading...</option>');
                     axios.get('/api/address/barangays', { params: { city_code: cityCode } })
                         .then(function(response) {
-                            barangaySelect.prop('disabled', false).html('<option value="">Select Barangay</option>');
+                            barangaySelect.html('<option value="">Select Barangay</option>');
+                            if (!addressReadOnly) barangaySelect.prop('disabled', false);
                             response.data.forEach(barangay => {
                                 const selected = userOfficeBarangay == barangay.brgy_code ? 'selected' : '';
                                 barangaySelect.append(`<option value="${barangay.brgy_code}" ${selected}>${barangay.brgy_name}</option>`);

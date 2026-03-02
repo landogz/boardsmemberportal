@@ -1,9 +1,9 @@
 @extends('admin.layout')
 
-@section('title', 'View Notice')
+@section('title', 'View Communication')
 
 @php
-    $pageTitle = 'View Notice';
+    $pageTitle = 'View Communication';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.notices.index'),

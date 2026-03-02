@@ -52,8 +52,8 @@ class NoticeController extends Controller
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
             ->orderBy('privilege')
+            ->orderByRaw("CASE WHEN privilege = 'user' AND representative_type = 'Board Member' THEN 0 WHEN privilege = 'user' AND representative_type = 'Authorized Representative' THEN 1 ELSE 2 END")
             ->orderBy('government_agencies.name')
-            ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -293,8 +293,8 @@ class NoticeController extends Controller
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
             ->orderBy('privilege')
+            ->orderByRaw("CASE WHEN privilege = 'user' AND representative_type = 'Board Member' THEN 0 WHEN privilege = 'user' AND representative_type = 'Authorized Representative' THEN 1 ELSE 2 END")
             ->orderBy('government_agencies.name')
-            ->orderByRaw("CASE WHEN privilege = 'user' THEN representative_type ELSE '' END")
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();

@@ -229,13 +229,54 @@
                                 </label>
                             </div>
                             
-                            <!-- User List -->
-                            <div class="space-y-1" id="usersList">
+                            <!-- User List: grouped by Board Members (BM) and Authorized Representatives (AA) -->
+                            <div class="space-y-2" id="usersList">
                                 @php
                                     $currentPrivilege = null;
                                     $currentRepresentativeType = null;
                                 @endphp
                                 @foreach($users as $user)
+                                    @if($currentPrivilege !== $user->privilege)
+                                        @if($currentPrivilege !== null)
+                                            </div>
+                                        @endif
+                                        <div class="user-list-header mb-2 mt-3 first:mt-0">
+                                            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                                @if($user->privilege === 'user')
+                                                    Board Members
+                                                @elseif($user->privilege === 'consec')
+                                                    CONSEC Accounts
+                                                @else
+                                                    {{ ucfirst($user->privilege ?? 'Other') }}
+                                                @endif
+                                            </h5>
+                                        </div>
+                                        <div class="space-y-2">
+                                        @php
+                                            $currentPrivilege = $user->privilege;
+                                            $currentRepresentativeType = null;
+                                        @endphp
+                                    @endif
+                                    @if($user->privilege === 'user' && $currentRepresentativeType !== $user->representative_type)
+                                        @if($currentRepresentativeType !== null)
+                                            </div>
+                                        @endif
+                                        <div class="user-list-header ml-4 mb-1 mt-2">
+                                            <h6 class="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                @if($user->representative_type === 'Board Member')
+                                                    Board Members
+                                                @elseif($user->representative_type === 'Authorized Representative')
+                                                    Authorized Representatives
+                                                @else
+                                                    {{ $user->representative_type ?? 'Other' }}
+                                                @endif
+                                            </h6>
+                                        </div>
+                                        <div class="ml-4 space-y-2">
+                                        @php
+                                            $currentRepresentativeType = $user->representative_type;
+                                        @endphp
+                                    @endif
                                     @php
                                         $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=64&background=055498&color=fff';
                                         if ($user->profile_picture) {
@@ -243,29 +284,6 @@
                                             if ($media) {
                                                 $profilePic = asset('storage/' . $media->file_path);
                                             }
-                                        }
-                                        
-                                        // Group by privilege and representative_type
-                                        if ($currentPrivilege !== $user->privilege) {
-                                            if ($currentPrivilege !== null) {
-                                                if ($currentRepresentativeType !== null) {
-                                                    echo '</div>';
-                                                }
-                                                echo '</div>';
-                                            }
-                                            $currentPrivilege = $user->privilege;
-                                            $currentRepresentativeType = null;
-                                            echo '<div class="mb-2">';
-                                            echo '<div class="user-list-header text-xs font-semibold text-gray-600 mb-1 uppercase">' . ucfirst($user->privilege) . '</div>';
-                                        }
-                                        
-                                        if ($user->privilege === 'user' && $currentRepresentativeType !== $user->representative_type) {
-                                            if ($currentRepresentativeType !== null) {
-                                                echo '</div>';
-                                            }
-                                            $currentRepresentativeType = $user->representative_type;
-                                            echo '<div class="ml-2 mb-1">';
-                                            echo '<div class="user-list-header text-xs text-gray-500 mb-1">' . ($user->representative_type ? ucfirst(str_replace('_', ' ', $user->representative_type)) : 'No Type') . '</div>';
                                         }
                                     @endphp
                                     <label class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer user-item {{ $user->privilege === 'user' ? 'ml-4' : '' }}">
@@ -295,10 +313,10 @@
                                         @endif
                                     </label>
                                 @endforeach
+                                @if($currentPrivilege === 'user' && $currentRepresentativeType !== null)
+                                    </div>
+                                @endif
                                 @if($currentPrivilege !== null)
-                                    @if($currentRepresentativeType !== null)
-                                        </div>
-                                    @endif
                                     </div>
                                 @endif
                             </div>

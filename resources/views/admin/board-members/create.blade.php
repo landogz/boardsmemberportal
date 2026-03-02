@@ -367,9 +367,9 @@
 
                     <!-- Username (Auto-generated) -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username *</label>
-                        <input type="text" id="username" name="username" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-gray-50" placeholder="System generated username">
-                        <span class="text-red-500 text-sm hidden" id="username-error"></span>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="username" name="username" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" placeholder="firstname.lastname">
+                        <p class="text-xs text-gray-500 mt-1">Auto-generated as firstname.lastname.</p>
                         <p class="text-xs text-gray-500 mt-1">Auto-generated based on name and email. Can be edited.</p>
                     </div>
 
@@ -866,11 +866,7 @@
                 if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             }
-            if (!username) {
-                showError('username', 'Username is required');
-                if (!firstInvalidField) firstInvalidField = '#username';
-                isValid = false;
-            }
+            // Username is auto-generated as firstname.lastname by the server
             if (!mobile) {
                 showError('mobile', 'Mobile number is required');
                 if (!firstInvalidField) firstInvalidField = '#mobile';

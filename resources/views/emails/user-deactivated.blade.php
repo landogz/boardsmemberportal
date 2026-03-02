@@ -29,7 +29,7 @@
                     </tr>
                     <tr>
                         <td class="email-body">
-                            <p class="greeting">Dear {{ $user->first_name }} {{ $user->last_name }},</p>
+                            <p class="greeting">Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->first_name }} {{ $user->last_name }},</p>
                             <p class="greeting">Your Board Members Portal account has been deactivated. You will no longer be able to sign in or access the portal.</p>
                             <div class="info-card">
                                 <p style="font-size: 14px; color: #4b5563; line-height: 1.7; margin: 0;">If you believe this was done in error or you need to regain access, please contact CONSEC or the system administrator.</p>

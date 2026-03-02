@@ -77,6 +77,27 @@
         overflow: visible;
     }
     
+    /* Wide columns, no wrap: table scrolls horizontally on small screens */
+    #announcementsTable td,
+    #announcementsTable th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    #announcementsTable th:nth-child(1),
+    #announcementsTable td:nth-child(1) { min-width: 320px; }
+    #announcementsTable th:nth-child(2),
+    #announcementsTable td:nth-child(2) { min-width: 180px; }
+    #announcementsTable th:nth-child(3),
+    #announcementsTable td:nth-child(3) { min-width: 100px; }
+    #announcementsTable th:nth-child(4),
+    #announcementsTable td:nth-child(4) { min-width: 180px; }
+    #announcementsTable th:nth-child(5),
+    #announcementsTable td:nth-child(5) { min-width: 160px; }
+    #announcementsTable th:nth-child(6),
+    #announcementsTable td:nth-child(6) { min-width: 110px; }
+    #announcementsTable th:nth-child(7),
+    #announcementsTable td:nth-child(7) { min-width: 100px; }
+    
     /* Ensure dropdown menu doesn't cause scrollbar */
     .action-dropdown-menu {
         position: fixed !important;

@@ -223,7 +223,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Dear {{ $user->first_name }} {{ $user->last_name }},
+                                Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->first_name }} {{ $user->last_name }},
                             </p>
                             
                             <p class="greeting">

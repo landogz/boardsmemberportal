@@ -53,6 +53,20 @@
         background-color: rgba(156, 163, 175, 0.1);
         color: #6B7280;
     }
+    /* Wide columns, no wrap */
+    #attendanceTable td,
+    #attendanceTable th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    #attendanceTable th:nth-child(1), #attendanceTable td:nth-child(1) { min-width: 280px; }
+    #attendanceTable th:nth-child(2), #attendanceTable td:nth-child(2) { min-width: 140px; }
+    #attendanceTable th:nth-child(3), #attendanceTable td:nth-child(3) { min-width: 100px; }
+    #attendanceTable th:nth-child(4), #attendanceTable td:nth-child(4) { min-width: 90px; }
+    #attendanceTable th:nth-child(5), #attendanceTable td:nth-child(5) { min-width: 90px; }
+    #attendanceTable th:nth-child(6), #attendanceTable td:nth-child(6) { min-width: 90px; }
+    #attendanceTable th:nth-child(7), #attendanceTable td:nth-child(7) { min-width: 120px; }
+    #attendanceTable th:nth-child(8), #attendanceTable td:nth-child(8) { min-width: 120px; }
 </style>
 @endpush
 
@@ -99,8 +113,8 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($notices as $notice)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900 mb-1">{{ Str::limit($notice->title, 40) }}</div>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ Str::limit($notice->title, 40) }}</div>
                                 @php
                                     $typeClass = 'type-other';
                                     if ($notice->notice_type === 'Notice of Meeting') {
