@@ -288,6 +288,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReferendumController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\ReferendumController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\ReferendumController::class, 'store'])->name('store');
+        Route::get('/{id}/comments/fragment', [\App\Http\Controllers\Admin\ReferendumController::class, 'commentsFragment'])->name('comments.fragment');
         Route::get('/{id}', [\App\Http\Controllers\Admin\ReferendumController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\ReferendumController::class, 'edit'])->name('edit');
         Route::post('/{id}/update', [\App\Http\Controllers\Admin\ReferendumController::class, 'update'])->name('update');

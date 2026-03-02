@@ -556,7 +556,7 @@
                                                 {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
                                             </h3>
                                             <span class="status-badge {{ $referendum->isExpired() ? 'status-expired' : 'status-active' }}">
-                                                {{ $referendum->isExpired() ? 'Expired' : 'Active' }}
+                                                {{ $referendum->isExpired() ? 'ENDED' : 'Active' }}
                                             </span>
                                         </div>
                                         <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
@@ -763,10 +763,10 @@
                                 <div class="bg-gradient-to-br from-white to-gray-50 dark:from-[#1e293b] dark:to-[#0f172a] rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-lg">
                                     <div class="flex items-center space-x-2 mb-4">
                                         <i class="fas fa-info-circle text-orange-500"></i>
-                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Referendum Expired</h3>
+                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Referendum Ended</h3>
                                     </div>
                                     <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
-                                        This referendum has expired. Voting is no longer available.
+                                        This referendum has ended. Voting is no longer available.
                                     </p>
                                     <!-- Final Vote Statistics - Gen Z Design -->
                                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -890,7 +890,7 @@
                                 @else
                                     <div class="text-xs text-gray-500 dark:text-gray-400 text-center py-3">
                                         <i class="fas fa-lock mr-2"></i>
-                                        Commenting is disabled for expired referendums
+                                        Commenting is disabled for ended referendums
                                     </div>
                                 @endif
                         </div>
@@ -1337,7 +1337,7 @@
             }
             
             const userId = '{{ Auth::id() }}';
-            const canDeleteReply = reply.user && reply.user.id === userId;
+            const canDeleteReply = reply.user && reply.user.id === userId && !isExpired;
             const canEditReply = reply.user && reply.user.id === userId && !isExpired;
             const replyContent = escapeHtml(reply.content || '').replace(/\n/g, '<br>');
             const replyName = escapeHtml(reply.user.name || '');
@@ -1432,8 +1432,8 @@
                 if (isExpired) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Expired',
-                        text: 'This referendum has expired. Commenting is no longer available.'
+                        title: 'Ended',
+                        text: 'This referendum has ended. Commenting is no longer available.'
                     });
                     return;
                 }
@@ -1612,8 +1612,8 @@
             if (isExpired) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Expired',
-                    text: 'This referendum has expired. Comments cannot be edited.'
+                    title: 'Ended',
+                    text: 'This referendum has ended. Comments cannot be edited.'
                 });
                 return;
             }
@@ -2039,8 +2039,8 @@
                 if (isExpired) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Expired',
-                        text: 'This referendum has expired. Commenting is no longer available.'
+                        title: 'Ended',
+                        text: 'This referendum has ended. Commenting is no longer available.'
                     });
                     return;
                 }
@@ -2411,7 +2411,7 @@
             }
             
             const userId = '{{ Auth::id() }}';
-            const canDelete = comment.user && comment.user.id === userId;
+            const canDelete = comment.user && comment.user.id === userId && !isExpired;
             
             let repliesHtml = '';
             if (comment.replies && comment.replies.length > 0) {

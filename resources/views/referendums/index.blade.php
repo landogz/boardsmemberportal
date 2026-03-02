@@ -734,7 +734,7 @@
                                             </a>
                                         </h3>
                                         <span class="status-badge {{ $isExpired ? 'status-expired' : 'status-active' }}">
-                                            {{ $isExpired ? 'Expired' : 'Active' }}
+                                            {{ $isExpired ? 'ENDED' : 'Active' }}
                                         </span>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">

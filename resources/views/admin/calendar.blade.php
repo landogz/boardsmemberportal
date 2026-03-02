@@ -773,6 +773,7 @@
                         const meetingTime = info.event.extendedProps.meeting_time || null;
                         const meetingLink = info.event.extendedProps.meeting_link || null;
                         const venue = info.event.extendedProps.venue || null;
+                        const noticeStatus = info.event.extendedProps.status || null;
                         
                         // Build action buttons based on event type
                         let actionButton = '';
@@ -808,6 +809,9 @@
                         if (eventType === 'notice') {
                             noticeFields = '<div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">';
                             noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Notice Details</p>';
+                            if (noticeStatus === 'postponed') {
+                                noticeFields += '<p class="mb-2 text-sm"><strong>Status:</strong> <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">Postponed</span></p>';
+                            }
                             if (noticeType) {
                                 noticeFields += `<p class="mb-2 text-sm"><strong>Notice Type:</strong> <span class="text-purple-700">${noticeType}</span></p>`;
                             }

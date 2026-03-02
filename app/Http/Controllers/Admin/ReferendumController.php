@@ -275,6 +275,67 @@ class ReferendumController extends Controller
     }
 
     /**
+     * Return comments HTML fragment and total for polling (auto-refresh comments)
+     */
+    public function commentsFragment($id)
+    {
+        if (!Auth::user()->hasPermission('view referendum')) {
+            return response()->json(['success' => false], 403);
+        }
+
+        $referendum = Referendum::findOrFail($id);
+        $totalComments = $referendum->allComments()->count();
+        $allComments = $referendum->allComments()->with('user')->orderBy('created_at', 'asc')->get();
+
+        $commentsById = $allComments->keyBy('id');
+        $mainComments = collect();
+        foreach ($allComments as $comment) {
+            if ($comment->parent_id === null) {
+                $mainComments->push($comment);
+            } else {
+                if (isset($commentsById[$comment->parent_id])) {
+                    $parent = $commentsById[$comment->parent_id];
+                    if (!$parent->relationLoaded('replies')) {
+                        $parent->setRelation('replies', collect());
+                    }
+                    if (!$parent->replies->contains('id', $comment->id)) {
+                        $parent->replies->push($comment);
+                    }
+                }
+            }
+        }
+
+        $organizeReplies = function ($comment) use (&$organizeReplies, $allComments) {
+            if ($comment->relationLoaded('replies') && $comment->replies->count() > 0) {
+                $comment->replies = $comment->replies->unique('id')->sortBy('created_at')->values();
+                foreach ($comment->replies as $reply) {
+                    $nestedReplies = $allComments->filter(fn ($c) => $c->parent_id === $reply->id);
+                    if ($nestedReplies->count() > 0) {
+                        if (!$reply->relationLoaded('replies')) {
+                            $reply->setRelation('replies', collect());
+                        }
+                        $nestedReplies = $nestedReplies->sortBy('created_at');
+                        foreach ($nestedReplies as $nestedReply) {
+                            if (!$reply->replies->contains('id', $nestedReply->id)) {
+                                $reply->replies->push($nestedReply);
+                            }
+                        }
+                        $reply->replies = $reply->replies->unique('id')->sortBy('created_at')->values();
+                        $organizeReplies($reply);
+                    }
+                }
+            }
+        };
+        foreach ($mainComments as $comment) {
+            $organizeReplies($comment);
+        }
+        $comments = $mainComments->sortBy('created_at')->values();
+
+        $html = view('admin.referendums.partials.comments-fragment', compact('comments'))->render();
+        return response()->json(['success' => true, 'html' => $html, 'total' => $totalComments]);
+    }
+
+    /**
      * Show the form for editing the specified referendum
      */
     public function edit($id)

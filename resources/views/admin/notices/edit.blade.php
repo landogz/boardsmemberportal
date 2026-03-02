@@ -3,7 +3,7 @@
 @section('title', 'Edit Communication')
 
 @php
-    $pageTitle = 'Edit Notice';
+    $pageTitle = 'Edit Communication';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.notices.index'),
@@ -64,7 +64,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Left Column: Main Form Fields -->
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- Notice Type Selection -->
+                    <!-- Communication Type Selection -->
                     <div>
                         <label for="notice_type" class="block text-sm font-medium text-gray-700 mb-2">Communication type *</label>
                         <select 
@@ -73,9 +73,10 @@
                             required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
                         >
-                            <option value="">Select Notice Type</option>
+                            <option value="">Select Communication Type</option>
                             <option value="Notice of Meeting" {{ $notice->notice_type === 'Notice of Meeting' ? 'selected' : '' }}>Notice of Meeting</option>
                             <option value="Agenda" {{ $notice->notice_type === 'Agenda' ? 'selected' : '' }}>Agenda</option>
+                            <option value="Notice of Postponement" {{ $notice->notice_type === 'Notice of Postponement' ? 'selected' : '' }}>Notice of Postponement</option>
                             @if($notice->notice_type === 'Board Issuances')
                             <option value="Board Issuances" selected style="display:none">Board Issuances</option>
                             @endif
@@ -102,6 +103,7 @@
                     <!-- Title Dropdown (Only for Agenda) -->
                     <div id="titleDropdownContainer" class="hidden">
                         <label for="title_dropdown" class="block text-sm font-medium text-gray-700 mb-2">Title (Select Notice of Meeting) *</label>
+                        <p class="text-xs text-gray-500 mb-1">For Agenda: select the meeting. For Notice of Postponement: select the meeting to mark as postponed.</p>
                         <select 
                             id="title_dropdown" 
                             name="title_dropdown" 
@@ -116,74 +118,77 @@
                         <span class="text-red-500 text-sm hidden" id="title_dropdown-error"></span>
                     </div>
 
-                    <!-- Meeting Type Selection -->
-                    <div>
-                        <label for="meeting_type" class="block text-sm font-medium text-gray-700 mb-2">Meeting Type *</label>
-                        <select 
-                            id="meeting_type" 
-                            name="meeting_type" 
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        >
-                            <option value="onsite" {{ $notice->meeting_type === 'onsite' ? 'selected' : '' }}>Onsite</option>
-                            <option value="online" {{ $notice->meeting_type === 'online' ? 'selected' : '' }}>Online</option>
-                            <option value="hybrid" {{ $notice->meeting_type === 'hybrid' ? 'selected' : '' }}>Hybrid</option>
-                        </select>
-                        <span class="text-red-500 text-sm hidden" id="meeting_type-error"></span>
-                    </div>
+                    <!-- Meeting details (hidden for Notice of Postponement) -->
+                    <div id="meetingDetailsContainer" class="space-y-6 {{ $notice->notice_type === 'Notice of Postponement' ? 'hidden' : '' }}">
+                        <!-- Meeting Type Selection -->
+                        <div>
+                            <label for="meeting_type" class="block text-sm font-medium text-gray-700 mb-2">Meeting Type *</label>
+                            <select 
+                                id="meeting_type" 
+                                name="meeting_type" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                            >
+                                <option value="onsite" {{ $notice->meeting_type === 'onsite' ? 'selected' : '' }}>Onsite</option>
+                                <option value="online" {{ $notice->meeting_type === 'online' ? 'selected' : '' }}>Online</option>
+                                <option value="hybrid" {{ $notice->meeting_type === 'hybrid' ? 'selected' : '' }}>Hybrid</option>
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="meeting_type-error"></span>
+                        </div>
 
-                    <!-- Venue (Only for Onsite/Hybrid) -->
-                    <div id="venueContainer" class="{{ in_array($notice->meeting_type, ['onsite', 'hybrid']) ? '' : 'hidden' }}">
-                        <label for="venue" class="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
-                        <input 
-                            type="text" 
-                            id="venue" 
-                            name="venue" 
-                            value="{{ old('venue', $notice->venue) }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                            placeholder="Enter meeting venue (e.g., building, room)"
-                        >
-                        <span class="text-red-500 text-sm hidden" id="venue-error"></span>
-                    </div>
+                        <!-- Venue (Only for Onsite/Hybrid) -->
+                        <div id="venueContainer" class="{{ in_array($notice->meeting_type, ['onsite', 'hybrid']) ? '' : 'hidden' }}">
+                            <label for="venue" class="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
+                            <input 
+                                type="text" 
+                                id="venue" 
+                                name="venue" 
+                                value="{{ old('venue', $notice->venue) }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                                placeholder="Enter meeting venue (e.g., building, room)"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="venue-error"></span>
+                        </div>
 
-                    <!-- Meeting Link (Only for Online/Hybrid) -->
-                    <div id="meetingLinkContainer" class="{{ in_array($notice->meeting_type, ['online', 'hybrid']) ? '' : 'hidden' }}">
-                        <label for="meeting_link" class="block text-sm font-medium text-gray-700 mb-2">Meeting Link *</label>
-                        <input 
-                            type="url" 
-                            id="meeting_link" 
-                            name="meeting_link" 
-                            value="{{ old('meeting_link', $notice->meeting_link) }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                            placeholder="Enter meeting link (Zoom, Google Meet, etc.)"
-                        >
-                        <span class="text-red-500 text-sm hidden" id="meeting_link-error"></span>
-                    </div>
+                        <!-- Meeting Link (Only for Online/Hybrid) -->
+                        <div id="meetingLinkContainer" class="{{ in_array($notice->meeting_type, ['online', 'hybrid']) ? '' : 'hidden' }}">
+                            <label for="meeting_link" class="block text-sm font-medium text-gray-700 mb-2">Meeting Link *</label>
+                            <input 
+                                type="url" 
+                                id="meeting_link" 
+                                name="meeting_link" 
+                                value="{{ old('meeting_link', $notice->meeting_link) }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                                placeholder="Enter meeting link (Zoom, Google Meet, etc.)"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="meeting_link-error"></span>
+                        </div>
 
-                    <!-- Meeting Date -->
-                    <div>
-                        <label for="meeting_date" class="block text-sm font-medium text-gray-700 mb-2">Meeting Date</label>
-                        <input 
-                            type="date" 
-                            id="meeting_date" 
-                            name="meeting_date" 
-                            value="{{ old('meeting_date', $notice->meeting_date ? \Carbon\Carbon::parse($notice->meeting_date)->format('Y-m-d') : '') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        >
-                        <span class="text-red-500 text-sm hidden" id="meeting_date-error"></span>
-                    </div>
+                        <!-- Meeting Date -->
+                        <div>
+                            <label for="meeting_date" class="block text-sm font-medium text-gray-700 mb-2">Meeting Date</label>
+                            <input 
+                                type="date" 
+                                id="meeting_date" 
+                                name="meeting_date" 
+                                value="{{ old('meeting_date', $notice->meeting_date ? \Carbon\Carbon::parse($notice->meeting_date)->format('Y-m-d') : '') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="meeting_date-error"></span>
+                        </div>
 
-                    <!-- Meeting Time -->
-                    <div>
-                        <label for="meeting_time" class="block text-sm font-medium text-gray-700 mb-2">Meeting Time</label>
-                        <input 
-                            type="time" 
-                            id="meeting_time" 
-                            name="meeting_time" 
-                            value="{{ old('meeting_time', $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('H:i') : '') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        >
-                        <span class="text-red-500 text-sm hidden" id="meeting_time-error"></span>
+                        <!-- Meeting Time -->
+                        <div>
+                            <label for="meeting_time" class="block text-sm font-medium text-gray-700 mb-2">Meeting Time</label>
+                            <input 
+                                type="time" 
+                                id="meeting_time" 
+                                name="meeting_time" 
+                                value="{{ old('meeting_time', $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time)->format('H:i') : '') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                            >
+                            <span class="text-red-500 text-sm hidden" id="meeting_time-error"></span>
+                        </div>
                     </div>
 
                     <!-- Board Regulations Selection (Only for Board Issuances) -->
@@ -597,7 +602,7 @@
 
         // Initialize form based on current notice type
         const currentNoticeType = $('#notice_type').val();
-        if (currentNoticeType === 'Agenda') {
+        if (currentNoticeType === 'Agenda' || currentNoticeType === 'Notice of Postponement') {
             $('#titleTextContainer').hide();
             $('#title').prop('required', false);
             $('#titleDropdownContainer').show();
@@ -605,6 +610,16 @@
             $('#noOfAttendeesContainer').hide();
             $('#boardRegulationsContainer').hide();
             $('#boardResolutionsContainer').hide();
+            if (currentNoticeType === 'Notice of Postponement') {
+                $('#meetingDetailsContainer').hide();
+                $('#meeting_type').prop('required', false);
+                $('#venue').prop('required', false);
+                $('#meeting_link').prop('required', false);
+            } else {
+                $('#meetingDetailsContainer').show();
+                $('#meeting_type').prop('required', true);
+                toggleMeetingTypeFields();
+            }
         } else if (currentNoticeType === 'Board Issuances') {
             $('#titleTextContainer').show();
             $('#title').prop('required', true);
@@ -613,6 +628,9 @@
             $('#noOfAttendeesContainer').show();
             $('#boardRegulationsContainer').show();
             $('#boardResolutionsContainer').show();
+            $('#meetingDetailsContainer').show();
+            $('#meeting_type').prop('required', true);
+            toggleMeetingTypeFields();
         } else {
             $('#titleTextContainer').show();
             $('#title').prop('required', true);
@@ -621,6 +639,9 @@
             $('#noOfAttendeesContainer').hide();
             $('#boardRegulationsContainer').hide();
             $('#boardResolutionsContainer').hide();
+            $('#meetingDetailsContainer').show();
+            $('#meeting_type').prop('required', true);
+            toggleMeetingTypeFields();
         }
 
         // Handle notice type change
@@ -637,7 +658,7 @@
             const boardRegulationsContainer = $('#boardRegulationsContainer');
             const boardResolutionsContainer = $('#boardResolutionsContainer');
             
-            if (noticeType === 'Agenda') {
+            if (noticeType === 'Agenda' || noticeType === 'Notice of Postponement') {
                 titleTextContainer.hide();
                 titleInput.prop('required', false);
                 titleDropdownContainer.show();
@@ -646,6 +667,16 @@
                 noOfAttendeesInput.val('');
                 boardRegulationsContainer.hide();
                 boardResolutionsContainer.hide();
+                if (noticeType === 'Notice of Postponement') {
+                    $('#meetingDetailsContainer').hide();
+                    $('#meeting_type').prop('required', false);
+                    $('#venue').prop('required', false);
+                    $('#meeting_link').prop('required', false);
+                } else {
+                    $('#meetingDetailsContainer').show();
+                    $('#meeting_type').prop('required', true);
+                    toggleMeetingTypeFields();
+                }
             } else if (noticeType === 'Board Issuances') {
                 titleTextContainer.show();
                 titleInput.prop('required', true);
@@ -656,6 +687,9 @@
                 noOfAttendeesContainer.show();
                 boardRegulationsContainer.show();
                 boardResolutionsContainer.show();
+                $('#meetingDetailsContainer').show();
+                $('#meeting_type').prop('required', true);
+                toggleMeetingTypeFields();
             } else {
                 titleTextContainer.show();
                 titleInput.prop('required', true);
@@ -667,6 +701,9 @@
                 noOfAttendeesInput.val('');
                 boardRegulationsContainer.hide();
                 boardResolutionsContainer.hide();
+                $('#meetingDetailsContainer').show();
+                $('#meeting_type').prop('required', true);
+                toggleMeetingTypeFields();
             }
         });
 
@@ -1110,12 +1147,12 @@
         // Validate notice type
         const noticeType = $('#notice_type').val();
         if (!noticeType) {
-            $('#notice_type-error').text('Please select a notice type.').removeClass('hidden');
+            $('#notice_type-error').text('Please select a communication type.').removeClass('hidden');
             return;
         }
 
         // Validate title or related notice
-        if (noticeType === 'Agenda') {
+        if (noticeType === 'Agenda' || noticeType === 'Notice of Postponement') {
             const titleDropdown = $('#title_dropdown').val();
             if (!titleDropdown) {
                 $('#title_dropdown-error').text('Please select a notice from the dropdown.').removeClass('hidden');
@@ -1132,20 +1169,22 @@
             }
         }
 
-        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid)
-        const meetingType = $('#meeting_type').val();
-        if (meetingType === 'online' || meetingType === 'hybrid') {
-            const meetingLink = $('#meeting_link').val().trim();
-            if (!meetingLink) {
-                $('#meeting_link-error').text('Please enter a meeting link.').removeClass('hidden');
-                return;
+        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid) — skip for Notice of Postponement
+        if (noticeType !== 'Notice of Postponement') {
+            const meetingType = $('#meeting_type').val();
+            if (meetingType === 'online' || meetingType === 'hybrid') {
+                const meetingLink = $('#meeting_link').val().trim();
+                if (!meetingLink) {
+                    $('#meeting_link-error').text('Please enter a meeting link.').removeClass('hidden');
+                    return;
+                }
             }
-        }
-        if (meetingType === 'onsite' || meetingType === 'hybrid') {
-            const venue = $('#venue').val().trim();
-            if (!venue) {
-                $('#venue-error').text('Please enter the venue.').removeClass('hidden');
-                return;
+            if (meetingType === 'onsite' || meetingType === 'hybrid') {
+                const venue = $('#venue').val().trim();
+                if (!venue) {
+                    $('#venue-error').text('Please enter the venue.').removeClass('hidden');
+                    return;
+                }
             }
         }
 

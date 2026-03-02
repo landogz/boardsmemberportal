@@ -44,9 +44,13 @@
         background-color: rgba(156, 163, 175, 0.1);
         color: #6B7280;
     }
+    .type-postponed {
+        background-color: rgba(107, 114, 128, 0.2);
+        color: #4b5563;
+    }
     .action-dropdown-menu {
         animation: fadeIn 0.15s ease-out;
-        min-width: 180px;
+        min-width: 220px;
     }
     
     @keyframes fadeIn {
@@ -218,12 +222,17 @@
                             <span class="notice-type-badge {{ $typeClass }}">
                                 {{ $notice->notice_type }}
                             </span>
+                            @if(($notice->status ?? null) === 'postponed')
+                                <span class="notice-type-badge type-postponed ml-1.5">
+                                    Postponed
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ Str::limit($notice->title, 50) }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 capitalize">{{ $notice->meeting_type }}</div>
+                            <div class="text-sm text-gray-900 capitalize">{{ $notice->meeting_type ?? '—' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center space-x-3">
@@ -280,16 +289,16 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 
-                                <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $notice->id }}">
+                                <div class="action-dropdown-menu hidden min-w-[220px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $notice->id }}">
                                     <div class="py-1" role="menu">
                                         <a href="{{ route('admin.notices.show', $notice->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-eye w-4 mr-3 text-blue-600"></i>
                                             View Details
                                         </a>
-                                        @if(Auth::user()->hasPermission('edit notices'))
+                                        @if(Auth::user()->hasPermission('edit notices') && ($notice->status ?? null) !== 'postponed')
                                         <a href="{{ route('admin.notices.edit', $notice->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-green-600"></i>
-                                            Edit Notice
+                                            Edit Communication
                                         </a>
                                         @endif
                                         @if(Auth::user()->hasPermission('delete notices'))
@@ -355,7 +364,7 @@
             const buttonOffset = $button.offset();
             const buttonWidth = $button.outerWidth();
             const buttonHeight = $button.outerHeight();
-            const dropdownWidth = 192; // w-48 = 192px
+            const dropdownWidth = 220;
             const windowWidth = $(window).width();
             const windowHeight = $(window).height();
             

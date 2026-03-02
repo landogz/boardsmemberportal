@@ -11,10 +11,10 @@
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
-    if (Auth::user()->hasPermission('edit notices')) {
+    if (Auth::user()->hasPermission('edit notices') && ($notice->status ?? null) !== 'postponed') {
         $headerActions[] = [
             'url' => route('admin.notices.edit', $notice->id),
-            'text' => 'Edit',
+            'text' => 'Edit Communication',
             'icon' => 'fas fa-edit',
             'class' => 'px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300',
             'style' => 'background: linear-gradient(135deg, #055498 0%, #123a60 100%);'
@@ -48,6 +48,10 @@
     .type-other {
         background-color: rgba(156, 163, 175, 0.1);
         color: #6B7280;
+    }
+    .type-postponed {
+        background-color: rgba(107, 114, 128, 0.2);
+        color: #4b5563;
     }
     .notice-description {
         text-indent: 0 !important;
@@ -127,9 +131,16 @@
                         <span class="notice-type-badge {{ $typeClass }}">
                             {{ $notice->notice_type }}
                         </span>
+                        @if(($notice->status ?? null) === 'postponed')
+                            <span class="notice-type-badge type-postponed">
+                                Postponed
+                            </span>
+                        @endif
+                        @if($notice->meeting_type)
                         <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-600 border border-gray-200 capitalize">
                             <i class="fas fa-video mr-1.5"></i>{{ $notice->meeting_type }}
                         </span>
+                        @endif
                     </div>
                     <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">{{ $notice->title }}</h1>
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">

@@ -194,6 +194,10 @@ class CalendarController extends Controller
         }
 
         foreach ($notices as $notice) {
+            // Do not show Notice of Postponement on calendar; only the Notice of Meeting (with status postponed) is shown
+            if ($notice->notice_type === 'Notice of Postponement') {
+                continue;
+            }
             // Use meeting_date if available, otherwise use created_at
             // Parse meeting_date if it's a string
             if ($notice->meeting_date) {
@@ -211,12 +215,17 @@ class CalendarController extends Controller
                 ? route('admin.notices.show', $notice->id)
                 : route('notices.show', $notice->id);
 
+            $isPostponed = ($notice->status ?? null) === 'postponed';
+            $eventTitle = $notice->title . ($isPostponed ? ' (Postponed)' : '');
+            $eventBg = $isPostponed ? '#6b7280' : '#7C3AED';
+            $eventBorder = $isPostponed ? '#4b5563' : '#7C3AED';
+
             $events[] = [
                 'id' => 'notice_' . $notice->id,
-                'title' => $notice->title,
+                'title' => $eventTitle,
                 'start' => $eventDateFormatted,
-                'backgroundColor' => '#7C3AED',
-                'borderColor' => '#7C3AED',
+                'backgroundColor' => $eventBg,
+                'borderColor' => $eventBorder,
                 'textColor' => '#ffffff',
                 'extendedProps' => [
                     'type' => 'notice',
@@ -229,6 +238,7 @@ class CalendarController extends Controller
                     'meeting_link' => $notice->meeting_link,
                     'venue' => $notice->venue,
                     'url' => $url,
+                    'status' => $notice->status,
                 ],
             ];
         }

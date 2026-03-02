@@ -11,8 +11,10 @@ use App\Mail\NoticeEmail;
 use App\Mail\NoticeCcEmail;
 use App\Mail\NoticeEditedEmail;
 use App\Mail\NoticeCcEditedEmail;
+use App\Mail\NoticePostponementEmail;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -30,7 +32,9 @@ class NoticeController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view notices.');
         }
 
+        // Exclude Notice of Postponement from list; only the related Notice of Meeting is shown (with status updated to postponed)
         $notices = Notice::with(['creator', 'allowedUsers', 'relatedNotice'])
+            ->where('notice_type', '!=', 'Notice of Postponement')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -67,8 +71,12 @@ class NoticeController extends Controller
             ->orderBy('effective_date', 'desc')
             ->get();
 
-        // Get all Notice of Meeting notices for Agenda dropdown
-        $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+        // Get all Notice of Meeting notices for Agenda / Notice of Postponement dropdown (exclude already postponed), with allowed user IDs for auto-select
+        $noticeOfMeetingNotices = Notice::with('allowedUsers')
+            ->where('notice_type', 'Notice of Meeting')
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'scheduled');
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -88,13 +96,23 @@ class NoticeController extends Controller
         }
 
         $validated = $request->validate([
-            'notice_type' => 'required|in:Notice of Meeting,Agenda,Other Matters,Board Issuances',
+            'notice_type' => 'required|in:Notice of Meeting,Agenda,Notice of Postponement,Other Matters,Board Issuances',
             'title' => 'required|string|max:255',
-            'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda',
+            'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda|required_if:notice_type,Notice of Postponement',
             'related_notice_id' => 'nullable|exists:notices,id',
-            'meeting_type' => 'required|in:online,onsite,hybrid',
-            'meeting_link' => 'nullable|string|max:500|required_if:meeting_type,online|required_if:meeting_type,hybrid',
-            'venue' => 'nullable|string|max:500|required_if:meeting_type,onsite|required_if:meeting_type,hybrid',
+            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|nullable|in:online,onsite,hybrid',
+            'meeting_link' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['online', 'hybrid'])),
+            ],
+            'venue' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['onsite', 'hybrid'])),
+            ],
             'meeting_date' => 'nullable|date',
             'meeting_time' => 'nullable|date_format:H:i',
             'no_of_attendees' => 'nullable|integer|min:1',
@@ -115,9 +133,9 @@ class NoticeController extends Controller
             'meeting_date' => 'nullable|date|after_or_equal:today',
         ], [
             'title.required' => 'The title field is required.',
-            'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda type.',
-            'meeting_link.required_if' => 'Meeting link is required for online or hybrid meetings.',
-            'venue.required_if' => 'Venue is required for onsite or hybrid meetings.',
+            'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda or Notice of Postponement.',
+            'meeting_link.required' => 'Meeting link is required for online or hybrid meetings.',
+            'venue.required' => 'Venue is required for onsite or hybrid meetings.',
             'allowed_users.required' => 'Please select at least one allowed user.',
             'allowed_users.min' => 'Please select at least one allowed user.',
         ]);
@@ -125,28 +143,29 @@ class NoticeController extends Controller
         DB::beginTransaction();
         try {
 
-            // For Agenda type, get title from related notice if title_dropdown is provided
+            // For Agenda or Notice of Postponement, get title from related notice if title_dropdown is provided
             $title = $validated['title'];
             $relatedNoticeId = null;
-            if ($validated['notice_type'] === 'Agenda' && isset($validated['title_dropdown'])) {
+            if (in_array($validated['notice_type'], ['Agenda', 'Notice of Postponement']) && isset($validated['title_dropdown'])) {
                 $relatedNotice = Notice::find($validated['title_dropdown']);
                 if ($relatedNotice) {
-                    $title = $relatedNotice->title; // Use the related notice's title
+                    $title = $relatedNotice->title;
                     $relatedNoticeId = $relatedNotice->id;
                 }
             } elseif (isset($validated['related_notice_id'])) {
                 $relatedNoticeId = $validated['related_notice_id'];
             }
 
+            $meetingType = $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_type'] ?? null);
             $notice = Notice::create([
                 'notice_type' => $validated['notice_type'],
                 'title' => $title,
                 'related_notice_id' => $relatedNoticeId,
-                'meeting_type' => $validated['meeting_type'],
-                'meeting_link' => in_array($validated['meeting_type'], ['online', 'hybrid']) ? $validated['meeting_link'] : null,
-                'venue' => in_array($validated['meeting_type'], ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
-                'meeting_date' => $validated['meeting_date'] ?? null,
-                'meeting_time' => $validated['meeting_time'] ?? null,
+                'meeting_type' => $meetingType,
+                'meeting_link' => $meetingType && in_array($meetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null,
+                'venue' => $meetingType && in_array($meetingType, ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
+                'meeting_date' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null),
+                'meeting_time' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null),
                 'no_of_attendees' => ($validated['notice_type'] === 'Board Issuances' && isset($validated['no_of_attendees'])) ? $validated['no_of_attendees'] : null,
                 'board_regulations' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_regulations'])) ? json_encode($validated['board_regulations']) : null,
                 'board_resolutions' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_resolutions'])) ? json_encode($validated['board_resolutions']) : null,
@@ -161,10 +180,16 @@ class NoticeController extends Controller
             // Attach allowed users
             $notice->allowedUsers()->attach($validated['allowed_users']);
 
-            // Reload notice with allowed users
-            $notice->load('allowedUsers');
+            // Reload notice with allowed users and related notice (for postponement email)
+            $notice->load(['allowedUsers', 'relatedNotice']);
+
+            // If Notice of Postponement, mark the related Notice of Meeting as postponed
+            if ($validated['notice_type'] === 'Notice of Postponement' && $relatedNoticeId) {
+                Notice::where('id', $relatedNoticeId)->update(['status' => 'postponed']);
+            }
 
             // Send notifications and emails to all allowed users
+            $isPostponement = $validated['notice_type'] === 'Notice of Postponement';
             foreach ($notice->allowedUsers as $user) {
                 // Determine the correct URL based on user privilege
                 $noticeUrl = in_array($user->privilege, ['admin', 'consec']) 
@@ -184,9 +209,13 @@ class NoticeController extends Controller
                     ],
                 ]);
                 
-                // Send email to user
+                // Send email to user (postponement template for Notice of Postponement)
                 try {
-                    Mail::to($user->email)->send(new NoticeEmail($notice, $user));
+                    if ($isPostponement) {
+                        Mail::to($user->email)->send(new NoticePostponementEmail($notice, $user));
+                    } else {
+                        Mail::to($user->email)->send(new NoticeEmail($notice, $user));
+                    }
                 } catch (\Exception $e) {
                     \Log::error('Failed to send notice email to user ' . $user->id . ': ' . $e->getMessage());
                 }
@@ -287,6 +316,11 @@ class NoticeController extends Controller
 
         $notice = Notice::with(['allowedUsers'])->findOrFail($id);
 
+        if (($notice->status ?? null) === 'postponed') {
+            return redirect()->route('admin.notices.show', $notice->id)
+                ->with('error', 'This notice cannot be edited because the meeting has been postponed.');
+        }
+
         $users = User::whereIn('privilege', ['user', 'consec'])
             ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
             ->with('governmentAgency')
@@ -308,8 +342,13 @@ class NoticeController extends Controller
             ->orderBy('effective_date', 'desc')
             ->get();
 
-        // Get all Notice of Meeting notices for Agenda dropdown
+        // Get Notice of Meeting for Agenda / Notice of Postponement dropdown: not postponed, or current related (so edit shows selected)
         $noticeOfMeetingNotices = Notice::where('notice_type', 'Notice of Meeting')
+            ->where(function ($q) use ($notice) {
+                $q->where(function ($q2) {
+                    $q2->whereNull('status')->orWhere('status', 'scheduled');
+                })->orWhere('id', $notice->related_notice_id);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -330,14 +369,31 @@ class NoticeController extends Controller
 
         $notice = Notice::findOrFail($id);
 
+        if (($notice->status ?? null) === 'postponed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This notice cannot be edited because the meeting has been postponed.',
+            ], 403);
+        }
+
         $validated = $request->validate([
-            'notice_type' => 'required|in:Notice of Meeting,Agenda,Other Matters,Board Issuances',
+            'notice_type' => 'required|in:Notice of Meeting,Agenda,Notice of Postponement,Other Matters,Board Issuances',
             'title' => 'required|string|max:255',
-            'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda',
+            'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda|required_if:notice_type,Notice of Postponement',
             'related_notice_id' => 'nullable|exists:notices,id',
-            'meeting_type' => 'required|in:online,onsite,hybrid',
-            'meeting_link' => 'nullable|string|max:500|required_if:meeting_type,online|required_if:meeting_type,hybrid',
-            'venue' => 'nullable|string|max:500|required_if:meeting_type,onsite|required_if:meeting_type,hybrid',
+            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|nullable|in:online,onsite,hybrid',
+            'meeting_link' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['online', 'hybrid'])),
+            ],
+            'venue' => [
+                'nullable',
+                'string',
+                'max:500',
+                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['onsite', 'hybrid'])),
+            ],
             'meeting_date' => 'nullable|date',
             'meeting_time' => 'nullable|date_format:H:i',
             'no_of_attendees' => 'nullable|integer|min:1',
@@ -357,9 +413,9 @@ class NoticeController extends Controller
             'cc_emails.*.agency' => 'nullable|string|max:255',
         ], [
             'title.required' => 'The title field is required.',
-            'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda type.',
-            'meeting_link.required_if' => 'Meeting link is required for online or hybrid meetings.',
-            'venue.required_if' => 'Venue is required for onsite or hybrid meetings.',
+            'title_dropdown.required_if' => 'Please select a notice from the dropdown for Agenda or Notice of Postponement.',
+            'meeting_link.required' => 'Meeting link is required for online or hybrid meetings.',
+            'venue.required' => 'Venue is required for onsite or hybrid meetings.',
             'allowed_users.required' => 'Please select at least one allowed user.',
             'allowed_users.min' => 'Please select at least one allowed user.',
         ]);
@@ -383,18 +439,18 @@ class NoticeController extends Controller
             $originalCcEmails = $notice->cc_emails;
             $originalAllowedUsers = $notice->allowedUsers->pluck('id')->toArray();
 
-            // For Agenda type, get title from related notice if title_dropdown is provided
+            // For Agenda or Notice of Postponement, get title from related notice if title_dropdown is provided
             $title = $validated['title'];
             $relatedNoticeId = $notice->related_notice_id;
-            if ($validated['notice_type'] === 'Agenda' && isset($validated['title_dropdown'])) {
+            if (in_array($validated['notice_type'], ['Agenda', 'Notice of Postponement']) && isset($validated['title_dropdown'])) {
                 $relatedNotice = Notice::find($validated['title_dropdown']);
                 if ($relatedNotice) {
-                    $title = $relatedNotice->title; // Use the related notice's title
+                    $title = $relatedNotice->title;
                     $relatedNoticeId = $relatedNotice->id;
                 }
             } elseif (isset($validated['related_notice_id'])) {
                 $relatedNoticeId = $validated['related_notice_id'];
-            } elseif ($validated['notice_type'] !== 'Agenda') {
+            } elseif (!in_array($validated['notice_type'], ['Agenda', 'Notice of Postponement'])) {
                 $relatedNoticeId = null;
             }
 
@@ -405,15 +461,29 @@ class NoticeController extends Controller
                 return !empty($item['email']);
             }))) : null;
 
+            // If Notice of Postponement: revert previous related notice to scheduled, mark new one as postponed
+            if ($validated['notice_type'] === 'Notice of Postponement') {
+                if ($originalRelatedNoticeId && (int) $originalRelatedNoticeId !== (int) $relatedNoticeId) {
+                    Notice::where('id', $originalRelatedNoticeId)->update(['status' => 'scheduled']);
+                }
+                if ($relatedNoticeId) {
+                    Notice::where('id', $relatedNoticeId)->update(['status' => 'postponed']);
+                }
+            } elseif ($originalRelatedNoticeId && $originalNoticeType === 'Notice of Postponement') {
+                // Type changed away from Postponement: revert related to scheduled
+                Notice::where('id', $originalRelatedNoticeId)->update(['status' => 'scheduled']);
+            }
+
+            $updMeetingType = $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_type'] ?? null);
             $notice->update([
                 'notice_type' => $validated['notice_type'],
                 'title' => $title,
                 'related_notice_id' => $relatedNoticeId,
-                'meeting_type' => $validated['meeting_type'],
-                'meeting_link' => in_array($validated['meeting_type'], ['online', 'hybrid']) ? $validated['meeting_link'] : null,
-                'venue' => in_array($validated['meeting_type'], ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
-                'meeting_date' => $validated['meeting_date'] ?? null,
-                'meeting_time' => $validated['meeting_time'] ?? null,
+                'meeting_type' => $updMeetingType,
+                'meeting_link' => $updMeetingType && in_array($updMeetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null,
+                'venue' => $updMeetingType && in_array($updMeetingType, ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
+                'meeting_date' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null),
+                'meeting_time' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null),
                 'no_of_attendees' => $newNoOfAttendees,
                 'board_regulations' => $newBoardRegulations,
                 'board_resolutions' => $newBoardResolutions,
@@ -433,10 +503,10 @@ class NoticeController extends Controller
                 $originalNoticeType === $validated['notice_type'] &&
                 $originalTitle === $title &&
                 $originalRelatedNoticeId == $relatedNoticeId &&
-                $originalMeetingType === $validated['meeting_type'] &&
-                $originalMeetingLink === (in_array($validated['meeting_type'], ['online', 'hybrid']) ? $validated['meeting_link'] : null) &&
-                $originalMeetingDate === ($validated['meeting_date'] ?? null) &&
-                $originalMeetingTime === ($validated['meeting_time'] ?? null) &&
+                $originalMeetingType === $updMeetingType &&
+                $originalMeetingLink === ($updMeetingType && in_array($updMeetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null) &&
+                $originalMeetingDate === ($validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null)) &&
+                $originalMeetingTime === ($validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null)) &&
                 $originalBoardRegulations === $newBoardRegulations &&
                 $originalBoardResolutions === $newBoardResolutions &&
                 $originalDescription === ($validated['description'] ?? null) &&
@@ -445,10 +515,11 @@ class NoticeController extends Controller
                 $originalAllowedUsers === $newAllowedUsers &&
                 $originalNoOfAttendees != $newNoOfAttendees;
 
-            // Reload notice with allowed users
-            $notice->load('allowedUsers');
+            // Reload notice with allowed users and related notice (for postponement email)
+            $notice->load(['allowedUsers', 'relatedNotice']);
 
             // Only send notifications and emails if something other than no_of_attendees changed
+            $isPostponement = $validated['notice_type'] === 'Notice of Postponement';
             if (!$onlyNoOfAttendeesChanged) {
                 // Send notifications and emails to ALL allowed users (notice was edited)
                 foreach ($notice->allowedUsers as $user) {
@@ -470,9 +541,13 @@ class NoticeController extends Controller
                         ],
                     ]);
                     
-                    // Send email to user
+                    // Send email to user (postponement template for Notice of Postponement)
                     try {
-                        Mail::to($user->email)->send(new NoticeEditedEmail($notice, $user));
+                        if ($isPostponement) {
+                            Mail::to($user->email)->send(new NoticePostponementEmail($notice, $user));
+                        } else {
+                            Mail::to($user->email)->send(new NoticeEditedEmail($notice, $user));
+                        }
                     } catch (\Exception $e) {
                         \Log::error('Failed to send notice edited email to user ' . $user->id . ': ' . $e->getMessage());
                     }

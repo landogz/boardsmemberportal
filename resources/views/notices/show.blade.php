@@ -71,6 +71,10 @@
             color: #64748b;
             border: 1px solid rgba(100, 116, 139, 0.2);
         }
+        .badge-postponed {
+            background: rgba(107, 114, 128, 0.2);
+            color: #4b5563;
+        }
         
         .notice-title {
             font-size: 2rem;
@@ -765,6 +769,12 @@
                     <i class="fas fa-file-alt"></i>
                     {{ $notice->notice_type }}
                 </span>
+                @if(($notice->status ?? null) === 'postponed')
+                    <span class="notice-badge badge-postponed ml-1.5">
+                        <i class="fas fa-pause-circle"></i>
+                        Postponed
+                    </span>
+                @endif
                 
                 <h1 class="notice-title">{{ $notice->title }}</h1>
                 
@@ -790,7 +800,7 @@
                     </span>
                 </p>
                 
-                @if($attendanceConfirmation)
+                @if($attendanceConfirmation && ($notice->status ?? null) !== 'postponed')
                     <div class="response-row">
                         <div class="status-indicator status-{{ $attendanceConfirmation->status }}">
                             @if($attendanceConfirmation->status === 'accepted')
@@ -813,7 +823,7 @@
                                         <span>Change response to Decline</span>
                                     @else
                                         <i class="fas fa-edit"></i>
-                                        <span>Change response to Approve</span>
+                                        <span>Change response to ATTEND</span>
                                     @endif
                                 </button>
                             @endif
@@ -841,16 +851,16 @@
                     </div>
                 @endif
 
-                @if(!$isMeetingDone && (!$attendanceConfirmation || $attendanceConfirmation->status === 'pending'))
+                @if(($notice->status ?? null) !== 'postponed' && !$isMeetingDone && (!$attendanceConfirmation || $attendanceConfirmation->status === 'pending'))
                     <div class="invite-actions-wrap">
                         <div class="action-buttons">
                             <button type="button" class="btn-action btn-accept" onclick="acceptNotice({{ $notice->id }}, this, '{{ addslashes($notice->meeting_type ?? '') }}')">
                                 <i class="fas fa-check"></i>
-                                <span>Change response to Approve</span>
+                                <span>Approve</span>
                             </button>
                             <button type="button" class="btn-action btn-decline" onclick="declineNotice({{ $notice->id }})">
                                 <i class="fas fa-times"></i>
-                                <span>Change response to Decline</span>
+                                <span>Decline</span>
                             </button>
                         </div>
                     </div>

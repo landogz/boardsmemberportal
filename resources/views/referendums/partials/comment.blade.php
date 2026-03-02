@@ -24,7 +24,7 @@
             @if(Auth::id() === $comment->user_id && !$referendum->isExpired())
                 <span class="fb-comment-action edit-comment-btn text-[#1877f2]" data-comment-id="{{ $comment->id }}">Edit</span>
             @endif
-            @if(Auth::id() === $comment->user_id || Auth::user()->hasPermission('delete referendum'))
+            @if((Auth::id() === $comment->user_id || Auth::user()->hasPermission('delete referendum')) && !$referendum->isExpired())
                 <span class="fb-comment-action delete-comment-btn text-red-500" data-comment-id="{{ $comment->id }}">Delete</span>
             @endif
             <span class="text-xs text-gray-500 dark:text-gray-400">{{ $comment->created_at->diffInSeconds(now()) < 20 ? 'just now' : $comment->created_at->diffForHumans() }}</span>

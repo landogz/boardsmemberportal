@@ -286,7 +286,7 @@
                     <h3 class="text-lg font-semibold text-gray-800">
                         <i class="fas fa-comments mr-2" style="color: #055498;"></i>
                         Comments 
-                        <span class="text-sm font-normal text-gray-500">({{ $totalComments }})</span>
+                        <span class="text-sm font-normal text-gray-500" id="commentsCount">({{ $totalComments }})</span>
                     </h3>
                     <button type="button" id="toggleCommentsBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                         <i class="fas fa-eye" id="toggleCommentsIcon"></i>
@@ -883,6 +883,32 @@
             setTimeout(checkAndTruncateComments, 100);
         });
     });
+
+    // Auto-fetch comments so list updates without refresh
+    (function() {
+        const referendumId = {{ $referendum->id }};
+        const fragmentUrl = '{{ route("admin.referendums.comments.fragment", ["id" => $referendum->id]) }}';
+        const pollIntervalMs = 5000;
+
+        function fetchComments() {
+            $.ajax({
+                url: fragmentUrl,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success && data.html !== undefined) {
+                        $('#commentsContent').html(data.html);
+                        $('#commentsCount').text('(' + (data.total || 0) + ')');
+                        if (typeof checkAndTruncateComments === 'function') {
+                            setTimeout(checkAndTruncateComments, 50);
+                        }
+                    }
+                }
+            });
+        }
+
+        setInterval(fetchComments, pollIntervalMs);
+    })();
 
     // View / Hide replies for admin comments (similar behaviour to public referendums page)
     $(document).on('click', '.view-replies-btn', function(e) {

@@ -29,7 +29,7 @@ class ReferendumVoteController extends Controller
         if ($referendum->isExpired()) {
             return response()->json([
                 'success' => false,
-                'message' => 'This referendum has expired. Voting is no longer allowed.'
+                'message' => 'This referendum has ended. Voting is no longer allowed.'
             ], 403);
         }
 

@@ -25,6 +25,7 @@ class Notice extends Model
         'board_regulations',
         'board_resolutions',
         'description',
+        'status',
         'attachments',
         'cc_emails',
         'created_by',

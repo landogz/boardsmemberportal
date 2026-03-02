@@ -30,7 +30,7 @@ class ReferendumCommentController extends Controller
         if ($referendum->isExpired()) {
             return response()->json([
                 'success' => false,
-                'message' => 'This referendum has expired. Commenting is no longer allowed.'
+                'message' => 'This referendum has ended. Commenting is no longer allowed.'
             ], 403);
         }
 
@@ -141,7 +141,7 @@ class ReferendumCommentController extends Controller
         if ($referendum->isExpired()) {
             return response()->json([
                 'success' => false,
-                'message' => 'This referendum has expired. Comments cannot be edited.'
+                'message' => 'This referendum has ended. Comments cannot be edited.'
             ], 403);
         }
 
@@ -181,6 +181,14 @@ class ReferendumCommentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'You do not have permission to delete this comment.'
+            ], 403);
+        }
+
+        // Do not allow delete when referendum is expired
+        if ($referendum->isExpired()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This referendum has ended. Comments cannot be deleted.'
             ], 403);
         }
 

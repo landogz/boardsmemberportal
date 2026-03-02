@@ -148,7 +148,10 @@
         .badge-other {
             background: linear-gradient(135deg, rgba(100, 116, 139, 0.1) 0%, rgba(100, 116, 139, 0.15) 100%);
             color: #64748b;
-            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        .badge-postponed {
+            background: rgba(107, 114, 128, 0.2);
+            color: #4b5563;
         }
         
         .notice-title {
@@ -484,6 +487,11 @@
                             <i class="fas fa-file-alt"></i>
                             {{ $notice->notice_type }}
                         </span>
+                        @if(($notice->status ?? null) === 'postponed')
+                            <span class="notice-badge badge-postponed ml-1.5">
+                                Postponed
+                            </span>
+                        @endif
                         
                         <h2 class="notice-title">
                             {{ $notice->title }}
@@ -630,11 +638,11 @@
                             @if(!$noticeMeetingDone && (!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending'))
                                 <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }}, '{{ $notice->meeting_type }}');">
                                     <i class="fas fa-check"></i>
-                                    <span>Change response to Approve</span>
+                                    <span>Approve</span>
                                 </button>
                                 <button class="btn-action btn-decline" onclick="event.stopPropagation(); declineNotice({{ $notice->id }});">
                                     <i class="fas fa-times"></i>
-                                    <span>Change response to Decline</span>
+                                    <span>Decline</span>
                                 </button>
                             @elseif(isset($attendanceConfirmations[$notice->id]) && $attendanceConfirmations[$notice->id] === 'accepted')
                                 @php
