@@ -170,6 +170,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         </div>
       </div>
       <div class="module-card sysad">
+        <div class="module-header sysad">⚙️ System Configuration</div>
+        <div class="module-body">
+          <div class="access-item"><span class="badge badge-full">FULL</span>Manage government agencies &amp; address settings</div>
+          <div class="access-item"><span class="badge badge-full">FULL</span>Full media library management</div>
+          <div class="access-item"><span class="badge badge-manage">MANAGE</span>Roles &amp; permissions for all users</div>
+          <div class="access-item"><span class="badge badge-full">FULL</span>Approve / disapprove pending registrations</div>
+        </div>
+      </div>
+      <div class="module-card sysad">
         <div class="module-header sysad">🔍 Audit Logs</div>
         <div class="module-body">
           <div class="access-item"><span class="badge badge-read">VIEW</span>Full audit trail of all user actions</div>
@@ -200,6 +209,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         <div class="module-body">
           <div class="access-item"><span class="badge badge-limit">LIMITED</span>Cannot freely manage all users</div>
           <div class="access-item"><span class="badge badge-read">VIEW</span>Sees user info for assigned modules only</div>
+          <div class="access-item"><span class="badge badge-full">FULL</span>Approve / disapprove pending registrations</div>
         </div>
       </div>
       <div class="module-card consec">
@@ -215,8 +225,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         <div class="module-body">
           <div class="access-item"><span class="badge badge-read">VIEW</span>Receives notices if in notice_user_access</div>
           <div class="access-item"><span class="badge badge-full">ACTION</span>Accept / decline invitations</div>
-          <div class="access-item"><span class="badge badge-full">ACTION</span>Submit agenda inclusion requests</div>
-          <div class="access-item"><span class="badge badge-cond">COND</span>Admin view of notices/attendance if granted</div>
+          <div class="access-item"><span class="badge badge-full">ACTION</span>Submit agenda inclusion requests &amp; reference materials</div>
+          <div class="access-item"><span class="badge badge-cond">COND</span>Admin Communication / Attendance Confirmation views if granted</div>
         </div>
       </div>
       <div class="module-card consec">
@@ -229,7 +239,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
       <div class="module-card consec">
         <div class="module-header consec">📁 Board Issuances &amp; Reports</div>
         <div class="module-body">
-          <div class="access-item"><span class="badge badge-cond">COND</span>Access based on role permissions granted</div>
+          <div class="access-item"><span class="badge badge-cond">COND</span>View Board Regulations &amp; Board Resolutions if permitted</div>
+          <div class="access-item"><span class="badge badge-cond">COND</span>Access Report Generation for board data</div>
+        </div>
+      </div>
+      <div class="module-card consec">
+        <div class="module-header consec">🏛 Government Agencies</div>
+        <div class="module-body">
+          <div class="access-item"><span class="badge badge-cond">COND</span>Manage agencies list (create / edit / activate / deactivate)</div>
+          <div class="access-item"><span class="badge badge-cond">COND</span>Update global agency-related settings</div>
         </div>
       </div>
       <div class="module-card consec">
