@@ -15,6 +15,8 @@
         }
         img {
             -ms-interpolation-mode: bicubic;
+            max-width: 100%;
+            height: auto !important;
             border: 0;
             outline: none;
             text-decoration: none;
@@ -27,6 +29,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         .email-wrapper {
+            width: 100%;
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
@@ -93,9 +96,13 @@
             line-height: 1.6;
         }
         @media only screen and (max-width: 600px) {
-            .email-body { padding: 30px 20px; }
-            .birthday-card { padding: 18px; }
-            .birthday-card p { font-size: 16px; }
+            .email-body { padding: 24px 16px !important; }
+            .email-header { padding: 24px 16px !important; }
+            .email-header h1 { font-size: 20px !important; }
+            .footer { padding: 16px 20px !important; }
+            .birthday-card { padding: 18px !important; }
+            .birthday-card p { font-size: 16px !important; }
+            .button { display: block !important; width: 100% !important; max-width: 100%; box-sizing: border-box; padding: 14px 16px !important; font-size: 16px !important; }
         }
     </style>
 </head>
@@ -103,7 +110,7 @@
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6;">
         <tr>
             <td align="center" style="padding: 20px 0;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper" style="max-width: 100%; width: 100%;">
                     <tr>
                         <td class="email-header">
                             <h1>🎂 Happy Birthday!</h1>

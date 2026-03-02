@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=5.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
@@ -98,6 +98,14 @@
         }
         .dark .password-input-invalid {
             background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+        /* Prevent iOS Safari zoom on input focus (requires 16px+ on inputs) */
+        @media (max-width: 768px) {
+            #resetPasswordForm input[type="password"],
+            #resetPasswordForm input[type="text"],
+            #resetPasswordForm input[type="email"] {
+                font-size: 16px !important;
+            }
         }
     </style>
     @include('components.header-footer-styles')

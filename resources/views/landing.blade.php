@@ -192,6 +192,22 @@
             position: relative;
         }
         
+        /* Landing: nav fixed sa taas kapag nag-scroll (sticky breaks with overflow-x: hidden) */
+        .landing-page nav {
+            position: fixed !important;
+            top: 45px; /* below top-bar; JS sets top:0 when top-bar scrolled away */
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .landing-page nav.nav-at-top {
+            top: 0 !important;
+        }
+        /* Spacer so content is not under nav (top-bar 45px + nav ~56px) */
+        .landing-page .banner {
+            margin-top: 56px;
+        }
+        
         .top-bar.sticky,
         nav.sticky {
             position: -webkit-sticky;
@@ -636,7 +652,7 @@
         })();
     </script>
 </head>
-<body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
+<body class="landing-page bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
     @include('components.header')
 
     <!-- Banner - 1190x460px - Mandatory, Customizable -->
@@ -1589,8 +1605,23 @@
                         });
                     }
 
-                    // Event listeners
-                    window.addEventListener('scroll', toggleGoToTop);
+                    // Landing: move nav to top:0 when top-bar scrolled away
+                    function updateLandingNavPosition() {
+                        if (!document.body.classList.contains('landing-page')) return;
+                        var nav = document.querySelector('nav');
+                        if (nav) {
+                            if (window.scrollY >= 45) {
+                                nav.classList.add('nav-at-top');
+                            } else {
+                                nav.classList.remove('nav-at-top');
+                            }
+                        }
+                    }
+                    window.addEventListener('scroll', function() {
+                        toggleGoToTop();
+                        updateLandingNavPosition();
+                    });
+                    updateLandingNavPosition();
                     if (goToTopBtn) {
                         goToTopBtn.addEventListener('click', scrollToTop);
                         
@@ -3056,8 +3087,8 @@
         (function() {
             let activityTimeout;
             let lastActivityTime = Date.now();
-            const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
-            const PING_INTERVAL = 5 * 60 * 1000; // Ping server every 5 minutes
+            const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+            const PING_INTERVAL = 2 * 60 * 1000; // Ping server every 2 minutes (only updates server; does not reset idle timer)
 
             // Track user activity
             function trackActivity() {
@@ -3077,10 +3108,10 @@
                 const timeSinceLastActivity = Date.now() - lastActivityTime;
                 
                 if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-                    // User has been idle for 15 minutes, show warning
+                    // User has been idle for 5 minutes, show warning
                     Swal.fire({
                         title: 'Session Timeout',
-                        text: 'You have been idle for 15 minutes. You will be logged out for security.',
+                        text: 'You have been idle for 5 minutes. You will be logged out for security.',
                         icon: 'warning',
                         confirmButtonText: 'OK',
                         allowOutsideClick: false,
@@ -3098,13 +3129,13 @@
                 }
             }
 
-            // Ping server to update activity
+            // Ping server to update last_activity (do NOT reset idle timer - only real user input should reset it)
             function pingServer() {
                 axios.post('{{ route("api.track-activity") }}')
                     .then(response => {
                         if (response.data.success) {
-                            // Reset activity tracking when ping succeeds
-                            trackActivity();
+                            // Do not call trackActivity() here - ping is for server "last seen" only;
+                            // resetting the timer here would prevent idle logout from ever firing
                         }
                     })
                     .catch(error => {

@@ -75,8 +75,8 @@ class MediaLibraryController extends Controller
         }
 
         // Check file sizes FIRST and provide detailed error messages
-        $maxSize = 30 * 1024 * 1024; // 30MB in bytes (increased temporarily to debug)
-        $maxSizeKB = 30 * 1024; // 30MB in KB
+        $maxSize = 100 * 1024 * 1024; // 100MB in bytes
+        $maxSizeKB = 100 * 1024; // 100MB in KB
         $validationErrors = [];
         
         foreach ($request->file('files') as $index => $file) {
@@ -106,7 +106,7 @@ class MediaLibraryController extends Controller
             
             if ($actualSize > $maxSize) {
                 $validationErrors["files.{$index}"] = [
-                    "The file '{$file->getClientOriginalName()}' is {$actualSizeMB}MB ({$actualSizeKB}KB / {$actualSize} bytes), which exceeds the maximum allowed size of 30MB ({$maxSizeKB}KB). Note: If your file is actually smaller, this may indicate an upload issue."
+                    "The file '{$file->getClientOriginalName()}' is {$actualSizeMB}MB ({$actualSizeKB}KB / {$actualSize} bytes), which exceeds the maximum allowed size of 100MB ({$maxSizeKB}KB). Note: If your file is actually smaller, this may indicate an upload issue."
                 ];
             }
         }
@@ -135,13 +135,13 @@ class MediaLibraryController extends Controller
             try {
                 $fileSize = $file->getSize();
                 $fileSizeMB = round($fileSize / (1024 * 1024), 2);
-                $maxSize = 30 * 1024 * 1024; // 30MB in bytes (increased to accommodate larger files)
+                $maxSize = 100 * 1024 * 1024; // 100MB in bytes
                 
-                // Validate file size (30MB = 30720 KB)
+                // Validate file size (100MB = 102400 KB)
                 if ($fileSize > $maxSize) {
                     $errors[] = [
                         'file' => $file->getClientOriginalName(),
-                        'error' => "File size ({$fileSizeMB}MB) exceeds 30MB limit. Maximum allowed: 30MB."
+                        'error' => "File size ({$fileSizeMB}MB) exceeds 100MB limit. Maximum allowed: 100MB."
                     ];
                     continue;
                 }

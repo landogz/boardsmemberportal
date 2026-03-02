@@ -78,13 +78,14 @@ class AnnouncementController extends Controller
             'allowed_users' => 'required|array|min:1',
             'allowed_users.*' => 'exists:users,id',
             'status' => 'nullable|in:draft,published',
-            'scheduled_at' => 'nullable|date',
+            'scheduled_at' => 'nullable|date|after_or_equal:today',
             'category' => 'required|in:public,board_member_activities',
         ], [
             'title.required' => 'The title field is required.',
             'description.required' => 'The description field is required.',
             'allowed_users.required' => 'Please select at least one allowed user.',
             'allowed_users.min' => 'Please select at least one allowed user.',
+            'scheduled_at.after_or_equal' => 'The schedule date must be today or in the future.',
         ]);
 
         DB::beginTransaction();
@@ -201,6 +202,103 @@ class AnnouncementController extends Controller
     }
 
     /**
+     * Auto-save draft (create or update). Used when status is Draft on create page.
+     * Relaxed validation: title, description, and allowed_users are optional.
+     */
+    public function saveDraft(Request $request)
+    {
+        if (!Auth::user()->hasPermission('create announcements')) {
+            return response()->json(['success' => false, 'message' => 'Permission denied.'], 403);
+        }
+
+        $validated = $request->validate([
+            'draft_id' => 'nullable|exists:announcements,id',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:draft',
+            'category' => 'nullable|in:public,board_member_activities',
+            'scheduled_at' => 'nullable|date',
+            'allowed_users' => 'nullable|array',
+            'allowed_users.*' => 'exists:users,id',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $bannerImageId = null;
+            if ($request->hasFile('banner_image')) {
+                $file = $request->file('banner_image');
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = 'announcements/' . $fileName;
+                Storage::disk('public')->put($filePath, file_get_contents($file));
+                $media = MediaLibrary::create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getMimeType(),
+                    'file_path' => $filePath,
+                    'uploaded_by' => Auth::id(),
+                ]);
+                $bannerImageId = $media->id;
+            }
+
+            $draftId = $request->input('draft_id');
+            $title = isset($validated['title']) && trim((string) $validated['title']) !== ''
+                ? trim($validated['title'])
+                : 'Untitled';
+            $content = isset($validated['description']) ? $validated['description'] : '';
+            $category = $validated['category'] ?? 'public';
+            $scheduledAt = $validated['scheduled_at'] ?? null;
+            $allowedUsers = $validated['allowed_users'] ?? [];
+
+            if ($draftId) {
+                $announcement = Announcement::findOrFail($draftId);
+                if ($announcement->status !== 'draft') {
+                    return response()->json(['success' => false, 'message' => 'Only drafts can be auto-saved.'], 422);
+                }
+                $announcement->title = $title;
+                $announcement->content = $content;
+                $announcement->category = $category;
+                $announcement->scheduled_at = $scheduledAt;
+                if ($bannerImageId !== null) {
+                    $oldMedia = $announcement->banner_image_id ? MediaLibrary::find($announcement->banner_image_id) : null;
+                    $announcement->banner_image_id = $bannerImageId;
+                    if ($oldMedia && Storage::disk('public')->exists($oldMedia->file_path)) {
+                        Storage::disk('public')->delete($oldMedia->file_path);
+                    }
+                    $oldMedia?->delete();
+                }
+                $announcement->save();
+                $announcement->allowedUsers()->sync($allowedUsers);
+            } else {
+                $announcement = Announcement::create([
+                    'title' => $title,
+                    'content' => $content,
+                    'banner_image_id' => $bannerImageId,
+                    'created_by' => Auth::id(),
+                    'status' => 'draft',
+                    'scheduled_at' => $scheduledAt,
+                    'category' => $category,
+                ]);
+                $announcement->allowedUsers()->sync($allowedUsers);
+                AuditLogger::log('announcement.draft_created', 'Draft announcement created (auto-save)', $announcement, ['announcement_id' => $announcement->id]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'id' => $announcement->id,
+                'message' => 'Draft saved.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Validation failed.', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error saving draft announcement: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Failed to save draft.'], 500);
+        }
+    }
+
+    /**
      * Display the specified announcement
      */
     public function show($id)
@@ -265,13 +363,14 @@ class AnnouncementController extends Controller
             'allowed_users' => 'required|array|min:1',
             'allowed_users.*' => 'exists:users,id',
             'status' => 'nullable|in:draft,published',
-            'scheduled_at' => 'nullable|date',
+            'scheduled_at' => 'nullable|date|after_or_equal:today',
             'category' => 'required|in:public,board_member_activities',
         ], [
             'title.required' => 'The title field is required.',
             'description.required' => 'The description field is required.',
             'allowed_users.required' => 'Please select at least one allowed user.',
             'allowed_users.min' => 'Please select at least one allowed user.',
+            'scheduled_at.after_or_equal' => 'The schedule date must be today or in the future.',
         ]);
 
         DB::beginTransaction();
@@ -325,12 +424,18 @@ class AnnouncementController extends Controller
                 $finalStatus = $requestedStatus;
             }
 
+            // When changing status to draft, clear the schedule publish date
+            $scheduledAtValue = $validated['scheduled_at'];
+            if ($finalStatus === 'draft') {
+                $scheduledAtValue = null;
+            }
+
             $announcement->update([
                 'title' => $validated['title'],
                 'content' => $validated['description'], // Map description to content
                 'banner_image_id' => $bannerImageId,
                 'status' => $finalStatus,
-                'scheduled_at' => $validated['scheduled_at'],
+                'scheduled_at' => $scheduledAtValue,
                 'category' => $validated['category'],
             ]);
 

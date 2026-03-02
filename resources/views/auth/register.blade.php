@@ -1479,17 +1479,44 @@
         }
 
         // Next button
-        $('#nextBtn').on('click', function() {
-            if (validateStep(currentStep)) {
-                clearErrors();
-                currentStep++;
-                showStep(currentStep);
-                // Scroll to top
+        $('#nextBtn').on('click', async function() {
+            if (!validateStep(currentStep)) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                // Scroll to top to see error messages
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
             }
+            // Step 3 (Contact Info): check if email already exists before allowing Account Security tab
+            if (currentStep === 3) {
+                const email = $('#email').val().trim();
+                const nextBtn = $(this);
+                nextBtn.prop('disabled', true);
+                try {
+                    const res = await axios.post('{{ route("register.check-email") }}', {
+                        email: email,
+                        _token: '{{ csrf_token() }}'
+                    });
+                    if (res.data && res.data.exists) {
+                        showError('email', 'This email is already registered. Please use a different email or sign in if you have an account.');
+                        nextBtn.prop('disabled', false);
+                        window.scrollTo({ top: $('#email').offset().top - 120, behavior: 'smooth' });
+                        return;
+                    }
+                } catch (err) {
+                    if (err.response && err.response.status === 422) {
+                        const msg = err.response.data && err.response.data.errors && err.response.data.errors.email ? err.response.data.errors.email[0] : 'Please enter a valid email address.';
+                        showError('email', msg);
+                    } else {
+                        showError('email', 'Unable to verify email. Please try again.');
+                    }
+                    nextBtn.prop('disabled', false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+                nextBtn.prop('disabled', false);
+            }
+            clearErrors();
+            currentStep++;
+            showStep(currentStep);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         // Previous button

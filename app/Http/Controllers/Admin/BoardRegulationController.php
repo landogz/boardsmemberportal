@@ -56,7 +56,7 @@ class BoardRegulationController extends Controller
             'version' => 'nullable|string|max:255',
             'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
-            'pdf_file' => 'required|file|mimes:pdf|max:30720',
+            'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
             'notice_id' => 'nullable|exists:notices,id',
         ]);
 
@@ -144,7 +144,7 @@ class BoardRegulationController extends Controller
             'version' => 'nullable|string|max:255',
             'effective_date' => 'nullable|date',
             'approved_date' => 'required|date',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:30720',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:102400', // 100MB
             'notice_id' => 'nullable|exists:notices,id',
             'change_notes' => 'nullable|string', // Optional notes about the change
         ]);

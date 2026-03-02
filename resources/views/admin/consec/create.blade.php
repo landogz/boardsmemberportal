@@ -138,6 +138,15 @@
                                 <option value="">Select Title</option>
                                 <option value="Mr.">Mr.</option>
                                 <option value="Ms.">Ms.</option>
+                                <option value="Dr.">Dr.</option>
+                                <option value="Atty.">Atty.</option>
+                                <option value="Engr.">Engr.</option>
+                                <option value="Secretary">Secretary</option>
+                                <option value="Undersecretary">Undersecretary</option>
+                                <option value="Assistant Secretary">Assistant Secretary</option>
+                                <option value="Director General">Director General</option>
+                                <option value="Executive Director">Executive Director</option>
+                                <option value="Attorney">Attorney</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>
@@ -795,17 +804,40 @@
     }
 
     // Next button
-    $('#nextBtn').on('click', function() {
-        if (validateStep(currentStep)) {
-            clearErrors();
-            currentStep++;
-            showStep(currentStep);
-            // Scroll to top
+    $('#nextBtn').on('click', async function() {
+        if (!validateStep(currentStep)) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            // Scroll to top to see error messages
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
         }
+        // Step 3 (Contact Info): check if email is already taken before advancing
+        if (currentStep === 3) {
+            const email = $('#email').val().trim();
+            const nextBtn = $(this);
+            nextBtn.prop('disabled', true);
+            try {
+                const res = await axios.post('{{ route("admin.check-email") }}', { email: email });
+                if (res.data && res.data.exists) {
+                    showError('email', 'This email is already registered. Please use a different email address.');
+                    nextBtn.prop('disabled', false);
+                    window.scrollTo({ top: $('#email').offset().top - 120, behavior: 'smooth' });
+                    return;
+                }
+            } catch (err) {
+                if (err.response && err.response.status === 422 && err.response.data && err.response.data.errors && err.response.data.errors.email) {
+                    showError('email', err.response.data.errors.email[0]);
+                } else {
+                    showError('email', 'Unable to verify email. Please try again.');
+                }
+                nextBtn.prop('disabled', false);
+                window.scrollTo({ top: $('#email').offset().top - 120, behavior: 'smooth' });
+                return;
+            }
+            nextBtn.prop('disabled', false);
+        }
+        clearErrors();
+        currentStep++;
+        showStep(currentStep);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Previous button

@@ -28,12 +28,13 @@ class AttendanceConfirmationController extends Controller
         // Handle notice filter parameter
         $noticeId = $request->query('notice');
         
-        // Get all notices with their attendance confirmations and agenda inclusion requests
+        // Get all Notice of Meeting notices with their attendance confirmations and agenda inclusion requests
         $query = Notice::with([
-            'attendanceConfirmations.user.governmentAgency',
-            'agendaInclusionRequests.user',
-            'allowedUsers'
-        ]);
+                'attendanceConfirmations.user.governmentAgency',
+                'agendaInclusionRequests.user',
+                'allowedUsers'
+            ])
+            ->where('notice_type', 'Notice of Meeting');
         
         if ($noticeId) {
             $query->where('id', $noticeId);

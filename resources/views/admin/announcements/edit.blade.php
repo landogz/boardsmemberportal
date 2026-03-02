@@ -171,6 +171,10 @@
 
                                 <!-- Update Button -->
                                 <div class="pt-4 border-t border-gray-200 space-y-2">
+                                    <div id="draftSavedIndicator" class="hidden text-xs text-green-600 flex items-center gap-1">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Draft saved</span>
+                                    </div>
                                     <button 
                                         type="submit" 
                                         id="submitBtn"
@@ -369,10 +373,14 @@
         $('#scheduled_at').val(''); // ensure form submits empty when cleared
     });
 
-    // Update submit button text based on status (Publish vs Save)
+    // Update submit button text based on status (Publish vs Save); when switching to draft, clear schedule publish date
     function updateSubmitButtonText() {
         const status = $('#status').val();
         $('#submitBtnText').text(status === 'published' ? 'Publish' : 'Save');
+        if (status === 'draft') {
+            scheduledAtPicker.clear();
+            $('#scheduled_at').val('');
+        }
     }
     $('#status').on('change', updateSubmitButtonText);
 
@@ -553,6 +561,79 @@
             // Re-enable click handler on upload area
             bannerUploadArea.style.pointerEvents = 'auto';
         }
+    }
+
+    // Auto-save when editing a draft announcement
+    const IS_EDITING_DRAFT = '{{ $announcement->status === 'draft' ? '1' : '0' }}' === '1';
+    let editDraftId = IS_EDITING_DRAFT ? {{ $announcement->id }} : null;
+    let editAutoSaveTimer = null;
+    const EDIT_AUTO_SAVE_DEBOUNCE_MS = 2000;
+    const EDIT_SAVE_DRAFT_URL = '{{ route("admin.announcements.save-draft") }}';
+
+    function getEditDraftFormData() {
+        const form = document.getElementById('editAnnouncementForm');
+        try {
+            if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
+                CKEDITOR.instances.description.updateElement();
+            }
+        } catch (e) {
+            console.warn('CKEditor updateElement failed during auto-save:', e);
+        }
+        const formData = new FormData(form);
+        formData.set('status', 'draft');
+        if (editDraftId) {
+            formData.set('draft_id', editDraftId);
+        }
+        return formData;
+    }
+
+    function showEditDraftSavedIndicator() {
+        const el = $('#draftSavedIndicator');
+        el.removeClass('hidden');
+        clearTimeout(window._draftIndicatorTimer);
+        window._draftIndicatorTimer = setTimeout(function() {
+            el.addClass('hidden');
+        }, 3000);
+    }
+
+    function runAutoSaveEdit() {
+        if (!IS_EDITING_DRAFT) return;
+        if ($('#status').val() !== 'draft') return;
+
+        const formData = getEditDraftFormData();
+        axios.post(EDIT_SAVE_DRAFT_URL, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json'
+            }
+        }).then(function (r) {
+            if (r.data && r.data.success && r.data.id) {
+                editDraftId = r.data.id;
+                showEditDraftSavedIndicator();
+            }
+        }).catch(function (err) {
+            console.warn('Draft auto-save (edit) failed:', err.response || err.message);
+        });
+    }
+
+    function scheduleAutoSaveEdit() {
+        if (!IS_EDITING_DRAFT) return;
+        if ($('#status').val() !== 'draft') return;
+        clearTimeout(editAutoSaveTimer);
+        editAutoSaveTimer = setTimeout(runAutoSaveEdit, EDIT_AUTO_SAVE_DEBOUNCE_MS);
+    }
+
+    // Trigger auto-save on relevant field changes (only when editing a draft)
+    $('#title, #category, #scheduled_at').on('input change', scheduleAutoSaveEdit);
+    $('#status').on('change', scheduleAutoSaveEdit);
+    $(document).on('change', '.user-checkbox', scheduleAutoSaveEdit);
+    $('#banner_image').on('change', scheduleAutoSaveEdit);
+
+    // Trigger auto-save when CKEditor content changes
+    if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
+        CKEDITOR.instances.description.on('change', function () {
+            scheduleAutoSaveEdit();
+        });
     }
 
     // Form validation and submission

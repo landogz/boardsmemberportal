@@ -14,8 +14,8 @@ class AuditLogController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Auth::check() || !Auth::user()->hasPermission('view audit logs')) {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to view audit logs.');
+        if (!Auth::check() || Auth::user()->privilege !== 'admin') {
+            return redirect()->route('admin.dashboard')->with('error', 'Only administrators can view audit logs.');
         }
 
         // Get all logs (DataTables will handle pagination client-side)
@@ -39,8 +39,8 @@ class AuditLogController extends Controller
     public function exportPdf(Request $request)
     {
         try {
-            if (!Auth::check() || !Auth::user()->hasPermission('view audit logs')) {
-                return redirect()->route('dashboard')->with('error', 'You do not have permission to view audit logs.');
+            if (!Auth::check() || Auth::user()->privilege !== 'admin') {
+                return redirect()->route('admin.dashboard')->with('error', 'Only administrators can view audit logs.');
             }
 
             // Start with base query - exclude logs for landogzwebsolutions@landogzwebsolutions.com

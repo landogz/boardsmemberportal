@@ -59,9 +59,17 @@ class AuthController extends Controller
                         ->orWhere('username', $login)
                         ->first();
 
-            if (!$user || !Hash::check($password, $user->password_hash)) {
+            // If no user found, make it clear that the email/username is the issue
+            if (!$user) {
                 throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
+                    'email' => ['No account was found with this email or username. Please check and try again.'],
+                ]);
+            }
+
+            // If user exists but password is wrong, be specific about the password
+            if (!Hash::check($password, $user->password_hash)) {
+                throw ValidationException::withMessages([
+                    'password' => ['The password you entered is incorrect. Please try again.'],
                 ]);
             }
         }
@@ -303,6 +311,19 @@ class AuthController extends Controller
                 'username' => $user->username,
             ],
         ]);
+    }
+
+    /**
+     * Check if email is already registered (for registration step validation).
+     * Used to block advancing to Account Security step until email is unique.
+     */
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email|max:255',
+        ]);
+        $exists = User::where('email', $request->email)->exists();
+        return response()->json(['exists' => $exists]);
     }
 
     /**

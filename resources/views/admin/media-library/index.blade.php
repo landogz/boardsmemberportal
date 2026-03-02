@@ -150,7 +150,7 @@
                 <p class="text-lg font-semibold text-gray-800">Drop files to upload</p>
                 <p class="text-sm text-gray-600 mt-1">or <button type="button" onclick="document.getElementById('fileInput').click()" class="text-[#055498] hover:underline font-medium">browse</button></p>
             </div>
-            <p class="text-xs text-gray-500">Maximum file size: 30MB per file</p>
+            <p class="text-xs text-gray-500">Maximum file size: 100MB per file</p>
         </div>
     </div>
     @endcan

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\UserDeactivatedEmail;
+use App\Mail\ConsecAccountCreatedEmail;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Mail;
@@ -60,7 +61,7 @@ class CONSECController extends Controller
         }
 
         $validated = $request->validate([
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -103,6 +104,7 @@ class CONSECController extends Controller
             ],
         ], [
             'password.confirmed' => 'Password confirmation does not match.',
+            'email.unique' => 'This email is already registered. Please use a different email address.',
         ]);
 
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
@@ -161,6 +163,13 @@ class CONSECController extends Controller
             ]
         );
 
+        // Notify the CONSEC user that their account has been created
+        try {
+            Mail::to($user->email)->send(new ConsecAccountCreatedEmail($user));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send CONSEC account created email to user ' . $user->id . ': ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'CONSEC account created successfully.',
@@ -196,7 +205,7 @@ class CONSECController extends Controller
         $user = User::where('privilege', 'consec')->findOrFail($id);
 
         $validated = $request->validate([
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -324,6 +333,15 @@ class CONSECController extends Controller
         $email = $user->email;
 
         if (!$user->is_active) {
+            // When deactivating a CONSEC account, immediately terminate all active sessions
+            $sessionsDestroyed = DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            $user->is_online = false;
+            $user->current_session_id = null;
+            $user->save();
+
             try {
                 Mail::to($user->email)->send(new UserDeactivatedEmail($user));
             } catch (\Exception $e) {

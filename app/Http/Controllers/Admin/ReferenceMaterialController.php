@@ -419,7 +419,7 @@ class ReferenceMaterialController extends Controller
             'notice_id' => 'required|exists:notices,id',
             'description' => 'nullable|string|max:5000',
             'files' => 'required|array',
-            'files.*' => 'file|max:30720',
+            'files.*' => 'file|max:102400', // 100MB
         ]);
 
         $notice = Notice::findOrFail($request->notice_id);

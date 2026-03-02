@@ -611,8 +611,8 @@
         // User Activity Tracking for Online Status
         let activityTimeout;
         let lastActivityTime = Date.now();
-        const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
-        const PING_INTERVAL = 5 * 60 * 1000; // Ping server every 5 minutes
+        const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const PING_INTERVAL = 2 * 60 * 1000; // Ping server every 2 minutes (only updates server; does not reset idle timer)
 
         // Track user activity
         function trackActivity() {
@@ -632,10 +632,10 @@
             const timeSinceLastActivity = Date.now() - lastActivityTime;
             
             if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-                // User has been idle for 15 minutes, show warning
+                // User has been idle for 5 minutes, show warning
                 Swal.fire({
                     title: 'Session Timeout',
-                    text: 'You have been idle for 15 minutes. You will be logged out for security.',
+                    text: 'You have been idle for 5 minutes. You will be logged out for security.',
                     icon: 'warning',
                     confirmButtonText: 'OK',
                     allowOutsideClick: false,
@@ -659,7 +659,7 @@
             }
         }
 
-        // Ping server to update activity
+        // Ping server to update last_activity (do NOT reset idle timer - only real user input should reset it)
         function pingServer() {
             $.ajax({
                 url: '{{ route("api.track-activity") }}',
@@ -669,8 +669,8 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reset activity tracking when ping succeeds
-                        trackActivity();
+                        // Do not call trackActivity() here - ping is for server "last seen" only;
+                        // resetting the timer here would prevent idle logout from ever firing
                     }
                 },
                 error: function(xhr) {

@@ -113,7 +113,7 @@ class NoticeController extends Controller
                 'max:500',
                 Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['onsite', 'hybrid'])),
             ],
-            'meeting_date' => 'nullable|date',
+            'meeting_date' => 'nullable|date|after_or_equal:today',
             'meeting_time' => 'nullable|date_format:H:i',
             'no_of_attendees' => 'nullable|integer|min:1',
             'board_regulations' => 'nullable|array',
@@ -138,6 +138,7 @@ class NoticeController extends Controller
             'venue.required' => 'Venue is required for onsite or hybrid meetings.',
             'allowed_users.required' => 'Please select at least one allowed user.',
             'allowed_users.min' => 'Please select at least one allowed user.',
+            'meeting_date.after_or_equal' => 'Meeting date cannot be in the past.',
         ]);
 
         DB::beginTransaction();

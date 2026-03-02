@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Chat;
 use App\Models\MediaLibrary;
+use App\Models\Notification;
 use App\Models\MessageReaction;
 use App\Models\ConversationTheme;
 use App\Models\DeletedSingleChat;
+use App\Models\ConversationCleared;
 use App\Events\MessageUnreadCountUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -90,10 +92,10 @@ class MessageController extends Controller
                 'group_id' => 'required_without:receiver_id|exists:group_chats,id',
                 'message' => 'nullable|string|max:5000',
                 'attachments' => 'nullable|array',
-                'attachments.*' => 'file|max:25600', // 25MB max per file
+                'attachments.*' => 'file|max:102400', // 100MB max per file
                 'parent_id' => 'nullable|exists:chats,id',
             ], [
-                'attachments.*.max' => 'File size must not exceed 25MB. Please choose a smaller file.',
+                'attachments.*.max' => 'File size must not exceed 100MB. Please choose a smaller file.',
                 'attachments.*.file' => 'Invalid file. Please select a valid file.',
                 'receiver_id.required_without' => 'Either receiver_id or group_id is required.',
                 'receiver_id.exists' => 'The selected receiver id is invalid.',
@@ -158,11 +160,11 @@ class MessageController extends Controller
                             throw new \Exception("File type not allowed. Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed.");
                         }
                         
-                        // Check file size (25MB = 25600 KB = 26214400 bytes)
-                        $maxSizeBytes = 25 * 1024 * 1024; // 25MB in bytes
+                        // Check file size (100MB = 102400 KB)
+                        $maxSizeBytes = 100 * 1024 * 1024; // 100MB in bytes
                         if ($fileSize > $maxSizeBytes) {
                             $fileSizeMB = round($fileSize / (1024 * 1024), 2);
-                            throw new \Exception("File '{$originalName}' is too large ({$fileSizeMB}MB). Maximum allowed: 25MB.");
+                            throw new \Exception("File '{$originalName}' is too large ({$fileSizeMB}MB). Maximum allowed: 100MB.");
                         }
                         
                         // Ensure the storage directory exists
@@ -250,6 +252,51 @@ class MessageController extends Controller
                     $unreadCount = $this->calculateUnreadCount($memberId);
                     broadcast(new MessageUnreadCountUpdated($memberId, $unreadCount));
                 }
+
+                // Notify users mentioned in the message (@[Name](userId))
+                if ($message !== '' && $chat->sender) {
+                    $mentionedIds = $this->extractMentionedUserIds($message);
+                    $senderName = $chat->sender->first_name . ' ' . $chat->sender->last_name;
+                    $groupName = $group->name ?? 'Group';
+                    $snippet = strlen($message) > 60 ? substr($message, 0, 60) . '...' : $message;
+                    // Strip mention markup for snippet display
+                    $snippet = preg_replace('/@\[([^\]]*)\]\([^)]+\)/', '@$1', $snippet);
+                    $validMemberIds = \App\Models\GroupMember::where('group_id', $groupId)
+                        ->pluck('user_id')
+                        ->unique()
+                        ->values();
+                    foreach ($mentionedIds as $mentionedId) {
+                        $mentionedId = trim((string) $mentionedId);
+                        if ($mentionedId === '' || $mentionedId === (string) $senderId) {
+                            continue;
+                        }
+                        if (!$validMemberIds->contains($mentionedId)) {
+                            continue;
+                        }
+                        $mentionedUser = User::find($mentionedId);
+                        if (!$mentionedUser) {
+                            continue;
+                        }
+                        $messagesUrl = in_array($mentionedUser->privilege, ['admin', 'consec'])
+                            ? url('/admin/messages')
+                            : url('/messages');
+                        Notification::create([
+                            'user_id' => $mentionedId,
+                            'type' => 'chat_mention',
+                            'title' => 'You were mentioned',
+                            'message' => $senderName . ' mentioned you in "' . $groupName . '": ' . $snippet,
+                            'url' => $messagesUrl,
+                            'data' => [
+                                'group_id' => $groupId,
+                                'group_name' => $groupName,
+                                'message_id' => $chat->id,
+                                'sender_id' => $senderId,
+                                'sender_name' => $senderName,
+                            ],
+                            'is_read' => false,
+                        ]);
+                    }
+                }
             } else {
                 // Individual message: broadcast to receiver
                 if ($receiverId) {
@@ -293,8 +340,8 @@ class MessageController extends Controller
             
             // Check if error message contains file size information
             $errorMessage = $e->getMessage();
-            if (strpos($errorMessage, '25600') !== false || strpos($errorMessage, 'kilobytes') !== false) {
-                $errorMessage = 'File size must not exceed 25MB. Please choose a smaller file.';
+            if (strpos($errorMessage, '102400') !== false || strpos($errorMessage, '25600') !== false || strpos($errorMessage, 'kilobytes') !== false) {
+                $errorMessage = 'File size must not exceed 100MB. Please choose a smaller file.';
             } else {
                 $errorMessage = 'Failed to send message: ' . $errorMessage;
             }
@@ -341,19 +388,26 @@ class MessageController extends Controller
                     ->get();
             } else {
                 // Get messages where current user is sender or receiver with the other user
-                $messages = Chat::where(function ($query) use ($currentUserId, $userId) {
-                    $query->where('sender_id', $currentUserId)
-                          ->where('receiver_id', $userId)
-                          ->whereNull('group_id'); // Exclude group messages
-                })->orWhere(function ($query) use ($currentUserId, $userId) {
-                    $query->where('sender_id', $userId)
-                          ->where('receiver_id', $currentUserId)
-                          ->whereNull('group_id'); // Exclude group messages
-                })
-                ->with(['sender', 'receiver', 'reactions.user', 'parent'])
-                ->orderBy('timestamp', 'asc')
-                ->orderBy('created_at', 'asc')
-                ->get();
+                $query = Chat::where(function ($q) use ($currentUserId, $userId) {
+                    $q->where('sender_id', $currentUserId)
+                      ->where('receiver_id', $userId)
+                      ->whereNull('group_id');
+                })->orWhere(function ($q) use ($currentUserId, $userId) {
+                    $q->where('sender_id', $userId)
+                      ->where('receiver_id', $currentUserId)
+                      ->whereNull('group_id');
+                });
+                // If current user "cleared" this conversation, show only messages after cleared_at (other user unaffected)
+                $cleared = ConversationCleared::where('user_id', $currentUserId)
+                    ->where('other_user_id', $userId)
+                    ->first();
+                if ($cleared) {
+                    $query->where('created_at', '>', $cleared->cleared_at);
+                }
+                $messages = $query->with(['sender', 'receiver', 'reactions.user', 'parent'])
+                    ->orderBy('timestamp', 'asc')
+                    ->orderBy('created_at', 'asc')
+                    ->get();
             }
 
             // Format messages
@@ -885,12 +939,15 @@ class MessageController extends Controller
 
     /**
      * Delete a single (1:1) conversation for the current user only.
-     * The other user still sees the conversation; messages are not deleted.
+     * The other user still sees the full conversation.
+     * When the deleter opens the thread again (e.g. after the other user messages), only messages
+     * after the "clear" time are shown for the deleter; the other user is unaffected.
      */
     public function deleteSingleConversation($userId)
     {
         try {
             $currentUserId = Auth::id();
+            $user = Auth::user();
 
             // Only for single chats (not group_*)
             if (str_starts_with($userId, 'group_')) {
@@ -903,6 +960,13 @@ class MessageController extends Controller
             DeletedSingleChat::firstOrCreate(
                 ['user_id' => $currentUserId, 'other_user_id' => $userId],
                 ['user_id' => $currentUserId, 'other_user_id' => $userId]
+            );
+
+            // Record cleared_at for the deleter only: when they load this conversation again,
+            // they only see messages after this time. The other user still sees all messages.
+            ConversationCleared::updateOrCreate(
+                ['user_id' => $currentUserId, 'other_user_id' => $userId],
+                ['cleared_at' => now()]
             );
 
             return response()->json([
@@ -958,17 +1022,22 @@ class MessageController extends Controller
                 $query = Chat::where(function ($q) use ($currentUserId, $userId) {
                     $q->where('sender_id', $currentUserId)
                       ->where('receiver_id', $userId)
-                      ->whereNull('group_id'); // Exclude group messages
+                      ->whereNull('group_id');
                 })->orWhere(function ($q) use ($currentUserId, $userId) {
                     $q->where('sender_id', $userId)
                       ->where('receiver_id', $currentUserId)
-                      ->whereNull('group_id'); // Exclude group messages
+                      ->whereNull('group_id');
                 });
-
+                // If current user cleared this conversation, only messages after cleared_at
+                $cleared = ConversationCleared::where('user_id', $currentUserId)
+                    ->where('other_user_id', $userId)
+                    ->first();
+                if ($cleared) {
+                    $query->where('created_at', '>', $cleared->cleared_at);
+                }
                 if ($since) {
                     $query->where('created_at', '>', $since);
                 }
-
                 $messages = $query->with(['sender', 'receiver', 'reactions.user', 'parent'])
                     ->orderBy('created_at', 'asc')
                     ->get();
@@ -1145,13 +1214,22 @@ class MessageController extends Controller
             ->pluck('other_user_id')
             ->all();
 
-        // Count unread messages from individual chats (only from senders not in deleted list)
+        // Count unread messages from individual chats (only from senders not in deleted list;
+        // exclude messages before user's cleared_at for that conversation)
         $individualQuery = Chat::where('receiver_id', $userId)
             ->where('is_read', false)
             ->whereNull('group_id');
         if (!empty($deletedOtherUserIds)) {
             $individualQuery->whereNotIn('sender_id', $deletedOtherUserIds);
         }
+        // Exclude unread messages that are before this user's cleared_at for that sender
+        $individualQuery->whereNotExists(function ($sub) use ($userId) {
+            $sub->select(DB::raw(1))
+                ->from('conversation_cleared')
+                ->whereColumn('conversation_cleared.other_user_id', 'chats.sender_id')
+                ->where('conversation_cleared.user_id', $userId)
+                ->whereColumn('chats.created_at', '<=', 'conversation_cleared.cleared_at');
+        });
         $individualUnreadCount = $individualQuery->count();
 
         // Count unread messages from group chats (only in non-deleted groups, matching getConversations)
@@ -1960,6 +2038,27 @@ class MessageController extends Controller
             }
         }
         return false;
+    }
+
+    /**
+     * Extract unique user IDs from message text containing @[Name](userId) mentions.
+     * Returns array of string IDs (UUIDs or numeric strings as stored in message).
+     */
+    private function extractMentionedUserIds(string $message): array
+    {
+        if ($message === '') {
+            return [];
+        }
+        $ids = [];
+        if (preg_match_all('/@\[([^\]]*)\]\(([^)]+)\)/', $message, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $id = trim($m[2] ?? '');
+                if ($id !== '' && !in_array($id, $ids, true)) {
+                    $ids[] = $id;
+                }
+            }
+        }
+        return $ids;
     }
 }
 

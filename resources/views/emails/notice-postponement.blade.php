@@ -15,6 +15,8 @@
         }
         img {
             -ms-interpolation-mode: bicubic;
+            max-width: 100%;
+            height: auto !important;
             border: 0;
             outline: none;
             text-decoration: none;
@@ -27,6 +29,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         .email-wrapper {
+            width: 100%;
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
@@ -88,8 +91,11 @@
             margin: 25px 0;
         }
         @media only screen and (max-width: 600px) {
-            .email-body { padding: 30px 20px; }
-            .notice-card { padding: 15px; }
+            .email-body { padding: 24px 16px !important; }
+            .email-header { padding: 24px 16px !important; }
+            .email-header h1 { font-size: 20px !important; }
+            .footer { padding: 16px 20px !important; }
+            .notice-card { padding: 16px !important; }
         }
     </style>
 </head>
@@ -97,7 +103,7 @@
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6;">
         <tr>
             <td align="center" style="padding: 20px 0;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper" style="max-width: 100%; width: 100%;">
                     <tr>
                         <td class="email-header">
                             <h1>Notice of Postponement</h1>

@@ -49,6 +49,7 @@
     (function() {
         const container = document.getElementById('messagesPopupContainer');
         const activeChats = new Map(); // userId -> chat element
+        const popupGroupMembersMap = new Map(); // userId (group_*) -> members array for @mentions
         let chatCounter = 0;
         const lastSentMessageIds = new Map(); // userId -> last sent message ID for "Seen" indicator
         
@@ -257,6 +258,11 @@
                                     </svg>
                                 </button>
                             </form>
+                            <!-- Mention dropdown for group chat @mentions -->
+                            <div class="popup-mention-dropdown hidden absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                                <div class="p-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">Type @ to mention a member</div>
+                                <div class="popup-mention-list py-1"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -372,6 +378,7 @@
                     
                     if (data.success && data.group) {
                         const group = data.group;
+                        popupGroupMembersMap.set(userId, group.members || []);
                         user = {
                             name: group.name || 'Group Chat',
                             initials: group.name ? group.name.substring(0, 2).toUpperCase() : 'GC',
@@ -1582,9 +1589,9 @@
                 }
                 
                 if (messageContent) {
-                    messageContent += `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm mt-2" style="${textBubbleStyle}"><p class="text-xs">${escapeHtml(msg.message)}</p></div>`;
+                    messageContent += `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm mt-2" style="${textBubbleStyle}"><p class="text-xs">${formatMessageWithMentions(msg.message)}</p></div>`;
                 } else {
-                    messageContent = `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm" style="${textBubbleStyle}"><p class="text-xs">${escapeHtml(msg.message)}</p></div>`;
+                    messageContent = `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm" style="${textBubbleStyle}"><p class="text-xs">${formatMessageWithMentions(msg.message)}</p></div>`;
                 }
             }
 
@@ -1795,7 +1802,7 @@
                     // Wrap in container for proper spacing
                     receivedMessageContent = `<div class="space-y-2">${receivedMessageContent}</div>`;
                 } else if (msg.message && msg.message.trim()) {
-                    receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm"><p class="text-xs text-gray-800">${escapeHtml(msg.message)}</p></div>`;
+                    receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm"><p class="text-xs text-gray-800">${formatMessageWithMentions(msg.message)}</p></div>`;
                 }
                 
                 // Check if message contains a video
@@ -2772,6 +2779,29 @@
             return div.innerHTML;
         }
 
+        // Format message text: escape HTML but render @[Name](userId) as mention spans
+        function formatMessageWithMentions(text) {
+            if (!text || typeof text !== 'string') return '';
+            const uuidRe = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+            const mentionRe = /@\[([^\]]*)\]\(([^)]+)\)/g;
+            let result = '';
+            let lastIndex = 0;
+            let m;
+            while ((m = mentionRe.exec(text)) !== null) {
+                result += escapeHtml(text.slice(lastIndex, m.index));
+                const name = m[1];
+                const id = m[2];
+                if (id && uuidRe.test(id)) {
+                    result += '<span class="mention inline-flex items-center px-1 rounded font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" data-user-id="' + escapeHtml(id) + '">@' + escapeHtml(name) + '</span>';
+                } else {
+                    result += escapeHtml(m[0]);
+                }
+                lastIndex = mentionRe.lastIndex;
+            }
+            result += escapeHtml(text.slice(lastIndex));
+            return result;
+        }
+
         // Helper function to get time ago
         function getTimeAgo(timestamp) {
             const now = new Date();
@@ -3165,7 +3195,7 @@
                 fileInput.addEventListener('change', function(e) {
                     const newFiles = Array.from(e.target.files);
                     if (newFiles.length > 0 && filePreview) {
-                        const maxFileSize = 25 * 1024 * 1024; // 25MB in bytes
+                        const maxFileSize = 100 * 1024 * 1024; // 100MB in bytes
                         const validFiles = [];
                         const invalidSize = [];
                         const invalidType = [];
@@ -3183,7 +3213,7 @@
                         if (invalidSize.length > 0) {
                             invalidSize.forEach(inv => {
                                 const sizeInMB = (inv.size / (1024 * 1024)).toFixed(2);
-                                alert(`File "${inv.name}" (${sizeInMB} MB) exceeds the 25MB limit and was not added.`);
+                                alert(`File "${inv.name}" (${sizeInMB} MB) exceeds the 100MB limit and was not added.`);
                             });
                         }
                         if (invalidType.length > 0) {
@@ -3718,7 +3748,7 @@
                         ? `background: ${theme.sender_bubble}; color: ${theme.sender_text};` 
                         : '';
                     const textBubbleClass = theme ? '' : 'text-white';
-                    messageContent = `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm" style="${textBubbleStyle}"><p class="text-xs">${escapeHtml(messageText)}</p></div>`;
+                    messageContent = `<div class="${textBubbleBg} ${textBubbleClass} rounded-lg p-2 shadow-sm" style="${textBubbleStyle}"><p class="text-xs">${formatMessageWithMentions(messageText)}</p></div>`;
                 }
                 
                 // Handle attachments
@@ -3880,7 +3910,7 @@
                 }
             }
 
-            // Handle message input focus/click - mark messages as seen
+            // Handle message input focus/click - mark messages as seen; @mention for group chat
             const messageInput = chatElement.querySelector('.chat-input');
             if (messageInput) {
                 messageInput.addEventListener('focus', function() {
@@ -3888,6 +3918,83 @@
                 });
                 messageInput.addEventListener('click', function() {
                     markMessagesAsReadOnInputFocus(userId);
+                });
+                // @mention: show dropdown when typing @ in group chat
+                const dropdown = chatElement.querySelector('.popup-mention-dropdown');
+                const listEl = dropdown ? dropdown.querySelector('.popup-mention-list') : null;
+                if (dropdown && listEl && userId && String(userId).startsWith('group_')) {
+                    messageInput.addEventListener('input', function() {
+                        const members = popupGroupMembersMap.get(userId) || [];
+                        if (!members.length) {
+                            dropdown.classList.add('hidden');
+                            return;
+                        }
+                        const val = this.value;
+                        const pos = this.selectionStart || val.length;
+                        const textBeforeCaret = val.slice(0, pos);
+                        const atIndex = textBeforeCaret.lastIndexOf('@');
+                        if (atIndex === -1) {
+                            dropdown.classList.add('hidden');
+                            return;
+                        }
+                        const query = textBeforeCaret.slice(atIndex + 1).toLowerCase().trim();
+                        if (/\s/.test(query)) {
+                            dropdown.classList.add('hidden');
+                            return;
+                        }
+                        const currentUserId = @json(Auth::id());
+                        let filtered = members.filter(function(m) { return m.id !== currentUserId; });
+                        if (query) {
+                            filtered = filtered.filter(function(m) {
+                                const fn = (m.first_name || '').toLowerCase();
+                                const ln = (m.last_name || '').toLowerCase();
+                                const full = (fn + ' ' + ln).trim();
+                                return full.indexOf(query) !== -1 || fn.indexOf(query) === 0 || ln.indexOf(query) === 0;
+                            });
+                        }
+                        if (filtered.length === 0) {
+                            dropdown.classList.add('hidden');
+                            return;
+                        }
+                        listEl.innerHTML = filtered.slice(0, 10).map(function(m) {
+                            const name = ((m.first_name || '') + ' ' + (m.last_name || '')).trim() || 'Member';
+                            return '<button type="button" class="popup-mention-item w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2" data-id="' + (m.id || '') + '" data-name="' + escapeHtml(name) + '">' + escapeHtml(name) + '</button>';
+                        }).join('');
+                        dropdown.classList.remove('hidden');
+                        listEl.querySelectorAll('.popup-mention-item').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const name = this.getAttribute('data-name');
+                                if (!id || !name) return;
+                                const start = atIndex;
+                                const end = pos;
+                                const before = val.slice(0, start);
+                                const after = val.slice(end);
+                                const insert = '@[' + name + '](' + id + ') ';
+                                messageInput.value = before + insert + after;
+                                messageInput.focus();
+                                messageInput.setSelectionRange(start + insert.length, start + insert.length);
+                                dropdown.classList.add('hidden');
+                            });
+                        });
+                    });
+                    messageInput.addEventListener('keydown', function(e) {
+                        if (dropdown.classList.contains('hidden')) return;
+                        if (e.key === 'Escape') {
+                            dropdown.classList.add('hidden');
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+            // Close mention dropdown when clicking outside (per-chat: only this chat's dropdown)
+            const mentionDropdown = chatElement.querySelector('.popup-mention-dropdown');
+            const popupMessageInput = chatElement.querySelector('.chat-input');
+            if (mentionDropdown && popupMessageInput) {
+                document.addEventListener('click', function closeMentionDropdown(e) {
+                    if (!document.contains(mentionDropdown)) return;
+                    if (mentionDropdown.contains(e.target) || popupMessageInput === e.target) return;
+                    mentionDropdown.classList.add('hidden');
                 });
             }
 
@@ -4569,12 +4676,8 @@
             }
             
             const nameInput = document.getElementById('popupGroupSettingsNameInput');
-            const descInput = document.getElementById('popupGroupSettingsDescriptionInput');
             if (nameInput) {
                 nameInput.value = popupCurrentGroupData.name || '';
-            }
-            if (descInput) {
-                descInput.value = popupCurrentGroupData.description || '';
             }
             
             const avatarPreview = document.getElementById('popupGroupSettingsAvatarPreview');
@@ -4729,7 +4832,6 @@
             }
             
             const nameInput = document.getElementById('popupGroupSettingsNameInput');
-            const descInput = document.getElementById('popupGroupSettingsDescriptionInput');
             
             if (!nameInput) {
                 if (window.Swal) {
@@ -4743,7 +4845,6 @@
             }
             
             const name = nameInput.value.trim();
-            const description = descInput ? descInput.value.trim() : '';
             
             if (!name) {
                 if (window.Swal) {
@@ -4771,7 +4872,7 @@
             
             axios.put(`{{ route('messages.groups.update', 'PLACEHOLDER') }}`.replace('PLACEHOLDER', popupCurrentGroupId), {
                 name: name,
-                description: description
+                description: ''
             })
             .then(response => {
                 if (response.data.success) {
@@ -6537,12 +6638,6 @@
                         <input type="text" id="popupGroupSettingsNameInput" placeholder="Enter group name..." class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 outline-none transition-all duration-200 placeholder:text-gray-400 focus:border-055498 focus:ring-1" style="focus:border-color: #055498; focus:ring-color: #055498;">
                     </div>
                     
-                    <!-- Group Description -->
-                    <div class="mb-5">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea id="popupGroupSettingsDescriptionInput" placeholder="Enter group description..." rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 outline-none resize-none transition-all duration-200 placeholder:text-gray-400 focus:border-055498 focus:ring-1" style="focus:border-color: #055498; focus:ring-color: #055498;"></textarea>
-                    </div>
-                    
                     <button id="popupSaveGroupInfoBtn" class="w-full px-4 py-2.5 text-white font-semibold rounded-lg transition-colors duration-200 hover:opacity-90 flex items-center justify-center gap-2" style="background: #055498;">
                         <i class="fas fa-save text-sm"></i>
                         <span>Save Changes</span>
@@ -7731,8 +7826,7 @@
     .animate-fade-in {
         animation: fade-in 0.2s ease-out;
     }
-    #popupGroupSettingsNameInput:focus,
-    #popupGroupSettingsDescriptionInput:focus {
+    #popupGroupSettingsNameInput:focus {
         border-color: #055498 !important;
         box-shadow: 0 0 0 1px rgba(5, 84, 152, 0.2) !important;
     }

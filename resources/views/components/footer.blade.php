@@ -15,7 +15,8 @@
                     <li><a href="{{ route('board-issuances') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Board Issuances</a></li>
                     <li><a href="{{ route('notices.index') }}" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Communication</a></li>
                     @else
-                    <li><a href="#about" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">About</a></li>
+                    <li><a href="{{ route('landing') }}#announcements" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Announcements</a></li>
+                    <li><a href="{{ route('landing') }}#calendar-activities" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Public Meetings</a></li>
                     <li><a href="#contact" class="transition" style="color: inherit;" onmouseover="this.style.color='#055498'" onmouseout="this.style.color='inherit'">Contact</a></li>
                     @endauth
                 </ul>
@@ -59,9 +60,9 @@
                 <h4 class="mb-2">ABOUT PORTAL</h4>
                 <p class="mb-2">Learn more about the Board Member Portal, its features, and how it facilitates seamless board management.</p>
                 <ul class="space-y-1" style="list-style: none; padding: 0;">
-                    <li><a href="#about">About Us</a></li>
-                    <li><a href="#announcements">Announcements</a></li>
-                    <li><a href="#meetings">Public Meetings</a></li>
+                    <li><a href="{{ route('landing') }}#about">About Us</a></li>
+                    <li><a href="{{ route('landing') }}#announcements">Announcements</a></li>
+                    <li><a href="{{ route('landing') }}#calendar-activities">Public Meetings</a></li>
                 </ul>
             </div>
             <div>

@@ -187,6 +187,10 @@
 
                                 <!-- Submit Button -->
                                 <div class="pt-4 border-t border-gray-200 space-y-2">
+                                    <div id="draftSavedIndicator" class="hidden text-xs text-green-600 flex items-center gap-1">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Draft saved</span>
+                                    </div>
                                     <button 
                                         type="submit" 
                                         id="submitBtn"
@@ -335,9 +339,12 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     // Initialize date/time picker for scheduling
     const scheduledAtPicker = flatpickr("#scheduled_at", {
         enableTime: true,
@@ -404,8 +411,62 @@
     function updateSubmitButtonText() {
         const status = $('#status').val();
         $('#submitBtnText').text(status === 'published' ? 'Publish' : 'Save');
+        if (status !== 'draft') {
+                            draftId = null;
+                            $('#draftSavedIndicator').addClass('hidden');
+                        }
     }
     $('#status').on('change', updateSubmitButtonText);
+
+    // Auto-save when status is Draft
+    let draftId = null;
+    let autoSaveTimer = null;
+    const AUTO_SAVE_DEBOUNCE_MS = 2000;
+    const SAVE_DRAFT_URL = '{{ route("admin.announcements.save-draft") }}';
+    const UPDATE_URL_TEMPLATE = '{{ route("admin.announcements.update", ["id" => ":id"]) }}';
+
+    function getDraftFormData() {
+        const form = document.getElementById('createAnnouncementForm');
+        const formData = new FormData(form);
+        formData.set('status', 'draft');
+        if (draftId) {
+            formData.set('draft_id', draftId);
+        }
+        return formData;
+    }
+
+    function showDraftSavedIndicator() {
+        const el = $('#draftSavedIndicator');
+        el.removeClass('hidden');
+        clearTimeout(window._draftIndicatorTimer);
+        window._draftIndicatorTimer = setTimeout(function() { el.addClass('hidden'); }, 3000);
+    }
+
+    function runAutoSave() {
+        if ($('#status').val() !== 'draft') return;
+        const formData = getDraftFormData();
+        axios.post(SAVE_DRAFT_URL, formData, {
+            headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' }
+        }).then(function(r) {
+            if (r.data && r.data.success && r.data.id) {
+                draftId = r.data.id;
+                showDraftSavedIndicator();
+            }
+        }).catch(function(err) {
+            console.warn('Draft auto-save failed:', err.response || err.message);
+        });
+    }
+
+    function scheduleAutoSave() {
+        if ($('#status').val() !== 'draft') return;
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(runAutoSave, AUTO_SAVE_DEBOUNCE_MS);
+    }
+
+    $('#title, #description, #category, #scheduled_at').on('input change', scheduleAutoSave);
+    $('#status').on('change', scheduleAutoSave);
+    $(document).on('change', '.user-checkbox', scheduleAutoSave);
+    $('#banner_image').on('change', scheduleAutoSave);
 
     // Initialize select all state after DOM is ready
     $(document).ready(function() {
@@ -534,66 +595,64 @@
 
     // Form validation and submission
     $('#createAnnouncementForm').on('submit', function(e) {
-        e.preventDefault(); // Prevent default submission first
-        
-        try {
-            // Validate title
-            const title = $('#title').val().trim();
-            if (!title) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please enter a title for the announcement.',
-                });
-                return false;
-            }
+        e.preventDefault();
 
-            // Validate description (simple textarea)
-            const description = $('#description').val().trim();
-            
-            if (!description) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please enter a description for the announcement.',
-                });
-                return false;
-            }
+        const title = $('#title').val().trim();
+        const description = $('#description').val().trim();
+        const allowedUsersCount = $('input[name="allowed_users[]"]:checked').length;
+        const status = $('#status').val();
 
-            // Validate allowed users
-            const allowedUsers = $('input[name="allowed_users[]"]:checked').length;
-            if (allowedUsers === 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please select at least one allowed user.',
-                });
-                return false;
-            }
+        if (!title) {
+            Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please enter a title for the announcement.' });
+            return false;
+        }
+        if (!description) {
+            Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please enter a description for the announcement.' });
+            return false;
+        }
+        if (allowedUsersCount === 0) {
+            Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please select at least one allowed user.' });
+            return false;
+        }
 
-            // Show loading state
-            const submitBtn = $('#submitBtn');
-            const submitBtnText = $('#submitBtnText');
-            const form = $(this);
-            
-            submitBtn.prop('disabled', true);
-            const status = $('#status').val();
-            submitBtnText.text(status === 'published' ? 'Publishing...' : 'Saving...');
-            
-            // Remove the event listener temporarily to allow native form submission
-            form.off('submit');
-            
-            // Submit the form using native HTML form submission
-            form[0].submit();
-        } catch (error) {
-            console.error('Form submission error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while submitting the form. Please try again.',
+        const submitBtn = $('#submitBtn');
+        const submitBtnText = $('#submitBtnText');
+        const form = this;
+
+        submitBtn.prop('disabled', true);
+        submitBtnText.text(status === 'published' ? 'Publishing...' : 'Saving...');
+
+        if (draftId) {
+            var formData = new FormData(form);
+            formData.append('_method', 'PUT');
+            var updateUrl = UPDATE_URL_TEMPLATE.replace(':id', draftId);
+            axios.post(updateUrl, formData, {
+                headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' }
+            }).then(function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: status === 'published' ? 'Published' : 'Saved',
+                    text: status === 'published' ? 'Announcement published successfully.' : 'Draft saved successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(function() {
+                    window.location.href = '{{ route("admin.announcements.index") }}';
+                });
+            }).catch(function(err) {
+                submitBtn.prop('disabled', false);
+                submitBtnText.text(status === 'published' ? 'Publish' : 'Save');
+                var msg = (err.response && err.response.data && err.response.data.message) || 'Failed to save. Please try again.';
+                if (err.response && err.response.status === 422 && err.response.data.errors) {
+                    var first = Object.values(err.response.data.errors)[0];
+                    msg = Array.isArray(first) ? first[0] : first;
+                }
+                Swal.fire({ icon: 'error', title: 'Error', text: msg });
             });
             return false;
         }
+
+        $(form).off('submit');
+        form.submit();
     });
 </script>
 @endpush

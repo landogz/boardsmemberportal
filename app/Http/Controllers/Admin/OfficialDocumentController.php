@@ -60,7 +60,7 @@ class OfficialDocumentController extends Controller
             'version' => 'nullable|string|max:255',
             'effective_date' => 'required|date',
             'approved_date' => 'required|date',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:30720', // 30MB
+            'pdf_file' => 'nullable|file|mimes:pdf|max:102400', // 100MB
         ]);
 
         $pdfFileId = null;
@@ -147,7 +147,7 @@ class OfficialDocumentController extends Controller
             'version' => 'nullable|string|max:255',
             'effective_date' => 'required|date',
             'approved_date' => 'required|date',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:30720', // 30MB
+            'pdf_file' => 'nullable|file|mimes:pdf|max:102400', // 100MB
             'change_notes' => 'nullable|string', // Optional notes about the change
         ]);
 

@@ -568,7 +568,10 @@
                                     <span class="detail-value">{{ $notice->venue }}</span>
                                 </div>
                             @endif
-                            @if(in_array($notice->meeting_type, ['online', 'hybrid']) && $notice->meeting_link)
+                            @php
+                                $userStatus = $attendanceConfirmations[$notice->id] ?? null;
+                            @endphp
+                            @if(in_array($notice->meeting_type, ['online', 'hybrid']) && $notice->meeting_link && $userStatus !== 'declined')
                                 <div class="detail-row">
                                     <span class="detail-label">Meeting Link</span>
                                     <span class="detail-value">
@@ -757,7 +760,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                                 <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 30MB per file)</p>
+                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                         </div>
                         <div id="agendaAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
@@ -1021,11 +1024,11 @@
 
         async function handleAgendaFilesUpload(files) {
             for (const file of files) {
-                if (file.size > 30 * 1024 * 1024) {
+                if (file.size > 100 * 1024 * 1024) {
                     Swal.fire({
                         icon: 'error',
                         title: 'File Too Large',
-                        text: `File "${file.name}" exceeds 30MB limit.`,
+                        text: `File "${file.name}" exceeds 100MB limit.`,
                     });
                     return;
                 }

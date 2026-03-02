@@ -74,6 +74,7 @@ Route::get('/api/government-agencies', function () {
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+Route::post('/register/check-email', [AuthController::class, 'checkEmail'])->name('register.check-email')->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Activity tracking endpoint
@@ -119,6 +120,9 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
 
     // Admin Routes - Prevent 'user' privilege from accessing
     Route::middleware(['prevent.user.admin'])->group(function () {
+    // Admin check email availability (for CONSEC/Board Member create forms)
+    Route::post('/admin/check-email', [AuthController::class, 'checkEmail'])->name('admin.check-email');
+
     Route::get('/admin/dashboard', function () {
         // Allow access if user has admin or consec role/privilege (dashboard is for admin-level users)
         $user = Auth::user();
@@ -337,6 +341,7 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('create');
         Route::post('/store', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('store');
+        Route::post('/save-draft', [\App\Http\Controllers\Admin\AnnouncementController::class, 'saveDraft'])->name('save-draft');
         Route::get('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('edit');
         Route::put('/{id}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('update');

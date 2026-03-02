@@ -66,8 +66,7 @@
         padding: 0;
         font-size: 12px;
         font-family: Arial, Verdana, Tahoma, sans-serif;
-        position: -webkit-sticky;
-        position: sticky;
+        position: relative;
     }
     
     .dark .top-bar {

@@ -111,7 +111,7 @@
                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#055498] file:text-white hover:file:bg-[#123a60] file:cursor-pointer cursor-pointer"
                 >
                 <span class="text-red-500 text-sm hidden" id="pdf_file-error"></span>
-                <p class="text-xs text-gray-500 mt-1">Accepted format: PDF (Max: 30MB). Leave empty to keep current file.</p>
+                <p class="text-xs text-gray-500 mt-1">Accepted format: PDF (Max: 100MB). Leave empty to keep current file.</p>
             </div>
 
             <div>

@@ -87,6 +87,7 @@ class BoardMemberController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ], [
             'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
+            'email.unique' => 'This email is already registered. Please use a different email address.',
         ]);
 
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
@@ -327,6 +328,15 @@ class BoardMemberController extends Controller
         $email = $user->email;
 
         if (!$user->is_active) {
+            // When deactivating a board member, immediately terminate all active sessions
+            $sessionsDestroyed = DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            $user->is_online = false;
+            $user->current_session_id = null;
+            $user->save();
+
             try {
                 Mail::to($user->email)->send(new UserDeactivatedEmail($user));
             } catch (\Exception $e) {

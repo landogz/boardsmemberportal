@@ -250,21 +250,38 @@
                 loginBtnLoader.classList.add('hidden');
 
                 if (error.response && error.response.status === 422) {
-                    const errors = error.response.data.errors;
+                    const errors = error.response.data.errors || {};
                     
-                    if (errors.email) {
+                    // Field-level messages under each input
+                    if (errors.email && errors.email.length) {
                         document.getElementById('email-error').textContent = errors.email[0];
                         document.getElementById('email-error').classList.remove('hidden');
                     }
-                    if (errors.password) {
+                    if (errors.password && errors.password.length) {
                         document.getElementById('password-error').textContent = errors.password[0];
                         document.getElementById('password-error').classList.remove('hidden');
+                    }
+
+                    // Build a clearer combined message for the prompt
+                    const emailMsg = (errors.email && errors.email[0]) ? errors.email[0] : null;
+                    const passwordMsg = (errors.password && errors.password[0]) ? errors.password[0] : null;
+                    let promptMessage = 'Please review the highlighted fields.';
+
+                    if (emailMsg || passwordMsg) {
+                        const parts = [];
+                        if (emailMsg) {
+                            parts.push(`Email or Username: ${emailMsg}`);
+                        }
+                        if (passwordMsg) {
+                            parts.push(`Password: ${passwordMsg}`);
+                        }
+                        promptMessage = parts.join(' | ');
                     }
 
                     Swal.fire({
                         icon: 'error',
                         title: 'Login Failed',
-                        text: errors.email ? errors.email[0] : 'Please check your credentials',
+                        text: promptMessage,
                     });
                 } else {
                     Swal.fire({

@@ -7,21 +7,29 @@
     <style>
         body, table, td, p { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { max-width: 100%; height: auto !important; border: 0; outline: none; text-decoration: none; }
         body { margin: 0; padding: 0; width: 100% !important; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-        .email-wrapper { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .email-wrapper { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; }
         .email-header { background: linear-gradient(135deg, #055498 0%, #123a60 100%); padding: 30px 20px; text-align: center; }
         .email-header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; }
         .email-body { padding: 40px 30px; }
         .greeting { font-size: 16px; color: #374151; margin-bottom: 20px; line-height: 1.6; }
         .info-card { background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 25px 0; border-radius: 4px; }
         .footer { padding: 20px 30px; text-align: center; background-color: #f9fafb; font-size: 12px; color: #6b7280; }
+        @media only screen and (max-width: 600px) {
+            .email-body { padding: 24px 16px !important; }
+            .email-header { padding: 24px 16px !important; }
+            .email-header h1 { font-size: 20px !important; }
+            .footer { padding: 16px 20px !important; }
+            .info-card { padding: 16px !important; }
+        }
     </style>
 </head>
 <body>
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6;">
         <tr>
             <td align="center" style="padding: 20px 0;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-wrapper" style="max-width: 100%; width: 100%;">
                     <tr>
                         <td class="email-header">
                             <h1>Account Deactivated</h1>

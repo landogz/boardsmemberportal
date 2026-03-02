@@ -448,7 +448,8 @@
                 { targets: -1, orderable: false } // Actions column is not sortable
             ],
             language: {
-                search: "Search by name, email, username, or agency:"
+                search: "",
+                searchPlaceholder: "Search by name, email, username, or agency"
             }
         });
         @endif

@@ -21,6 +21,28 @@ class TrackUserActivity
             $user = Auth::user();
             $currentSessionId = session()->getId();
             
+            // If the account has been deactivated while this session was still open,
+            // immediately log the user out and expire the session.
+            if (!$user->is_active) {
+                AuditLogger::log(
+                    'auth.deactivated_session_terminated',
+                    'Session terminated because the account was deactivated while user was logged in.',
+                    $user,
+                    [
+                        'session_id' => $currentSessionId,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                        'url' => $request->fullUrl(),
+                    ]
+                );
+                
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return redirect()->route('login')->with('error', 'Your account has been deactivated. Please contact CONSEC for assistance.');
+            }
+            
             // Check if user was marked offline by scheduled task (idle timeout)
             if (!$user->is_online && !$user->current_session_id) {
                 // User was auto-logged out due to inactivity

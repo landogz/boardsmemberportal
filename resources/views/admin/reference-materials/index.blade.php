@@ -133,7 +133,7 @@
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Files <span class="text-red-500">*</span></label>
                     <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif" class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <p class="text-xs text-gray-500 mt-1">Max 30MB per file. PDF, DOC, XLS, PPT, images.</p>
+                    <p class="text-xs text-gray-500 mt-1">Max 100MB per file. PDF, DOC, XLS, PPT, images.</p>
                 </div>
                 <div class="flex gap-3 justify-end">
                     <button type="button" onclick="document.getElementById('uploadModal').classList.add('hidden'); refDroppedFiles = null;" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>

@@ -72,6 +72,7 @@ class NoticeController extends Controller
         $attendanceConfirmation = AttendanceConfirmation::where('notice_id', $id)
             ->where('user_id', $userId)
             ->first();
+        $hasDeclined = $attendanceConfirmation && $attendanceConfirmation->status === 'declined';
         
         // Get current user's agenda inclusion request if exists
         $agendaRequest = null;
@@ -144,7 +145,16 @@ class NoticeController extends Controller
             $autoAction = $action;
         }
         
-        return view('notices.show', compact('notice', 'attendanceConfirmation', 'agendaRequest', 'referenceMaterial', 'isMeetingDone', 'autoAction', 'referenceFiles'));
+        return view('notices.show', compact(
+            'notice',
+            'attendanceConfirmation',
+            'agendaRequest',
+            'referenceMaterial',
+            'isMeetingDone',
+            'autoAction',
+            'referenceFiles',
+            'hasDeclined'
+        ));
     }
 
     /**
@@ -383,6 +393,14 @@ class NoticeController extends Controller
             abort(403, 'You do not have access to this notice.');
         }
 
+        // Once an invitation is declined, meeting materials must no longer be accessible
+        $confirmation = AttendanceConfirmation::where('notice_id', $id)
+            ->where('user_id', $userId)
+            ->first();
+        if ($confirmation && $confirmation->status === 'declined') {
+            abort(403, 'You have declined this invitation; meeting materials are no longer accessible.');
+        }
+
         $allowedIds = [];
         foreach ($notice->attachments ?? [] as $mid) {
             $allowedIds[$mid] = true;
@@ -439,7 +457,7 @@ class NoticeController extends Controller
             $files = [$files];
         }
 
-        $maxSize = 30 * 1024 * 1024; // 30MB
+        $maxSize = 100 * 1024 * 1024; // 100MB
         $uploadedFiles = [];
         $errors = [];
 
@@ -454,7 +472,7 @@ class NoticeController extends Controller
                 continue;
             }
             if ($file->getSize() > $maxSize) {
-                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'File exceeds 30MB limit.'];
+                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'File exceeds 100MB limit.'];
                 continue;
             }
 

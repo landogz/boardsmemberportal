@@ -1281,6 +1281,11 @@
                                     <i class="fas fa-paper-plane text-sm sm:text-lg"></i>
                                 </button>
                             </form>
+                        <!-- Mention dropdown for group chat @mentions -->
+                        <div id="mentionDropdown" class="hidden absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                            <div class="p-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">Type @ to mention a member</div>
+                            <div id="mentionDropdownList" class="py-1"></div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -1348,10 +1353,6 @@
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Group Name</label>
                     <input type="text" id="groupNameInput" placeholder="Enter group name..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (Optional)</label>
-                    <textarea id="groupDescriptionInput" placeholder="Enter group description..." rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Members</label>
@@ -1439,12 +1440,6 @@
                         <div class="mb-4 sm:mb-5">
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Group Name</label>
                             <input type="text" id="groupSettingsNameInput" placeholder="Enter group name..." class="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white outline-none transition-all duration-200 placeholder:text-gray-400 focus:border-055498 focus:ring-1 min-h-[44px]" style="focus:border-color: #055498; focus:ring-color: #055498;">
-                        </div>
-                        
-                        <!-- Group Description -->
-                        <div class="mb-4 sm:mb-5">
-                            <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                            <textarea id="groupSettingsDescriptionInput" placeholder="Enter group description..." rows="3" class="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white outline-none resize-none transition-all duration-200 placeholder:text-gray-400 focus:border-055498 focus:ring-1" style="focus:border-color: #055498; focus:ring-color: #055498;"></textarea>
                         </div>
                         
                         <button id="saveGroupInfoBtn" class="w-full px-4 py-3 sm:py-2.5 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors duration-200 hover:opacity-90 flex items-center justify-center gap-2 min-h-[44px]" style="background: #055498;">
@@ -1681,8 +1676,7 @@
         .animate-fade-in {
             animation: fade-in 0.2s ease-out;
         }
-        #groupSettingsNameInput:focus,
-        #groupSettingsDescriptionInput:focus {
+        #groupSettingsNameInput:focus {
             border-color: #055498 !important;
             box-shadow: 0 0 0 1px rgba(5, 84, 152, 0.2) !important;
         }
@@ -1846,6 +1840,7 @@
 
         const currentUserId = @json(Auth::id());
         let currentChatUserId = null;
+        let currentGroupMembers = [];
         let pollingInterval = null;
         let attachedFiles = [];
         let replyToMessageId = null;
@@ -2110,7 +2105,7 @@
                 });
             }
 
-            // Message input - mark messages as seen when focused/clicked
+            // Message input - mark messages as seen when focused/clicked; @mention for group chat
             const messageInput = document.getElementById('messageInput');
             if (messageInput) {
                 messageInput.addEventListener('focus', function() {
@@ -2119,7 +2114,83 @@
                 messageInput.addEventListener('click', function() {
                     markMessagesAsSeenOnInputFocus();
                 });
+                // @mention: show dropdown when typing @ in group chat
+                messageInput.addEventListener('input', function() {
+                    const dropdown = document.getElementById('mentionDropdown');
+                    const listEl = document.getElementById('mentionDropdownList');
+                    if (!dropdown || !listEl) return;
+                    if (!currentChatUserId || !String(currentChatUserId).startsWith('group_') || !currentGroupMembers.length) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    const val = this.value;
+                    const pos = this.selectionStart || val.length;
+                    const textBeforeCaret = val.slice(0, pos);
+                    const atIndex = textBeforeCaret.lastIndexOf('@');
+                    if (atIndex === -1) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    const query = textBeforeCaret.slice(atIndex + 1).toLowerCase().trim();
+                    const hasSpace = /\s/.test(query);
+                    if (hasSpace) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    const currentId = typeof currentUserId !== 'undefined' ? currentUserId : null;
+                    let members = currentGroupMembers.filter(function(m) {
+                        return m.id !== currentId;
+                    });
+                    if (query) {
+                        members = members.filter(function(m) {
+                            const fn = (m.first_name || '').toLowerCase();
+                            const ln = (m.last_name || '').toLowerCase();
+                            const full = (fn + ' ' + ln).trim();
+                            return full.indexOf(query) !== -1 || fn.indexOf(query) === 0 || ln.indexOf(query) === 0;
+                        });
+                    }
+                    if (members.length === 0) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    listEl.innerHTML = members.slice(0, 10).map(function(m) {
+                        const name = (m.first_name || '') + ' ' + (m.last_name || '').trim() || 'Member';
+                        return '<button type="button" class="mention-item w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2" data-id="' + (m.id || '') + '" data-name="' + escapeHtml(name) + '">' + escapeHtml(name) + '</button>';
+                    }).join('');
+                    dropdown.classList.remove('hidden');
+                    listEl.querySelectorAll('.mention-item').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            const name = this.getAttribute('data-name');
+                            if (!id || !name) return;
+                            const start = atIndex;
+                            const end = pos;
+                            const before = val.slice(0, start);
+                            const after = val.slice(end);
+                            const insert = '@[' + name + '](' + id + ') ';
+                            messageInput.value = before + insert + after;
+                            messageInput.focus();
+                            const newPos = start + insert.length;
+                            messageInput.setSelectionRange(newPos, newPos);
+                            dropdown.classList.add('hidden');
+                        });
+                    });
+                });
+                messageInput.addEventListener('keydown', function(e) {
+                    const dropdown = document.getElementById('mentionDropdown');
+                    if (!dropdown || dropdown.classList.contains('hidden')) return;
+                    if (e.key === 'Escape') {
+                        dropdown.classList.add('hidden');
+                        e.preventDefault();
+                    }
+                });
             }
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('mentionDropdown');
+                if (dropdown && !dropdown.contains(e.target) && e.target.id !== 'messageInput') {
+                    dropdown.classList.add('hidden');
+                }
+            });
 
             // Attach button
             const attachBtn = document.getElementById('attachBtn');
@@ -2622,7 +2693,6 @@
             if (confirmGroupBtn) {
                 confirmGroupBtn.addEventListener('click', function() {
                     const groupName = document.getElementById('groupNameInput').value.trim();
-                    const groupDescription = document.getElementById('groupDescriptionInput').value.trim();
                     
                     if (!groupName) {
                         Swal.fire({
@@ -2650,7 +2720,7 @@
                     const createBtn = this;
                     axios.post('{{ route("messages.groups.create") }}', {
                         name: groupName,
-                        description: groupDescription,
+                        description: '',
                         member_ids: selectedUsers.map(u => u.id)
                     })
                     .then(response => {
@@ -2676,7 +2746,6 @@
                             });
                             document.getElementById('createGroupModal').classList.add('hidden');
                             document.getElementById('groupNameInput').value = '';
-                            document.getElementById('groupDescriptionInput').value = '';
                             selectedUsers = [];
                             updateSelectedCount();
                             loadConversations();
@@ -2722,7 +2791,6 @@
                 cancelGroupBtn.addEventListener('click', function() {
                     document.getElementById('createGroupModal').classList.add('hidden');
                     document.getElementById('groupNameInput').value = '';
-                    document.getElementById('groupDescriptionInput').value = '';
                 });
             }
             
@@ -2732,7 +2800,6 @@
                 closeGroupModal.addEventListener('click', function() {
                     document.getElementById('createGroupModal').classList.add('hidden');
                     document.getElementById('groupNameInput').value = '';
-                    document.getElementById('groupDescriptionInput').value = '';
                 });
             }
         }
@@ -4078,6 +4145,25 @@
             if (!messagesArea) return;
             messagesArea.innerHTML = '<div class="p-4 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
 
+            if (userId && String(userId).startsWith('group_')) {
+                const gid = String(userId).replace('group_', '').trim();
+                if (gid) {
+                    axios.get(`{{ route('messages.groups.show', 'PLACEHOLDER') }}`.replace('PLACEHOLDER', gid))
+                        .then(function(r) {
+                            if (r.data && r.data.success && r.data.group && r.data.group.members) {
+                                currentGroupMembers = r.data.group.members;
+                            } else {
+                                currentGroupMembers = [];
+                            }
+                        })
+                        .catch(function() { currentGroupMembers = []; });
+                } else {
+                    currentGroupMembers = [];
+                }
+            } else {
+                currentGroupMembers = [];
+            }
+
             var conversationRequestTimeout = 20000;
             axios.get(`{{ route('messages.conversation', ':userId') }}`.replace(':userId', userId), { timeout: conversationRequestTimeout })
                 .then(response => {
@@ -4640,9 +4726,9 @@
                 }
                 
                 if (messageContent) {
-                    messageContent += `<div class="rounded-lg p-2 shadow-sm mt-2 ${bubbleClass}" style="${bubbleStyle}"><p class="text-xs">${escapeHtml(msg.message)}</p></div>`;
+                    messageContent += `<div class="rounded-lg p-2 shadow-sm mt-2 ${bubbleClass}" style="${bubbleStyle}"><p class="text-xs">${formatMessageWithMentions(msg.message)}</p></div>`;
                 } else {
-                    messageContent = `<div class="rounded-lg p-2 shadow-sm ${bubbleClass}" style="${bubbleStyle}"><p class="text-xs">${escapeHtml(msg.message)}</p></div>`;
+                    messageContent = `<div class="rounded-lg p-2 shadow-sm ${bubbleClass}" style="${bubbleStyle}"><p class="text-xs">${formatMessageWithMentions(msg.message)}</p></div>`;
                 }
             }
 
@@ -4837,7 +4923,7 @@
                     const receiverStyle = theme 
                         ? `style="background: ${theme.receiver_bubble}; color: ${theme.receiver_text};"` 
                         : '';
-                    receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm" ${receiverStyle}><p class="text-xs text-gray-800">${escapeHtml(msg.message)}</p></div>`;
+                    receivedMessageContent = `<div class="bg-white rounded-lg p-2 shadow-sm" ${receiverStyle}><p class="text-xs text-gray-800">${formatMessageWithMentions(msg.message)}</p></div>`;
                 }
                 
                 const hasVideo = messageContent && messageContent.includes('<video') && !msg.is_deleted;
@@ -5566,10 +5652,10 @@
                 }
                 
                 // Check for file size errors and make them more user-friendly
-                if (errorMessage.includes('25600') || errorMessage.includes('kilobytes') || 
+                if (errorMessage.includes('102400') || errorMessage.includes('25600') || errorMessage.includes('kilobytes') || 
                     errorMessage.includes('too large') || errorMessage.includes('exceeds') ||
                     errorMessage.includes('must not be greater')) {
-                    errorMessage = 'File is too large. Maximum allowed size is 25MB. Please choose a smaller file.';
+                    errorMessage = 'File is too large. Maximum allowed size is 100MB. Please choose a smaller file.';
                 }
                 
                 // Update temp message to show error
@@ -6339,6 +6425,28 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function formatMessageWithMentions(text) {
+            if (!text || typeof text !== 'string') return '';
+            const uuidRe = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+            const mentionRe = /@\[([^\]]*)\]\(([^)]+)\)/g;
+            let result = '';
+            let lastIndex = 0;
+            let m;
+            while ((m = mentionRe.exec(text)) !== null) {
+                result += escapeHtml(text.slice(lastIndex, m.index));
+                const name = m[1];
+                const id = m[2];
+                if (id && uuidRe.test(id)) {
+                    result += '<span class="mention inline-flex items-center px-1 rounded font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" data-user-id="' + escapeHtml(id) + '">@' + escapeHtml(name) + '</span>';
+                } else {
+                    result += escapeHtml(m[0]);
+                }
+                lastIndex = mentionRe.lastIndex;
+            }
+            result += escapeHtml(text.slice(lastIndex));
+            return result;
         }
 
         function getTimeAgo(timestamp) {
@@ -7497,14 +7605,10 @@
                 return;
             }
             
-            // Set group name and description
+            // Set group name
             const nameInput = document.getElementById('groupSettingsNameInput');
-            const descInput = document.getElementById('groupSettingsDescriptionInput');
             if (nameInput) {
                 nameInput.value = currentGroupData.name || '';
-            }
-            if (descInput) {
-                descInput.value = currentGroupData.description || '';
             }
             
             // Set avatar preview
@@ -7671,7 +7775,6 @@
             }
             
             const nameInput = document.getElementById('groupSettingsNameInput');
-            const descInput = document.getElementById('groupSettingsDescriptionInput');
             
             if (!nameInput) {
                 Swal.fire({
@@ -7683,7 +7786,6 @@
             }
             
             const name = nameInput.value.trim();
-            const description = descInput ? descInput.value.trim() : '';
             
             if (!name) {
                 Swal.fire({
@@ -7708,7 +7810,7 @@
             
             axios.put(`{{ route('messages.groups.update', 'PLACEHOLDER') }}`.replace('PLACEHOLDER', window.currentGroupId), {
                 name: name,
-                description: description
+                description: ''
             })
             .then(response => {
                 if (response.data.success) {

@@ -913,7 +913,7 @@
                         </div>
                     @endif
                     
-                    @if(in_array($notice->meeting_type, ['online', 'hybrid']) && $notice->meeting_link)
+                    @if(in_array($notice->meeting_type, ['online', 'hybrid']) && $notice->meeting_link && (!isset($hasDeclined) || !$hasDeclined))
                         <div class="meta-item">
                             <div class="meta-icon">
                                 <i class="fas fa-link"></i>
@@ -932,6 +932,17 @@
 
         <!-- Notice Content Card -->
         <div class="notice-content-card">
+            @if(isset($hasDeclined) && $hasDeclined)
+                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-info-circle mt-0.5"></i>
+                        <div>
+                            <p class="font-semibold">Invitation declined</p>
+                            <p class="mt-1">You have declined this invitation. Meeting materials and links are no longer accessible.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <div class="content-section">
                 @if($notice->description)
                     <h2 class="section-title">Description</h2>
@@ -940,7 +951,7 @@
                     </div>
                 @endif
 
-                @if($notice->attachments && count($notice->attachments) > 0)
+                @if((!isset($hasDeclined) || !$hasDeclined) && $notice->attachments && count($notice->attachments) > 0)
                     <div class="attachments-section">
                         <h2 class="section-title">Attachments</h2>
                         <div class="attachments-grid">
@@ -983,7 +994,7 @@
                     </div>
                 @endif
 
-                @if(!empty($referenceFiles))
+                @if((!isset($hasDeclined) || !$hasDeclined) && !empty($referenceFiles))
                     <div class="attachments-section mt-8">
                         <h2 class="section-title">Reference Materials</h2>
                         <div class="attachments-grid">
@@ -1162,7 +1173,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                                 <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 30MB per file)</p>
+                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                         </div>
                         <div id="agendaAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
@@ -1230,7 +1241,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                                 <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 30MB per file)</p>
+                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                         </div>
                         <div id="referenceAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
@@ -1548,11 +1559,11 @@
 
         async function handleAgendaFilesUpload(files) {
             for (const file of files) {
-                if (file.size > 30 * 1024 * 1024) {
+                if (file.size > 100 * 1024 * 1024) {
                     Swal.fire({
                         icon: 'error',
                         title: 'File Too Large',
-                        text: `File "${file.name}" exceeds 30MB limit.`,
+                        text: `File "${file.name}" exceeds 100MB limit.`,
                     });
                     return;
                 }
@@ -1701,11 +1712,11 @@
 
         async function handleReferenceFilesUpload(files) {
             for (const file of files) {
-                if (file.size > 30 * 1024 * 1024) {
+                if (file.size > 100 * 1024 * 1024) {
                     Swal.fire({
                         icon: 'error',
                         title: 'File Too Large',
-                        text: `File "${file.name}" exceeds 30MB limit.`,
+                        text: `File "${file.name}" exceeds 100MB limit.`,
                     });
                     return;
                 }

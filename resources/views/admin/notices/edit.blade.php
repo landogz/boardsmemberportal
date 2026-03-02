@@ -331,7 +331,7 @@
                                 <p class="text-sm text-gray-600 mb-1">
                                     <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                                 </p>
-                                <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 30MB per file)</p>
+                                <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                             </div>
                             <div id="dropZoneActive" class="hidden">
                                 <i class="fas fa-file-upload text-4xl text-[#055498] mb-3 animate-bounce"></i>
@@ -1009,11 +1009,11 @@
 
         // Validate file sizes
         for (const file of files) {
-            if (file.size > 30 * 1024 * 1024) {
+            if (file.size > 100 * 1024 * 1024) {
                 Swal.fire({
                     icon: 'error',
                     title: 'File Too Large',
-                    text: `File "${file.name}" exceeds 30MB limit.`,
+                    text: `File "${file.name}" exceeds 100MB limit.`,
                 });
                 return;
             }

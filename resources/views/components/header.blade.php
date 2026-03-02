@@ -1,9 +1,9 @@
 <!-- Top Bar - 1190x45px - Mandatory, Locked -->
-<div class="top-bar sticky top-0 z-40">
-    <div class="container mx-auto px-4 py-4 flex items-center justify-between w-full" style="padding-left:50px;">
-        <div class="flex items-center gap-4">
-            <img src="{{ asset('images/republica.png') }}" alt="Republic of the Philippines" class="h-8 w-auto object-contain">
-            <span class="hidden sm:inline">REPUBLIC OF THE PHILIPPINES</span>
+<div class="top-bar z-40">
+    <div class="container mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex items-center justify-between w-full pl-4 sm:pl-8 md:pl-12 lg:pl-[50px]">
+        <div class="flex items-center gap-3 sm:gap-4 min-h-[36px] sm:min-h-[40px] items-center" style="margin-left: -8px;">
+            <img src="{{ asset('images/republica.png') }}" alt="Republic of the Philippines" class="h-7 sm:h-8 w-auto object-contain flex-shrink-0">
+            <span class="hidden sm:inline text-sm md:text-base">REPUBLIC OF THE PHILIPPINES</span>
         </div>
         <!-- <div class="search-bar">
             <input type="text" placeholder="Search..." id="searchInput" class="dark:bg-gray-800 dark:text-white dark:border-gray-600">
@@ -12,17 +12,18 @@
     </div>
 </div>
 
-<!-- Navigation -->
-<nav class="sticky top-[45px] z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
-    <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between w-full min-h-[56px]">
-            <div class="flex items-center gap-4">
-                <a href="https://ddb.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex items-center">
-                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Dangerous Drugs Board (DDB) Official Website" class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain max-h-[70px]">
+<!-- Navigation: logo and nav aligned on one line (desktop/tablet) -->
+<nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 md:px-8 py-3 md:py-4">
+        <div class="flex flex-nowrap items-center justify-between w-full gap-4 min-h-[52px] md:min-h-[56px]">
+            <!-- Logo / Office of the President + DDB brand -->
+            <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0 min-h-[44px] md:min-h-[56px]">
+                <a href="https://ddb.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center">
+                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Office of the President - Dangerous Drugs Board (DDB) Official Website" class="h-9 sm:h-10 md:h-12 lg:h-14 w-auto max-h-[56px] md:max-h-[70px] object-contain object-center">
                 </a>
             </div>
-            <!-- Desktop navigation (xl and up) -->
-            <div class="hidden xl:flex items-center space-x-4 xl:space-x-6 flex-shrink-0 self-center">
+            <!-- Desktop navigation (xl and up) - vertically centered with logo -->
+            <div class="hidden xl:flex items-center space-x-4 xl:space-x-6 flex-shrink-0 min-h-[44px] items-center">
                 @php
                     $currentRoute = request()->route()->getName();
                     $isAuthPage = in_array($currentRoute, ['login', 'register']);
@@ -132,8 +133,8 @@
                     <a href="/register" class="inline-flex items-center justify-center min-h-[44px] px-4 md:px-5 py-2.5 text-sm font-medium rounded-full text-white hover:shadow-lg transition whitespace-nowrap" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Register</a>
                 @endauth
             </div>
-            <!-- Mobile / tablet actions + hamburger (below xl, incl. 768 & 1024) -->
-            <div class="flex items-center space-x-2 xl:hidden flex-shrink-0">
+            <!-- Mobile / tablet actions + hamburger (below xl, incl. iPad) - aligned with logo -->
+            <div class="flex items-center justify-end space-x-2 xl:hidden flex-shrink-0 min-h-[44px]">
                 @auth
                     <!-- Notifications Icon (Mobile) -->
                     <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
