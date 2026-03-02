@@ -29,6 +29,11 @@ Route::get('/example', function () {
     return view('example');
 });
 
+// Public system flow / documentation page
+Route::get('/flow', function () {
+    return view('flow');
+})->name('flow');
+
 // Authentication Routes
 Route::get('/login', function (Request $request) {
     // If user is already logged in, redirect to the intended page or dashboard
