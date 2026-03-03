@@ -123,10 +123,11 @@ class ProfileController extends Controller
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
             'post_nominal_title' => 'nullable|string|max:255',
+            'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'nullable|string|max:255',
             'sex' => 'nullable|in:Male,Female',
             'gender' => 'nullable|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
-            'birth_date' => 'nullable|date',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_building_no' => 'nullable|string|max:255',
             'office_house_no' => 'nullable|string|max:255',
             'office_street_name' => 'nullable|string|max:255',
@@ -146,7 +147,13 @@ class ProfileController extends Controller
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ], [
             'mobile.regex' => 'Mobile number must be in format +63 followed by 10 digits.',
+            'birth_date.before_or_equal' => 'You must be at least 18 years old.',
         ]);
+
+        // Resolve post nominal title (support "Others" with custom text)
+        $postNominalTitle = $request->post_nominal_title === 'Others'
+            ? $request->post_nominal_title_custom
+            : $request->post_nominal_title;
 
         $data = [
             'government_agency_id' => $request->government_agency_id,
@@ -155,7 +162,7 @@ class ProfileController extends Controller
             'first_name' => $request->first_name,
             'middle_initial' => $request->middle_initial,
             'last_name' => $request->last_name,
-            'post_nominal_title' => $request->post_nominal_title,
+            'post_nominal_title' => $postNominalTitle,
             'designation' => $request->designation,
             'sex' => $request->sex,
             'gender' => $request->gender,

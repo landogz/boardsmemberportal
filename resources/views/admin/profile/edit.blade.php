@@ -278,6 +278,12 @@
                                 <option value="I" {{ $user->post_nominal_title === 'I' ? 'selected' : '' }}>I</option>
                                 <option value="II" {{ $user->post_nominal_title === 'II' ? 'selected' : '' }}>II</option>
                                 <option value="III" {{ $user->post_nominal_title === 'III' ? 'selected' : '' }}>III</option>
+                                <option value="CESO I" {{ $user->post_nominal_title === 'CESO I' ? 'selected' : '' }}>CESO I</option>
+                                <option value="CESO II" {{ $user->post_nominal_title === 'CESO II' ? 'selected' : '' }}>CESO II</option>
+                                <option value="CESO III" {{ $user->post_nominal_title === 'CESO III' ? 'selected' : '' }}>CESO III</option>
+                                <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
+                                <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
+                                <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
                                 <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
                             </select>
                             <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
@@ -325,10 +331,10 @@
                         </div>
                     </div>
 
-                    <!-- Birth Date -->
+                    <!-- Birth Date (required, 18+ only) -->
                     <div>
-                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
-                        <input type="date" id="birth_date" name="birth_date" value="{{ $user->birth_date ? $user->birth_date->format('Y-m-d') : '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date (18 yrs+) *</label>
+                        <input type="date" id="birth_date" name="birth_date" required value="{{ $user->birth_date ? $user->birth_date->format('Y-m-d') : '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                         <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
                     </div>
                 </div>
@@ -819,8 +825,10 @@
     $('#post_nominal_title').on('change', function() {
         if ($(this).val() === 'Others') {
             $('#post_nominal_title_custom_wrapper').removeClass('hidden');
+            $('#post_nominal_title_custom').prop('required', true);
         } else {
             $('#post_nominal_title_custom_wrapper').addClass('hidden');
+            $('#post_nominal_title_custom').prop('required', false).val('');
         }
     });
 
@@ -837,6 +845,19 @@
     function isValidEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
+    }
+
+    // Age helper: must be at least 18 years old
+    function isAtLeast18(birthDateStr) {
+        if (!birthDateStr) return true;
+        const birth = new Date(birthDateStr);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age >= 18;
     }
 
     // Philippine mobile only: +63 followed by 10 digits, formatted as +63 XXX XXX XXXX (same pattern as registration)
@@ -1155,9 +1176,17 @@
         let firstInvalidField = null;
 
         if (step === 1) {
+            const postNominalTitle = $('#post_nominal_title').val();
+            const postNominalTitleCustom = $('#post_nominal_title_custom').val().trim();
             const firstName = $('#first_name').val().trim();
             const lastName = $('#last_name').val().trim();
+            const birthDate = $('#birth_date').val();
 
+            if (postNominalTitle === 'Others' && !postNominalTitleCustom) {
+                showError('post_nominal_title', 'Please specify the other post nominal title.');
+                if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
+                isValid = false;
+            }
             if (!firstName) {
                 showError('first_name', 'First name is required');
                 if (!firstInvalidField) firstInvalidField = '#first_name';
@@ -1166,6 +1195,15 @@
             if (!lastName) {
                 showError('last_name', 'Last name is required');
                 if (!firstInvalidField) firstInvalidField = '#last_name';
+                isValid = false;
+            }
+            if (!birthDate) {
+                showError('birth_date', 'Birth date is required.');
+                if (!firstInvalidField) firstInvalidField = '#birth_date';
+                isValid = false;
+            } else if (!isAtLeast18(birthDate)) {
+                showError('birth_date', 'You must be at least 18 years old.');
+                if (!firstInvalidField) firstInvalidField = '#birth_date';
                 isValid = false;
             }
         } else if (step === 2) {
@@ -1363,7 +1401,9 @@
             if (error.response && error.response.data && error.response.data.errors) {
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach(key => {
-                    const errorElement = $(`#${key}-error`);
+                    // Map backend field names to UI error spans when they differ
+                    const uiKey = key === 'post_nominal_title_custom' ? 'post_nominal_title' : key;
+                    const errorElement = $(`#${uiKey}-error`);
                     if (errorElement.length) {
                         errorElement.removeClass('hidden').text(errors[key][0]);
                     }
