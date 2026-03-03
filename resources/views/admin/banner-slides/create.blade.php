@@ -323,6 +323,33 @@
     bindColor('title_color_swatch', 'title_color_trigger', 'title_color');
     bindColor('subtitle_color_swatch', 'subtitle_color_trigger', 'subtitle_color');
 
+    // Real-time preview: wire preview DOM refs and updatePreviewText (so color picker changes update preview)
+    var previewTitle = $('preview-title');
+    var previewSubtitle = $('preview-subtitle');
+    var previewOverlay = $('preview-overlay');
+    function updatePreviewText() {
+        var title = ($('title') && $('title').value) || 'Your title';
+        var subtitle = ($('subtitle') && $('subtitle').value) || 'Your subtitle';
+        var titleColor = ($('title_color') && $('title_color').value) || '#ffffff';
+        var subtitleColor = ($('subtitle_color') && $('subtitle_color').value) || '#e5e7eb';
+        var titleSize = ($('title_font_size') && $('title_font_size').value) || 'lg';
+        var subtitleSize = ($('subtitle_font_size') && $('subtitle_font_size').value) || 'md';
+        if (previewTitle) {
+            previewTitle.textContent = title;
+            previewTitle.style.color = titleColor;
+            previewTitle.style.fontSize = titleSizeMap[titleSize] || '2rem';
+        }
+        if (previewSubtitle) {
+            previewSubtitle.textContent = subtitle;
+            previewSubtitle.style.color = subtitleColor;
+            previewSubtitle.style.fontSize = subtitleSizeMap[subtitleSize] || '1rem';
+        }
+    }
+    var titleColorSwatch = $('title_color_swatch');
+    var subtitleColorSwatch = $('subtitle_color_swatch');
+    if (titleColorSwatch) titleColorSwatch.addEventListener('input', updatePreviewText);
+    if (subtitleColorSwatch) subtitleColorSwatch.addEventListener('input', updatePreviewText);
+
     // Opacity: display + checkerboard preview
     var opacityEl = $('media_opacity');
     var opacityDisplay = $('media_opacity_display');
@@ -359,29 +386,7 @@
     mediaTypeRadios.forEach(function(r) { r.addEventListener('change', updatePillStyles); });
     updatePillStyles();
 
-    // Live preview: title, subtitle, colors, font sizes
-    var previewTitle = $('preview-title');
-    var previewSubtitle = $('preview-subtitle');
-    var previewOverlay = $('preview-overlay');
-
-    function updatePreviewText() {
-        var title = ($('title') && $('title').value) || 'Your title';
-        var subtitle = ($('subtitle') && $('subtitle').value) || 'Your subtitle';
-        var titleColor = ($('title_color') && $('title_color').value) || '#ffffff';
-        var subtitleColor = ($('subtitle_color') && $('subtitle_color').value) || '#e5e7eb';
-        var titleSize = ($('title_font_size') && $('title_font_size').value) || 'lg';
-        var subtitleSize = ($('subtitle_font_size') && $('subtitle_font_size').value) || 'md';
-        if (previewTitle) {
-            previewTitle.textContent = title;
-            previewTitle.style.color = titleColor;
-            previewTitle.style.fontSize = titleSizeMap[titleSize] || '2rem';
-        }
-        if (previewSubtitle) {
-            previewSubtitle.textContent = subtitle;
-            previewSubtitle.style.color = subtitleColor;
-            previewSubtitle.style.fontSize = subtitleSizeMap[subtitleSize] || '1rem';
-        }
-    }
+    // Live preview: title, subtitle, colors, font sizes (updatePreviewText defined above after bindColor)
 
     function updatePreviewOverlay() {
         if (!previewOverlay || !opacityEl) return;
