@@ -96,7 +96,9 @@ class ReportGenerationController extends Controller
 
         switch ($reportType) {
             case 'notices':
-                $query = Notice::with(['creator', 'allowedUsers']);
+                // Only include Notice of Meeting in this report (exclude Agenda and Notice of Postponement)
+                $query = Notice::with(['creator', 'allowedUsers'])
+                    ->where('notice_type', 'Notice of Meeting');
                 
                 // Date range (use notice_date_from / notice_date_to when set, else date_from / date_to)
                 $noticeDateFrom = $request->input('notice_date_from') ? Carbon::parse($request->input('notice_date_from'))->startOfDay() : $dateFrom;
