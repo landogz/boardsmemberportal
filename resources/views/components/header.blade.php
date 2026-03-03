@@ -134,25 +134,33 @@
                 @endauth
             </div>
             <!-- Mobile / tablet actions + hamburger (below xl, incl. iPad) - aligned with logo -->
-            <div class="flex items-center justify-end space-x-2 xl:hidden flex-shrink-0 min-h-[44px]">
+            <div class="flex items-center justify-end space-x-2 md:space-x-3 xl:hidden flex-shrink-0 min-h-[44px]">
                 @auth
                     <!-- Notifications Icon (Mobile) -->
-                    <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notifications">
-                        <i class="far fa-bell text-xl text-gray-700 dark:text-gray-300"></i>
+                    <a href="{{ route('notifications.index') }}" class="relative p-2 md:p-2.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] md:min-w-[52px] md:min-h-[52px] flex items-center justify-center" aria-label="Notifications">
+                        <i class="far fa-bell text-xl md:text-2xl text-gray-700 dark:text-gray-300"></i>
                         <span id="notificationBadgeMobile" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full border-2 border-white dark:border-gray-800 text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028;"></span>
                     </a>
                     <!-- Messages Icon (Mobile) -->
-                    <a href="{{ route('messages') }}" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Messages">
-                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('messages') }}" class="relative p-2 md:p-2.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] md:min-w-[52px] md:min-h-[52px] flex items-center justify-center" aria-label="Messages">
+                        <svg class="w-6 h-6 md:w-7 md:h-7 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
                         <span id="messagesBadgeCountMobile" class="absolute -top-1 -right-1 h-[18px] min-w-[18px] px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center hidden" style="background-color: #CE2028; border: 2px solid white; z-index: 10;">0</span>
                     </a>
                 @endauth
-                <button id="themeToggleMobile" type="button" class="hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
-                    <span id="themeIconMobile" class="text-xl">🌙</span>
+                <button id="themeToggleMobile" type="button" class="hidden p-2 md:p-2.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer min-w-[44px] min-h-[44px] md:min-w-[52px] md:min-h-[52px] flex items-center justify-center" aria-label="Toggle dark mode" onclick="window.toggleTheme && window.toggleTheme()">
+                    <span id="themeIconMobile" class="text-xl md:text-2xl">🌙</span>
                 </button>
-                <button id="mobileMenuBtn" class="text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">☰</button>
+                <button
+                    id="mobileMenuBtn"
+                    class="min-w-[48px] min-h-[48px] md:min-w-[64px] md:min-h-[64px] flex items-center justify-center"
+                    style="font-size: 26px; line-height: 1;"
+                    aria-label="Toggle menu"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
             </div>
         </div>
     </div>
