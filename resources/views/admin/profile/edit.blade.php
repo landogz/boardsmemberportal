@@ -833,6 +833,12 @@
                /[^A-Za-z0-9]/.test(password);
     }
 
+    // Basic email validator (used in step validation)
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
     // Philippine mobile only: +63 followed by 10 digits, formatted as +63 XXX XXX XXXX (same pattern as registration)
     $('#mobile').on('input', function() {
         let value = $(this).val().replace(/\D/g, '');
@@ -1112,6 +1118,14 @@
         $('.text-red-500').addClass('hidden');
     }
 
+    function showError(fieldId, message) {
+        const errorElement = $(`#${fieldId}-error`);
+        if (errorElement.length) {
+            errorElement.text(message);
+            errorElement.removeClass('hidden');
+        }
+    }
+
     function updateStepIndicator() {
         $('.step-item').each(function(index) {
             const stepNum = index + 1;
@@ -1136,9 +1150,70 @@
         updateStepIndicator();
     }
 
+    function validateStep(step) {
+        let isValid = true;
+        let firstInvalidField = null;
+
+        if (step === 1) {
+            const firstName = $('#first_name').val().trim();
+            const lastName = $('#last_name').val().trim();
+
+            if (!firstName) {
+                showError('first_name', 'First name is required');
+                if (!firstInvalidField) firstInvalidField = '#first_name';
+                isValid = false;
+            }
+            if (!lastName) {
+                showError('last_name', 'Last name is required');
+                if (!firstInvalidField) firstInvalidField = '#last_name';
+                isValid = false;
+            }
+        } else if (step === 2) {
+            // Office address is optional in backend; no hard validation here
+        } else if (step === 3) {
+            const email = $('#email').val().trim();
+            const mobileRaw = $('#mobile').val();
+            const mobile = mobileRaw.replace(/\s/g, '').trim();
+
+            if (!email) {
+                showError('email', 'Email address is required');
+                if (!firstInvalidField) firstInvalidField = '#email';
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                showError('email', 'Please enter a valid email address');
+                if (!firstInvalidField) firstInvalidField = '#email';
+                isValid = false;
+            }
+
+            if (!mobile) {
+                showError('mobile', 'Mobile number is required');
+                if (!firstInvalidField) firstInvalidField = '#mobile';
+                isValid = false;
+            } else if (!/^\+63[0-9]{10}$/.test(mobile)) {
+                showError('mobile', 'Mobile number must be +63 followed by exactly 10 digits (e.g. +639171234567).');
+                if (!firstInvalidField) firstInvalidField = '#mobile';
+                isValid = false;
+            }
+        }
+
+        if (!isValid && firstInvalidField) {
+            setTimeout(() => {
+                $(firstInvalidField).focus();
+                $('html, body').animate({
+                    scrollTop: $(firstInvalidField).offset().top - 120
+                }, 400);
+            }, 50);
+        }
+
+        return isValid;
+    }
+
     // Next button
     $('#nextBtn').on('click', function() {
         clearErrors();
+        if (!validateStep(currentStep)) {
+            return;
+        }
         currentStep++;
         showStep(currentStep);
         // Scroll to top
