@@ -19,7 +19,7 @@
             <!-- Logo / Office of the President + DDB brand -->
             <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0 min-h-[44px] md:min-h-[56px]">
                 <a href="https://ddb.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center">
-                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Office of the President - Dangerous Drugs Board (DDB) Official Website" class="h-9 sm:h-10 md:h-12 lg:h-14 w-auto max-h-[56px] md:max-h-[70px] object-contain object-center">
+                    <img src="{{ asset('images/DDB_Website_Header1.png') }}" alt="Office of the President - Dangerous Drugs Board (DDB) Official Website" class="h-12 sm:h-10 md:h-12 lg:h-14 w-auto max-h-[56px] md:max-h-[70px] object-contain object-center">
                 </a>
             </div>
             <!-- Desktop navigation (xl and up) - vertically centered with logo -->
