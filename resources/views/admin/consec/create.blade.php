@@ -638,6 +638,13 @@
                 if (!firstInvalidField) firstInvalidField = '#pre_nominal_title';
                 isValid = false;
             }
+            const postNominalTitle = $('#post_nominal_title').val();
+            const postNominalCustom = $('#post_nominal_title_custom').val().trim();
+            if (postNominalTitle === 'Others' && !postNominalCustom) {
+                showError('post_nominal_title', 'Post nominal title is required');
+                if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
+                isValid = false;
+            }
             if (!firstName) {
                 showError('first_name', 'First name is required');
                 if (!firstInvalidField) firstInvalidField = '#first_name';

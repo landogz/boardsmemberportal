@@ -192,7 +192,8 @@ class AuthController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
-            'post_nominal_title' => 'nullable|string|max:255',
+            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
+            'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
@@ -230,6 +231,8 @@ class AuthController extends Controller
                 },
             ],
         ], [
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Last name is required.',
             'mobile.regex' => 'Mobile number must be in format +63 followed by 10 digits.',
             'password.confirmed' => 'Password confirmation does not match.',
             'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
@@ -237,6 +240,11 @@ class AuthController extends Controller
 
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
         $username = User::usernameFromName($request->first_name, $request->last_name);
+
+        // Resolve final post nominal title (standard value or custom "Others")
+        $postNominalTitle = $request->post_nominal_title === 'Others'
+            ? $request->post_nominal_title_custom
+            : $request->post_nominal_title;
 
         $user = User::create([
             'id' => Str::uuid(),
@@ -246,7 +254,7 @@ class AuthController extends Controller
             'first_name' => $request->first_name,
             'middle_initial' => $request->middle_initial,
             'last_name' => $request->last_name,
-            'post_nominal_title' => $request->post_nominal_title,
+            'post_nominal_title' => $postNominalTitle,
             'designation' => $request->designation,
             'sex' => $request->sex,
             'gender' => $request->gender,

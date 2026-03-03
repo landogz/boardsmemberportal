@@ -86,6 +86,8 @@ class BoardMemberController extends Controller
             'landline' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
         ], [
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Last name is required.',
             'birth_date.before_or_equal' => 'You must be at least 18 years old to register.',
             'email.unique' => 'This email is already registered. Please use a different email address.',
         ]);

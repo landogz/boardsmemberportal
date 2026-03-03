@@ -65,7 +65,8 @@ class CONSECController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
-            'post_nominal_title' => 'nullable|string|max:255',
+            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
+            'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
@@ -103,6 +104,8 @@ class CONSECController extends Controller
                 },
             ],
         ], [
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Last name is required.',
             'password.confirmed' => 'Password confirmation does not match.',
             'email.unique' => 'This email is already registered. Please use a different email address.',
             'birth_date.before_or_equal' => 'The person must be at least 18 years old.',
@@ -111,6 +114,11 @@ class CONSECController extends Controller
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
         $username = User::usernameFromName($validated['first_name'], $validated['last_name']);
 
+        // Resolve final post nominal title (standard value or custom "Others")
+        $postNominalTitle = $validated['post_nominal_title'] === 'Others'
+            ? $validated['post_nominal_title_custom']
+            : $validated['post_nominal_title'];
+
         $user = User::create([
             'id' => Str::uuid(),
             'government_agency_id' => null, // CONSEC accounts don't have government agency
@@ -118,7 +126,7 @@ class CONSECController extends Controller
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],
-            'post_nominal_title' => $validated['post_nominal_title'] ?? null,
+            'post_nominal_title' => $postNominalTitle ?? null,
             'designation' => $validated['designation'],
             'sex' => $validated['sex'],
             'gender' => $validated['gender'],
