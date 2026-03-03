@@ -70,6 +70,7 @@
                     </label>
                 </li>
 
+                @if(Auth::user()->privilege !== 'consec')
                 <li class="widget-item bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between cursor-move"
                     data-widget-key="media_storage">
                     <div class="flex items-center gap-3">
@@ -103,6 +104,7 @@
                         <span class="ml-2 text-xs text-gray-600">Show</span>
                     </label>
                 </li>
+                @endif
 
                 <li class="widget-item bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between cursor-move"
                     data-widget-key="activity_over_time">

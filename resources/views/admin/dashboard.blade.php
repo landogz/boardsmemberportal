@@ -344,7 +344,7 @@
                     </div>
                     @endif
 
-                    @if(isWidgetVisible('media_storage', $widgetPreferences))
+                    @if(Auth::user()->privilege !== 'consec' && isWidgetVisible('media_storage', $widgetPreferences))
                     <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
                          style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                          onclick="window.location.href='{{ route('admin.media-library.index') }}'">
@@ -364,7 +364,7 @@
                     </div>
                     @endif
 
-                    @if(isWidgetVisible('audit_logs', $widgetPreferences))
+                    @if(Auth::user()->privilege !== 'consec' && isWidgetVisible('audit_logs', $widgetPreferences))
                     <div class="rounded-lg shadow-sm p-4 sm:p-6 text-white cursor-pointer hover:shadow-md transition-shadow"
                          style="background: linear-gradient(135deg, #FBD116 0%, #FBD116 100%); color: #123a60;"
                          onclick="window.location.href='{{ route('admin.audit-logs.index') }}'">
