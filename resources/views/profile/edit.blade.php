@@ -508,6 +508,7 @@
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                                 <option value="">Select Gender</option>
+                                <option value="Cisgender" {{ $user->gender == 'Cisgender' ? 'selected' : '' }}>Cisgender</option>
                                 <option value="Lesbian" {{ $user->gender == 'Lesbian' ? 'selected' : '' }}>Lesbian</option>
                                 <option value="Gay" {{ $user->gender == 'Gay' ? 'selected' : '' }}>Gay</option>
                                 <option value="Bisexual" {{ $user->gender == 'Bisexual' ? 'selected' : '' }}>Bisexual</option>
@@ -515,7 +516,6 @@
                                 <option value="Queer" {{ $user->gender == 'Queer' ? 'selected' : '' }}>Queer</option>
                                 <option value="Intersex" {{ $user->gender == 'Intersex' ? 'selected' : '' }}>Intersex</option>
                                 <option value="Non-binary" {{ $user->gender == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
-                                <option value="Cisgender" {{ $user->gender == 'Cisgender' ? 'selected' : '' }}>Cisgender</option>
                                 <option value="Prefer not to say" {{ $user->gender == 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>

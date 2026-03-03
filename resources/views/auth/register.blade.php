@@ -591,6 +591,7 @@
                                     class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                                     <option value="">Select Gender</option>
+                                    <option value="Cisgender">Cisgender</option>
                                     <option value="Lesbian">Lesbian</option>
                                     <option value="Gay">Gay</option>
                                     <option value="Bisexual">Bisexual</option>
@@ -598,7 +599,6 @@
                                     <option value="Queer">Queer</option>
                                     <option value="Intersex">Intersex</option>
                                     <option value="Non-binary">Non-binary</option>
-                                    <option value="Cisgender">Cisgender</option>
                                     <option value="Prefer not to say">Prefer not to say</option>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="gender-error"></span>

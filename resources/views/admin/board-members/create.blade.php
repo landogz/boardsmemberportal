@@ -263,6 +263,7 @@
                             <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
                             <select id="gender" name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                                 <option value="">Select Gender</option>
+                                <option value="Cisgender">Cisgender</option>
                                 <option value="Lesbian">Lesbian</option>
                                 <option value="Gay">Gay</option>
                                 <option value="Bisexual">Bisexual</option>
@@ -270,7 +271,6 @@
                                 <option value="Queer">Queer</option>
                                 <option value="Intersex">Intersex</option>
                                 <option value="Non-binary">Non-binary</option>
-                                <option value="Cisgender">Cisgender</option>
                                 <option value="Prefer not to say">Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>
