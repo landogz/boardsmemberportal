@@ -1,9 +1,9 @@
 @extends('admin.layout')
 
-@section('title', 'Ad Referendums')
+@section('title', 'Ad Referendum')
 
 @php
-    $pageTitle = 'Ad Referendums';
+    $pageTitle = 'Ad Referendum';
     $headerActions = [];
     if (Auth::user()->hasPermission('create referendum')) {
         $headerActions[] = [
@@ -97,7 +97,7 @@
 <div class="p-4 sm:p-6">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="mb-4">
-            <h2 class="text-xl font-semibold text-gray-800">All Ad Referendums</h2>
+            <h2 class="text-xl font-semibold text-gray-800">All Ad Referendum</h2>
             <p class="text-sm text-gray-600 mt-1">Manage ad referendum posts, voting, and comments</p>
         </div>
 

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>{{ $referendum->title }} - Ad Referendums</title>
+    <title>{{ $referendum->title }} - Ad Referendum</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -2321,6 +2321,9 @@
                                     </div>
                                 `);
                             }
+
+                            // After any successful delete, refresh the main comments list from server
+                            refreshCommentsList();
                         });
                     }
                 } catch (error) {
@@ -2333,6 +2336,78 @@
             }
         });
         
+        // Helper: reload main comments list from server (first page) — used after destructive actions like delete
+        async function refreshCommentsList() {
+            try {
+                const response = await axios.get(`/referendums/${referendumId}/comments`, {
+                    params: {
+                        offset: 0,
+                        limit: 5
+                    }
+                });
+
+                if (!response.data.success) {
+                    return;
+                }
+
+                const comments = response.data.comments || [];
+                const total = response.data.total || 0;
+
+                const $commentsSection = $('.fb-comments-section');
+                let $commentsList = $('#commentsList');
+
+                if (!$commentsList.length) {
+                    $commentsList = $('<div id="commentsList" class="space-y-4"></div>');
+                    // Insert after the comments header block
+                    const $headerBlock = $commentsSection.find('.flex.items-center.justify-between').parent();
+                    if ($headerBlock.length) {
+                        $headerBlock.after($commentsList);
+                    } else {
+                        $commentsSection.append($commentsList);
+                    }
+                }
+
+                // Reset list
+                $commentsList.empty();
+
+                comments.forEach(function(comment) {
+                    const commentHtml = renderComment(comment);
+                    $commentsList.append(commentHtml);
+                });
+
+                // Update count badge
+                $('#commentsCount').text(total);
+
+                // Handle "View More Comments" button
+                const existingContainer = $('#viewMoreCommentsBtn').closest('div');
+                if (existingContainer.length) {
+                    existingContainer.remove();
+                }
+                if (total > comments.length) {
+                    const $container = $('<div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"></div>');
+                    const $btn = $(`
+                        <button 
+                            type="button" 
+                            id="viewMoreCommentsBtn"
+                            class="w-full text-center text-sm font-medium text-[#1877f2] hover:text-[#166fe5] transition-colors py-2"
+                            data-loaded="${comments.length}"
+                            data-total="${total}"
+                        >
+                            View More Comments
+                            <span class="ml-2 text-gray-500 dark:text-gray-400">${comments.length} of ${total}</span>
+                        </button>
+                    `);
+                    $container.append($btn);
+                    $commentsSection.append($container);
+                }
+
+                // Re-run truncation on refreshed comments
+                setTimeout(checkAndTruncateComments, 100);
+            } catch (error) {
+                console.error('Failed to refresh comments list:', error);
+            }
+        }
+
         // View More Comments
         $(document).on('click', '#viewMoreCommentsBtn', async function() {
             const $btn = $(this);

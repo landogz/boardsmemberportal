@@ -7,7 +7,7 @@
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.referendums.index'),
-        'text' => 'Back to Ad Referendums',
+        'text' => 'Back to Ad Referendum',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];

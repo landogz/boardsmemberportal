@@ -154,7 +154,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         </div>
       </div>
       <div class="module-card sysad">
-        <div class="module-header sysad">🗳️ Ad Referendums</div>
+        <div class="module-header sysad">🗳️ Ad Referendum</div>
         <div class="module-body">
           <div class="access-item"><span class="badge badge-full">FULL</span>Full CRUD of all referendums</div>
           <div class="access-item"><span class="badge badge-manage">MANAGE</span>Control who can vote &amp; comment</div>

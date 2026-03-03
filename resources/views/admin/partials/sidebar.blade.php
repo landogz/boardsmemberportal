@@ -185,7 +185,7 @@
                             <li>
                                 <a href="{{ route('admin.referendums.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.referendums.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.referendums.*') ? 'background-color: #055498;' : '' }}">
                                     <i class="fas fa-vote-yea w-4 transition-colors" style="color: #FBD116;"></i>
-                                    <span class="ml-3">Ad Referendums</span>
+                                    <span class="ml-3">Ad Referendum</span>
                                 </a>
                             </li>
                             @endcan

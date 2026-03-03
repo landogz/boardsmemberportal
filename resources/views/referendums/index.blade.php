@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>Ad Referendums - Board Member Portal</title>
+    <title>Ad Referendum - Board Member Portal</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -660,16 +660,16 @@
     @include('components.header')
     @include('components.theme-toggle-script')
     
-    <!-- Ad Referendums Newsfeed -->
+    <!-- Ad Referendum Newsfeed -->
     <div class="min-h-screen bg-[#f0f2f5] dark:bg-[#18191a]">
         <div class="newsfeed-container">
             <!-- Page Header -->
             <div class="mb-4">
-                <h1 class="text-2xl font-bold mb-1 text-[#050505] dark:text-[#e4e6eb]">Ad Referendums</h1>
-                <p class="text-sm text-[#65676b] dark:text-[#b0b3b8]">View and participate in board ad referendums</p>
+                <h1 class="text-2xl font-bold mb-1 text-[#050505] dark:text-[#e4e6eb]">Ad Referendum</h1>
+                <p class="text-sm text-[#65676b] dark:text-[#b0b3b8]">View and participate in board ad referendum</p>
             </div>
 
-                <!-- Ad Referendums Feed -->
+                <!-- Ad Referendum Feed -->
                 @if($referendums->count() > 0)
                     <div class="referendums-grid">
                     @foreach($referendums as $referendum)
@@ -886,7 +886,7 @@
                 @else
                     <div class="fb-empty-state">
                         <i class="fas fa-inbox"></i>
-                        <h3>No Ad Referendums Available</h3>
+                        <h3>No Ad Referendum Available</h3>
                         <p>You don't have access to any referendums at this time.</p>
                     </div>
                 @endif
