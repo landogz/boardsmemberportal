@@ -561,16 +561,10 @@
                 titleDropdown.prop('required', true);
                 boardRegulationsContainer.hide();
                 boardResolutionsContainer.hide();
-                if (noticeType === 'Notice of Postponement') {
-                    $('#meetingDetailsContainer').hide();
-                    $('#meeting_type').prop('required', false);
-                    $('#venue').prop('required', false);
-                    $('#meeting_link').prop('required', false);
-                } else {
-                    $('#meetingDetailsContainer').show();
-                    $('#meeting_type').prop('required', true);
-                    toggleMeetingTypeFields();
-                }
+                $('#meetingDetailsContainer').hide();
+                $('#meeting_type').prop('required', false);
+                $('#venue').prop('required', false);
+                $('#meeting_link').prop('required', false);
             } else if (noticeType === 'Board Issuances') {
                 titleTextContainer.show();
                 titleInput.prop('required', true);
@@ -1037,8 +1031,8 @@
             }
         }
 
-        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid) — skip for Notice of Postponement
-        if (noticeType !== 'Notice of Postponement') {
+        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid) — skip for Agenda and Notice of Postponement
+        if (noticeType !== 'Notice of Postponement' && noticeType !== 'Agenda') {
             const meetingType = $('#meeting_type').val();
             if (meetingType === 'online' || meetingType === 'hybrid') {
                 const meetingLink = $('#meeting_link').val().trim();

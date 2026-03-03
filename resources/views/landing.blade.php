@@ -2010,21 +2010,24 @@
                                 if (noticeType) {
                                     noticeFields += `<p class="mb-2 text-sm"><strong>Notice Type:</strong> <span class="text-purple-700">${noticeType}</span></p>`;
                                 }
-                                if (meetingType) {
-                                    const meetingTypeLabel = meetingType.charAt(0).toUpperCase() + meetingType.slice(1);
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Type:</strong> <span class="text-purple-700">${meetingTypeLabel}</span></p>`;
-                                }
-                                if (meetingDate) {
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Date:</strong> <span class="text-purple-700">${meetingDate}</span></p>`;
-                                }
-                                if (meetingTime) {
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Time:</strong> <span class="text-purple-700">${meetingTime}</span></p>`;
-                                }
-                                if (meetingLink && (meetingType === 'online' || meetingType === 'hybrid')) {
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Link:</strong> <a href="${meetingLink}" target="_blank" class="text-purple-700 hover:text-purple-900 underline break-all"><i class="fas fa-link mr-1"></i>${meetingLink}</a></p>`;
-                                }
-                                if (venue && (meetingType === 'onsite' || meetingType === 'hybrid')) {
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Venue:</strong> <span class="text-purple-700">${venue}</span></p>`;
+                                // Don't show meeting details for Agenda or Notice of Postponement (like admin forms)
+                                if (noticeType !== 'Agenda' && noticeType !== 'Notice of Postponement') {
+                                    if (meetingType) {
+                                        const meetingTypeLabel = meetingType.charAt(0).toUpperCase() + meetingType.slice(1);
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Type:</strong> <span class="text-purple-700">${meetingTypeLabel}</span></p>`;
+                                    }
+                                    if (meetingDate) {
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Date:</strong> <span class="text-purple-700">${meetingDate}</span></p>`;
+                                    }
+                                    if (meetingTime) {
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Time:</strong> <span class="text-purple-700">${meetingTime}</span></p>`;
+                                    }
+                                    if (meetingLink && (meetingType === 'online' || meetingType === 'hybrid')) {
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Link:</strong> <a href="${meetingLink}" target="_blank" class="text-purple-700 hover:text-purple-900 underline break-all"><i class="fas fa-link mr-1"></i>${meetingLink}</a></p>`;
+                                    }
+                                    if (venue && (meetingType === 'onsite' || meetingType === 'hybrid')) {
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Venue:</strong> <span class="text-purple-700">${venue}</span></p>`;
+                                    }
                                 }
                                 noticeFields += '</div>';
                             }

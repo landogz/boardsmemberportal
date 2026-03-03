@@ -100,18 +100,18 @@ class NoticeController extends Controller
             'title' => 'required|string|max:255',
             'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda|required_if:notice_type,Notice of Postponement',
             'related_notice_id' => 'nullable|exists:notices,id',
-            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|nullable|in:online,onsite,hybrid',
+            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|required_unless:notice_type,Agenda|nullable|in:online,onsite,hybrid',
             'meeting_link' => [
                 'nullable',
                 'string',
                 'max:500',
-                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['online', 'hybrid'])),
+                Rule::requiredIf(fn () => !in_array($request->notice_type, ['Notice of Postponement', 'Agenda']) && in_array($request->meeting_type, ['online', 'hybrid'])),
             ],
             'venue' => [
                 'nullable',
                 'string',
                 'max:500',
-                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['onsite', 'hybrid'])),
+                Rule::requiredIf(fn () => !in_array($request->notice_type, ['Notice of Postponement', 'Agenda']) && in_array($request->meeting_type, ['onsite', 'hybrid'])),
             ],
             'meeting_date' => 'nullable|date|after_or_equal:today',
             'meeting_time' => 'nullable|date_format:H:i',
@@ -157,7 +157,8 @@ class NoticeController extends Controller
                 $relatedNoticeId = $validated['related_notice_id'];
             }
 
-            $meetingType = $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_type'] ?? null);
+            $skipMeetingFields = in_array($validated['notice_type'], ['Notice of Postponement', 'Agenda']);
+            $meetingType = $skipMeetingFields ? null : ($validated['meeting_type'] ?? null);
             $notice = Notice::create([
                 'notice_type' => $validated['notice_type'],
                 'title' => $title,
@@ -165,8 +166,8 @@ class NoticeController extends Controller
                 'meeting_type' => $meetingType,
                 'meeting_link' => $meetingType && in_array($meetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null,
                 'venue' => $meetingType && in_array($meetingType, ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
-                'meeting_date' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null),
-                'meeting_time' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null),
+                'meeting_date' => $skipMeetingFields ? null : ($validated['meeting_date'] ?? null),
+                'meeting_time' => $skipMeetingFields ? null : ($validated['meeting_time'] ?? null),
                 'no_of_attendees' => ($validated['notice_type'] === 'Board Issuances' && isset($validated['no_of_attendees'])) ? $validated['no_of_attendees'] : null,
                 'board_regulations' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_regulations'])) ? json_encode($validated['board_regulations']) : null,
                 'board_resolutions' => ($validated['notice_type'] === 'Board Issuances' && !empty($validated['board_resolutions'])) ? json_encode($validated['board_resolutions']) : null,
@@ -382,18 +383,18 @@ class NoticeController extends Controller
             'title' => 'required|string|max:255',
             'title_dropdown' => 'nullable|exists:notices,id|required_if:notice_type,Agenda|required_if:notice_type,Notice of Postponement',
             'related_notice_id' => 'nullable|exists:notices,id',
-            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|nullable|in:online,onsite,hybrid',
+            'meeting_type' => 'required_unless:notice_type,Notice of Postponement|required_unless:notice_type,Agenda|nullable|in:online,onsite,hybrid',
             'meeting_link' => [
                 'nullable',
                 'string',
                 'max:500',
-                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['online', 'hybrid'])),
+                Rule::requiredIf(fn () => !in_array($request->notice_type, ['Notice of Postponement', 'Agenda']) && in_array($request->meeting_type, ['online', 'hybrid'])),
             ],
             'venue' => [
                 'nullable',
                 'string',
                 'max:500',
-                Rule::requiredIf(fn () => $request->notice_type !== 'Notice of Postponement' && in_array($request->meeting_type, ['onsite', 'hybrid'])),
+                Rule::requiredIf(fn () => !in_array($request->notice_type, ['Notice of Postponement', 'Agenda']) && in_array($request->meeting_type, ['onsite', 'hybrid'])),
             ],
             'meeting_date' => 'nullable|date',
             'meeting_time' => 'nullable|date_format:H:i',
@@ -475,7 +476,8 @@ class NoticeController extends Controller
                 Notice::where('id', $originalRelatedNoticeId)->update(['status' => 'scheduled']);
             }
 
-            $updMeetingType = $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_type'] ?? null);
+            $skipMeetingFields = in_array($validated['notice_type'], ['Notice of Postponement', 'Agenda']);
+            $updMeetingType = $skipMeetingFields ? null : ($validated['meeting_type'] ?? null);
             $notice->update([
                 'notice_type' => $validated['notice_type'],
                 'title' => $title,
@@ -483,8 +485,8 @@ class NoticeController extends Controller
                 'meeting_type' => $updMeetingType,
                 'meeting_link' => $updMeetingType && in_array($updMeetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null,
                 'venue' => $updMeetingType && in_array($updMeetingType, ['onsite', 'hybrid']) ? ($validated['venue'] ?? null) : null,
-                'meeting_date' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null),
-                'meeting_time' => $validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null),
+                'meeting_date' => $skipMeetingFields ? null : ($validated['meeting_date'] ?? null),
+                'meeting_time' => $skipMeetingFields ? null : ($validated['meeting_time'] ?? null),
                 'no_of_attendees' => $newNoOfAttendees,
                 'board_regulations' => $newBoardRegulations,
                 'board_resolutions' => $newBoardResolutions,
@@ -506,8 +508,8 @@ class NoticeController extends Controller
                 $originalRelatedNoticeId == $relatedNoticeId &&
                 $originalMeetingType === $updMeetingType &&
                 $originalMeetingLink === ($updMeetingType && in_array($updMeetingType, ['online', 'hybrid']) ? ($validated['meeting_link'] ?? null) : null) &&
-                $originalMeetingDate === ($validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_date'] ?? null)) &&
-                $originalMeetingTime === ($validated['notice_type'] === 'Notice of Postponement' ? null : ($validated['meeting_time'] ?? null)) &&
+                $originalMeetingDate === ($skipMeetingFields ? null : ($validated['meeting_date'] ?? null)) &&
+                $originalMeetingTime === ($skipMeetingFields ? null : ($validated['meeting_time'] ?? null)) &&
                 $originalBoardRegulations === $newBoardRegulations &&
                 $originalBoardResolutions === $newBoardResolutions &&
                 $originalDescription === ($validated['description'] ?? null) &&

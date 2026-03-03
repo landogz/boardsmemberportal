@@ -118,8 +118,8 @@
                         <span class="text-red-500 text-sm hidden" id="title_dropdown-error"></span>
                     </div>
 
-                    <!-- Meeting details (hidden for Notice of Postponement) -->
-                    <div id="meetingDetailsContainer" class="space-y-6 {{ $notice->notice_type === 'Notice of Postponement' ? 'hidden' : '' }}">
+                    <!-- Meeting details (hidden for Agenda and Notice of Postponement) -->
+                    <div id="meetingDetailsContainer" class="space-y-6 {{ in_array($notice->notice_type, ['Agenda', 'Notice of Postponement']) ? 'hidden' : '' }}">
                         <!-- Meeting Type Selection -->
                         <div>
                             <label for="meeting_type" class="block text-sm font-medium text-gray-700 mb-2">Meeting Type *</label>
@@ -610,16 +610,10 @@
             $('#noOfAttendeesContainer').hide();
             $('#boardRegulationsContainer').hide();
             $('#boardResolutionsContainer').hide();
-            if (currentNoticeType === 'Notice of Postponement') {
-                $('#meetingDetailsContainer').hide();
-                $('#meeting_type').prop('required', false);
-                $('#venue').prop('required', false);
-                $('#meeting_link').prop('required', false);
-            } else {
-                $('#meetingDetailsContainer').show();
-                $('#meeting_type').prop('required', true);
-                toggleMeetingTypeFields();
-            }
+            $('#meetingDetailsContainer').hide();
+            $('#meeting_type').prop('required', false);
+            $('#venue').prop('required', false);
+            $('#meeting_link').prop('required', false);
         } else if (currentNoticeType === 'Board Issuances') {
             $('#titleTextContainer').show();
             $('#title').prop('required', true);
@@ -667,16 +661,10 @@
                 noOfAttendeesInput.val('');
                 boardRegulationsContainer.hide();
                 boardResolutionsContainer.hide();
-                if (noticeType === 'Notice of Postponement') {
-                    $('#meetingDetailsContainer').hide();
-                    $('#meeting_type').prop('required', false);
-                    $('#venue').prop('required', false);
-                    $('#meeting_link').prop('required', false);
-                } else {
-                    $('#meetingDetailsContainer').show();
-                    $('#meeting_type').prop('required', true);
-                    toggleMeetingTypeFields();
-                }
+                $('#meetingDetailsContainer').hide();
+                $('#meeting_type').prop('required', false);
+                $('#venue').prop('required', false);
+                $('#meeting_link').prop('required', false);
             } else if (noticeType === 'Board Issuances') {
                 titleTextContainer.show();
                 titleInput.prop('required', true);
@@ -1169,8 +1157,8 @@
             }
         }
 
-        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid) — skip for Notice of Postponement
-        if (noticeType !== 'Notice of Postponement') {
+        // Validate meeting type, venue (onsite/hybrid), and link (online/hybrid) — skip for Agenda and Notice of Postponement
+        if (noticeType !== 'Notice of Postponement' && noticeType !== 'Agenda') {
             const meetingType = $('#meeting_type').val();
             if (meetingType === 'online' || meetingType === 'hybrid') {
                 const meetingLink = $('#meeting_link').val().trim();
