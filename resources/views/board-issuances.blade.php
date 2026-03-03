@@ -289,13 +289,12 @@
 
             <!-- Modal Body -->
             <div class="flex-1 overflow-hidden p-4 lg:p-6 relative">
-                <div id="pdfViewerContainerUser" class="w-full h-full border border-gray-300 dark:border-gray-600 rounded-lg relative overflow-hidden">
+                <div id="pdfViewerContainerUser" class="w-full h-full min-h-0 border border-gray-300 dark:border-gray-600 rounded-lg relative overflow-hidden">
                     <iframe 
                         id="pdfViewer" 
                         src="" 
-                        class="w-full h-full" 
+                        class="w-full h-full min-h-0 block" 
                         frameborder="0"
-                        style="position: relative; top: 100px; height: 100%;"
                     ></iframe>
                 </div>
             </div>
