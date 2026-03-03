@@ -58,11 +58,26 @@ class ResetPortalData extends Command
         DB::table('referendum_user_access')->truncate();
         DB::table('referendums')->truncate();
 
-        // Audit Logs
-        DB::table('audit_logs')->truncate();
-
         // Banner
         DB::table('banner_slides')->truncate();
+
+        // Chat / messaging (direct + group chats)
+        // Truncate reactions first (FKs), then messages/chats and group metadata
+        if (DB::getSchemaBuilder()->hasTable('message_reactions')) {
+            DB::table('message_reactions')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('message_attachments')) {
+            DB::table('message_attachments')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('chats')) {
+            DB::table('chats')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('group_chat_members')) {
+            DB::table('group_chat_members')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('group_chats')) {
+            DB::table('group_chats')->truncate();
+        }
 
         // Optional: remove Board Member & CONSEC users
         if ($this->option('with-users')) {
