@@ -38,7 +38,7 @@ class ReferendumEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Referendum Available - Board Members Portal',
+            subject: 'New Ad Referendum Available - Board Members Portal',
         );
     }
 

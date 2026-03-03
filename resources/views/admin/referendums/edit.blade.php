@@ -1,13 +1,13 @@
 @extends('admin.layout')
 
-@section('title', 'Edit Referendum')
+@section('title', 'Edit Ad Referendum')
 
 @php
-    $pageTitle = 'Edit Referendum';
+    $pageTitle = 'Edit Ad Referendum';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.referendums.index'),
-        'text' => 'Back to Referendums',
+        'text' => 'Back to Ad Referendums',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
@@ -40,8 +40,8 @@
 <div class="p-4 lg:p-6">
     <!-- Page Title -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Edit Referendum</h2>
-        <p class="text-gray-600 mt-1">Update referendum post details, voting, and commenting features</p>
+        <h2 class="text-2xl font-bold text-gray-800">Edit Ad Referendum</h2>
+        <p class="text-gray-600 mt-1">Update ad referendum post details, voting, and commenting features</p>
     </div>
 
     <!-- Form -->
@@ -280,7 +280,7 @@
                                 class="w-full px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                             >
-                                <span id="submitBtnText">Update Referendum</span>
+                                <span id="submitBtnText">Update Ad Referendum</span>
                                 <span id="submitBtnLoader" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Updating...</span>
                             </button>
                             <a 

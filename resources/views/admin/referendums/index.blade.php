@@ -1,14 +1,14 @@
 @extends('admin.layout')
 
-@section('title', 'Referendums')
+@section('title', 'Ad Referendums')
 
 @php
-    $pageTitle = 'Referendums';
+    $pageTitle = 'Ad Referendums';
     $headerActions = [];
     if (Auth::user()->hasPermission('create referendum')) {
         $headerActions[] = [
             'url' => route('admin.referendums.create'),
-            'text' => 'Create Referendum',
+            'text' => 'Create Ad Referendum',
             'icon' => 'fas fa-plus',
             'class' => 'px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300',
             'style' => 'background: linear-gradient(135deg, #055498 0%, #123a60 100%);'
@@ -97,8 +97,8 @@
 <div class="p-4 sm:p-6">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="mb-4">
-            <h2 class="text-xl font-semibold text-gray-800">All Referendums</h2>
-            <p class="text-sm text-gray-600 mt-1">Manage referendum posts, voting, and comments</p>
+            <h2 class="text-xl font-semibold text-gray-800">All Ad Referendums</h2>
+            <p class="text-sm text-gray-600 mt-1">Manage ad referendum posts, voting, and comments</p>
         </div>
 
         @if(session('success'))
@@ -199,7 +199,7 @@
                                         @can('edit referendum')
                                         <a href="{{ route('admin.referendums.edit', $referendum->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-green-600"></i>
-                                            Edit Referendum
+                                            Edit Ad Referendum
                                         </a>
                                         @endcan
                                         @can('delete referendum')
@@ -338,7 +338,7 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Deleted!',
-                                text: response.data?.message || 'Referendum has been deleted.',
+                                text: response.data?.message || 'Ad Referendum has been deleted.',
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {

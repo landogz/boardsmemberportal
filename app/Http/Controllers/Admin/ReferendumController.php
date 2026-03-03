@@ -103,8 +103,8 @@ class ReferendumController extends Controller
                     Notification::create([
                         'user_id' => $userId,
                         'type' => 'announcement',
-                        'title' => 'New Referendum Available',
-                        'message' => 'A new referendum "' . $referendum->title . '" has been created and is now available for your review and vote.',
+                        'title' => 'New Ad Referendum Available',
+                        'message' => 'A new ad referendum \"' . $referendum->title . '\" has been created and is now available for your review and vote.',
                         'url' => route('referendums.show', $referendum->id),
                         'data' => [
                             'referendum_id' => $referendum->id,
@@ -131,7 +131,7 @@ class ReferendumController extends Controller
             DB::commit();
 
             return redirect()->route('admin.referendums.index')
-                ->with('success', 'Referendum created successfully.');
+                ->with('success', 'Ad Referendum created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()

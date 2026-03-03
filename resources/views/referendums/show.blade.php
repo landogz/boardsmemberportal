@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>{{ $referendum->title }} - Referendums</title>
+    <title>{{ $referendum->title }} - Ad Referendums</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -527,7 +527,7 @@
             <div class="mb-6">
                 <a href="{{ route('referendums.index') }}" class="inline-flex items-center text-sm font-medium text-[#1877f2] hover:text-[#166fe5] transition-colors duration-200 group">
                     <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform duration-200"></i>
-                    Back to Referendums
+                    Back to Ad Referendums
                 </a>
             </div>
 
@@ -763,7 +763,7 @@
                                 <div class="bg-gradient-to-br from-white to-gray-50 dark:from-[#1e293b] dark:to-[#0f172a] rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-lg">
                                     <div class="flex items-center space-x-2 mb-4">
                                         <i class="fas fa-info-circle text-orange-500"></i>
-                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Referendum Ended</h3>
+                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Ad Referendum Ended</h3>
                                     </div>
                                     <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
                                         This referendum has ended. Voting is no longer available.

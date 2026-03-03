@@ -1,20 +1,20 @@
 @extends('admin.layout')
 
-@section('title', 'Referendum Details')
+@section('title', 'Ad Referendum Details')
 
 @php
-    $pageTitle = 'Referendum Details';
+    $pageTitle = 'Ad Referendum Details';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.referendums.index'),
-        'text' => 'Back to Referendums',
+        'text' => 'Back to Ad Referendums',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
     if (Auth::user()->hasPermission('edit referendum')) {
         $headerActions[] = [
             'url' => route('admin.referendums.edit', $referendum->id),
-            'text' => 'Edit Referendum',
+            'text' => 'Edit Ad Referendum',
             'icon' => 'fas fa-edit',
             'class' => 'px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300',
             'style' => 'background: linear-gradient(135deg, #055498 0%, #123a60 100%);'

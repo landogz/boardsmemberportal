@@ -1,13 +1,13 @@
 @extends('admin.layout')
 
-@section('title', 'Create Referendum')
+@section('title', 'Create Ad Referendum')
 
 @php
-    $pageTitle = 'Create Referendum';
+    $pageTitle = 'Create Ad Referendum';
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.referendums.index'),
-        'text' => 'Back to Referendums',
+        'text' => 'Back to Ad Referendums',
         'icon' => 'fas fa-arrow-left',
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
@@ -40,8 +40,8 @@
 <div class="p-4 lg:p-6">
     <!-- Page Title -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Create Referendum</h2>
-        <p class="text-gray-600 mt-1">Create a new referendum post with voting and commenting features</p>
+        <h2 class="text-2xl font-bold text-gray-800">Create Ad Referendum</h2>
+        <p class="text-gray-600 mt-1">Create a new ad referendum post with voting and commenting features</p>
     </div>
 
     <!-- Form -->
@@ -254,7 +254,7 @@
                                 class="w-full px-6 py-3 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);"
                             >
-                                <span id="submitBtnText">Create Referendum</span>
+                                <span id="submitBtnText">Create Ad Referendum</span>
                                 <span id="submitBtnLoader" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Creating...</span>
                             </button>
                             <a 
