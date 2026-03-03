@@ -75,8 +75,8 @@ class AuthController extends Controller
         }
 
         // Check status first (pending users have is_active=false, so status takes precedence)
-        // Block login if the user's government agency is deactivated
-        if ($user->government_agency_id) {
+        // Block login for board members (privilege = user) if their agency is deactivated
+        if ($user->privilege === 'user' && $user->government_agency_id) {
             $agency = GovernmentAgency::find($user->government_agency_id);
             if ($agency && !$agency->is_active) {
                 throw ValidationException::withMessages([
