@@ -157,6 +157,13 @@ class NoticeController extends Controller
                 $relatedNoticeId = $validated['related_notice_id'];
             }
 
+            // If creating an Agenda for a Notice of Meeting that already has an Agenda, delete the existing one first
+            if ($validated['notice_type'] === 'Agenda' && $relatedNoticeId) {
+                Notice::where('notice_type', 'Agenda')
+                    ->where('related_notice_id', $relatedNoticeId)
+                    ->delete();
+            }
+
             $skipMeetingFields = in_array($validated['notice_type'], ['Notice of Postponement', 'Agenda']);
             $meetingType = $skipMeetingFields ? null : ($validated['meeting_type'] ?? null);
             $notice = Notice::create([
