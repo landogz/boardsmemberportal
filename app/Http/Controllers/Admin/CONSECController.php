@@ -68,8 +68,8 @@ class CONSECController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
-            'birth_date' => 'required|date|before:today',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
             'office_city_municipality' => 'required|string|max:255',
@@ -105,6 +105,7 @@ class CONSECController extends Controller
         ], [
             'password.confirmed' => 'Password confirmation does not match.',
             'email.unique' => 'This email is already registered. Please use a different email address.',
+            'birth_date.before_or_equal' => 'The person must be at least 18 years old.',
         ]);
 
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
@@ -212,8 +213,8 @@ class CONSECController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
-            'birth_date' => 'required|date|before:today',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
+            'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',
             'office_city_municipality' => 'required|string|max:255',
@@ -228,6 +229,8 @@ class CONSECController extends Controller
             'landline' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
             'is_active' => 'boolean',
+        ], [
+            'birth_date.before_or_equal' => 'The person must be at least 18 years old.',
         ]);
 
         $updateData = [

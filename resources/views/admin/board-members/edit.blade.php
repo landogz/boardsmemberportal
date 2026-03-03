@@ -274,6 +274,7 @@
                                 <option value="Queer" {{ $user->gender === 'Queer' ? 'selected' : '' }}>Queer</option>
                                 <option value="Intersex" {{ $user->gender === 'Intersex' ? 'selected' : '' }}>Intersex</option>
                                 <option value="Non-binary" {{ $user->gender === 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                                <option value="Cisgender" {{ $user->gender === 'Cisgender' ? 'selected' : '' }}>Cisgender</option>
                                 <option value="Prefer not to say" {{ $user->gender === 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>

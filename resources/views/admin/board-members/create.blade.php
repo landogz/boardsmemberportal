@@ -270,6 +270,7 @@
                                 <option value="Queer">Queer</option>
                                 <option value="Intersex">Intersex</option>
                                 <option value="Non-binary">Non-binary</option>
+                                <option value="Cisgender">Cisgender</option>
                                 <option value="Prefer not to say">Prefer not to say</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="gender-error"></span>

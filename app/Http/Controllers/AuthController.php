@@ -185,7 +185,7 @@ class AuthController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
-            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
+            'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
             'birth_date' => 'required|date|before:today|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'office_region' => 'required|string|max:255',
             'office_province' => 'required|string|max:255',

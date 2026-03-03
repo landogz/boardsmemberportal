@@ -125,7 +125,7 @@ class ProfileController extends Controller
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:255',
             'sex' => 'nullable|in:Male,Female',
-            'gender' => 'nullable|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Prefer not to say',
+            'gender' => 'nullable|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
             'birth_date' => 'nullable|date',
             'office_building_no' => 'nullable|string|max:255',
             'office_house_no' => 'nullable|string|max:255',
