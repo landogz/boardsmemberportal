@@ -205,7 +205,7 @@
                             @foreach($regulationYears as $yr)
                                 <div class="issuance-accordion-panel rounded-lg border border-gray-200 dark:border-gray-700" :aria-expanded="openYear === '{{ $yr }}'">
                                     <button type="button" class="issuance-accordion-header w-full flex items-center justify-between rounded-lg" @click="const wasOpen = openYear === '{{ $yr }}'; openYear = wasOpen ? null : '{{ $yr }}'; if (!wasOpen) $nextTick(() => loadSeries('regulation', '{{ $yr }}'));">
-                                        <span>Series {{ $yr }}</span>
+                                        <span>Series of {{ $yr }}</span>
                                         <span class="issuance-accordion-icon" :class="{ 'rotate-45': openYear === '{{ $yr }}' }">+</span>
                                     </button>
                                     <div class="issuance-accordion-panel-content border-t border-gray-200 dark:border-gray-700" x-show="openYear === '{{ $yr }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
@@ -245,7 +245,7 @@
                             @foreach($documentYears as $yr)
                                 <div class="issuance-accordion-panel rounded-lg border border-gray-200 dark:border-gray-700" :aria-expanded="openYear === '{{ $yr }}'">
                                     <button type="button" class="issuance-accordion-header w-full flex items-center justify-between rounded-lg" @click="const wasOpen = openYear === '{{ $yr }}'; openYear = wasOpen ? null : '{{ $yr }}'; if (!wasOpen) $nextTick(() => loadSeries('resolution', '{{ $yr }}'));">
-                                        <span>Series {{ $yr }}</span>
+                                        <span>Series of {{ $yr }}</span>
                                         <span class="issuance-accordion-icon" :class="{ 'rotate-45': openYear === '{{ $yr }}' }">+</span>
                                     </button>
                                     <div class="issuance-accordion-panel-content border-t border-gray-200 dark:border-gray-700" x-show="openYear === '{{ $yr }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
