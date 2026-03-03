@@ -62,7 +62,8 @@ class BoardMemberController extends Controller
         $validated = $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
             'representative_type' => 'required|in:Board Member,Authorized Representative',
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
+            'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -95,6 +96,11 @@ class BoardMemberController extends Controller
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
         $username = User::usernameFromName($validated['first_name'], $validated['last_name']);
 
+        // Handle pre nominal title (standard or custom "Others")
+        $preNominalTitle = $validated['pre_nominal_title'] === 'Others'
+            ? $validated['pre_nominal_title_custom']
+            : $validated['pre_nominal_title'];
+
         // Handle post nominal title
         $postNominalTitle = $validated['post_nominal_title'] === 'Others' 
             ? $validated['post_nominal_title_custom'] 
@@ -104,7 +110,7 @@ class BoardMemberController extends Controller
             'id' => Str::uuid(),
             'government_agency_id' => $validated['government_agency_id'],
             'representative_type' => $validated['representative_type'],
-            'pre_nominal_title' => $validated['pre_nominal_title'],
+            'pre_nominal_title' => $preNominalTitle,
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],
@@ -188,7 +194,8 @@ class BoardMemberController extends Controller
         $validated = $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
             'representative_type' => 'required|in:Board Member,Authorized Representative',
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
+            'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -224,10 +231,15 @@ class BoardMemberController extends Controller
         // Always recalculate and persist username to DB from first_name + last_name (even when unchanged)
         $username = User::usernameFromName($validated['first_name'], $validated['last_name'], $id);
 
+        // Handle pre nominal title (standard or custom "Others")
+        $preNominalTitle = $validated['pre_nominal_title'] === 'Others'
+            ? $validated['pre_nominal_title_custom']
+            : $validated['pre_nominal_title'];
+
         $updateData = [
             'government_agency_id' => $validated['government_agency_id'],
             'representative_type' => $validated['representative_type'],
-            'pre_nominal_title' => $validated['pre_nominal_title'],
+            'pre_nominal_title' => $preNominalTitle,
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],

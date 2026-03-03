@@ -61,7 +61,8 @@ class CONSECController extends Controller
         }
 
         $validated = $request->validate([
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
+            'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -119,10 +120,14 @@ class CONSECController extends Controller
             ? $validated['post_nominal_title_custom']
             : $validated['post_nominal_title'];
 
+        $preNominalTitle = $validated['pre_nominal_title'] === 'Others'
+            ? $validated['pre_nominal_title_custom']
+            : $validated['pre_nominal_title'];
+
         $user = User::create([
             'id' => Str::uuid(),
             'government_agency_id' => null, // CONSEC accounts don't have government agency
-            'pre_nominal_title' => $validated['pre_nominal_title'],
+            'pre_nominal_title' => $preNominalTitle,
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],
@@ -214,7 +219,8 @@ class CONSECController extends Controller
         $user = User::where('privilege', 'consec')->findOrFail($id);
 
         $validated = $request->validate([
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
+            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
+            'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
@@ -241,8 +247,12 @@ class CONSECController extends Controller
             'birth_date.before_or_equal' => 'The person must be at least 18 years old.',
         ]);
 
+        $preNominalTitle = $validated['pre_nominal_title'] === 'Others'
+            ? $validated['pre_nominal_title_custom']
+            : $validated['pre_nominal_title'];
+
         $updateData = [
-            'pre_nominal_title' => $validated['pre_nominal_title'],
+            'pre_nominal_title' => $preNominalTitle,
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],

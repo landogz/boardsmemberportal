@@ -471,7 +471,18 @@
                                     <option value="Executive Director">Executive Director</option>
                                     <option value="Dr.">Dr.</option>
                                     <option value="Assistant Secretary">Assistant Secretary</option>
+                                    <option value="Others">Others</option>
                                 </select>
+                                <div id="pre_nominal_title_custom_wrapper" class="mt-2 hidden">
+                                    <label for="pre_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Others:</label>
+                                    <input 
+                                        type="text" 
+                                        id="pre_nominal_title_custom" 
+                                        name="pre_nominal_title_custom" 
+                                        placeholder="Specify other title"
+                                        class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    >
+                                </div>
                                 <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                             </div>
 
@@ -1039,6 +1050,17 @@
                 }
             });
 
+            // Handle pre nominal title "Others" option
+            $('#pre_nominal_title').on('change', function() {
+                if ($(this).val() === 'Others') {
+                    $('#pre_nominal_title_custom_wrapper').removeClass('hidden');
+                    $('#pre_nominal_title_custom').prop('required', true);
+                } else {
+                    $('#pre_nominal_title_custom_wrapper').addClass('hidden');
+                    $('#pre_nominal_title_custom').prop('required', false).val('');
+                }
+            });
+
             // Generate username: firstname.lastname (standardized)
             function generateUsername() {
                 const firstName = $('#first_name').val().trim();
@@ -1291,6 +1313,12 @@
                 if (!preNominalTitle) {
                     showError('pre_nominal_title', 'Pre nominal title is required');
                     if (!firstInvalidField) firstInvalidField = '#pre_nominal_title';
+                    isValid = false;
+                }
+                const preNominalCustom = $('#pre_nominal_title_custom').val().trim();
+                if (preNominalTitle === 'Others' && !preNominalCustom) {
+                    showError('pre_nominal_title', 'Pre nominal title is required');
+                    if (!firstInvalidField) firstInvalidField = '#pre_nominal_title_custom';
                     isValid = false;
                 }
                 const postNominalTitle = $('#post_nominal_title').val();

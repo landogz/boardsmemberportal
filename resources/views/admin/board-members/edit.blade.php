@@ -196,7 +196,12 @@
                                 <option value="Director General" {{ $user->pre_nominal_title === 'Director General' ? 'selected' : '' }}>Director General</option>
                                 <option value="Executive Director" {{ $user->pre_nominal_title === 'Executive Director' ? 'selected' : '' }}>Executive Director</option>
                                 <option value="Attorney" {{ $user->pre_nominal_title === 'Attorney' ? 'selected' : '' }}>Attorney</option>
+                                <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
                             </select>
+                            <div id="pre_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
+                                <label for="pre_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
+                                <input type="text" id="pre_nominal_title_custom" name="pre_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->pre_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                            </div>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>
 
@@ -573,6 +578,17 @@
             }
         });
 
+        // Handle pre nominal title "Others" option
+        $('#pre_nominal_title').on('change', function() {
+            if ($(this).val() === 'Others') {
+                $('#pre_nominal_title_custom_wrapper').removeClass('hidden');
+                $('#pre_nominal_title_custom').prop('required', true);
+            } else {
+                $('#pre_nominal_title_custom_wrapper').addClass('hidden');
+                $('#pre_nominal_title_custom').prop('required', false).val('');
+            }
+        });
+
         // Phone number formatting
         $('#mobile').on('input', function() {
             let value = $(this).val().replace(/\D/g, '');
@@ -749,6 +765,12 @@
             if (!preNominalTitle) {
                 showError('pre_nominal_title', 'Pre nominal title is required');
                 if (!firstInvalidField) firstInvalidField = '#pre_nominal_title';
+                isValid = false;
+            }
+            const preNominalCustom = $('#pre_nominal_title_custom').val().trim();
+            if (preNominalTitle === 'Others' && !preNominalCustom) {
+                showError('pre_nominal_title', 'Pre nominal title is required');
+                if (!firstInvalidField) firstInvalidField = '#pre_nominal_title_custom';
                 isValid = false;
             }
             const postNominalTitle = $('#post_nominal_title').val();
