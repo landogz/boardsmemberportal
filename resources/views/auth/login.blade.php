@@ -278,7 +278,8 @@
                             }
                         }
                         if (passwordMsg) {
-                            parts.push(`Password: ${passwordMsg}`);
+                            // Show password error as-is without the "Password:" prefix
+                            parts.push(passwordMsg);
                         }
                         promptMessage = parts.join(' | ');
                     }
