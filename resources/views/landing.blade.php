@@ -2002,16 +2002,18 @@
                             // Build notice-specific fields
                             let noticeFields = '';
                             if (eventType === 'notice') {
-                                noticeFields = '<div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">';
-                                noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Notice Details</p>';
-                                if (noticeStatus === 'postponed') {
-                                    noticeFields += '<p class="mb-2 text-sm"><strong>Status:</strong> <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">Postponed</span></p>';
-                                }
-                                if (noticeType) {
-                                    noticeFields += `<p class="mb-2 text-sm"><strong>Notice Type:</strong> <span class="text-purple-700">${noticeType}</span></p>`;
-                                }
-                                // Don't show meeting details for Agenda or Notice of Postponement (like admin forms)
-                                if (noticeType !== 'Agenda' && noticeType !== 'Notice of Postponement') {
+                                const hideNoticeDetails = noticeType === 'Agenda' || noticeType === 'Notice of Postponement';
+                                
+                                // For Agenda and Notice of Postponement, don't show the Notice Details block at all
+                                if (!hideNoticeDetails) {
+                                    noticeFields = '<div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">';
+                                    noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Notice Details</p>';
+                                    if (noticeStatus === 'postponed') {
+                                        noticeFields += '<p class="mb-2 text-sm"><strong>Status:</strong> <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">Postponed</span></p>';
+                                    }
+                                    if (noticeType) {
+                                        noticeFields += `<p class="mb-2 text-sm"><strong>Notice Type:</strong> <span class="text-purple-700">${noticeType}</span></p>`;
+                                    }
                                     if (meetingType) {
                                         const meetingTypeLabel = meetingType.charAt(0).toUpperCase() + meetingType.slice(1);
                                         noticeFields += `<p class="mb-2 text-sm"><strong>Meeting Type:</strong> <span class="text-purple-700">${meetingTypeLabel}</span></p>`;
@@ -2028,8 +2030,8 @@
                                     if (venue && (meetingType === 'onsite' || meetingType === 'hybrid')) {
                                         noticeFields += `<p class="mb-2 text-sm"><strong>Venue:</strong> <span class="text-purple-700">${venue}</span></p>`;
                                     }
+                                    noticeFields += '</div>';
                                 }
-                                noticeFields += '</div>';
                             }
                             
                             Swal.fire({

@@ -199,12 +199,16 @@ class NoticeController extends Controller
 
             // Send notifications and emails to all allowed users
             $isPostponement = $validated['notice_type'] === 'Notice of Postponement';
+            // For Agenda or Notice of Postponement, link to the connected Notice of Meeting so the user goes to the meeting page
+            $targetNoticeId = (in_array($notice->notice_type, ['Agenda', 'Notice of Postponement']) && $notice->related_notice_id)
+                ? $notice->related_notice_id
+                : $notice->id;
             foreach ($notice->allowedUsers as $user) {
-                // Determine the correct URL based on user privilege
-                $noticeUrl = in_array($user->privilege, ['admin', 'consec']) 
-                    ? route('admin.notices.show', $notice->id)
-                    : route('notices.show', $notice->id);
-                
+                // Determine the correct URL based on user privilege (and linked meeting for Agenda/Postponement)
+                $noticeUrl = in_array($user->privilege, ['admin', 'consec'])
+                    ? route('admin.notices.show', $targetNoticeId)
+                    : route('notices.show', $targetNoticeId);
+
                 // Create in-app notification
                 Notification::create([
                     'user_id' => $user->id,
@@ -530,14 +534,18 @@ class NoticeController extends Controller
 
             // Only send notifications and emails if something other than no_of_attendees changed
             $isPostponement = $validated['notice_type'] === 'Notice of Postponement';
+            // For Agenda or Notice of Postponement, link to the connected Notice of Meeting
+            $targetNoticeId = (in_array($notice->notice_type, ['Agenda', 'Notice of Postponement']) && $notice->related_notice_id)
+                ? $notice->related_notice_id
+                : $notice->id;
             if (!$onlyNoOfAttendeesChanged) {
                 // Send notifications and emails to ALL allowed users (notice was edited)
                 foreach ($notice->allowedUsers as $user) {
-                    // Determine the correct URL based on user privilege
-                    $noticeUrl = in_array($user->privilege, ['admin', 'consec']) 
-                        ? route('admin.notices.show', $notice->id)
-                        : route('notices.show', $notice->id);
-                    
+                    // Determine the correct URL based on user privilege (and linked meeting for Agenda/Postponement)
+                    $noticeUrl = in_array($user->privilege, ['admin', 'consec'])
+                        ? route('admin.notices.show', $targetNoticeId)
+                        : route('notices.show', $targetNoticeId);
+
                     // Create in-app notification
                     Notification::create([
                         'user_id' => $user->id,

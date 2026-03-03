@@ -164,9 +164,12 @@ class NoticeController extends Controller
     {
         $userId = Auth::id();
         
-        // Get all notices where user is allowed (exclude Notice of Postponement — no Accept/Decline, not shown in pending popup)
+        // Get all notices where user is allowed (exclude Notice of Postponement and postponed meetings — no Accept/Decline, not shown in pending popup)
         $allNotices = Notice::with(['creator', 'attendanceConfirmations'])
             ->where('notice_type', '!=', 'Notice of Postponement')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'postponed');
+            })
             ->whereHas('allowedUsers', function($query) use ($userId) {
                 $query->where('users.id', $userId);
             })
@@ -185,6 +188,7 @@ class NoticeController extends Controller
                 'id' => $notice->id,
                 'title' => $notice->title,
                 'notice_type' => $notice->notice_type,
+                'status' => $notice->status,
                 'meeting_type' => $notice->meeting_type,
                 'meeting_date' => $notice->meeting_date ? $notice->meeting_date->format('M d, Y') : null,
                 'meeting_date_long' => $notice->meeting_date ? $notice->meeting_date->format('F d, Y') : null,

@@ -851,7 +851,7 @@
                     </div>
                 @endif
 
-                @if(($notice->status ?? null) !== 'postponed' && !$isMeetingDone && (!$attendanceConfirmation || $attendanceConfirmation->status === 'pending'))
+                @if(($notice->status ?? null) !== 'postponed' && $notice->notice_type !== 'Notice of Postponement' && !$isMeetingDone && (!$attendanceConfirmation || $attendanceConfirmation->status === 'pending'))
                     <div class="invite-actions-wrap">
                         <div class="action-buttons">
                             <button type="button" class="btn-action btn-accept" onclick="acceptNotice({{ $notice->id }}, this, '{{ addslashes($notice->meeting_type ?? '') }}')">

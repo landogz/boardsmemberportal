@@ -508,7 +508,12 @@ class CONSECController extends Controller
         // Update revoked permissions: store names of permissions that are NOT checked
         $user->revoked_permissions = !empty($newRevokedPermissionNames) ? array_values(array_unique($newRevokedPermissionNames)) : null;
         $user->save();
-        
+
+        // Sync direct permissions to exactly match the checked permissions in the UI.
+        // This ensures that checking a box really grants the permission (even if the role didn't have it),
+        // and unchecking revokes it (combined with revoked_permissions overriding role-based grants).
+        $user->syncPermissions($requestedPermissionIds);
+
         // Clear permission cache to ensure changes take effect immediately
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 

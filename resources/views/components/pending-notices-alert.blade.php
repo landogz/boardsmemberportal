@@ -32,7 +32,9 @@
             axios.get('{{ route("notices.pending") }}')
                 .then(response => {
                     if (response.data.success && response.data.notices.length > 0) {
-                        const notices = response.data.notices.filter(notice => !displayedNotices.has(notice.id));
+                        const notices = response.data.notices
+                            .filter(notice => (notice.status || '') !== 'postponed')
+                            .filter(notice => !displayedNotices.has(notice.id));
                         
                         if (notices.length > 0) {
                             // Show all notices in a single modal as a list
