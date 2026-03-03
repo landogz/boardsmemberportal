@@ -2,10 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\GovernmentAgency;
+use App\Services\AuditLogger;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\AuditLogger;
 use Symfony\Component\HttpFoundation\Response;
 
 class TrackUserActivity
@@ -20,7 +21,34 @@ class TrackUserActivity
         if (Auth::check()) {
             $user = Auth::user();
             $currentSessionId = session()->getId();
-            
+
+            // If the user's government agency was deactivated while this session was open,
+            // immediately log the user out and expire the session.
+            if ($user->government_agency_id) {
+                $agency = GovernmentAgency::find($user->government_agency_id);
+                if ($agency && !$agency->is_active) {
+                    AuditLogger::log(
+                        'auth.agency_deactivated_session_terminated',
+                        'Session terminated because the user\'s government agency was deactivated while user was logged in.',
+                        $user,
+                        [
+                            'session_id' => $currentSessionId,
+                            'agency_id' => $agency->id,
+                            'agency_name' => $agency->name,
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent(),
+                            'url' => $request->fullUrl(),
+                        ]
+                    );
+
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return redirect()->route('login')->with('error', 'Your agency has been deactivated by CONSEC. Please contact CONSEC for assistance.');
+                }
+            }
+
             // If the account has been deactivated while this session was still open,
             // immediately log the user out and expire the session.
             if (!$user->is_active) {

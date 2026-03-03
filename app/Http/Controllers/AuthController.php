@@ -75,6 +75,16 @@ class AuthController extends Controller
         }
 
         // Check status first (pending users have is_active=false, so status takes precedence)
+        // Block login if the user's government agency is deactivated
+        if ($user->government_agency_id) {
+            $agency = GovernmentAgency::find($user->government_agency_id);
+            if ($agency && !$agency->is_active) {
+                throw ValidationException::withMessages([
+                    'email' => ['Your agency has been deactivated by CONSEC. Please contact CONSEC for assistance.'],
+                ]);
+            }
+        }
+
         if ($user->status === 'pending') {
             throw ValidationException::withMessages([
                 'email' => ['Your account is pending CONSEC approval. You will receive an email once your registration has been approved.'],

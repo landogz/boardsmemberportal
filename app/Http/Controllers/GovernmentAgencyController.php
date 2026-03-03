@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\GovernmentAgency;
 use App\Models\MediaLibrary;
+use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -389,19 +391,27 @@ class GovernmentAgencyController extends Controller
         $agency->is_active = !$agency->is_active;
         $agency->save();
 
+        // If agency was deactivated, force-logout all users linked to this agency
+        $loggedOutCount = 0;
+        if (!$agency->is_active) {
+            $loggedOutCount = $this->logoutAgencyUsers($agency);
+        }
+
         AuditLogger::log(
             'government_agency.toggled_status',
             'Toggled agency status: ' . $agency->name,
             $agency,
             [
                 'is_active' => $agency->is_active,
+                'users_logged_out' => $loggedOutCount,
             ]
         );
 
         return response()->json([
             'success' => true,
             'message' => 'Agency status updated successfully',
-            'is_active' => $agency->is_active
+            'is_active' => $agency->is_active,
+            'users_logged_out' => $loggedOutCount,
         ]);
     }
 
@@ -504,19 +514,31 @@ class GovernmentAgencyController extends Controller
             ], 403);
         }
 
-        $count = GovernmentAgency::where('is_active', true)->update(['is_active' => false]);
+        $agencies = GovernmentAgency::where('is_active', true)->get();
+        $count = $agencies->count();
+        $totalLoggedOut = 0;
+
+        foreach ($agencies as $agency) {
+            $agency->is_active = false;
+            $agency->save();
+            $totalLoggedOut += $this->logoutAgencyUsers($agency);
+        }
 
         AuditLogger::log(
             'government_agency.bulk_deactivated',
             "Bulk deactivated {$count} agencies",
             null,
-            ['count' => $count]
+            [
+                'count' => $count,
+                'users_logged_out' => $totalLoggedOut,
+            ]
         );
 
         return response()->json([
             'success' => true,
             'message' => "Successfully deactivated {$count} agencies",
-            'count' => $count
+            'count' => $count,
+            'users_logged_out' => $totalLoggedOut,
         ]);
     }
 
@@ -586,6 +608,53 @@ class GovernmentAgencyController extends Controller
             'success' => true,
             'message' => 'Selected agencies deleted successfully'
         ]);
+    }
+
+    /**
+     * Force-logout all non-admin users linked to the given agency.
+     *
+     * @return int Number of users logged out
+     */
+    private function logoutAgencyUsers(GovernmentAgency $agency): int
+    {
+        $users = User::where('government_agency_id', $agency->id)
+            ->whereIn('privilege', ['user', 'consec'])
+            ->get();
+
+        $loggedOutCount = 0;
+
+        foreach ($users as $user) {
+            $sessionId = $user->current_session_id;
+            $lastActivity = $user->last_activity ? $user->last_activity->toDateTimeString() : null;
+
+            // Mark user as offline and clear active session reference
+            $user->is_online = false;
+            $user->current_session_id = null;
+            $user->save();
+
+            // Destroy all sessions for this user
+            $sessionsDestroyed = DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            AuditLogger::log(
+                'auth.auto_logout_agency_deactivated',
+                'User automatically logged out because their government agency was deactivated.',
+                $user,
+                [
+                    'agency_id' => $agency->id,
+                    'agency_name' => $agency->name,
+                    'last_activity' => $lastActivity,
+                    'session_id' => $sessionId,
+                    'sessions_destroyed' => $sessionsDestroyed,
+                    'triggered_by' => 'agency_deactivation',
+                ]
+            );
+
+            $loggedOutCount++;
+        }
+
+        return $loggedOutCount;
     }
 }
 
