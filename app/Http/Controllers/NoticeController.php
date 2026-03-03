@@ -164,9 +164,11 @@ class NoticeController extends Controller
     {
         $userId = Auth::id();
         
-        // Get all notices where user is allowed (exclude Notice of Postponement and postponed meetings — no Accept/Decline, not shown in pending popup)
+        // Get all notices where user is allowed.
+        // Only "Notice of Meeting" invitations should appear here (no Agenda or Notice of Postponement records).
+        // Also exclude postponed meetings — no Accept/Decline, not shown in pending popup.
         $allNotices = Notice::with(['creator', 'attendanceConfirmations'])
-            ->where('notice_type', '!=', 'Notice of Postponement')
+            ->where('notice_type', 'Notice of Meeting')
             ->where(function($q) {
                 $q->whereNull('status')->orWhere('status', '!=', 'postponed');
             })

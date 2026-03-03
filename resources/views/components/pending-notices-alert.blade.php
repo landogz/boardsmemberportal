@@ -33,7 +33,9 @@
                 .then(response => {
                     if (response.data.success && response.data.notices.length > 0) {
                         const notices = response.data.notices
+                            // Safety: never show postponed or non-meeting types (Agenda / Notice of Postponement) in the pending popup
                             .filter(notice => (notice.status || '') !== 'postponed')
+                            .filter(notice => notice.notice_type === 'Notice of Meeting')
                             .filter(notice => !displayedNotices.has(notice.id));
                         
                         if (notices.length > 0) {
@@ -67,22 +69,29 @@
                     div.textContent = str;
                     return div.innerHTML;
                 };
-                let detailsHtml = `
-                    <div class="notice-details-block" style="background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8125rem; color: #374151;">
-                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Notice Details</div>
-                        <div style="display: grid; gap: 0.25rem;">
-                            <div><span style="color: #6b7280;">Notice Type:</span> <span style="font-weight: 500;">${escapeHtml(notice.notice_type || '—')}</span></div>
-                            <div><span style="color: #6b7280;">Meeting Type:</span> <span style="font-weight: 500;">${meetingTypeLabel}</span></div>
-                            <div><span style="color: #6b7280;">Meeting Date:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_date_long || '—')}</span></div>
-                            <div><span style="color: #6b7280;">Meeting Time:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_time || '—')}</span></div>
-                `;
-                if (showLink) {
-                    detailsHtml += `<div><span style="color: #6b7280;">Meeting Link:</span> <a href="${escapeHtml(notice.meeting_link)}" target="_blank" rel="noopener" style="color: #055498; font-weight: 500; word-break: break-all;">${escapeHtml(notice.meeting_link)}</a></div>`;
+
+                // For Agenda and Notice of Postponement, do not show the Notice Details block at all
+                const hideDetails = notice.notice_type === 'Agenda' || notice.notice_type === 'Notice of Postponement';
+                let detailsHtml = '';
+
+                if (!hideDetails) {
+                    detailsHtml = `
+                        <div class="notice-details-block" style="background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8125rem; color: #374151;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Notice Details</div>
+                            <div style="display: grid; gap: 0.25rem;">
+                                <div><span style="color: #6b7280;">Notice Type:</span> <span style="font-weight: 500;">${escapeHtml(notice.notice_type || '—')}</span></div>
+                                <div><span style="color: #6b7280;">Meeting Type:</span> <span style="font-weight: 500;">${meetingTypeLabel}</span></div>
+                                <div><span style="color: #6b7280;">Meeting Date:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_date_long || '—')}</span></div>
+                                <div><span style="color: #6b7280;">Meeting Time:</span> <span style="font-weight: 500;">${escapeHtml(notice.meeting_time || '—')}</span></div>
+                    `;
+                    if (showLink) {
+                        detailsHtml += `<div><span style="color: #6b7280;">Meeting Link:</span> <a href="${escapeHtml(notice.meeting_link)}" target="_blank" rel="noopener" style="color: #055498; font-weight: 500; word-break: break-all;">${escapeHtml(notice.meeting_link)}</a></div>`;
+                    }
+                    if (showVenue) {
+                        detailsHtml += `<div><span style="color: #6b7280;">Venue:</span> <span style="font-weight: 500;">${escapeHtml(notice.venue)}</span></div>`;
+                    }
+                    detailsHtml += '</div></div>';
                 }
-                if (showVenue) {
-                    detailsHtml += `<div><span style="color: #6b7280;">Venue:</span> <span style="font-weight: 500;">${escapeHtml(notice.venue)}</span></div>`;
-                }
-                detailsHtml += '</div></div>';
                 
                 listHTML += `
                     <div class="notice-item" data-notice-id="${notice.id}" style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0; ${index === notices.length - 1 ? 'border-bottom: none;' : ''}">
