@@ -203,6 +203,15 @@
         .landing-page nav.nav-at-top {
             top: 0 !important;
         }
+        @media (max-width: 768px) {
+            .landing-page nav {
+                position: fixed !important;
+                top: 83px;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+        }
         /* Spacer so content is not under nav (top-bar 45px + nav ~56px) */
         .landing-page .banner {
             margin-top: 56px;
