@@ -279,7 +279,7 @@
 
                     <!-- Birth Date -->
                     <div>
-                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date *</label>
+                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date (18 yrs+) *</label>
                         <input type="date" id="birth_date" name="birth_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                         <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
                     </div>
@@ -827,6 +827,10 @@
                 showError('birth_date', 'Birth date is required');
                 if (!firstInvalidField) firstInvalidField = '#birth_date';
                 isValid = false;
+            } else if (!isAtLeast18(birthDate)) {
+                showError('birth_date', 'The person must be at least 18 years old.');
+                if (!firstInvalidField) firstInvalidField = '#birth_date';
+                isValid = false;
             }
         } else if (step === 2) {
             const region = $('#office_region').val();
@@ -921,6 +925,17 @@
                /[a-z]/.test(password) &&
                /[0-9]/.test(password) &&
                /[^A-Za-z0-9]/.test(password);
+    }
+
+    function isAtLeast18(birthDateStr) {
+        var birth = new Date(birthDateStr);
+        var today = new Date();
+        var age = today.getFullYear() - birth.getFullYear();
+        var monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age >= 18;
     }
 
     function isValidEmail(email) {
