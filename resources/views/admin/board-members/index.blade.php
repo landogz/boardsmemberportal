@@ -278,8 +278,18 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
                                     @if($account->representative_type)
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $account->representative_type === 'Board Member' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
-                                            {{ $account->representative_type === 'Authorized Representative' ? 'Authorized Representative/Ex-Officio Member' : $account->representative_type }}
+                                        @php
+                                            $repType = $account->representative_type;
+                                            $repLabel = $repType;
+                                            $repClass = 'bg-purple-100 text-purple-800';
+                                            if ($repType === 'Board Member') {
+                                                $repClass = 'bg-blue-100 text-blue-800';
+                                            } elseif ($repType === 'Ex-Officio Member') {
+                                                $repClass = 'bg-green-100 text-green-800';
+                                            }
+                                        @endphp
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $repClass }}">
+                                            {{ $repLabel }}
                                         </span>
                                     @else
                                         <span class="text-gray-400">N/A</span>

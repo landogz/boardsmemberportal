@@ -270,15 +270,11 @@
                     if (emailMsg || passwordMsg) {
                         const parts = [];
                         if (emailMsg) {
-                            // For generic "no account found" message, show it as-is in Swal
-                            if (emailMsg === 'No account was found with this email or username. Please check and try again.') {
-                                parts.push(emailMsg);
-                            } else {
-                                parts.push(`Email or Username: ${emailMsg}`);
-                            }
+                            // Always show the email/username error as-is, without any label prefix
+                            parts.push(emailMsg);
                         }
                         if (passwordMsg) {
-                            // Show password error as-is without the "Password:" prefix
+                            // Show password error as-is without any label prefix
                             parts.push(passwordMsg);
                         }
                         promptMessage = parts.join(' | ');

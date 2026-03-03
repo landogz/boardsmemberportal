@@ -61,7 +61,7 @@ class BoardMemberController extends Controller
 
         $validated = $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
-            'representative_type' => 'required|in:Board Member,Authorized Representative',
+            'representative_type' => 'required|in:Board Member,Authorized Representative,Ex-Officio Member',
             'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
             'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',
@@ -193,7 +193,7 @@ class BoardMemberController extends Controller
 
         $validated = $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
-            'representative_type' => 'required|in:Board Member,Authorized Representative',
+            'representative_type' => 'required|in:Board Member,Authorized Representative,Ex-Officio Member',
             'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
             'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
             'first_name' => 'required|string|max:255',

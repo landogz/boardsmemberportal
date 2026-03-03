@@ -117,7 +117,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'government_agency_id' => 'nullable|exists:government_agencies,id',
-            'representative_type' => 'nullable|in:Board Member,Authorized Representative',
+            'representative_type' => 'nullable|in:Board Member,Authorized Representative,Ex-Officio Member',
             'pre_nominal_title' => 'nullable|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',

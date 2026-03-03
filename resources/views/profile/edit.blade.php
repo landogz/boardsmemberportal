@@ -365,7 +365,8 @@
                         >
                             <option value="">Select Type</option>
                             <option value="Board Member" {{ Auth::user()->representative_type === 'Board Member' ? 'selected' : '' }}>Board Member</option>
-                            <option value="Authorized Representative" {{ Auth::user()->representative_type === 'Authorized Representative' ? 'selected' : '' }}>Authorized Representative/Ex-Officio Member</option>
+                            <option value="Authorized Representative" {{ Auth::user()->representative_type === 'Authorized Representative' ? 'selected' : '' }}>Authorized Representative</option>
+                            <option value="Ex-Officio Member" {{ Auth::user()->representative_type === 'Ex-Officio Member' ? 'selected' : '' }}>Ex-Officio Member</option>
                         </select>
                         <span class="text-red-500 text-sm hidden" id="representative_type-error"></span>
                     </div>
