@@ -335,7 +335,7 @@
             if (item.has_pdf && item.pdf_url) {
                 attrs += ' data-pdf-url="' + escapeAttr(item.pdf_url) + '" data-title="' + escapeAttr(item.title) + '" data-description="' + escapeAttr(item.description || '') + '" data-date="' + escapeAttr(item.date || '') + '" data-creator="' + escapeAttr(item.creator || '') + '" data-creator-image="' + escapeAttr(item.creator_image || '') + '" onclick="viewPDFWithMeta(this)"';
             }
-            return '<div ' + attrs + '><h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2">' + escapeAttr(item.title) + '</h3></div>';
+            return '<div ' + attrs + '><h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line">' + escapeAttr(item.title) + '</h3></div>';
         }
 
         function buildPaginationHtml(type, year, pagination) {

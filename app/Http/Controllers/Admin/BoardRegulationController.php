@@ -51,7 +51,7 @@ class BoardRegulationController extends Controller
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
             'effective_date' => 'nullable|date',
@@ -139,7 +139,7 @@ class BoardRegulationController extends Controller
         $regulation = BoardRegulation::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
             'effective_date' => 'nullable|date',
