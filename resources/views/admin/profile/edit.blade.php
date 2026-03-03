@@ -447,8 +447,8 @@
                         <p class="text-xs text-gray-500 mt-1">Format: (02) 8912-12345 (Optional)</p>
                     </div>
 
-                    <!-- Company -->
-                    <div>
+                    <!-- Company (hidden) -->
+                    <div class="hidden">
                         <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
                         <input type="text" id="company" name="company" value="{{ $user->company }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="Company name">
                         <span class="text-red-500 text-sm hidden" id="company-error"></span>
