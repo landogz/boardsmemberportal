@@ -201,12 +201,14 @@
                     </li>
                     @endif
                     @can('view reports')
+                    @if(Auth::check() && Auth::user()->privilege === 'consec')
                     <li>
                         <a href="{{ route('admin.report-generation.index') }}" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.report-generation.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.report-generation.*') ? 'background-color:#055498;' : '' }}">
                             <i class="fas fa-chart-bar w-5" style="color: #FBD116;"></i>
                             <span class="ml-3">Report Generation</span>
                         </a>
                     </li>
+                    @endif
                     @endcan
                     @if(Auth::check() && Auth::user()->privilege === 'admin')
                     <li>
