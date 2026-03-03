@@ -80,7 +80,7 @@ class AuthController extends Controller
             $agency = GovernmentAgency::find($user->government_agency_id);
             if ($agency && !$agency->is_active) {
                 throw ValidationException::withMessages([
-                    'email' => ['Your agency has been deactivated by CONSEC. Please contact CONSEC for assistance.'],
+                    'email' => ['No account was found with this email or username. Please check and try again.'],
                 ]);
             }
         }
