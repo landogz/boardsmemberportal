@@ -194,8 +194,8 @@ class CalendarController extends Controller
         }
 
         foreach ($notices as $notice) {
-            // Do not show Notice of Postponement on calendar; only the Notice of Meeting (with status postponed) is shown
-            if ($notice->notice_type === 'Notice of Postponement') {
+            // Do not show Agenda or Notice of Postponement on calendar; only core Notice of Meeting items appear
+            if (in_array($notice->notice_type, ['Notice of Postponement', 'Agenda'], true)) {
                 continue;
             }
             // Use meeting_date if available, otherwise use created_at
