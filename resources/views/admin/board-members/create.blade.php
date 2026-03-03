@@ -376,9 +376,9 @@
                     <!-- Mobile Number -->
                     <div>
                         <label for="mobile" class="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
-                        <input type="text" id="mobile" name="mobile" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="+63 912 345 6789">
+                        <input type="text" id="mobile" name="mobile" required maxlength="16" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="+63 917 123 4567">
                         <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
-                        <p class="text-xs text-gray-500 mt-1">Format: +63</p>
+                        <p class="text-xs text-gray-500 mt-1">Philippine mobile: +63 followed by 10 digits (e.g. +639171234567)</p>
                     </div>
 
                     <!-- Landline -->
@@ -562,17 +562,18 @@
             }
         });
 
-        // Phone number formatting
+        // Philippine mobile only: +63 followed by 10 digits, formatted as +63 XXX XXX XXXX (same as register)
         $('#mobile').on('input', function() {
             let value = $(this).val().replace(/\D/g, '');
-            if (value.startsWith('63')) {
-                value = '+' + value;
-            } else if (value.startsWith('0')) {
-                value = '+63' + value.substring(1);
-            } else if (value && !value.startsWith('+63')) {
-                value = '+63' + value;
+            if (value.startsWith('0')) value = value.substring(1);
+            if (value.startsWith('63')) value = value.substring(2);
+            value = value.substring(0, 10);
+            if (!value) {
+                $(this).val('');
+                return;
             }
-            $(this).val(value);
+            const formatted = '+63 ' + value.substring(0, 3) + (value.length > 3 ? ' ' + value.substring(3, 6) : '') + (value.length > 6 ? ' ' + value.substring(6) : '');
+            $(this).val(formatted);
         });
 
         $('#landline').on('input', function() {
@@ -855,7 +856,7 @@
         } else if (step === 3) {
             const email = $('#email').val().trim();
             const username = $('#username').val().trim();
-            const mobile = $('#mobile').val().trim();
+            const mobile = $('#mobile').val().replace(/\s/g, '').trim();
             
             if (!email) {
                 showError('email', 'Email is required');
@@ -866,13 +867,12 @@
                 if (!firstInvalidField) firstInvalidField = '#email';
                 isValid = false;
             }
-            // Username is auto-generated as firstname.lastname by the server
             if (!mobile) {
                 showError('mobile', 'Mobile number is required');
                 if (!firstInvalidField) firstInvalidField = '#mobile';
                 isValid = false;
-            } else if (!mobile.startsWith('+63')) {
-                showError('mobile', 'Mobile number must start with +63');
+            } else if (!/^\+63[0-9]{10}$/.test(mobile)) {
+                showError('mobile', 'Mobile must be +63 followed by exactly 10 digits (e.g. +639171234567)');
                 if (!firstInvalidField) firstInvalidField = '#mobile';
                 isValid = false;
             }
@@ -1042,7 +1042,7 @@
             office_barangay: $('#office_barangay').val(),
             email: $('#email').val(),
             username: $('#username').val(),
-            mobile: $('#mobile').val(),
+            mobile: $('#mobile').val().replace(/\s/g, '').trim(),
             landline: $('#landline').val(),
             password: $('#password').val(),
             password_confirmation: $('#password_confirmation').val(),
