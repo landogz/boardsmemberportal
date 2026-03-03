@@ -427,10 +427,10 @@
 
                     <!-- Mobile Number -->
                     <div>
-                        <label for="mobile" class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                        <input type="text" id="mobile" name="mobile" value="{{ $user->mobile }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="+63 912 345 6789">
+                        <label for="mobile" class="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
+                        <input type="text" id="mobile" name="mobile" required maxlength="16" value="{{ $user->mobile }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition" placeholder="+63 917 123 4567">
                         <span class="text-red-500 text-sm hidden" id="mobile-error"></span>
-                        <p class="text-xs text-gray-500 mt-1">Format: +63</p>
+                        <p class="text-xs text-gray-500 mt-1">Philippine mobile: +63 followed by 10 digits (e.g. +639171234567)</p>
                     </div>
 
                     <!-- Landline -->
@@ -833,6 +833,20 @@
                /[^A-Za-z0-9]/.test(password);
     }
 
+    // Philippine mobile only: +63 followed by 10 digits, formatted as +63 XXX XXX XXXX (same pattern as registration)
+    $('#mobile').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.startsWith('0')) value = value.substring(1);
+        if (value.startsWith('63')) value = value.substring(2);
+        value = value.substring(0, 10);
+        if (!value) {
+            $(this).val('');
+            return;
+        }
+        const formatted = '+63 ' + value.substring(0, 3) + (value.length > 3 ? ' ' + value.substring(3, 6) : '') + (value.length > 6 ? ' ' + value.substring(6) : '');
+        $(this).val(formatted);
+    });
+
     // Toggle password visibility
     $('#toggleCurrentPassword').on('click', function() {
         const passwordInput = $('#current_password');
@@ -1166,7 +1180,8 @@
         formData.append('office_barangay', $('#office_barangay').val());
         formData.append('email', $('#email').val());
         formData.append('username', $('#username').val());
-        formData.append('mobile', $('#mobile').val());
+        const mobileValue = $('#mobile').val().replace(/\s/g, '').trim();
+        formData.append('mobile', mobileValue);
         formData.append('landline', $('#landline').val());
         formData.append('company', $('#company').val());
 
@@ -1222,6 +1237,16 @@
         const submitBtnLoader = $('#submitBtnLoader');
 
         clearErrors();
+
+        // Basic client-side mobile validation to surface errors immediately
+        if (!mobileValue) {
+            $('#mobile-error').removeClass('hidden').text('Mobile number is required.');
+            return;
+        }
+        if (!/^\+63[0-9]{10}$/.test(mobileValue)) {
+            $('#mobile-error').removeClass('hidden').text('Mobile number must be +63 followed by exactly 10 digits (e.g. +639171234567).');
+            return;
+        }
         submitBtn.prop('disabled', true);
         submitBtnText.addClass('hidden');
         submitBtnLoader.removeClass('hidden');
