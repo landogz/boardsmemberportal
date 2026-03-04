@@ -553,7 +553,7 @@
                     <div class="notice-content">
                         @if($notice->description)
                             <div class="notice-description">
-                                {{ Str::limit(strip_tags($notice->description), 200) }}
+                                {!! Str::limit(strip_tags($notice->description), 200) !!}
                             </div>
                         @endif
                         
