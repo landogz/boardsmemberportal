@@ -289,7 +289,7 @@
 
             <!-- Modal metadata: description, date, creator (with image) -->
             <div id="pdfModalMeta" class="px-4 lg:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 text-sm space-y-2 hidden">
-                <p id="pdfModalDescription" class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap"></p>
+                <p id="pdfModalDescription" class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto"></p>
                 <div class="flex flex-wrap items-center gap-4 text-gray-500 dark:text-gray-400">
                     <span id="pdfModalDateWrap"><i class="fas fa-calendar-alt mr-1"></i><span id="pdfModalDate"></span></span>
                     <span id="pdfModalCreatorWrap" class="flex items-center gap-2">

@@ -638,7 +638,7 @@
                             @php
                                 $noticeMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
                             @endphp
-                            @if(!$noticeMeetingDone && (!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending'))
+                            @if($notice->notice_type !== 'Agenda' && !$noticeMeetingDone && (!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending'))
                                 <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }}, '{{ $notice->meeting_type }}');">
                                     <i class="fas fa-check"></i>
                                     <span>Approve</span>
