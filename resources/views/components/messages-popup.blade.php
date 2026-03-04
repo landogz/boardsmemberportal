@@ -3190,7 +3190,7 @@
                     fileInput.click();
                 });
 
-                const ALLOWED_ATTACHMENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                const ALLOWED_ATTACHMENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'];
 
                 fileInput.addEventListener('change', function(e) {
                     const newFiles = Array.from(e.target.files);
@@ -3217,7 +3217,7 @@
                             });
                         }
                         if (invalidType.length > 0) {
-                            alert('Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed. Video and PowerPoint cannot be uploaded; share a link instead.');
+                            alert('Only PNG, JPEG, Excel (.xls, .xlsx), Word (.doc, .docx), and PDF are allowed. Video and PowerPoint cannot be uploaded; share a link instead.');
                         }
 
                         if (validFiles.length > 0) {
