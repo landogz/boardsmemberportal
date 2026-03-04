@@ -236,7 +236,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                         </svg>
                                     </button>
-                                    <input type="file" class="hidden chat-file-input" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                    <input type="file" class="hidden chat-file-input" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.pdf,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
                                     <!-- Voice Clip Button -->
                                     <button type="button" class="hidden chat-voice-btn p-1 sm:p-1.5 text-red-500 hover:bg-gray-100 rounded-full transition min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center" title="Record voice message">
                                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">

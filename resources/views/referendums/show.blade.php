@@ -693,14 +693,14 @@
                                     </h3>
                                     @if($userVote)
                                         <div class="mb-4 px-4 py-3 rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100/70 dark:from-blue-900/40 dark:to-blue-900/10 flex items-start gap-3">
-                                            <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
-                                                <i class="fas fa-check text-xs"></i>
+                                            <div class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
+                                                <i class="fas fa-check text-base"></i>
                                             </div>
                                             <div class="flex-1">
-                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                                                <p class="text-base font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
                                                     Your current vote
                                                 </p>
-                                                <p class="text-sm text-blue-900 dark:text-blue-100">
+                                                <p class="text-lg text-blue-900 dark:text-blue-100">
                                                     You voted:
                                                     <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                                         {{ ucfirst($userVote->vote) }}
@@ -716,7 +716,8 @@
                                         <button 
                                             type="button" 
                                             id="voteAcceptBtn"
-                                            class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
+                                            @if($userVote && $userVote->vote === 'accept') disabled @endif
+                                            class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500 disabled:hover:from-gray-400 disabled:hover:to-gray-500"
                                         >
                                             <i class="fas fa-check-circle mr-2"></i>
                                             Accept
@@ -724,7 +725,8 @@
                                         <button 
                                             type="button" 
                                             id="voteDeclineBtn"
-                                            class="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
+                                            @if($userVote && $userVote->vote === 'decline') disabled @endif
+                                            class="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500 disabled:hover:from-gray-400 disabled:hover:to-gray-500"
                                         >
                                             <i class="fas fa-times-circle mr-2"></i>
                                             Decline

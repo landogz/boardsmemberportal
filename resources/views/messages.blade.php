@@ -1157,7 +1157,7 @@
                     <!-- Message Input for Empty State (always visible) -->
                     <div class="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0" id="emptyStateMessageInput" style="display: none;">
                         <form id="messageFormEmpty" class="flex items-center space-x-1 sm:space-x-2" style="display: flex; visibility: visible; pointer-events: none; opacity: 0.5;">
-                            <input type="file" id="fileInputEmpty" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            <input type="file" id="fileInputEmpty" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.pdf,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
                             <button type="button" class="p-2 sm:p-2.5 text-blue-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[44px] min-h-[44px] flex items-center justify-center" disabled>
                                 <i class="fas fa-paperclip text-base sm:text-lg"></i>
                             </button>
@@ -1263,7 +1263,7 @@
                             </div>
                             <!-- Input Form -->
                             <form id="messageForm" class="flex items-center space-x-1 sm:space-x-2 flex-nowrap overflow-hidden" style="display: flex; visibility: visible; width: 100%;">
-                                <input type="file" id="fileInput" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                <input type="file" id="fileInput" class="hidden" multiple accept=".png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.pdf,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
                                 <button type="button" id="attachBtn" class="p-1.5 sm:p-2.5 text-blue-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center flex-shrink-0" title="Attach files">
                                     <i class="fas fa-paperclip text-sm sm:text-lg"></i>
                                 </button>

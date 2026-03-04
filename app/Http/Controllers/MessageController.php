@@ -129,7 +129,7 @@ class MessageController extends Controller
                 }
             }
 
-            // Allowed attachment types only: PNG, JPEG, Excel, Word. No video, no PPT/PDF/txt/zip/rar.
+            // Allowed attachment types: PNG, JPEG, Excel, Word, PDF. No video, no PPT/txt/zip/rar.
             $allowedMimes = [
                 'image/png',
                 'image/jpeg',
@@ -138,6 +138,7 @@ class MessageController extends Controller
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'application/msword',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/pdf',
             ];
 
             // Handle file attachments
@@ -157,7 +158,7 @@ class MessageController extends Controller
                             if (in_array($ext, ['ppt', 'pptx'])) {
                                 throw new \Exception("PowerPoint files cannot be uploaded. Please share a link to your presentation instead.");
                             }
-                            throw new \Exception("File type not allowed. Only PNG, JPEG, Excel (.xls, .xlsx), and Word (.doc, .docx) are allowed.");
+                            throw new \Exception("File type not allowed. Only PNG, JPEG, Excel (.xls, .xlsx), Word (.doc, .docx), and PDF are allowed.");
                         }
                         
                         // Check file size (100MB = 102400 KB)
