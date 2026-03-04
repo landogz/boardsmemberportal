@@ -166,6 +166,12 @@ class CONSECController extends Controller
             $user->assignRole('user');
         }
 
+        // Grant Manage Agenda Requests to new CONSEC accounts
+        $manageAgendaPermission = Permission::where('name', 'manage agenda requests')->first();
+        if ($manageAgendaPermission) {
+            $user->givePermissionTo('manage agenda requests');
+        }
+
         AuditLogger::log(
             'consec.account_created',
             'CONSEC account created: ' . $user->email,
