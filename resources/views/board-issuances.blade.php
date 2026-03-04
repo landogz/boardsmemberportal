@@ -264,9 +264,9 @@
 
     @include('components.footer')
 
-    <!-- PDF Viewer Modal -->
-    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 w-full h-full overflow-hidden flex flex-col">
+    <!-- PDF Viewer Modal: flex centering; tablet/Safari use absolute + transform for reliable centering -->
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-gray-800 w-full h-full sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[95vw] sm:max-w-6xl sm:h-[90vh] sm:max-h-[90vh] sm:rounded-xl overflow-hidden flex flex-col">
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                 <h3 id="pdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 dark:text-gray-100">PDF Viewer</h3>

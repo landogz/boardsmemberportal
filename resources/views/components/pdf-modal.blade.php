@@ -19,7 +19,7 @@
                         <p class="text-sm text-gray-500">Touch the viewer below to scroll</p>
                     </div>
                 </div>
-                <iframe id="globalPdfViewer" src="" class="w-full pdf-iframe" frameborder="0" scrolling="yes" style="position: relative; top: 100px; height: 100%;"></iframe>
+                <iframe id="globalPdfViewer" src="" class="w-full h-full pdf-iframe" frameborder="0" scrolling="yes"></iframe>
             </div>
         </div>
         
@@ -44,18 +44,9 @@
             }
             #globalPdfViewer {
                 display: block;
-                min-height: calc(70vh + 56px);
-                height: calc(100% + 56px);
-            }
-            @media (min-width: 1024px) {
-                #globalPdfViewer {
-                    min-height: calc(100% + 56px);
-                }
-            }
-            /* Hide PDF viewer title by clipping the top portion of the iframe */
-            #pdfViewerContainer {
-                position: relative;
-                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
             }
             
             /* Allow touch events to reach iframe for scrolling on iOS/Android */
