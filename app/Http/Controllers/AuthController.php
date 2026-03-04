@@ -188,13 +188,13 @@ class AuthController extends Controller
         $request->validate([
             'government_agency_id' => 'required|exists:government_agencies,id',
             'representative_type' => 'required|in:Board Member,Authorized Representative,Ex-Officio Member',
-            'pre_nominal_title' => 'required|in:Mr.,Ms.,Dr.,Atty.,Engr.,Secretary,Undersecretary,Assistant Secretary,Director General,Executive Director,Attorney,Others',
-            'pre_nominal_title_custom' => 'nullable|string|max:255|required_if:pre_nominal_title,Others',
+            // Pre nominal title: allow standard list or any custom text (final value is sent from frontend)
+            'pre_nominal_title' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
-            'post_nominal_title' => 'nullable|in:Sr.,Jr.,I,II,III,CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
-            'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
+            // Post nominal title: allow standard list or any custom text (final value is sent from frontend)
+            'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
@@ -242,15 +242,11 @@ class AuthController extends Controller
         // Username format: firstname.lastname (lowercase, alphanumeric only; unique)
         $username = User::usernameFromName($request->first_name, $request->last_name);
 
-        // Resolve final pre nominal title (standard value or custom "Others")
-        $preNominalTitle = $request->pre_nominal_title === 'Others'
-            ? $request->pre_nominal_title_custom
-            : $request->pre_nominal_title;
+        // Resolve final pre nominal title (frontend already sends the final value, including custom ones)
+        $preNominalTitle = $request->pre_nominal_title;
 
-        // Resolve final post nominal title (standard value or custom "Others")
-        $postNominalTitle = $request->post_nominal_title === 'Others'
-            ? $request->post_nominal_title_custom
-            : $request->post_nominal_title;
+        // Resolve final post nominal title (frontend already sends the final value, including custom ones)
+        $postNominalTitle = $request->post_nominal_title;
 
         $user = User::create([
             'id' => Str::uuid(),

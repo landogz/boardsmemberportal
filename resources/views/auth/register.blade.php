@@ -806,8 +806,8 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Philippine mobile: +63 followed by 10 digits (e.g. +639171234567)</p>
                         </div>
 
-                        <!-- Landline (hidden) -->
-                        <div class="form-field hidden">
+                        <!-- Landline -->
+                        <div class="form-field">
                             <label for="landline" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Company Landline / Office Number</label>
                             <input 
                                 type="text" 
@@ -854,7 +854,7 @@
                                     <li id="req-uppercase" class="invalid">At least 1 capital letter</li>
                                     <li id="req-lowercase" class="invalid">At least 1 small letter</li>
                                     <li id="req-number" class="invalid">At least 1 number</li>
-                                    <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , etc.)</li>
+                                    <li id="req-special" class="invalid">At least 1 special character (e.g. ! @ # $ % & * ( ) - _ = + . , )</li>
                                 </ul>
                             </div>
                         </div>
@@ -1589,14 +1589,17 @@
                 return;
             }
             
-            // Prepare form data
+            // Prepare form data (resolve \"Others\" options to final values)
+            const preNominalTitle = $('#pre_nominal_title').val();
+            const finalPreNominal = preNominalTitle === 'Others' ? $('#pre_nominal_title_custom').val() : preNominalTitle;
+
             const postNominalTitle = $('#post_nominal_title').val();
             const finalPostNominal = postNominalTitle === 'Others' ? $('#post_nominal_title_custom').val() : postNominalTitle;
             
             const formData = {
                 government_agency_id: $('#government_agency_id').val(),
                 representative_type: $('#representative_type').val(),
-                pre_nominal_title: $('#pre_nominal_title').val(),
+                pre_nominal_title: finalPreNominal,
                 first_name: $('#first_name').val(),
                 middle_initial: $('#middle_initial').val(),
                 last_name: $('#last_name').val(),
