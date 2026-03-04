@@ -201,7 +201,13 @@
                             <p class="text-sm text-gray-500 dark:text-gray-400">No board regulations available at this time.</p>
                         </div>
                     @else
-                        <div class="space-y-3" x-data="{ openYear: '{{ $regulationYears->first() }}' }" x-init="$nextTick(() => loadSeries('regulation', '{{ $regulationYears->first() }}'))">
+                        @php
+                            $requestedYear = request('year');
+                            $initialRegulationYear = ($requestedYear && $regulationYears->contains((int) $requestedYear))
+                                ? (int) $requestedYear
+                                : $regulationYears->first();
+                        @endphp
+                        <div class="space-y-3" x-data="{ openYear: '{{ $initialRegulationYear }}' }" x-init="$nextTick(() => loadSeries('regulation', '{{ $initialRegulationYear }}'))">
                             @foreach($regulationYears as $yr)
                                 <div class="issuance-accordion-panel rounded-lg border border-gray-200 dark:border-gray-700" :aria-expanded="openYear === '{{ $yr }}'">
                                     <button type="button" class="issuance-accordion-header w-full flex items-center justify-between rounded-lg" @click="const wasOpen = openYear === '{{ $yr }}'; openYear = wasOpen ? null : '{{ $yr }}'; if (!wasOpen) $nextTick(() => loadSeries('regulation', '{{ $yr }}'));">
@@ -241,7 +247,13 @@
                             <p class="text-sm text-gray-500 dark:text-gray-400">No board resolutions available at this time.</p>
                         </div>
                     @else
-                        <div class="space-y-3" x-data="{ openYear: '{{ $documentYears->first() }}' }" x-init="$nextTick(() => loadSeries('resolution', '{{ $documentYears->first() }}'))">
+                        @php
+                            $requestedYear = request('year');
+                            $initialResolutionYear = ($requestedYear && $documentYears->contains((int) $requestedYear))
+                                ? (int) $requestedYear
+                                : $documentYears->first();
+                        @endphp
+                        <div class="space-y-3" x-data="{ openYear: '{{ $initialResolutionYear }}' }" x-init="$nextTick(() => loadSeries('resolution', '{{ $initialResolutionYear }}'))">
                             @foreach($documentYears as $yr)
                                 <div class="issuance-accordion-panel rounded-lg border border-gray-200 dark:border-gray-700" :aria-expanded="openYear === '{{ $yr }}'">
                                     <button type="button" class="issuance-accordion-header w-full flex items-center justify-between rounded-lg" @click="const wasOpen = openYear === '{{ $yr }}'; openYear = wasOpen ? null : '{{ $yr }}'; if (!wasOpen) $nextTick(() => loadSeries('resolution', '{{ $yr }}'));">

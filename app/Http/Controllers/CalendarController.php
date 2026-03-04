@@ -45,10 +45,14 @@ class CalendarController extends Controller
             }
             
             $year = $eventDate ? $eventDate->format('Y') : null;
+            // Use only the first line of the (potentially multi-line) title as the search keyword
+            $titleLines = preg_split("/\r\n|\n|\r/", (string) $resolution->title);
+            $keyword = $titleLines[0] ?? $resolution->title;
+            // Link to Board Issuances with a pre-filled keyword; let routing encode once.
             $url = route('board-issuances', [
                 'type' => 'resolution',
                 'year' => $year,
-                'keyword' => urlencode($resolution->title),
+                'keyword' => $keyword,
             ]) . '#resolution-' . $resolution->id;
             
             // Get PDF URL if available
@@ -92,10 +96,13 @@ class CalendarController extends Controller
             }
             
             $year = $eventDate ? $eventDate->format('Y') : null;
+            // Same logic for regulations: only use the first line as keyword.
+            $titleLines = preg_split("/\r\n|\n|\r/", (string) $regulation->title);
+            $keyword = $titleLines[0] ?? $regulation->title;
             $url = route('board-issuances', [
                 'type' => 'regulation',
                 'year' => $year,
-                'keyword' => urlencode($regulation->title),
+                'keyword' => $keyword,
             ]) . '#regulation-' . $regulation->id;
             
             // Get PDF URL if available
