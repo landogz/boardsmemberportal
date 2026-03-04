@@ -8,6 +8,8 @@ use App\Models\AgendaInclusionRequest;
 use App\Models\ReferenceMaterial;
 use App\Models\MediaLibrary;
 use App\Models\Notification;
+use App\Models\BoardRegulation;
+use App\Models\OfficialDocument;
 use App\Mail\NoticeAcceptedEmail;
 use App\Mail\NoticeDeclinedEmail;
 use App\Mail\AgendaRequestSubmittedEmail;
@@ -93,46 +95,80 @@ class NoticeController extends Controller
         // Check if meeting is done
         $isMeetingDone = $notice->isMeetingDone();
 
-        // Reference materials uploaded via admin/backend for this notice (all approved items)
-        // Build a flat list of unique media files so the user can view them as thumbnails.
+        // Build the same file list as admin reference-materials index so user sees all meeting materials.
+        // Sources: approved reference materials, notice attachments, related Agenda notices, approved agenda requests, board regulations, board resolutions.
         $referenceFiles = [];
+        $addFile = function ($media) use (&$referenceFiles) {
+            if (!$media || isset($referenceFiles[$media->id])) {
+                return;
+            }
+            $referenceFiles[$media->id] = (object)[
+                'media_id' => $media->id,
+                'file_name' => $media->file_name,
+                'file_path' => $media->file_path,
+                'file_type' => $media->file_type,
+            ];
+        };
+
         $adminMaterials = ReferenceMaterial::with(['user'])
             ->where('notice_id', $id)
             ->whereIn('status', ['approved', null])
             ->get();
-
-        if ($adminMaterials->count() > 0) {
-            $mediaIds = [];
-            foreach ($adminMaterials as $material) {
-                $ids = $material->attachments ?? [];
-                foreach ($ids as $mid) {
-                    $mediaIds[$mid] = true;
-                }
-            }
-            $mediaIds = array_keys($mediaIds);
-            if (!empty($mediaIds)) {
-                $mediaItems = MediaLibrary::whereIn('id', $mediaIds)->get()->keyBy('id');
-                foreach ($adminMaterials as $material) {
-                    $ids = $material->attachments ?? [];
-                    foreach ($ids as $mid) {
-                        $media = $mediaItems->get($mid);
-                        if (!$media) {
-                            continue;
-                        }
-                        // Avoid duplicates
-                        if (isset($referenceFiles[$media->id])) {
-                            continue;
-                        }
-                        $referenceFiles[$media->id] = (object)[
-                            'media_id' => $media->id,
-                            'file_name' => $media->file_name,
-                            'file_path' => $media->file_path,
-                            'file_type' => $media->file_type,
-                        ];
-                    }
-                }
+        foreach ($adminMaterials as $material) {
+            $ids = $material->attachments ?? [];
+            $mediaItems = MediaLibrary::whereIn('id', $ids)->get();
+            foreach ($mediaItems as $media) {
+                $addFile($media);
             }
         }
+
+        $noticeAttachmentIds = $notice->attachments ?? [];
+        if (!empty($noticeAttachmentIds)) {
+            foreach (MediaLibrary::whereIn('id', $noticeAttachmentIds)->get() as $media) {
+                $addFile($media);
+            }
+        }
+
+        $agendaNotices = Notice::where('related_notice_id', $id)->get();
+        foreach ($agendaNotices as $agenda) {
+            $agendaAttachmentIds = $agenda->attachments ?? [];
+            if (empty($agendaAttachmentIds)) {
+                continue;
+            }
+            foreach (MediaLibrary::whereIn('id', $agendaAttachmentIds)->get() as $media) {
+                $addFile($media);
+            }
+        }
+
+        $approvedAgendaRequests = AgendaInclusionRequest::where('notice_id', $id)->where('status', 'approved')->get();
+        foreach ($approvedAgendaRequests as $agendaRequest) {
+            $attachmentIds = $agendaRequest->attachments ?? [];
+            if (empty($attachmentIds)) {
+                continue;
+            }
+            foreach (MediaLibrary::whereIn('id', $attachmentIds)->get() as $media) {
+                $addFile($media);
+            }
+        }
+
+        $regulations = BoardRegulation::with('pdf')->where('notice_id', $id)
+            ->orWhereIn('id', $notice->board_regulations ?? [])
+            ->get();
+        foreach ($regulations as $regulation) {
+            if ($regulation->pdf_file && ($media = MediaLibrary::find($regulation->pdf_file))) {
+                $addFile($media);
+            }
+        }
+
+        $resolutions = OfficialDocument::with('pdf')->where('notice_id', $id)
+            ->orWhereIn('id', $notice->board_resolutions ?? [])
+            ->get();
+        foreach ($resolutions as $resolution) {
+            if ($resolution->pdf_file && ($media = MediaLibrary::find($resolution->pdf_file))) {
+                $addFile($media);
+            }
+        }
+
         $referenceFiles = array_values($referenceFiles);
 
         // Mark any notice-related notifications as read when user views the notice
@@ -425,6 +461,16 @@ class NoticeController extends Controller
         foreach (AgendaInclusionRequest::where('notice_id', $id)->where('status', 'approved')->get() as $req) {
             foreach ($req->attachments ?? [] as $mid) {
                 $allowedIds[$mid] = true;
+            }
+        }
+        foreach (BoardRegulation::where('notice_id', $id)->orWhereIn('id', $notice->board_regulations ?? [])->get() as $reg) {
+            if ($reg->pdf_file) {
+                $allowedIds[$reg->pdf_file] = true;
+            }
+        }
+        foreach (OfficialDocument::where('notice_id', $id)->orWhereIn('id', $notice->board_resolutions ?? [])->get() as $res) {
+            if ($res->pdf_file) {
+                $allowedIds[$res->pdf_file] = true;
             }
         }
 

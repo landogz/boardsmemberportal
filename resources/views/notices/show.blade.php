@@ -951,52 +951,10 @@
                     </div>
                 @endif
 
-                @if((!isset($hasDeclined) || !$hasDeclined) && $notice->attachments && count($notice->attachments) > 0)
-                    <div class="attachments-section">
-                        <h2 class="section-title">Attachments</h2>
-                        <div class="attachments-grid">
-                            @foreach($notice->attachment_media as $attachment)
-                                @php
-                                    $isImage = in_array(strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                                    $isPdf = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) === 'pdf';
-                                @endphp
-                                <div class="attachment-card">
-                                    @if($isImage)
-                                        <div class="attachment-preview">
-                                            <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}">
-                                        </div>
-                                    @elseif($isPdf)
-                                        <div class="attachment-preview pdf" onclick="openGlobalPdfModal('{{ asset('storage/' . $attachment->file_path) }}', '{{ addslashes($attachment->file_name) }}')">
-                                            <i class="fas fa-file-pdf text-5xl text-red-500"></i>
-                                        </div>
-                                    @else
-                                        <div class="attachment-preview file">
-                                            <i class="fas fa-file text-5xl text-gray-400"></i>
-                                        </div>
-                                    @endif
-                                    <div class="attachment-name" title="{{ $attachment->file_name }}">
-                                        {{ $attachment->file_name }}
-                                    </div>
-                                    @if($isPdf)
-                                        <a href="javascript:void(0)" onclick="openGlobalPdfModal('{{ asset('storage/' . $attachment->file_path) }}', '{{ addslashes($attachment->file_name) }}')" class="attachment-action">
-                                            <i class="fas fa-eye"></i>
-                                            <span>View PDF</span>
-                                        </a>
-                                    @else
-                                        <a href="{{ route('notices.attachment.download', ['id' => $notice->id, 'mediaId' => $attachment->id]) }}" target="_blank" class="attachment-action">
-                                            <i class="fas fa-download"></i>
-                                            <span>Download</span>
-                                        </a>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
                 @if((!isset($hasDeclined) || !$hasDeclined) && !empty($referenceFiles))
-                    <div class="attachments-section mt-8">
+                    <div class="attachments-section">
                         <h2 class="section-title">Reference Materials</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">All meeting materials for this notice (attachments, reference materials, agenda items, board regulations and resolutions).</p>
                         <div class="attachments-grid">
                             @foreach($referenceFiles as $file)
                                 @php
