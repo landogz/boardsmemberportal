@@ -121,6 +121,10 @@
             overflow: hidden;
             transition: all 0.2s ease;
         }
+        /* iPad/safe area: keep modal and Close button inside visible area */
+        .pdf-modal-overlay {
+            padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+        }
     </style>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
@@ -276,13 +280,13 @@
 
     @include('components.footer')
 
-    <!-- PDF Viewer Modal: flex centering; tablet/Safari use absolute + transform for reliable centering -->
-    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-0 sm:p-4">
-        <div class="bg-white dark:bg-gray-800 w-full h-full sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[95vw] sm:max-w-6xl sm:h-[90vh] sm:max-h-[90vh] sm:rounded-xl overflow-hidden flex flex-col">
+    <!-- PDF Viewer Modal: safe-area insets on iPad so header/close are not cut off -->
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center pdf-modal-overlay">
+        <div class="bg-white dark:bg-gray-800 w-full h-full sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[95vw] sm:max-w-6xl sm:h-[90vh] sm:max-h-[90vh] sm:rounded-xl overflow-hidden flex flex-col max-w-full max-h-full">
             <!-- Modal Header -->
-            <div class="flex justify-between items-center p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <h3 id="pdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 dark:text-gray-100">PDF Viewer</h3>
-                <button onclick="closePDFModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-2">
+            <div class="flex flex-shrink-0 justify-between items-center gap-3 p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                <h3 id="pdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 dark:text-gray-100 truncate min-w-0">PDF Viewer</h3>
+                <button type="button" onclick="closePDFModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-2 flex-shrink-0 touch-manipulation" aria-label="Close">
                     <i class="fas fa-times text-xl lg:text-2xl"></i>
                 </button>
             </div>

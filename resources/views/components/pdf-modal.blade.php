@@ -1,10 +1,10 @@
-<!-- Global PDF Viewer Modal - Full Screen -->
-<div id="globalPdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-0 sm:p-4" style="display: none;">
-    <div class="bg-white w-full h-full sm:max-h-[95vh] sm:rounded-lg overflow-hidden flex flex-col max-h-[100dvh]">
+<!-- Global PDF Viewer Modal - Full Screen; safe-area insets for iPad -->
+<div id="globalPdfModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center global-pdf-modal-overlay" style="display: none;">
+    <div class="bg-white w-full h-full sm:max-h-[95vh] sm:rounded-lg overflow-hidden flex flex-col max-h-full max-w-full">
         <!-- Modal Header -->
-        <div class="flex-shrink-0 flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 bg-gray-50">
-            <h3 id="globalPdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 truncate pr-2">PDF Viewer</h3>
-            <button onclick="closeGlobalPdfModal()" class="text-gray-500 hover:text-gray-700 p-2 flex-shrink-0">
+        <div class="flex-shrink-0 flex items-center justify-between gap-3 p-4 lg:p-6 border-b border-gray-200 bg-gray-50">
+            <h3 id="globalPdfModalTitle" class="text-xl lg:text-2xl font-semibold text-gray-800 truncate min-w-0">PDF Viewer</h3>
+            <button type="button" onclick="closeGlobalPdfModal()" class="text-gray-500 hover:text-gray-700 p-2 flex-shrink-0 touch-manipulation" aria-label="Close">
                 <i class="fas fa-times text-xl lg:text-2xl"></i>
             </button>
         </div>
@@ -24,6 +24,10 @@
         </div>
         
         <style>
+            /* iPad/safe area: keep modal and Close button inside visible area */
+            .global-pdf-modal-overlay {
+                padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+            }
             /* Scrollable area for tablet/mobile - smooth touch scrolling */
             .pdf-modal-scroll-area {
                 -webkit-overflow-scrolling: touch;
