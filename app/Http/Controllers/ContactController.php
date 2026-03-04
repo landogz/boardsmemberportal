@@ -47,8 +47,15 @@ class ContactController extends Controller
             // Get validated data
             $data = $validator->validated();
 
-            // Contact form emails go to Board Secretariat
-            $recipientEmail = 'boardsec@ddb.gov.ph';
+            // Contact form: single recipient from config (.env CONTACT_RECIPIENT_EMAIL)
+            $recipientEmail = config('mail.contact_recipient');
+            if (empty($recipientEmail) || !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
+                \Log::warning('Contact form: CONTACT_RECIPIENT_EMAIL not set or invalid. Set it in .env to receive contact emails.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Contact form is not configured. Please try again later or contact support.'
+                ], 503);
+            }
 
             // Send email notification
             try {

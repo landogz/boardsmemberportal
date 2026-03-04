@@ -116,4 +116,15 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact Form Recipient
+    |--------------------------------------------------------------------------
+    | The single email address that receives all Contact Us form submissions
+    | from the landing page. Set CONTACT_RECIPIENT_EMAIL in .env.
+    |
+    */
+
+    'contact_recipient' => env('CONTACT_RECIPIENT_EMAIL', 'boardsec@ddb.gov.ph'),
+
 ];
