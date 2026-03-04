@@ -125,6 +125,12 @@
         .pdf-modal-overlay {
             padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
         }
+        /* Center the PDF viewer and document in the modal */
+        .pdf-viewer-centered {
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
     </style>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
@@ -303,9 +309,9 @@
                 </div>
             </div>
 
-            <!-- Modal Body -->
-            <div class="flex-1 overflow-hidden p-4 lg:p-6 relative">
-                <div id="pdfViewerContainerUser" class="w-full h-full min-h-0 border border-gray-300 dark:border-gray-600 rounded-lg relative overflow-hidden">
+            <!-- Modal Body: center the viewer and document -->
+            <div class="flex-1 overflow-hidden p-4 lg:p-6 relative flex items-center justify-center min-h-0">
+                <div id="pdfViewerContainerUser" class="w-full h-full min-h-0 max-w-full max-h-full border border-gray-300 dark:border-gray-600 rounded-lg relative overflow-hidden pdf-viewer-centered">
                     <iframe 
                         id="pdfViewer" 
                         src="" 
@@ -510,9 +516,11 @@
 
             let pdfUrlWithParams = absoluteUrl;
             if (!pdfUrlWithParams.includes('#')) {
-                pdfUrlWithParams += '#toolbar=0&navpanes=0';
+                pdfUrlWithParams += '#toolbar=0&navpanes=0&view=Fit';
             } else if (!pdfUrlWithParams.includes('toolbar=')) {
-                pdfUrlWithParams += '&toolbar=0&navpanes=0';
+                pdfUrlWithParams += '&toolbar=0&navpanes=0&view=Fit';
+            } else if (!pdfUrlWithParams.includes('view=')) {
+                pdfUrlWithParams += '&view=Fit';
             }
 
             iframe.src = pdfUrlWithParams;
