@@ -516,11 +516,11 @@
 
             let pdfUrlWithParams = absoluteUrl;
             if (!pdfUrlWithParams.includes('#')) {
-                pdfUrlWithParams += '#toolbar=0&navpanes=0&view=Fit';
+                pdfUrlWithParams += '#toolbar=0&navpanes=0&view=Zoom';
             } else if (!pdfUrlWithParams.includes('toolbar=')) {
-                pdfUrlWithParams += '&toolbar=0&navpanes=0&view=Fit';
+                pdfUrlWithParams += '&toolbar=0&navpanes=0&view=Zoom';
             } else if (!pdfUrlWithParams.includes('view=')) {
-                pdfUrlWithParams += '&view=Fit';
+                pdfUrlWithParams += '&view=Zoom';
             }
 
             iframe.src = pdfUrlWithParams;
