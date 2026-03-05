@@ -16,91 +16,6 @@ Complete guide for deploying the Board Member Portal to a production server.
 - Node.js and npm (for building assets)
 - Git
 
-### How to install prerequisites (Ubuntu/Debian examples)
-
-> These are quick examples for a fresh Ubuntu/Debian server. For other Linux distributions (CentOS, Rocky, Alma, etc.), use the equivalent `yum`/`dnf` commands or follow the official docs linked below.
-
-#### PHP 8.2+
-
-- Official docs: https://www.php.net/manual/en/install.php
-
-```bash
-sudo apt update
-
-# Install required extensions for Laravel (tune as needed)
-sudo apt install -y \
-  php8.2 php8.2-cli php8.2-fpm \
-  php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql \
-  php8.2-intl php8.2-gd
-
-php -v   # should show PHP 8.2.x
-```
-
-#### Composer
-
-- Official docs: https://getcomposer.org/download/
-
-```bash
-cd ~
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-rm composer-setup.php
-
-composer --version
-```
-
-#### MySQL or MariaDB
-
-- MySQL docs: https://dev.mysql.com/doc/
-- MariaDB docs: https://mariadb.com/kb/en/documentation/
-
-```bash
-sudo apt update
-
-# Install MySQL Server (swap with mariadb-server if you prefer MariaDB)
-sudo apt install -y mysql-server
-
-# Secure installation (set root password, remove test DB, etc.)
-sudo mysql_secure_installation
-```
-
-#### Node.js and npm (for building assets)
-
-- Node.js downloads: https://nodejs.org/en/download
-- Recommended: install via NodeSource or nvm for a current LTS version.
-
-**Option 1 – NodeSource (example for Node 20 LTS):**
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-
-node -v
-npm -v
-```
-
-**Option 2 – nvm (Node Version Manager):**
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-nvm install --lts
-
-node -v
-npm -v
-```
-
-#### Git
-
-- Git docs: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-
-```bash
-sudo apt update
-sudo apt install -y git
-
-git --version
-```
-
 ---
 
 ## Step 1: Connect to Your Server via SSH
@@ -163,7 +78,94 @@ You should see a welcome message and a shell prompt (e.g. `bmpap@hostname:~$`). 
 
 ---
 
-## Step 2: Clone the Repository
+## Step 2: Install Prerequisites (Ubuntu/Debian)
+
+> These are quick examples for a fresh Ubuntu/Debian server. For other Linux distributions (CentOS, Rocky, Alma, etc.), use the equivalent `yum`/`dnf` commands or follow the official docs linked below.
+
+### PHP 8.2+
+
+- Official docs: https://www.php.net/manual/en/install.php
+
+```bash
+sudo apt update
+
+# Install required extensions for Laravel (tune as needed)
+sudo apt install -y \
+  php8.2 php8.2-cli php8.2-fpm \
+  php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql \
+  php8.2-intl php8.2-gd
+
+php -v   # should show PHP 8.2.x
+```
+
+### Composer
+
+- Official docs: https://getcomposer.org/download/
+
+```bash
+cd ~
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+
+composer --version
+```
+
+### MySQL or MariaDB
+
+- MySQL docs: https://dev.mysql.com/doc/
+- MariaDB docs: https://mariadb.com/kb/en/documentation/
+
+```bash
+sudo apt update
+
+# Install MySQL Server (swap with mariadb-server if you prefer MariaDB)
+sudo apt install -y mysql-server
+
+# Secure installation (set root password, remove test DB, etc.)
+sudo mysql_secure_installation
+```
+
+### Node.js and npm (for building assets)
+
+- Node.js downloads: https://nodejs.org/en/download
+- Recommended: install via NodeSource or nvm for a current LTS version.
+
+**Option 1 – NodeSource (example for Node 20 LTS):**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+node -v
+npm -v
+```
+
+**Option 2 – nvm (Node Version Manager):**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+
+node -v
+npm -v
+```
+
+### Git
+
+- Git docs: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+
+```bash
+sudo apt update
+sudo apt install -y git
+
+git --version
+```
+
+---
+
+## Step 3: Clone the Repository
 
 ```bash
 # Navigate to your web root (e.g. /var/www or your host’s document root)
@@ -177,7 +179,7 @@ cd boardsmemberportal
 
 ---
 
-## Step 3: Install PHP Dependencies
+## Step 4: Install PHP Dependencies
 
 ```bash
 # Install Composer dependencies
@@ -190,7 +192,7 @@ composer install --optimize-autoloader --no-dev
 
 ---
 
-## Step 4: Environment Configuration
+## Step 5: Environment Configuration
 
 ```bash
 # Copy the environment file
@@ -224,73 +226,13 @@ DB_DATABASE=your_db_name
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 
-BROADCAST_DRIVER=reverb
-REVERB_APP_ID=your-reverb-app-id
-REVERB_APP_KEY=your-reverb-app-key
-REVERB_APP_SECRET=your-reverb-app-secret
-REVERB_HOST=your-reverb-host
-REVERB_PORT=8080
-REVERB_SCHEME=https
-
-CACHE_DRIVER=file
-QUEUE_CONNECTION=database
-SESSION_DRIVER=file
-SESSION_LIFETIME=120
-
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your_smtp_username
-MAIL_PASSWORD="your_smtp_password"
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=no-reply@your-domain.com
-MAIL_FROM_NAME="Board Member Portal"
-
 # Single recipient for Contact Us form (landing page)
 CONTACT_RECIPIENT_EMAIL=boardsec@example.com
-
-FILESYSTEM_DISK=local
 ```
-
-### How to generate Reverb credentials
-
-Laravel Reverb uses three credentials to authenticate real-time connections:
-
-```env
-REVERB_APP_ID=your-reverb-app-id
-REVERB_APP_KEY=your-reverb-app-key
-REVERB_APP_SECRET=your-reverb-app-secret
-```
-
-If these values are already present in `.env.example`, copy them into your server’s `.env` (do **not** change them per environment).
-
-If you need to generate them:
-
-```bash
-cd /var/www/boardsmemberportal
-
-# On a local/dev machine
-php artisan reverb:install
-```
-
-That command will generate `REVERB_APP_ID`, `REVERB_APP_KEY`, and `REVERB_APP_SECRET` and write them to your local `.env`.  
-Copy those values into the production server’s `.env` under the same keys.
-
-For the host values, set:
-
-```env
-REVERB_HOST=your-domain.com      # or internal host if behind a proxy
-REVERB_PORT=8080                 # or the port you expose for Reverb
-REVERB_SCHEME=https              # https in production
-```
-
-**Important:**
-- Replace all placeholder values with your actual configuration (database, SMTP, Reverb, URLs, etc.).
-- Never commit real passwords, API keys, or production secrets to Git; keep them only in `.env` on the server.
 
 ---
 
-## Step 5: Database Setup
+## Step 6: Database Setup
 
 ```bash
 # Create database (if not already created via cPanel/phpMyAdmin)
@@ -306,7 +248,7 @@ php artisan db:seed --class=GovernmentAgencySeeder
 
 ---
 
-## Step 6: Storage and Cache Setup
+## Step 7: Storage and Cache Setup
 
 ```bash
 # Create symbolic link for storage
@@ -326,7 +268,7 @@ php artisan view:clear
 
 ---
 
-## Step 7: Install and Build Frontend Assets
+## Step 8: Install and Build Frontend Assets
 
 ```bash
 # Install Node.js dependencies
@@ -341,7 +283,7 @@ npm run build
 
 ---
 
-## Step 8: Set Permissions
+## Step 9: Set Permissions
 
 ```bash
 # From project root; use your web server user (e.g. www-data, apache, nginx)
@@ -351,7 +293,7 @@ chown -R www-data:www-data storage bootstrap/cache
 
 ---
 
-## Step 9: Configure Web Server
+## Step 10: Configure Web Server
 
 > This step is usually handled by the client’s hosting / infrastructure team.  
 > The only requirement is that the web server’s **document root** points to the Laravel `public` directory:
@@ -361,7 +303,7 @@ chown -R www-data:www-data storage bootstrap/cache
 
 ---
 
-## Step 10: Setup Laravel Reverb (WebSocket Server)
+## Step 11: Setup Laravel Reverb (WebSocket Server)
 
 ### Install Reverb
 
@@ -371,19 +313,6 @@ composer require laravel/reverb
 
 # Publish Reverb configuration
 php artisan reverb:install
-```
-
-### Configure Reverb
-
-Edit `config/reverb.php` or set in `.env`:
-
-```env
-REVERB_APP_ID=your-app-id
-REVERB_APP_KEY=your-app-key
-REVERB_APP_SECRET=your-app-secret
-REVERB_HOST=your-domain.com
-REVERB_PORT=8080
-REVERB_SCHEME=https
 ```
 
 ### Run Reverb
@@ -426,7 +355,7 @@ php artisan reverb:start --host=0.0.0.0 --port=8080
 
 ---
 
-## Step 11: Setup Queue Workers
+## Step 12: Setup Queue Workers
 
 Run a queue worker so jobs (e.g. emails) are processed. Use Supervisor or your host’s process manager.
 
@@ -455,7 +384,7 @@ Then: `sudo supervisorctl reread && sudo supervisorctl update && sudo supervisor
 
 ---
 
-## Step 12: Setup Task Scheduler (Cron)
+## Step 13: Setup Task Scheduler (Cron)
 
 Run the scheduler every minute:
 
@@ -471,31 +400,13 @@ Add (adjust path):
 
 ---
 
-## Step 13: SSL Certificate (HTTPS)
+## Step 14: SSL Certificate (HTTPS)
 
 Enable HTTPS (e.g. Let’s Encrypt via Certbot or your host’s control panel). Then set in `.env`:
 
 ```env
 APP_URL=https://your-domain.com
 REVERB_SCHEME=https
-```
-
----
-
-## Step 14: Firewall Configuration
-
-If using a firewall, allow necessary ports:
-
-```bash
-# Allow HTTP (80) and HTTPS (443)
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-
-# Allow Reverb WebSocket port (8080)
-sudo ufw allow 8080/tcp
-
-# Enable firewall
-sudo ufw enable
 ```
 
 ---
