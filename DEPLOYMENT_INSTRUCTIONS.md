@@ -4,7 +4,8 @@ Complete guide for deploying the Board Member Portal to a production server.
 
 **Configuration (replace with your values):**
 - Domain: `your-domain.com`
-- Project path: `/var/www/boardsmemberportal` (or your server’s web root)
+- Project path: `/var/www/boardsmemberportal`  
+  - Web root (served by Nginx/Apache): `/var/www/boardsmemberportal/public`
 
 ## Prerequisites
 
@@ -15,13 +16,150 @@ Complete guide for deploying the Board Member Portal to a production server.
 - Node.js and npm (for building assets)
 - Git
 
----
+### How to install prerequisites (Ubuntu/Debian examples)
 
-## Step 1: Connect to Your Server
+> These are quick examples for a fresh Ubuntu/Debian server. For other Linux distributions (CentOS, Rocky, Alma, etc.), use the equivalent `yum`/`dnf` commands or follow the official docs linked below.
+
+#### PHP 8.2+
+
+- Official docs: https://www.php.net/manual/en/install.php
 
 ```bash
-ssh your-username@your-server-hostname
+sudo apt update
+
+# Install required extensions for Laravel (tune as needed)
+sudo apt install -y \
+  php8.2 php8.2-cli php8.2-fpm \
+  php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql \
+  php8.2-intl php8.2-gd
+
+php -v   # should show PHP 8.2.x
 ```
+
+#### Composer
+
+- Official docs: https://getcomposer.org/download/
+
+```bash
+cd ~
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+
+composer --version
+```
+
+#### MySQL or MariaDB
+
+- MySQL docs: https://dev.mysql.com/doc/
+- MariaDB docs: https://mariadb.com/kb/en/documentation/
+
+```bash
+sudo apt update
+
+# Install MySQL Server (swap with mariadb-server if you prefer MariaDB)
+sudo apt install -y mysql-server
+
+# Secure installation (set root password, remove test DB, etc.)
+sudo mysql_secure_installation
+```
+
+#### Node.js and npm (for building assets)
+
+- Node.js downloads: https://nodejs.org/en/download
+- Recommended: install via NodeSource or nvm for a current LTS version.
+
+**Option 1 – NodeSource (example for Node 20 LTS):**
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+node -v
+npm -v
+```
+
+**Option 2 – nvm (Node Version Manager):**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+
+node -v
+npm -v
+```
+
+#### Git
+
+- Git docs: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+
+```bash
+sudo apt update
+sudo apt install -y git
+
+git --version
+```
+
+---
+
+## Step 1: Connect to Your Server via SSH
+
+You need terminal access to the server to run deployment commands. Use **SSH (Secure Shell)** to connect.
+
+### What you need
+
+- **Server address**: IP address (e.g. `116.50.254.36`) or hostname (e.g. `your-domain.com`)
+- **Username**: the account name on the server (e.g. `bmpap`, `root`, or a user created by your host)
+- **Password or SSH key**: from your hosting provider or server admin
+
+### Connect from Mac or Linux
+
+1. Open **Terminal**.
+2. Run (replace with your username and server address):
+
+```bash
+ssh your-username@your-server-address
+```
+
+Example:
+
+```bash
+ssh bmpap@116.50.254.36
+```
+
+3. When prompted, enter the password. You will not see characters as you type (no dots or asterisks); that is normal.
+4. On first connection you may see a message about the host key; type `yes` and press Enter.
+
+If the server uses a **non-default SSH port** (e.g. 2222):
+
+```bash
+ssh -p 2222 your-username@your-server-address
+```
+
+### Connect from Windows
+
+**Option A – Windows 10/11 (PowerShell or Windows Terminal)**
+
+1. Open **PowerShell** or **Windows Terminal** (search in Start menu).
+2. Run the same command as above:
+
+```bash
+ssh your-username@your-server-address
+```
+
+3. Enter the password when prompted.
+
+**Option B – PuTTY**
+
+1. Download PuTTY from https://www.putty.org/ and open it.
+2. **Host Name**: enter the IP or hostname (e.g. `116.50.254.36`).
+3. **Port**: `22` (or the port given by your host). Click **Open**.
+4. When the terminal opens, enter your username and then your password when prompted.
+
+### After you are connected
+
+You should see a welcome message and a shell prompt (e.g. `bmpap@hostname:~$`). All following deployment steps assume you run commands in this SSH session (or in new SSH sessions to the same server).
 
 ---
 
@@ -114,6 +252,38 @@ CONTACT_RECIPIENT_EMAIL=boardsec@example.com
 FILESYSTEM_DISK=local
 ```
 
+### How to generate Reverb credentials
+
+Laravel Reverb uses three credentials to authenticate real-time connections:
+
+```env
+REVERB_APP_ID=your-reverb-app-id
+REVERB_APP_KEY=your-reverb-app-key
+REVERB_APP_SECRET=your-reverb-app-secret
+```
+
+If these values are already present in `.env.example`, copy them into your server’s `.env` (do **not** change them per environment).
+
+If you need to generate them:
+
+```bash
+cd /var/www/boardsmemberportal
+
+# On a local/dev machine
+php artisan reverb:install
+```
+
+That command will generate `REVERB_APP_ID`, `REVERB_APP_KEY`, and `REVERB_APP_SECRET` and write them to your local `.env`.  
+Copy those values into the production server’s `.env` under the same keys.
+
+For the host values, set:
+
+```env
+REVERB_HOST=your-domain.com      # or internal host if behind a proxy
+REVERB_PORT=8080                 # or the port you expose for Reverb
+REVERB_SCHEME=https              # https in production
+```
+
 **Important:**
 - Replace all placeholder values with your actual configuration (database, SMTP, Reverb, URLs, etc.).
 - Never commit real passwords, API keys, or production secrets to Git; keep them only in `.env` on the server.
@@ -183,58 +353,11 @@ chown -R www-data:www-data storage bootstrap/cache
 
 ## Step 9: Configure Web Server
 
-The site must be served from the Laravel **public** directory (e.g. `/var/www/boardsmemberportal/public`). Configure your host so the document root is that folder (via control panel or virtual host).
-
-### Apache
-
-Ensure `mod_rewrite` is enabled. Laravel’s `public/.htaccess` is included in the repo. Example virtual host:
-
-```apache
-<VirtualHost *:80>
-    ServerName your-domain.com
-    DocumentRoot /var/www/boardsmemberportal/public
-    <Directory /var/www/boardsmemberportal/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
-
-### Nginx
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/boardsmemberportal/public;
-
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
-
-    index index.php;
-
-    charset utf-8;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
-}
-```
+> This step is usually handled by the client’s hosting / infrastructure team.  
+> The only requirement is that the web server’s **document root** points to the Laravel `public` directory:
+>
+> - Project path: `/var/www/boardsmemberportal`  
+> - Web root (document root): `/var/www/boardsmemberportal/public`
 
 ---
 

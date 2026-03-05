@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DeploymentInstructionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,10 @@ Route::get('/example', function () {
 Route::get('/flow', function () {
     return view('flow');
 })->name('flow');
+
+// Public deployment instructions page (renders DEPLOYMENT_INSTRUCTIONS.md)
+Route::get('/deployment-instructions', [DeploymentInstructionsController::class, 'show'])
+    ->name('deployment.instructions');
 
 // Authentication Routes
 Route::get('/login', function (Request $request) {
