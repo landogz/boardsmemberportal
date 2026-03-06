@@ -35,9 +35,11 @@ Route::get('/flow', function () {
     return view('flow');
 })->name('flow');
 
-// Public deployment instructions page (renders DEPLOYMENT_INSTRUCTIONS.md)
+// Public deployment guide (Live | Localhost Laragon | Localhost Mac) and full live instructions
 Route::get('/deployment-instructions', [DeploymentInstructionsController::class, 'show'])
     ->name('deployment.instructions');
+Route::get('/deployment-instructions/live', [DeploymentInstructionsController::class, 'showLive'])
+    ->name('deployment.instructions.live');
 
 // Authentication Routes
 Route::get('/login', function (Request $request) {

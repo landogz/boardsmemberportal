@@ -1530,6 +1530,7 @@ After running the seeders, you can use the following credentials to log in:
 
 ## 📚 Additional Documentation
 
+- [Deployment Guide](DEPLOYMENT.md) — **Live deployment** | **Localhost: Laragon (Windows)** | **Localhost: Mac (MAMP / Manager OS X)**
 - [MySQL Setup Guide](README_MYSQL.md)
 - [Git Push Instructions](GIT_PUSH_INSTRUCTIONS.md)
 
