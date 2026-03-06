@@ -134,9 +134,9 @@
                         <span class="text-red-500 text-sm hidden" id="attachments-error"></span>
                     </div>
 
-                    <!-- Expiration Date & Time -->
+                    <!-- Deadline & Time -->
                     <div>
-                        <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">Expiration Date & Time *</label>
+                        <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">Deadline & Time *</label>
                         <input 
                             type="text" 
                             id="expires_at" 

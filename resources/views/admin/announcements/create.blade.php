@@ -15,6 +15,8 @@
 @endphp
 
 @push('styles')
+<!-- CKEditor 4.19.1 -->
+<script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
     .user-select-item {
@@ -357,6 +359,51 @@
         $('#scheduled_at').val('');
     });
 
+    // Initialize CKEditor for description (match /admin/notices/create)
+    $(document).ready(function() {
+        if (typeof CKEDITOR !== 'undefined') {
+            CKEDITOR.replace('description', {
+                height: 300,
+                toolbar: [
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+                    { name: 'links', items: ['Link', 'Unlink'] },
+                    { name: 'insert', items: ['Table', 'HorizontalRule'] },
+                    { name: 'styles', items: ['Format', 'FontSize'] },
+                    { name: 'colors', items: ['TextColor', 'BGColor'] },
+                    { name: 'tools', items: ['Source', 'Maximize'] }
+                ],
+                removePlugins: 'elementspath',
+                resize_enabled: false,
+                format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address;div'
+            });
+
+            CKEDITOR.on('instanceReady', function() {
+                var notificationArea = document.getElementById('cke_notifications_area_description');
+                if (notificationArea) {
+                    notificationArea.style.display = 'none';
+                    notificationArea.style.visibility = 'hidden';
+                }
+                setInterval(function() {
+                    var notifications = document.querySelectorAll('.cke_notifications_area, #cke_notifications_area_description');
+                    notifications.forEach(function(notif) {
+                        notif.style.display = 'none';
+                        notif.style.visibility = 'hidden';
+                    });
+                }, 100);
+
+                var editor = CKEDITOR.instances.description;
+                if (editor) {
+                    editor.on('change', function() {
+                        if (typeof scheduleAutoSave === 'function') {
+                            scheduleAutoSave();
+                        }
+                    });
+                }
+            });
+        }
+    });
+
     // User search filter
     $('#userSearch').on('input', function() {
         const searchTerm = $(this).val().toLowerCase().trim();
@@ -426,6 +473,9 @@
     const UPDATE_URL_TEMPLATE = '{{ route("admin.announcements.update", ["id" => ":id"]) }}';
 
     function getDraftFormData() {
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
+            CKEDITOR.instances.description.updateElement();
+        }
         const form = document.getElementById('createAnnouncementForm');
         const formData = new FormData(form);
         formData.set('status', 'draft');
@@ -596,6 +646,10 @@
     // Form validation and submission
     $('#createAnnouncementForm').on('submit', function(e) {
         e.preventDefault();
+
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances.description) {
+            CKEDITOR.instances.description.updateElement();
+        }
 
         const title = $('#title').val().trim();
         const description = $('#description').val().trim();

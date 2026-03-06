@@ -139,10 +139,7 @@
 
     <div class="board-issuances-container">
         <div class="mb-6 sm:mb-8 text-center">
-            <h1 class="text-3xl sm:text-4xl font-bold mb-2" style="color: #055498;">Board Issuances</h1>
-            <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-                Access board resolutions and regulations relevant to your role.
-            </p>
+            <h1 class="text-3xl sm:text-4xl font-bold" style="color: #055498;">Board Issuances</h1>
         </div>
 
         <!-- Search & Filter (GET form for server-side filtering and pagination) -->

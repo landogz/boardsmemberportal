@@ -331,7 +331,7 @@
                                 <p class="text-sm text-gray-600 mb-1">
                                     <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                                 </p>
-                                <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
+                                <p class="text-xs text-gray-500">Only the following file types are allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                             </div>
                             <div id="dropZoneActive" class="hidden">
                                 <i class="fas fa-file-upload text-4xl text-[#055498] mb-3 animate-bounce"></i>

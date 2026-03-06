@@ -760,7 +760,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                                 <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
+                            <p class="text-xs text-gray-500">Only the following file types are allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
                         </div>
                         <div id="agendaAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>

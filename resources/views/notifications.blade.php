@@ -186,7 +186,7 @@
                         <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">You don't have any notifications matching your current filters.</p>
                     </div>
                 @endforelse
-            </div>
+                </div>
 
             <!-- Pagination -->
             @if($notifications->hasPages())
@@ -194,15 +194,15 @@
                     {{ $notifications->links() }}
             </div>
             @endif
-        </div>
-    </div>
+                        </div>
+                            </div>
 
     <!-- Professional Announcement Modal -->
     <div id="announcementModal" class="fixed inset-0 z-50 hidden overflow-y-auto" style="background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);">
         <div class="flex items-center justify-center min-h-screen px-4 py-8">
             <div class="fixed inset-0 transition-opacity" onclick="closeAnnouncementModal()">
                 <div class="absolute inset-0 bg-black opacity-60"></div>
-            </div>
+                            </div>
 
             <div class="relative bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl transform transition-all w-full max-w-4xl mx-auto" style="max-height: 90vh; display: flex; flex-direction: column;">
                 <!-- Modal Header -->
@@ -239,10 +239,10 @@
                                         <span class="mx-1">·</span>
                                         <i class="fas fa-globe-americas text-xs"></i>
                                         <span>Public</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+                        </div>
+                    </div>
+                </div>
 
                         <!-- Title -->
                         <div class="px-6 pt-6 pb-4">
@@ -382,7 +382,7 @@
         // Set up axios defaults
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        
+
         // Open announcement modal from notification
         window.openAnnouncementModalFromNotification = function(announcementUrl, notificationId) {
             // Extract announcement ID from URL

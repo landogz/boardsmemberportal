@@ -1045,166 +1045,174 @@
             </div>
         </div>
     </section>
-    <!-- DDB Directory Section -->
-    <section id="about" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b] dark:to-[#0F172A]">
+    <!-- Composition of the Board Section -->
+    <section id="about" class="py-16 sm:py-20 md:py-24 bg-white dark:bg-[#0F172A]">
         <div class="container mx-auto px-4 sm:px-6">
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-10 sm:mb-14">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 gradient-text px-2">
-                        DDB Directory
-                    </h2>
-                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 px-2">
-                        Dangerous Drugs Board — Board Members &amp; Key Officials
-                    </p>
+            <div class="max-w-5xl mx-auto">
+                <header class="text-center mb-12 sm:mb-16">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#055498] dark:text-[#5b9bd5] mb-3">About the Board</p>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight px-2">Composition of the Board</h2>
+                    <div class="mt-4 h-0.5 w-16 mx-auto rounded-full bg-[#055498]/30 dark:bg-[#5b9bd5]/40" aria-hidden="true"></div>
+                </header>
+                <p class="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed mb-12 sm:mb-16">
+                    The Dangerous Drugs Board is managed by a Board, a multi-disciplinary body composed of 17 members—three Permanent, 12 Ex-Officio, and two Regular Members. The President of the Republic of the Philippines designates from among the three Permanent Members who shall serve as Chairman with the rank of Secretary.
+                </p>
+                <!-- Permanent Members / Chairman cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-14 sm:mb-16">
+                    <article class="group rounded-2xl bg-gray-50 dark:bg-[#1e293b]/80 border border-gray-100 dark:border-gray-700/80 overflow-hidden text-center transition-all hover:border-[#055498]/20 dark:hover:border-[#5b9bd5]/30 hover:shadow-lg hover:shadow-[#055498]/5">
+                        <div class="aspect-[3/4] max-w-[260px] mx-auto overflow-hidden bg-gray-200/50 dark:bg-gray-700/50">
+                            <img src="https://ddb.gov.ph/wp-content/uploads/2025/02/usec-ramoleta.png" alt="Undersecretary ARMANDO E. RAMOLETE" class="w-full h-full object-cover object-top transition-transform group-hover:scale-[1.02]" loading="lazy">
+                        </div>
+                        <div class="p-5 sm:p-6">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Undersecretary</p>
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                <span class="block">ARMANDO E.</span>
+                                <span class="block">RAMOLETE</span>
+                            </h3>
+                            <p class="text-xs font-semibold text-[#055498] dark:text-[#5b9bd5] uppercase tracking-wide mt-2 mb-3">Permanent Member</p>
+                            <a href="mailto:aeramolete@ddb.gov.ph" class="text-sm text-gray-600 dark:text-gray-400 hover:text-[#055498] dark:hover:text-[#5b9bd5] transition-colors break-all">aeramolete@ddb.gov.ph</a>
+                        </div>
+                    </article>
+                    <article class="group rounded-2xl bg-gray-50 dark:bg-[#1e293b]/80 border border-[#055498]/15 dark:border-[#5b9bd5]/25 overflow-hidden text-center shadow-md shadow-[#055498]/5 transition-all hover:shadow-lg hover:shadow-[#055498]/10 ring-1 ring-[#055498]/10 dark:ring-[#5b9bd5]/20">
+                        <div class="aspect-[3/4] max-w-[260px] mx-auto overflow-hidden bg-gray-200/50 dark:bg-gray-700/50">
+                            <img src="https://ddb.gov.ph/wp-content/uploads/2025/02/sec-oca-pngg.png" alt="Secretary OSCAR F. VALENZUELA" class="w-full h-full object-cover object-top transition-transform group-hover:scale-[1.02]" loading="lazy">
+                        </div>
+                        <div class="p-5 sm:p-6">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Secretary</p>
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                <span class="block">OSCAR F.</span>
+                                <span class="block">VALENZUELA</span>
+                            </h3>
+                            <p class="text-xs font-semibold text-[#055498] dark:text-[#5b9bd5] uppercase tracking-wide mt-2 mb-3">Chairman</p>
+                            <a href="mailto:chairman@ddb.gov.ph" class="text-sm text-gray-600 dark:text-gray-400 hover:text-[#055498] dark:hover:text-[#5b9bd5] transition-colors break-all">chairman@ddb.gov.ph</a>
+                        </div>
+                    </article>
+                    <article class="group rounded-2xl bg-gray-50 dark:bg-[#1e293b]/80 border border-gray-100 dark:border-gray-700/80 overflow-hidden text-center transition-all hover:border-[#055498]/20 dark:hover:border-[#5b9bd5]/30 hover:shadow-lg hover:shadow-[#055498]/5">
+                        <div class="aspect-[3/4] max-w-[260px] mx-auto overflow-hidden bg-gray-200/50 dark:bg-gray-700/50">
+                            <img src="https://ddb.gov.ph/wp-content/uploads/2025/02/USEC-OSIT-PNG.png" alt="Undersecretary ABAD H. OSIT" class="w-full h-full object-cover object-top transition-transform group-hover:scale-[1.02]" loading="lazy">
+                        </div>
+                        <div class="p-5 sm:p-6">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Undersecretary</p>
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                <span class="block">ABAD H.</span>
+                                <span class="block">OSIT</span>
+                            </h3>
+                            <p class="text-xs font-semibold text-[#055498] dark:text-[#5b9bd5] uppercase tracking-wide mt-2 mb-3">Permanent Member</p>
+                            <a href="mailto:ahosit@ddb.gov.ph" class="text-sm text-gray-600 dark:text-gray-400 hover:text-[#055498] dark:hover:text-[#5b9bd5] transition-colors break-all">ahosit@ddb.gov.ph</a>
+                        </div>
+                    </article>
                 </div>
-                <!-- Section 1: Secretary & Undersecretary (at the top) -->
-                <div class="mb-10 sm:mb-14">
-                    <h3 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 sm:mb-5">Secretary &amp; Undersecretary</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                        <!-- Secretary Oscar F. Valenzuela -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Secretary Oscar F. Valenzuela</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Chairman, Dangerous Drugs Board</p>
-                            <a href="mailto:chairman@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> chairman@ddb.gov.ph</a>
+                <!-- Board member groups (accordions) -->
+                <div class="space-y-2 mb-10 sm:mb-14">
+                    <details class="group rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-gray-700/80 overflow-hidden shadow-sm open:border-[#055498]/20 dark:open:border-[#5b9bd5]/30 open:shadow-md">
+                        <summary class="flex items-center justify-between cursor-pointer list-none px-5 py-4 text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wide hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors border-l-4 border-transparent group-open:border-[#055498] dark:group-open:border-[#5b9bd5]">
+                            <span>Ex-Officio Members</span>
+                            <span class="text-gray-400 dark:text-gray-500 group-open:rotate-180 transition-transform duration-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                        </summary>
+                        <div class="border-t border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-800/30 overflow-x-auto">
+                            <table class="w-full min-w-[640px] text-sm text-left border-collapse">
+                                <thead>
+                                    <tr class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 bg-gray-100/80 dark:bg-gray-800/80">
+                                        <th class="px-4 py-3 text-center w-28">Agency</th>
+                                        <th class="px-4 py-3">Ex-Officio Member</th>
+                                        <th class="px-4 py-3">Permanent Representatives</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700 dark:text-gray-300 divide-y divide-gray-100 dark:divide-gray-700/80">
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://www.doj.gov.ph/index.html" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DOJ.jpg" width="80" height="78" alt="DOJ" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>UNDERSECRETARY FREDDERICK A. VIDA</strong><br>Secretary, Department of Justice</td><td class="px-4 py-3">—</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://doh.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DOH.png" width="80" height="80" alt="DOH" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>DR. TEODORO J. HERBOSA</strong><br>Secretary of Health</td><td class="px-4 py-3"><strong>UNDERSECRETARY ELMER G. PUNZALAN</strong><br>Undersecretary, Department of Health</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://ched.gov.ph/programs-and-projects/" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/CHED.jpg" width="80" height="79" alt="CHED" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY SHIRLEY C. AGRUPIS</strong><br>Chairperson, Commission on Higher Education</td><td class="px-4 py-3"><strong>ATTY. CINDERELLA FILIPINA S. BENITEZ-JARO</strong><br>Executive Director IV</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://www.deped.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DEPED-300x166.jpg" width="80" height="44" alt="DepEd" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY JUAN EDGARDO ‘SONNY’ ANGARA</strong><br>Secretary, Department of Education</td><td class="px-4 py-3"><strong>UNDERSECRETARY MALCOLM GARMA, CESO V</strong><br>Undersecretary, Department of Education</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://dilg.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2024/08/Department_of_the_Interior_and_Local_Government_DILG_Seal_-_Logo.svg-300x300.png" width="80" height="80" alt="DILG" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY JUANITO VICTOR REMULLA</strong><br>Secretary, Department of the Interior and Local Government</td><td class="px-4 py-3"><strong>UNDERSECRETARY SERAFIN BARETTO JR.</strong><br>Undersecretary, Department of the Interior and Local Government</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://www.facebook.com/DNDPHL/" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DND.jpg" width="80" height="81" alt="DND" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>ATTY. GILBERTO C. TEODORO, JR.</strong><br>Secretary of National Defense</td><td class="px-4 py-3"><strong>UNDERSECRETARY GAVIN D. EDJAWAN</strong><br>Undersecretary for Strategic Assessment and Planning / Undersecretary for Special Concerns</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://www.dswd.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DSWD.jpg" width="80" height="79" alt="DSWD" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY REX T. GATCHALIAN</strong><br>Secretary, Department of Social Welfare and Development</td><td class="px-4 py-3"><strong>UNDERSECRETARY ADONIS P. SULIT</strong><br>Undersecretary for Policy and Plans Group</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://pdea.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2022/12/Philippine_Drug_Enforcement_Agency_seal-300x300.png" width="80" height="80" alt="PDEA" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>DIRECTOR GENERAL ISAGANI R. NEREZ</strong><br>Director General, Philippine Drug Enforcement Agency</td><td class="px-4 py-3">—</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://nyc.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2022/01/Logo-NYC-250x245-1.png" width="80" height="78" alt="NYC" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>CHAIRPERSON JOSEPH FRANCISCO ORTEGA</strong><br>Chairperson, National Youth Commission</td><td class="px-4 py-3">—</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://dole.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/1200px-Department_of_Labor_and_Employment_DOLE.svg.png" width="80" height="69" alt="DOLE" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY BIENVENIDO LAGUESMA</strong><br>Secretary, Department of Labor and Employment</td><td class="px-4 py-3"><strong>UNDERSECRETARY FELIPE N. EGARGO, JR.</strong><br>Undersecretary, Legal and Overseas Operations Cluster</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://www.dof.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DOF.jpg" width="80" height="80" alt="DOF" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>CHIEF FREDERICK D. GO</strong><br>Secretary, Department of Finance</td><td class="px-4 py-3"><strong>UNDERSECRETARY MARIA EDITA Z. TAN</strong><br>Undersecretary, Special Concerns and Oversight</td></tr>
+                                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors"><td class="px-4 py-3 text-center align-top"><a href="https://dfa.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/DFA.jpg" width="80" height="80" alt="DFA" class="mx-auto block rounded" loading="lazy"></a></td><td class="px-4 py-3"><strong>SECRETARY MA. THEREZA P. LAZARO</strong><br>Secretary of Foreign Affairs</td><td class="px-4 py-3">—</td></tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- Undersecretary Armando E. Ramolete -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Undersecretary Armando E. Ramolete</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Permanent Member, Dangerous Drugs Board</p>
-                            <a href="mailto:aeramolete@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> aeramolete@ddb.gov.ph</a>
+                    </details>
+                    <details class="group rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-gray-700/80 overflow-hidden shadow-sm open:border-[#055498]/20 dark:open:border-[#5b9bd5]/30 open:shadow-md">
+                        <summary class="flex items-center justify-between cursor-pointer list-none px-5 py-4 text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wide hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors border-l-4 border-transparent group-open:border-[#055498] dark:group-open:border-[#5b9bd5]">
+                            <span>Regular Members</span>
+                            <span class="text-gray-400 dark:text-gray-500 group-open:rotate-180 transition-transform duration-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                        </summary>
+                        <div class="border-t border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-800/30 overflow-x-auto">
+                            <table class="w-full min-w-[400px] text-sm text-left">
+                                <tbody class="text-gray-700 dark:text-gray-300 divide-y divide-gray-100 dark:divide-gray-700/80">
+                                    <tr>
+                                        <td class="px-4 py-3 text-center align-top w-24"><a href="https://ibp.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/IBP.jpg" width="85" height="92" alt="IBP" class="mx-auto block rounded" loading="lazy"></a></td>
+                                        <td class="px-4 py-3 align-top">
+                                            <p class="font-bold text-gray-900 dark:text-white mb-1">NATIONAL PRESIDENT ATTY. ALLAN G. PANOLONG</p>
+                                            <p class="text-gray-600 dark:text-gray-400">National President, Integrated Bar of the Philippines</p>
+                                        </td>
+                                        <td class="px-4 py-3 align-top"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">NGO</td>
+                                        <td class="px-4 py-3"><strong><em>-VACANT-</em></strong></td>
+                                        <td class="px-4 py-3"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- Undersecretary Abad H. Osit -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Undersecretary Abad H. Osit</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Permanent Member, Dangerous Drugs Board</p>
-                            <a href="mailto:ahosit@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> ahosit@ddb.gov.ph</a>
+                    </details>
+                    <details class="group rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-gray-700/80 overflow-hidden shadow-sm open:border-[#055498]/20 dark:open:border-[#5b9bd5]/30 open:shadow-md">
+                        <summary class="flex items-center justify-between cursor-pointer list-none px-5 py-4 text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wide hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors border-l-4 border-transparent group-open:border-[#055498] dark:group-open:border-[#5b9bd5]">
+                            <span>Permanent Consultants</span>
+                            <span class="text-gray-400 dark:text-gray-500 group-open:rotate-180 transition-transform duration-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                        </summary>
+                        <div class="border-t border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-800/30 overflow-x-auto">
+                            <table class="w-full min-w-[400px] text-sm text-left">
+                                <thead>
+                                    <tr class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 bg-gray-100/80 dark:bg-gray-800/80">
+                                        <th class="px-4 py-3 text-center w-28">Agency</th>
+                                        <th class="px-4 py-3">Consultant</th>
+                                        <th class="px-4 py-3">Contact</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700 dark:text-gray-300 divide-y divide-gray-100 dark:divide-gray-700/80">
+                                    <tr>
+                                        <td class="px-4 py-3 text-center align-top w-24"><a href="https://pnp.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/PNP-212x300.jpg" width="80" height="113" alt="PNP" class="mx-auto block rounded" loading="lazy"></a></td>
+                                        <td class="px-4 py-3"><strong>POLICE GENERAL JOSE MELENCIO NARTATEZ JR.</strong><br>Permanent Consultant</td>
+                                        <td class="px-4 py-3">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-center align-top w-24"><a href="https://nbi.gov.ph" target="_blank" rel="noopener noreferrer"><img src="https://ddb.gov.ph/wp-content/uploads/2021/10/NBI.png" width="80" height="119" alt="NBI" class="mx-auto block rounded" loading="lazy"></a></td>
+                                        <td class="px-4 py-3"><strong>ATTY. MELVIN MATIBAG</strong><br>Permanent Consultant</td>
+                                        <td class="px-4 py-3"><a href="mailto:director@nbi.gov.ph" class="text-[#055498] hover:underline break-all">director@nbi.gov.ph</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- Undersecretary Earl P. Saavedra -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Undersecretary Earl P. Saavedra, CESO I</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Executive Director V / Secretary of the Board</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+63289296639" class="hover:underline">(02) 89296639</a> / <a href="tel:+63289294544" class="hover:underline">(02) 89294544 loc 103</a></p>
-                            <a href="mailto:oed@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> oed@ddb.gov.ph</a>
+                    </details>
+                    <details class="group rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-gray-700/80 overflow-hidden shadow-sm open:border-[#055498]/20 dark:open:border-[#5b9bd5]/30 open:shadow-md">
+                        <summary class="flex items-center justify-between cursor-pointer list-none px-5 py-4 text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wide hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors border-l-4 border-transparent group-open:border-[#055498] dark:group-open:border-[#5b9bd5]">
+                            <span class="pr-4">Secretary of the Board / Administrative Officer of the Secretariat</span>
+                            <span class="text-gray-400 dark:text-gray-500 shrink-0 group-open:rotate-180 transition-transform duration-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span>
+                        </summary>
+                        <div class="border-t border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-800/30 overflow-x-auto">
+                            <table class="w-full min-w-[400px] text-sm text-left">
+                                <tbody class="text-gray-700 dark:text-gray-300 divide-y divide-gray-100 dark:divide-gray-700/80">
+                                    <tr>
+                                        <td class="px-4 py-3 text-center align-top w-24"><img src="https://ddb.gov.ph/wp-content/uploads/2021/08/cropped-logo-300x300.png" width="100" height="100" alt="DDB" class="mx-auto block rounded" loading="lazy"></td>
+                                        <td class="px-4 py-3 align-top">
+                                            <p class="font-bold text-gray-900 dark:text-white mb-1">UNDERSECRETARY EARL P. SAAVEDRA, CESO I</p>
+                                            <p class="text-gray-600 dark:text-gray-400">Secretary of the Board / Executive Director V</p>
+                                        </td>
+                                        <td class="px-4 py-3 align-top">
+                                            <p class="mb-1"><a href="mailto:oed@ddb.gov.ph" class="text-[#055498] hover:underline break-all">oed@ddb.gov.ph</a></p>
+                                            <p class="mb-2"><a href="mailto:boardsec@ddb.gov.ph" class="text-[#055498] hover:underline break-all">boardsec@ddb.gov.ph</a></p>
+                                            <p class="text-gray-600 dark:text-gray-400">(02) 89296639 local<br>(02) 89294544 loc 103</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Assistant Secretaries -->
-                <div class="mb-10 sm:mb-14">
-                    <h3 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 sm:mb-5">Assistant Secretaries</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                        <!-- Assistant Secretary Ferdaussi B. Masnar -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Assistant Secretary Ferdaussi B. Masnar</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Deputy Executive Director for Operations</p>
-                            <a href="mailto:fbmasnar@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> fbmasnar@ddb.gov.ph</a>
-                        </div>
-                        <!-- Assistant Secretary Ma. Victoria C. Sorne -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Assistant Secretary Ma. Victoria C. Sorne</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Deputy Executive Director for Administration</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639985623570" class="hover:underline">09985623570</a> / 89294544 loc 122</p>
-                            <a href="mailto:mvcsorne@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> mvcsorne@ddb.gov.ph</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Division & Unit Heads (single grid: aligned rows, same height per row) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-stretch">
-                    <h3 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 md:col-span-2 pt-2">Division &amp; Unit Heads</h3>
-                    <!-- Row 1 -->
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Ms. Jheongmie G. Oba</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Head Executive Assistant, Office of the Chairman</p>
-                        <a href="mailto:jgoba@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> jgoba@ddb.gov.ph</a>
-                    </div>
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Ms. Joan Marie S. Sison</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Chief, Management Information Systems Division</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639458509077" class="hover:underline">(63) 9458509077</a></p>
-                        <a href="mailto:jmssison@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> jmssison@ddb.gov.ph</a>
-                    </div>
-                    <!-- Row 2 -->
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Ms. Ana Maria Yolanda P. Anyayahan</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">OIC, Administrative and Financial Management Division</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+63289294544" class="hover:underline">(02) 89294544</a> / 89291753 loc 121</p>
-                        <a href="mailto:amypanyayahan@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> amypanyayahan@ddb.gov.ph</a>
-                    </div>
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Mr. Jessie D. Tolentino</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Head, Media Affairs and Public Relations Unit</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639985877949" class="hover:underline">(63) 9985877949</a></p>
-                        <a href="mailto:jdtolentino@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> jdtolentino@ddb.gov.ph</a>
-                    </div>
-                    <!-- Row 3 -->
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Ms. Ella Marie L. Repomanta</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Chief, Preventive Education, Training, and Information Division</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639399133621" class="hover:underline">09399133621</a></p>
-                        <a href="mailto:emlrepomanta@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> emlrepomanta@ddb.gov.ph</a>
-                    </div>
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Ms. Ma. Corazon A. Ramarama</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Head, Planning Unit</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639339189618" class="hover:underline">09339189618</a></p>
-                        <a href="mailto:mcaramarama@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> mcaramarama@ddb.gov.ph</a>
-                    </div>
-                    <!-- Row 4 -->
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Mr. Michael P. Miatari</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Chief, Policy Studies, Research, and Statistics Division</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+63282557994" class="hover:underline">(02) 82557994</a></p>
-                        <a href="mailto:mpmiatari@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> mpmiatari@ddb.gov.ph</a>
-                    </div>
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Edheliza M. Quintana</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">OIC, Internal Audit Unit</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+63289296826" class="hover:underline">(02) 89296826</a> / <a href="tel:+639258727722" class="hover:underline">09258727722</a></p>
-                        <a href="mailto:emquintana@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> emquintana@ddb.gov.ph</a>
-                    </div>
-                    <!-- Row 5 -->
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Atty. Ma. Florina G. Cureg</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">OIC, Legal Affairs Division</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639189369352" class="hover:underline">09189369352</a></p>
-                        <a href="mailto:mfgcureg@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> mfgcureg@ddb.gov.ph</a>
-                    </div>
-                    <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">Mr. Aaron Stephen M. Alquero</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">OIC, Conference Secretariat</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500 mb-2"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i> <a href="tel:+639209755714" class="hover:underline">(63) 9209755714</a></p>
-                        <a href="mailto:asmalquero@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all mt-auto"><i class="fas fa-envelope text-xs shrink-0" aria-hidden="true"></i> asmalquero@ddb.gov.ph</a>
-                    </div>
-                </div>
-
-                <!-- Section 4: Office Locations (same layout as Assistant Secretaries) -->
-                <div class="mb-10 sm:mb-14">
-                    <h3 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 sm:mb-5">Office Locations</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                        <!-- Main Office -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Main Office</h4>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Dangerous Drugs Board</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">3rd Floor DDB-PDEA Bldg., National Government Center, NIA Road, Brgy. Pinyahan, Quezon City, NCR, 1100, Philippines</p>
-                            <div class="flex flex-wrap gap-2">
-                                <a href="https://www.google.com/maps/search/?api=1&query=DDB-PDEA+Building+National+Government+Center+NIA+Road+Quezon+City" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline"><i class="fas fa-map-marker-alt text-xs" aria-hidden="true"></i> View on map</a>
-                                <span class="text-gray-300 dark:text-gray-600">|</span>
-                                <a href="mailto:info@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs" aria-hidden="true"></i> info@ddb.gov.ph</a>
-                            </div>
-                        </div>
-                        <!-- Extension Office -->
-                        <div class="rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Extension Office</h4>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Dangerous Drugs Board</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">6th Floor, South Insula Building, 61 Timog Avenue, Diliman, South Triangle, Quezon City, 1103 Metro Manila, Philippines</p>
-                            <div class="flex flex-wrap gap-2">
-                                <a href="https://www.google.com/maps/search/?api=1&query=South+Insula+Building+61+Timog+Avenue+Quezon+City" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline"><i class="fas fa-map-marker-alt text-xs" aria-hidden="true"></i> View on map</a>
-                                <span class="text-gray-300 dark:text-gray-600">|</span>
-                                <a href="mailto:info@ddb.gov.ph" class="inline-flex items-center gap-1.5 text-sm text-[#055498] hover:underline break-all"><i class="fas fa-envelope text-xs" aria-hidden="true"></i> info@ddb.gov.ph</a>
-                            </div>
-                        </div>
-                    </div>
+                    </details>
                 </div>
             </div>
         </div>
@@ -3260,7 +3268,7 @@
                                         </h3>
                                         <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">${announcement.created_at}</p>
                                         <div class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 prose prose-sm max-w-none">
-                                            ${announcement.description_short || ''}
+                                            ${announcement.description || ''}
                                         </div>
                                         <button onclick="openAnnouncementModal(${announcement.id})" class="inline-block px-6 py-2 text-white font-semibold rounded transition-all duration-200 text-sm hover:shadow-md read-more-btn cursor-pointer" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);" onmouseover="this.style.background='linear-gradient(135deg, #123a60 0%, #055498 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #055498 0%, #123a60 100%)'">
                                             READ MORE
