@@ -500,20 +500,34 @@
         const submitText = document.getElementById('submitText');
         const submitLoading = document.getElementById('submitLoading');
         const itemId = document.getElementById('itemId').value;
+        // Include disabled fields in submit (browsers exclude them by default)
+        document.querySelectorAll('#addressForm [disabled]').forEach(function(el) {
+            el.dataset.wasDisabled = '1';
+            el.disabled = false;
+        });
         const formData = new FormData(this);
-        const type = formData.get('type');
+        document.querySelectorAll('#addressForm [data-was-disabled="1"]').forEach(function(el) {
+            el.disabled = true;
+            delete el.dataset.wasDisabled;
+        });
+        const typeFromForm = formData.get('type');
+        const typeParam = typeFromForm || '{{ $type === "regions" ? "region" : ($type === "provinces" ? "province" : ($type === "cities" ? "city" : "barangay")) }}';
 
         submitText.classList.add('hidden');
         submitLoading.classList.remove('hidden');
         submitBtn.disabled = true;
 
-        const url = itemId 
+        let url = itemId 
             ? `/admin/address-settings/${itemId}`
             : '/admin/address-settings/store';
-        const method = itemId ? 'PUT' : 'POST';
+        url += (url.includes('?') ? '&' : '?') + 'type=' + encodeURIComponent(typeParam);
+        // Use POST with _method=PUT for updates so Laravel receives form data (PHP does not parse PUT multipart/form-data)
+        if (itemId) {
+            formData.append('_method', 'PUT');
+        }
 
         axios({
-            method: method,
+            method: 'POST',
             url: url,
             data: formData,
             headers: {
@@ -569,7 +583,7 @@
             if (result.isConfirmed) {
                 const type = '{{ $type === "regions" ? "region" : ($type === "provinces" ? "province" : ($type === "cities" ? "city" : "barangay")) }}';
                 
-                axios.delete(`/admin/address-settings/${id}`, {
+                axios.delete(`/admin/address-settings/${id}?type=${encodeURIComponent(type)}`, {
                     data: { type: type }
                 })
                 .then(function(response) {

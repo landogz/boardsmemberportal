@@ -25,12 +25,13 @@ class AddressController extends Controller
      */
     public function provinces(Request $request)
     {
+        $validated = $request->validate([
+            'region_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+        ]);
         $query = Province::query();
-        
-        if ($request->has('region_code')) {
-            $query->where('region_code', $request->region_code);
+        if (!empty($validated['region_code'] ?? null)) {
+            $query->where('region_code', $validated['region_code']);
         }
-        
         $provinces = $query->orderBy('province_name')->get();
         return response()->json($provinces);
     }
@@ -40,16 +41,17 @@ class AddressController extends Controller
      */
     public function cities(Request $request)
     {
+        $validated = $request->validate([
+            'province_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+            'region_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+        ]);
         $query = City::query();
-        
-        if ($request->has('province_code')) {
-            $query->where('province_code', $request->province_code);
+        if (!empty($validated['province_code'] ?? null)) {
+            $query->where('province_code', $validated['province_code']);
         }
-        
-        if ($request->has('region_code')) {
-            $query->where('region_code', $request->region_code);
+        if (!empty($validated['region_code'] ?? null)) {
+            $query->where('region_code', $validated['region_code']);
         }
-        
         $cities = $query->orderBy('city_name')->get();
         return response()->json($cities);
     }
@@ -59,20 +61,21 @@ class AddressController extends Controller
      */
     public function barangays(Request $request)
     {
+        $validated = $request->validate([
+            'city_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+            'province_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+            'region_code' => 'nullable|string|max:32|regex:/^[a-zA-Z0-9\-_]+$/',
+        ]);
         $query = Barangay::query();
-        
-        if ($request->has('city_code')) {
-            $query->where('city_code', $request->city_code);
+        if (!empty($validated['city_code'] ?? null)) {
+            $query->where('city_code', $validated['city_code']);
         }
-        
-        if ($request->has('province_code')) {
-            $query->where('province_code', $request->province_code);
+        if (!empty($validated['province_code'] ?? null)) {
+            $query->where('province_code', $validated['province_code']);
         }
-        
-        if ($request->has('region_code')) {
-            $query->where('region_code', $request->region_code);
+        if (!empty($validated['region_code'] ?? null)) {
+            $query->where('region_code', $validated['region_code']);
         }
-        
         $barangays = $query->orderBy('brgy_name')->get();
         return response()->json($barangays);
     }

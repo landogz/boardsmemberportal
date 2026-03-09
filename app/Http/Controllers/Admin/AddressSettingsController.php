@@ -23,8 +23,12 @@ class AddressSettingsController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
         }
 
-        $type = $request->get('type', 'regions'); // regions, provinces, cities, barangays
-        $search = $request->get('search', '');
+        $validated = $request->validate([
+            'type' => 'nullable|string|in:regions,provinces,cities,barangays',
+            'search' => 'nullable|string|max:255',
+        ]);
+        $type = $validated['type'] ?? 'regions';
+        $search = $validated['search'] ?? '';
 
         $data = [];
         $regions = [];
@@ -114,7 +118,10 @@ class AddressSettingsController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $type = $request->input('type');
+        $type = $this->resolveAddressType($request);
+        if (! $type) {
+            return response()->json(['success' => false, 'message' => 'Invalid type. Use region, province, city, or barangay.'], 400);
+        }
 
         try {
             switch ($type) {
@@ -201,7 +208,10 @@ class AddressSettingsController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $type = $request->input('type');
+        $type = $this->resolveAddressType($request);
+        if (! $type) {
+            return response()->json(['success' => false, 'message' => 'Invalid type. Use region, province, city, or barangay.'], 400);
+        }
 
         try {
             switch ($type) {
@@ -292,7 +302,10 @@ class AddressSettingsController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $type = $request->input('type');
+        $type = $this->resolveAddressType($request);
+        if (! $type) {
+            return response()->json(['success' => false, 'message' => 'Invalid type. Use region, province, city, or barangay.'], 400);
+        }
 
         try {
             switch ($type) {
@@ -363,5 +376,39 @@ class AddressSettingsController extends Controller
                 'message' => 'Failed to delete ' . $type . '. Please try again.'
             ], 500);
         }
+    }
+
+    /**
+     * Resolve type from request (query, body, or Referer query string as fallback).
+     */
+    private function resolveAddressType(Request $request): ?string
+    {
+        $type = $request->get('type');
+        if ($type !== null && $type !== '') {
+            return $this->normalizeAddressType($type);
+        }
+        $referer = $request->header('Referer');
+        if ($referer && preg_match('/[?&]type=([^&\s]+)/', $referer, $m)) {
+            return $this->normalizeAddressType(urldecode($m[1]));
+        }
+        return null;
+    }
+
+    /**
+     * Normalize address type to singular form (accepts both 'barangays' and 'barangay', etc.)
+     */
+    private function normalizeAddressType(mixed $type): ?string
+    {
+        $type = is_string($type) ? strtolower(trim($type)) : null;
+        if ($type === '') {
+            return null;
+        }
+        return match ($type) {
+            'regions', 'region' => 'region',
+            'provinces', 'province' => 'province',
+            'cities', 'city' => 'city',
+            'barangays', 'barangay' => 'barangay',
+            default => null,
+        };
     }
 }

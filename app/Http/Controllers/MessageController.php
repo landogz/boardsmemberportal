@@ -838,6 +838,7 @@ class MessageController extends Controller
     public function searchConversations(Request $request)
     {
         try {
+            $request->validate(['search' => 'nullable|string|max:255']);
             $currentUserId = Auth::id();
             $search = trim($request->query('search', ''));
 

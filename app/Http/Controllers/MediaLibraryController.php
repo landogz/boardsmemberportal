@@ -21,11 +21,12 @@ class MediaLibraryController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not have permission to view media library.');
         }
 
+        $request->validate(['search' => 'nullable|string|max:255', 'type' => 'nullable|string|in:image,document,video,audio']);
         $query = MediaLibrary::with('uploader')->orderBy('created_at', 'desc');
 
         // Search functionality
-        if ($request->has('search') && $request->search) {
-            $query->where('file_name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('file_name', 'like', '%' . $request->input('search') . '%');
         }
 
         // Filter by file type
@@ -475,6 +476,7 @@ class MediaLibraryController extends Controller
             abort(403, 'You do not have permission to view media library.');
         }
 
+        $request->validate(['search' => 'nullable|string|max:255', 'type' => 'nullable|string|max:32']);
         $query = MediaLibrary::with('uploader')->orderBy('created_at', 'desc');
 
         // Filter by type if specified (for Images)
@@ -482,9 +484,8 @@ class MediaLibraryController extends Controller
             $query->whereIn('file_type', ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml', 'image/webp']);
         }
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $query->where('file_name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('file_name', 'like', '%' . $request->input('search') . '%');
         }
 
         $mediaFiles = $query->paginate(24);

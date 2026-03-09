@@ -86,6 +86,19 @@ class ReportGenerationController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view reports.');
         }
 
+        $request->validate([
+            'report_type' => 'nullable|string|in:notices,announcements,board_regulations,board_resolutions,referendums,agenda_requests,reference_materials,attendance_confirmations,quorum_guide,summary_regular_meeting,summary_regular_meeting_by_title',
+            'search' => 'nullable|string|max:255',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date|after_or_equal:date_from',
+            'notice_date_from' => 'nullable|date',
+            'notice_date_to' => 'nullable|date',
+            'notice_id' => 'nullable|integer|min:1',
+            'user_id' => 'nullable|uuid',
+            'status' => 'nullable|string|max:64',
+            'year' => 'nullable|integer|min:2000|max:2100',
+        ]);
+
         $reportType = $request->input('report_type', 'notices');
         $results = collect();
         $filters = $request->except(['_token']);
