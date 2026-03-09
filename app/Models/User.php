@@ -25,6 +25,7 @@ class User extends Authenticatable
         'first_name',
         'middle_initial',
         'last_name',
+        'extension_name',
         'pre_nominal_title',
         'post_nominal_title',
         'email',
@@ -210,5 +211,34 @@ class User extends Authenticatable
         // Check actual permissions from roles and direct assignments in the database
         // This respects what's configured in Role & Permission Manager
         return $this->can($permission);
+    }
+
+    /**
+     * Full formal name: pre_nominal first middle_initial. last extension_name post_nominal
+     */
+    public function getFullNameAttribute(): string
+    {
+        $parts = array_filter([
+            $this->pre_nominal_title ?? '',
+            $this->first_name ?? '',
+            $this->middle_initial ? ($this->middle_initial . '.') : '',
+            $this->last_name ?? '',
+            $this->extension_name ?? '',
+            $this->post_nominal_title ?? '',
+        ]);
+        return trim(implode(' ', $parts));
+    }
+
+    /**
+     * Short name for lists/avatars: first last extension_name
+     */
+    public function getShortNameAttribute(): string
+    {
+        $parts = array_filter([
+            $this->first_name ?? '',
+            $this->last_name ?? '',
+            $this->extension_name ?? '',
+        ]);
+        return trim(implode(' ', $parts));
     }
 }

@@ -113,12 +113,12 @@
                                     <div class="flex-shrink-0">
                                         @php
                                             $profileMedia = $regulation->uploader->profile_picture ? \App\Models\MediaLibrary::find($regulation->uploader->profile_picture) : null;
-                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($regulation->uploader->first_name . ' ' . $regulation->uploader->last_name) . '&size=40&background=055498&color=fff';
+                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($regulation->uploader->short_name) . '&size=40&background=055498&color=fff';
                                         @endphp
                                         <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
                                     </div>
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}
+                                        {{ $regulation->uploader->short_name }}
                                     </div>
                                 </div>
                             @else

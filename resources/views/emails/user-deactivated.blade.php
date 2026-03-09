@@ -37,10 +37,10 @@
                     </tr>
                     <tr>
                         <td class="email-body">
-                            <p class="greeting">Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->first_name }} {{ $user->last_name }},</p>
+                            <p class="greeting">Dear {{ $user->full_name }},</p>
                             <p class="greeting">Your Board Members Portal account has been deactivated. You will no longer be able to sign in or access the portal.</p>
                             <div class="info-card">
-                                <p style="font-size: 14px; color: #4b5563; line-height: 1.7; margin: 0;">If you believe this was done in error or you need to regain access, please contact CONSEC or the system administrator.</p>
+                                <p style="font-size: 14px; color: #4b5563; line-height: 1.7; margin: 0;">Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.</p>
                             </div>
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">This is an automated notification from the Board Members Portal.</p>
                         </td>

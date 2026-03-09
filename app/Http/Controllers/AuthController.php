@@ -193,6 +193,7 @@ class AuthController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
+            'extension_name' => 'nullable|string|max:50',
             // Post nominal title: allow standard list or any custom text (final value is sent from frontend)
             'post_nominal_title' => 'nullable|string|max:255',
             'designation' => 'required|string|max:255',
@@ -256,6 +257,7 @@ class AuthController extends Controller
             'first_name' => $request->first_name,
             'middle_initial' => $request->middle_initial,
             'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
             'post_nominal_title' => $postNominalTitle,
             'designation' => $request->designation,
             'sex' => $request->sex,

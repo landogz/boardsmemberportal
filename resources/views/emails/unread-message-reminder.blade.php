@@ -163,7 +163,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Hello <strong>{{ $user->short_name }}</strong>,
                             </p>
                             
                             <p class="greeting">
@@ -178,9 +178,9 @@
                                 <div class="message-sender">
                                     @if($isGroupMessage)
                                         Group: {{ $chatMessage->group->name }}<br>
-                                        From: {{ $sender->first_name }} {{ $sender->last_name }}
+                                        From: {{ $sender->short_name }}
                                     @else
-                                        From: {{ $sender->first_name }} {{ $sender->last_name }}
+                                        From: {{ $sender->short_name }}
                                     @endif
                                 </div>
                                 <div class="message-content">
@@ -198,7 +198,7 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This is a friendly reminder to check your messages. If you have any questions, please contact the administrator.
+                                This is a friendly reminder to check your messages. Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                         </td>
                     </tr>

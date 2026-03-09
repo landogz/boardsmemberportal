@@ -32,7 +32,7 @@ class MessageController extends Controller
             $users = User::where('is_active', true)
                 ->where('id', '!=', $currentUserId)
                 ->with('governmentAgency')
-                ->select('id', 'first_name', 'last_name', 'is_online', 'last_activity', 'profile_picture', 'privilege', 'position', 'government_agency_id')
+                ->select('id', 'first_name', 'last_name', 'extension_name', 'is_online', 'last_activity', 'profile_picture', 'privilege', 'position', 'government_agency_id')
                 ->orderBy('is_online', 'desc') // Online users first
                 ->orderBy('last_name')
                 ->orderBy('first_name')
@@ -51,7 +51,7 @@ class MessageController extends Controller
                 
                 // Fallback to UI Avatars if no profile picture
                 if (!$profilePictureUrl) {
-                    $name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+                    $name = $user->short_name;
                     $profilePictureUrl = 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=64&background=055498&color=fff';
                 }
                 
@@ -257,7 +257,7 @@ class MessageController extends Controller
                 // Notify users mentioned in the message (@[Name](userId))
                 if ($message !== '' && $chat->sender) {
                     $mentionedIds = $this->extractMentionedUserIds($message);
-                    $senderName = $chat->sender->first_name . ' ' . $chat->sender->last_name;
+                    $senderName = $chat->sender->short_name;
                     $groupName = $group->name ?? 'Group';
                     $snippet = strlen($message) > 60 ? substr($message, 0, 60) . '...' : $message;
                     // Strip mention markup for snippet display
@@ -456,7 +456,7 @@ class MessageController extends Controller
                         'users' => $group->map(function ($reaction) {
                             return [
                                 'id' => $reaction->user->id,
-                                'name' => $reaction->user->first_name . ' ' . $reaction->user->last_name,
+                                'name' => $reaction->user->short_name,
                             ];
                         })->toArray(),
                     ];
@@ -465,7 +465,7 @@ class MessageController extends Controller
                 // Get parent message info if this is a reply
                 $parentMessage = null;
                 if ($chat->parent_id && $chat->parent) {
-                    $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+                    $parentSenderName = $chat->parent->sender->short_name;
                     $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
                     $parentMessage = [
                         'id' => $chat->parent->id,
@@ -664,7 +664,7 @@ class MessageController extends Controller
 
                     return [
                         'user_id' => $otherUser->id,
-                        'user_name' => $otherUser->first_name . ' ' . $otherUser->last_name,
+                        'user_name' => $otherUser->short_name,
                         'user_initials' => $initials,
                         'profile_picture_url' => $profilePictureUrl,
                         'last_message' => $lastMessageText,
@@ -739,7 +739,7 @@ class MessageController extends Controller
                     if ($latestChat) {
                         if ($latestChat->message) {
                             if ($latestChat->sender) {
-                                $senderName = $latestChat->sender->first_name . ' ' . $latestChat->sender->last_name;
+                                $senderName = $latestChat->sender->short_name;
                                 $lastMessageText = $senderName . ': ' . (strlen($latestChat->message) > 40 ? substr($latestChat->message, 0, 40) . '...' : $latestChat->message);
                             } else {
                                 $lastMessageText = strlen($latestChat->message) > 50 ? substr($latestChat->message, 0, 50) . '...' : $latestChat->message;
@@ -754,7 +754,7 @@ class MessageController extends Controller
                                     if ($media) {
                                         $fileType = $media->file_type ?? '';
                                         if ($latestChat->sender) {
-                                            $senderName = $latestChat->sender->first_name . ' ' . $latestChat->sender->last_name;
+                                            $senderName = $latestChat->sender->short_name;
                                             if (str_starts_with($fileType, 'image/')) {
                                                 $lastMessageText = $senderName . ': 📷 Image';
                                             } elseif (str_starts_with($fileType, 'video/')) {
@@ -1089,7 +1089,7 @@ class MessageController extends Controller
                         'users' => $group->map(function ($reaction) {
                             return [
                                 'id' => $reaction->user->id,
-                                'name' => $reaction->user->first_name . ' ' . $reaction->user->last_name,
+                                'name' => $reaction->user->short_name,
                             ];
                         })->toArray(),
                     ];
@@ -1098,7 +1098,7 @@ class MessageController extends Controller
                 // Get parent message info if this is a reply
                 $parentMessage = null;
                 if ($chat->parent_id && $chat->parent) {
-                    $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+                    $parentSenderName = $chat->parent->sender->short_name;
                     $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
                     $parentMessage = [
                         'id' => $chat->parent->id,
@@ -1459,7 +1459,7 @@ class MessageController extends Controller
             $currentUserId = Auth::id();
             
             $reactions = MessageReaction::where('chat_id', $id)
-                ->with('user:id,first_name,last_name,profile_picture')
+                ->with('user:id,first_name,last_name,extension_name,profile_picture')
                 ->get()
                 ->groupBy('reaction_type')
                 ->map(function ($group, $type) use ($currentUserId) {
@@ -1477,13 +1477,13 @@ class MessageController extends Controller
                             }
                             
                             if (!$profilePictureUrl) {
-                                $name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+                                $name = $user->short_name;
                                 $profilePictureUrl = 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=64&background=055498&color=fff';
                             }
                             
                             return [
                                 'id' => $reaction->user->id,
-                                'name' => $user->first_name . ' ' . $user->last_name,
+                                'name' => $user->short_name,
                                 'profile_picture_url' => $profilePictureUrl,
                                 'is_current_user' => $reaction->user_id === $currentUserId,
                                 'reaction_id' => $reaction->id,
@@ -1639,7 +1639,7 @@ class MessageController extends Controller
     private function getMessageReactions($chatId)
     {
         $reactions = MessageReaction::where('chat_id', $chatId)
-            ->with('user:id,first_name,last_name')
+            ->with('user:id,first_name,last_name,extension_name')
             ->get()
             ->groupBy('reaction_type')
             ->map(function ($group) {
@@ -1649,7 +1649,7 @@ class MessageController extends Controller
                     'users' => $group->map(function ($reaction) {
                         return [
                             'id' => $reaction->user->id,
-                            'name' => $reaction->user->first_name . ' ' . $reaction->user->last_name,
+                            'name' => $reaction->user->short_name,
                         ];
                     })->toArray(),
                 ];
@@ -1700,7 +1700,7 @@ class MessageController extends Controller
         // Get parent message info if this is a reply
         $parentMessage = null;
         if ($chat->parent_id && $chat->parent) {
-            $parentSenderName = $chat->parent->sender->first_name . ' ' . $chat->parent->sender->last_name;
+            $parentSenderName = $chat->parent->sender->short_name;
             $parentMsg = $chat->parent->content_deleted_at ? 'This message was deleted' : $chat->parent->message;
             $parentMessage = [
                 'id' => $chat->parent->id,

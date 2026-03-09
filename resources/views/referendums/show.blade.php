@@ -543,17 +543,17 @@
                                 <div class="flex items-start sm:items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
                                     @php
                                         $creatorProfileMedia = $referendum->creator->profile_picture ? \App\Models\MediaLibrary::find($referendum->creator->profile_picture) : null;
-                                        $creatorProfileUrl = $creatorProfileMedia ? asset('storage/' . $creatorProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->first_name . ' ' . $referendum->creator->last_name) . '&size=150&background=1877f2&color=fff';
+                                        $creatorProfileUrl = $creatorProfileMedia ? asset('storage/' . $creatorProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->short_name) . '&size=150&background=1877f2&color=fff';
                                         $isCreatorOnline = $referendum->creator->is_online ?? false;
                                     @endphp
                                     <div class="profile-picture-container flex-shrink-0 relative">
-                                        <img src="{{ $creatorProfileUrl }}" alt="{{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 shadow-sm block" style="border-color: #055498; aspect-ratio: 1/1;">
+                                        <img src="{{ $creatorProfileUrl }}" alt="{{ $referendum->creator->short_name }}" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 shadow-sm block" style="border-color: #055498; aspect-ratio: 1/1;">
                                         <div class="{{ $isCreatorOnline ? 'online-indicator' : 'offline-indicator' }}"></div>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center flex-wrap gap-1.5 sm:gap-2 mb-1">
                                             <h3 class="text-sm sm:text-base font-bold text-gray-800 dark:text-white truncate">
-                                                {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                                                {{ $referendum->creator->short_name }}
                                             </h3>
                                             <span class="status-badge {{ $referendum->isExpired() ? 'status-expired' : 'status-active' }}">
                                                 {{ $referendum->isExpired() ? 'ENDED' : 'Active' }}
@@ -850,8 +850,8 @@
                                     <div class="flex items-start space-x-2">
                                         @php
                                             $userProfileMedia = Auth::user()->profile_picture ? \App\Models\MediaLibrary::find(Auth::user()->profile_picture) : null;
-                                            $userProfileUrl = $userProfileMedia ? asset('storage/' . $userProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&size=150&background=1877f2&color=fff';
-                                            $userFullName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
+                                            $userProfileUrl = $userProfileMedia ? asset('storage/' . $userProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name) . '&size=150&background=1877f2&color=fff';
+                                            $userFullName = Auth::user()->short_name;
                                         @endphp
                                         <img src="{{ $userProfileUrl }}" alt="{{ $userFullName }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1">
                                         <div class="flex-1 min-w-0">
@@ -1362,7 +1362,7 @@
             replyCreatedAt = escapeHtml(replyCreatedAt);
             @php
                 $currentUserProfileMedia = Auth::user()->profile_picture ? \App\Models\MediaLibrary::find(Auth::user()->profile_picture) : null;
-                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&size=150&background=1877f2&color=fff';
+                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name) . '&size=150&background=1877f2&color=fff';
             @endphp
             const currentUserProfileUrl = '{{ $currentUserProfileUrl }}';
             
@@ -1802,7 +1802,7 @@
             
             @php
                 $currentUserProfileMedia = Auth::user()->profile_picture ? \App\Models\MediaLibrary::find(Auth::user()->profile_picture) : null;
-                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&size=150&background=1877f2&color=fff';
+                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name) . '&size=150&background=1877f2&color=fff';
             @endphp
             
             // Check if reply input exists
@@ -2536,7 +2536,7 @@
             const commenterOnlineClass = isCommenterOnline ? 'online-indicator' : 'offline-indicator';
             @php
                 $currentUserProfileMedia = Auth::user()->profile_picture ? \App\Models\MediaLibrary::find(Auth::user()->profile_picture) : null;
-                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&size=150&background=1877f2&color=fff';
+                $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name) . '&size=150&background=1877f2&color=fff';
             @endphp
             const currentUserProfileUrl = '{{ $currentUserProfileUrl }}';
             

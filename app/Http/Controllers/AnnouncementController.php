@@ -163,7 +163,7 @@ class AnnouncementController extends Controller
                 'description' => $announcement->description_with_links,
                 'description_short' => \Str::limit(strip_tags($announcement->description), 150),
                 'banner_url' => $bannerUrl,
-                'author' => $announcement->creator->first_name . ' ' . $announcement->creator->last_name,
+                'author' => $announcement->creator->short_name,
                 'created_at' => $announcement->created_at->format('M d, Y'),
                 'created_at_human' => $announcement->created_at->diffForHumans(),
                 'category' => $announcement->category,
@@ -226,7 +226,7 @@ class AnnouncementController extends Controller
             // Use description_with_links so any plain URLs become clickable in the modal
             'description' => $announcement->description_with_links,
             'banner_url' => $bannerUrl,
-            'author' => $announcement->creator->first_name . ' ' . $announcement->creator->last_name,
+            'author' => $announcement->creator->short_name,
             'author_profile_url' => $authorProfileUrl,
             'created_at' => $announcement->created_at->format('F d, Y'),
             'created_at_human' => $announcement->created_at->diffForHumans(),

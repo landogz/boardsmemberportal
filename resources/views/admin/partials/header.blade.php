@@ -91,13 +91,13 @@
                     @if(Auth::user()->profile_picture)
                         @php
                             $media = \App\Models\MediaLibrary::find(Auth::user()->profile_picture);
-                            $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name);
+                            $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name);
                         @endphp
                         <img id="headerProfilePicture" class="h-8 w-8 rounded-full object-cover" src="{{ $profilePic }}" alt="Profile" />
                     @else
-                        <img id="headerProfilePicture" class="h-8 w-8 rounded-full object-cover" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) }}" alt="Profile" />
+                        <img id="headerProfilePicture" class="h-8 w-8 rounded-full object-cover" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->short_name) }}" alt="Profile" />
                     @endif
-                    <span class="hidden md:block text-sm font-medium text-gray-700">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
+                    <span class="hidden md:block text-sm font-medium text-gray-700">{{ Auth::user()->short_name }}</span>
                     <i class="fas fa-chevron-down text-xs text-gray-500 hidden md:block"></i>
                 </button>
                 <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">

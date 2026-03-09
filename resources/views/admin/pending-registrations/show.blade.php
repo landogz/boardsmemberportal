@@ -23,13 +23,13 @@
                     <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 flex-shrink-0" style="border-color:#055498;">
                         @php
                             $profileMedia = $user->profile_picture ? \App\Models\MediaLibrary::find($user->profile_picture) : null;
-                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name);
+                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name);
                         @endphp
                         <img src="{{ $profileUrl }}" alt="Profile Picture" class="w-full h-full object-cover">
                     </div>
                     <div class="min-w-0 flex-1">
                         <h1 class="text-lg sm:text-2xl font-bold text-gray-900 break-words">
-                            {{ trim(($user->pre_nominal_title ?? '') . ' ' . $user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . '.' : '') . ' ' . $user->last_name . ' ' . ($user->post_nominal_title ?? '')) }}
+                            {{ $user->full_name }}
                         </h1>
                         <p class="text-xs sm:text-sm text-gray-600">
                             {{ $user->designation ?? 'Board Member' }}
@@ -71,6 +71,10 @@
                             <div>
                                 <p class="text-gray-500 text-xs uppercase">Last Name</p>
                                 <p class="mt-1 text-gray-900 font-medium">{{ $user->last_name }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-xs uppercase">Extension Name</p>
+                                <p class="mt-1 text-gray-900 font-medium">{{ $user->extension_name ?? '—' }}</p>
                             </div>
                             <div>
                                 <p class="text-gray-500 text-xs uppercase">Post Nominal Title</p>
@@ -280,13 +284,13 @@
                         </div>
                         <div class="p-4 space-y-3">
                             @can('approve pending registrations')
-                            <button type="button" id="approveBtn" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition" data-registration-id="{{ $user->id }}" data-registration-name="{{ $user->pre_nominal_title }} {{ $user->first_name }} {{ $user->last_name }}">
+                            <button type="button" id="approveBtn" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition" data-registration-id="{{ $user->id }}" data-registration-name="{{ $user->full_name }}">
                                 <i class="fas fa-check mr-2"></i>
                                 Approve Registration
                             </button>
                             @endcan
                             @can('disapprove pending registrations')
-                            <button type="button" id="disapproveBtn" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition" data-registration-id="{{ $user->id }}" data-registration-name="{{ $user->pre_nominal_title }} {{ $user->first_name }} {{ $user->last_name }}">
+                            <button type="button" id="disapproveBtn" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition" data-registration-id="{{ $user->id }}" data-registration-name="{{ $user->full_name }}">
                                 <i class="fas fa-times mr-2"></i>
                                 Disapprove Registration
                             </button>

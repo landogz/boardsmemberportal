@@ -272,12 +272,12 @@
                                         @foreach($visibleUsers as $user)
                                             @php
                                                 $profileMedia = $user->profile_picture ? \App\Models\MediaLibrary::find($user->profile_picture) : null;
-                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=32&background=055498&color=fff';
+                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=32&background=055498&color=fff';
                                             @endphp
                                             <div class="avatar-item relative">
-                                                <img src="{{ $profileUrl }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-8 h-8 rounded-full object-cover cursor-pointer">
+                                                <img src="{{ $profileUrl }}" alt="{{ $user->short_name }}" class="w-8 h-8 rounded-full object-cover cursor-pointer">
                                                 <div class="avatar-tooltip">
-                                                    {{ $user->first_name }} {{ $user->last_name }}
+                                                    {{ $user->short_name }}
                                                 </div>
                                             </div>
                                         @endforeach

@@ -159,7 +159,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->last_name }},
+                                Dear {{ trim(($user->pre_nominal_title ?? '') . ' ' . ucwords(strtolower(trim($user->first_name . ' ' . $user->last_name))) . ($user->extension_name ? ' ' . $user->extension_name : '')) }},
                             </p>
                             
                             <p class="greeting">
@@ -177,7 +177,7 @@
                             </div>
                             
                             <div class="warning-text">
-                                <strong>⚠️ Security Notice:</strong> If you did not request a password reset or need assistance, please contact the system administrator.
+                                <strong>⚠️ Security Notice:</strong> Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </div>
                         </td>
                     </tr>

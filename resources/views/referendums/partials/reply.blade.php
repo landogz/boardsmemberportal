@@ -1,17 +1,17 @@
 @php
     $replyerProfileMedia = $reply->user->profile_picture ? \App\Models\MediaLibrary::find($reply->user->profile_picture) : null;
-    $replyerProfileUrl = $replyerProfileMedia ? asset('storage/' . $replyerProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->first_name . ' ' . $reply->user->last_name) . '&size=150&background=1877f2&color=fff';
+    $replyerProfileUrl = $replyerProfileMedia ? asset('storage/' . $replyerProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->short_name) . '&size=150&background=1877f2&color=fff';
     $isReplyerOnline = $reply->user->is_online ?? false;
 @endphp
 <div class="fb-comment-reply">
     <div class="fb-comment" id="comment-{{ $reply->id }}" data-comment-id="{{ $reply->id }}">
         <div class="profile-picture-container">
-            <img src="{{ $replyerProfileUrl }}" alt="{{ $reply->user->first_name }} {{ $reply->user->last_name }}" class="fb-comment-avatar">
+            <img src="{{ $replyerProfileUrl }}" alt="{{ $reply->user->short_name }}" class="fb-comment-avatar">
             <div class="{{ $isReplyerOnline ? 'online-indicator' : 'offline-indicator' }}"></div>
         </div>
         <div class="flex-1">
             <div class="fb-comment-content">
-                <div class="fb-comment-author">{{ $reply->user->first_name }} {{ $reply->user->last_name }}</div>
+                <div class="fb-comment-author">{{ $reply->user->short_name }}</div>
                 <div class="fb-comment-text-wrapper">
                     <div class="fb-comment-text" data-full-text="{{ htmlspecialchars($reply->content, ENT_QUOTES, 'UTF-8') }}">{{ $reply->content }}</div>
                     <button type="button" class="see-more-btn hidden text-xs font-semibold text-[#1877f2] hover:underline mt-1 cursor-pointer">See more</button>
@@ -37,7 +37,7 @@
                     <div class="flex items-start space-x-2">
                         @php
                             $currentUserProfileMedia = Auth::user()->profile_picture ? \App\Models\MediaLibrary::find(Auth::user()->profile_picture) : null;
-                            $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&size=150&background=1877f2&color=fff';
+                            $currentUserProfileUrl = $currentUserProfileMedia ? asset('storage/' . $currentUserProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name) . '&size=150&background=1877f2&color=fff';
                         @endphp
                         <img src="{{ $currentUserProfileUrl }}" alt="Your profile" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1">
                         <div class="flex-1">

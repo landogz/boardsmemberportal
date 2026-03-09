@@ -215,14 +215,14 @@ class ReferendumController extends Controller
         // Format comments for response (recursively format replies)
         $formatComment = function($comment) use (&$formatComment) {
             $commenterProfileMedia = $comment->user->profile_picture ? \App\Models\MediaLibrary::find($comment->user->profile_picture) : null;
-            $commenterProfileUrl = $commenterProfileMedia ? asset('storage/' . $commenterProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->first_name . ' ' . $comment->user->last_name) . '&size=150&background=1877f2&color=fff';
+            $commenterProfileUrl = $commenterProfileMedia ? asset('storage/' . $commenterProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->short_name) . '&size=150&background=1877f2&color=fff';
             
             $formatted = [
                 'id' => $comment->id,
                 'content' => $comment->content,
                 'user' => [
                     'id' => $comment->user->id,
-                    'name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                    'name' => $comment->user->short_name,
                     'profile_picture' => $commenterProfileUrl,
                     'is_online' => $comment->user->is_online ?? false,
                 ],
@@ -298,14 +298,14 @@ class ReferendumController extends Controller
         // Format comments for response
         $formatComment = function($comment) {
             $commenterProfileMedia = $comment->user->profile_picture ? \App\Models\MediaLibrary::find($comment->user->profile_picture) : null;
-            $commenterProfileUrl = $commenterProfileMedia ? asset('storage/' . $commenterProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->first_name . ' ' . $comment->user->last_name) . '&size=150&background=1877f2&color=fff';
+            $commenterProfileUrl = $commenterProfileMedia ? asset('storage/' . $commenterProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->short_name) . '&size=150&background=1877f2&color=fff';
             
             return [
                 'id' => $comment->id,
                 'content' => $comment->content,
                 'user' => [
                     'id' => $comment->user->id,
-                    'name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                    'name' => $comment->user->short_name,
                     'email' => $comment->user->email,
                     'profile_picture' => $commenterProfileUrl,
                     'is_online' => $comment->user->is_online ?? false,

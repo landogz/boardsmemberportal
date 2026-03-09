@@ -49,7 +49,7 @@
                 @endif
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Created by:</strong> {{ $notice->creator->first_name ?? 'N/A' }} {{ $notice->creator->last_name ?? '' }}</span>
+                    <span><strong>Created by:</strong> {{ $notice->creator->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
         </div>
@@ -93,7 +93,7 @@
             <div class="result-footer">
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Uploaded by:</strong> {{ $regulation->uploader->first_name ?? 'N/A' }} {{ $regulation->uploader->last_name ?? '' }}</span>
+                    <span><strong>Uploaded by:</strong> {{ $regulation->uploader->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
         </div>
@@ -117,7 +117,7 @@
             <div class="result-footer">
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Uploaded by:</strong> {{ $resolution->uploader->first_name ?? 'N/A' }} {{ $resolution->uploader->last_name ?? '' }}</span>
+                    <span><strong>Uploaded by:</strong> {{ $resolution->uploader->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
         </div>
@@ -136,7 +136,7 @@
             <div class="result-footer">
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Created by:</strong> {{ $referendum->creator->first_name ?? 'N/A' }} {{ $referendum->creator->last_name ?? '' }}</span>
+                    <span><strong>Created by:</strong> {{ $referendum->creator->short_name ?? 'N/A' }}</span>
                 </span>
                 <span class="result-footer-item">
                     <i class="fas fa-clock"></i>
@@ -154,7 +154,7 @@
                 <span class="result-badge {{ $request->status === 'approved' ? 'bg-green-100 text-green-700' : ($request->status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">{{ ucfirst($request->status) }}</span>
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Requested by:</strong> {{ $request->user->first_name ?? 'N/A' }} {{ $request->user->last_name ?? '' }}</span>
+                    <span><strong>Requested by:</strong> {{ $request->user->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
             @if($request->description)
@@ -177,7 +177,7 @@
                 <span class="result-badge {{ $material->status === 'approved' ? 'bg-green-100 text-green-700' : ($material->status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">{{ ucfirst($material->status) }}</span>
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>Submitted by:</strong> {{ $material->user->first_name ?? 'N/A' }} {{ $material->user->last_name ?? '' }}</span>
+                    <span><strong>Submitted by:</strong> {{ $material->user->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
             @if($material->description)
@@ -200,7 +200,7 @@
                 <span class="result-badge {{ $confirmation->status === 'accepted' ? 'bg-green-100 text-green-700' : ($confirmation->status === 'declined' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">{{ ucfirst($confirmation->status) }}</span>
                 <span class="result-footer-item">
                     <i class="fas fa-user"></i>
-                    <span><strong>User:</strong> {{ $confirmation->user->first_name ?? 'N/A' }} {{ $confirmation->user->last_name ?? '' }}</span>
+                    <span><strong>User:</strong> {{ $confirmation->user->short_name ?? 'N/A' }}</span>
                 </span>
             </div>
             @if($confirmation->declined_reason)
@@ -317,14 +317,8 @@
                                             @php
                                                 $user = is_array($member) && isset($member['user']) ? $member['user'] : $member;
                                                 $attendanceMode = (is_array($member) && isset($member['attendance_mode'])) ? $member['attendance_mode'] : null;
-                                                $title = $user->pre_nominal_title ?? '';
-                                                $firstName = $user->first_name ?? '';
-                                                $lastName = $user->last_name ?? '';
-                                                $middleInitial = $user->middle_initial ?? '';
-                                                $postNominal = $user->post_nominal_title ?? '';
                                                 $designation = $user->designation ?? '';
-
-                                                $fullName = trim(($title ? $title . ' ' : '') . strtoupper($firstName) . ($middleInitial ? ' ' . strtoupper($middleInitial) . '.' : '') . ' ' . strtoupper($lastName) . ($postNominal ? ' ' . $postNominal : ''));
+                                                $fullName = strtoupper($user->full_name);
                                                 if ($nomNotice->meeting_type === 'hybrid' && $attendanceMode) {
                                                     $fullName .= ' (' . ucfirst($attendanceMode) . ')';
                                                 }
@@ -513,7 +507,7 @@
     @else
         <div class="text-center py-12">
             <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 text-lg">Please select a year to generate the Summary of Regular Meeting report</p>
+            <p class="text-gray-500 text-lg">Please select a year to generate the Summary of Regular Meeting of the Board report</p>
         </div>
     @endif
 
@@ -602,7 +596,7 @@
     @else
         <div class="text-center py-12">
             <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 text-lg">Please select a notice title to generate the Summary of Regular Meeting by Title report</p>
+            <p class="text-gray-500 text-lg">Please select a notice title to generate the Summary of Approved Issuances per Board Meeting report</p>
         </div>
     @endif
 @endif

@@ -182,7 +182,7 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                If you believe this is an error or have questions about this decision, please contact the administrator for further assistance.
+                                Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 15px 0 0 0; line-height: 1.6;">

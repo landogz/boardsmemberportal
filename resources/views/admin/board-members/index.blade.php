@@ -238,12 +238,12 @@
                                     <div class="flex-shrink-0">
                                         @php
                                             $profileMedia = $account->profile_picture ? \App\Models\MediaLibrary::find($account->profile_picture) : null;
-                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->first_name . ' ' . $account->last_name) . '&size=40&background=055498&color=fff';
+                                            $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->short_name) . '&size=40&background=055498&color=fff';
                                         @endphp
                                         <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
                                     </div>
                                     <div class="text-sm font-medium text-gray-900 break-words">
-                                        {{ $account->pre_nominal_title }} {{ $account->first_name }} {{ $account->middle_initial ? $account->middle_initial . '.' : '' }} {{ $account->last_name }} {{ $account->post_nominal_title ? ', ' . $account->post_nominal_title : '' }}
+                                        {{ $account->full_name }}
                                     </div>
                                 </div>
                             </td>
@@ -315,9 +315,9 @@
                                             @if(Auth::user()->privilege !== 'consec')
                                             @php
                                                 $profileMedia = $account->profile_picture ? \App\Models\MediaLibrary::find($account->profile_picture) : null;
-                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->first_name . ' ' . $account->last_name) . '&size=48&background=055498&color=fff';
+                                                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($account->short_name) . '&size=48&background=055498&color=fff';
                                             @endphp
-                                            <button type="button" class="setup-permission-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem" data-account-id="{{ $account->id }}" data-account-name="{{ $account->pre_nominal_title }} {{ $account->first_name }} {{ $account->middle_initial ? $account->middle_initial . '.' : '' }} {{ $account->last_name }} {{ $account->post_nominal_title ? ', ' . $account->post_nominal_title : '' }}" data-account-email="{{ $account->email }}" data-account-profile-picture="{{ $profileUrl }}">
+                                            <button type="button" class="setup-permission-btn w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 flex items-center" role="menuitem" data-account-id="{{ $account->id }}" data-account-name="{{ $account->full_name }}" data-account-email="{{ $account->email }}" data-account-profile-picture="{{ $profileUrl }}">
                                                 <i class="fas fa-key w-4 mr-3 text-purple-600"></i>
                                                 Setup Permission
                                             </button>

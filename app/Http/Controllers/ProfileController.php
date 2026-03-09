@@ -122,6 +122,7 @@ class ProfileController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
+            'extension_name' => 'nullable|string|max:50',
             'post_nominal_title' => 'nullable|string|max:255',
             'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'nullable|string|max:255',
@@ -162,6 +163,7 @@ class ProfileController extends Controller
             'first_name' => $request->first_name,
             'middle_initial' => $request->middle_initial,
             'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
             'post_nominal_title' => $postNominalTitle,
             'designation' => $request->designation,
             'sex' => $request->sex,
@@ -405,7 +407,7 @@ class ProfileController extends Controller
         );
 
         // Generate default avatar URL
-        $defaultAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=200&background=055498&color=fff';
+        $defaultAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=200&background=055498&color=fff';
 
         return response()->json([
             'success' => true,

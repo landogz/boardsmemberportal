@@ -229,7 +229,7 @@ class ReferendumController extends Controller
 
         // Prepare voter data for JavaScript
         $acceptVotersData = $acceptVotes->map(function($vote) {
-            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->first_name . ' ' . $vote->user->last_name) . '&size=64&background=10B981&color=fff';
+            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->short_name) . '&size=64&background=10B981&color=fff';
             if ($vote->user->profile_picture) {
                 $media = \App\Models\MediaLibrary::find($vote->user->profile_picture);
                 if ($media) {
@@ -238,7 +238,7 @@ class ReferendumController extends Controller
             }
             return [
                 'id' => $vote->user->id,
-                'name' => $vote->user->first_name . ' ' . $vote->user->last_name,
+                'name' => $vote->user->short_name,
                 'email' => $vote->user->email,
                 'voted_at' => $vote->created_at->format('M d, Y h:i A'),
                 'profile_picture' => $profilePic
@@ -246,7 +246,7 @@ class ReferendumController extends Controller
         })->values()->all();
 
         $declineVotersData = $declineVotes->map(function($vote) {
-            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->first_name . ' ' . $vote->user->last_name) . '&size=64&background=EF4444&color=fff';
+            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->short_name) . '&size=64&background=EF4444&color=fff';
             if ($vote->user->profile_picture) {
                 $media = \App\Models\MediaLibrary::find($vote->user->profile_picture);
                 if ($media) {
@@ -255,7 +255,7 @@ class ReferendumController extends Controller
             }
             return [
                 'id' => $vote->user->id,
-                'name' => $vote->user->first_name . ' ' . $vote->user->last_name,
+                'name' => $vote->user->short_name,
                 'email' => $vote->user->email,
                 'voted_at' => $vote->created_at->format('M d, Y h:i A'),
                 'profile_picture' => $profilePic

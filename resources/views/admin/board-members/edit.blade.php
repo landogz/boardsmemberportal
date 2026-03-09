@@ -12,10 +12,14 @@
         'class' => 'px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors inline-flex items-center'
     ];
     $hideDefaultActions = false;
-    // Determine if post_nominal_title is in the standard list or custom
-    $standardPostNominals = ['Sr.', 'Jr.', 'I', 'II', 'III'];
+    // Determine if post_nominal_title is in the standard list or custom (Post Nominal = professional titles only; Jr/Sr/I/II/III are in extension_name)
+    $standardPostNominals = ['CESO I', 'CESO II', 'CESO III', 'CESO IV', 'CESO V', 'CESO VI'];
     $postNominalValue = $user->post_nominal_title ?? '';
     $isCustomPostNominal = $postNominalValue && !in_array($postNominalValue, $standardPostNominals);
+    // Determine if pre_nominal_title is custom ("Others")
+    $standardPreNominals = ['Mr.', 'Ms.', 'Dr.', 'Atty.', 'Engr.', 'Secretary', 'Undersecretary', 'Assistant Secretary', 'Director General', 'Executive Director', 'Attorney'];
+    $preNominalValue = $user->pre_nominal_title ?? '';
+    $isCustomPreNominal = $preNominalValue && !in_array($preNominalValue, $standardPreNominals);
 @endphp
 
 @push('styles')
@@ -197,11 +201,11 @@
                                 <option value="Director General" {{ $user->pre_nominal_title === 'Director General' ? 'selected' : '' }}>Director General</option>
                                 <option value="Executive Director" {{ $user->pre_nominal_title === 'Executive Director' ? 'selected' : '' }}>Executive Director</option>
                                 <option value="Attorney" {{ $user->pre_nominal_title === 'Attorney' ? 'selected' : '' }}>Attorney</option>
-                                <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
+                                <option value="Others" {{ $isCustomPreNominal ? 'selected' : '' }}>Others</option>
                             </select>
-                            <div id="pre_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
+                            <div id="pre_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPreNominal ? '' : 'hidden' }}">
                                 <label for="pre_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
-                                <input type="text" id="pre_nominal_title_custom" name="pre_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->pre_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                                <input type="text" id="pre_nominal_title_custom" name="pre_nominal_title_custom" value="{{ $isCustomPreNominal ? $user->pre_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                             </div>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
                         </div>
@@ -226,28 +230,47 @@
                         </div>
 
                         <div>
-                            <label for="post_nominal_title" class="block text-sm font-medium text-gray-700 mb-1">Post Nominal Title</label>
-                            <select id="post_nominal_title" name="post_nominal_title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
-                                <option value="">Select Title</option>
-                                <option value="Sr." {{ $user->post_nominal_title === 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                <option value="Jr." {{ $user->post_nominal_title === 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                <option value="I" {{ $user->post_nominal_title === 'I' ? 'selected' : '' }}>I</option>
-                                <option value="II" {{ $user->post_nominal_title === 'II' ? 'selected' : '' }}>II</option>
-                                <option value="III" {{ $user->post_nominal_title === 'III' ? 'selected' : '' }}>III</option>
-                                <option value="CESO I" {{ $user->post_nominal_title === 'CESO I' ? 'selected' : '' }}>CESO I</option>
-                                <option value="CESO II" {{ $user->post_nominal_title === 'CESO II' ? 'selected' : '' }}>CESO II</option>
-                                <option value="CESO III" {{ $user->post_nominal_title === 'CESO III' ? 'selected' : '' }}>CESO III</option>
-                                <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
-                                <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
-                                <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
-                                <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
+                            <label for="extension_name" class="block text-sm font-medium text-gray-700 mb-1">Extension Name</label>
+                            <select id="extension_name" name="extension_name" class="w-full h-11 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                                <option value="">None</option>
+                                <option value="Jr." {{ ($user->extension_name ?? '') === 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                <option value="Sr." {{ ($user->extension_name ?? '') === 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                <option value="III" {{ ($user->extension_name ?? '') === 'III' ? 'selected' : '' }}>III</option>
+                                <option value="IV" {{ ($user->extension_name ?? '') === 'IV' ? 'selected' : '' }}>IV</option>
+                                <option value="V" {{ ($user->extension_name ?? '') === 'V' ? 'selected' : '' }}>V</option>
+                                <option value="VI" {{ ($user->extension_name ?? '') === 'VI' ? 'selected' : '' }}>VI</option>
+                                <option value="VII" {{ ($user->extension_name ?? '') === 'VII' ? 'selected' : '' }}>VII</option>
+                                <option value="VIII" {{ ($user->extension_name ?? '') === 'VIII' ? 'selected' : '' }}>VIII</option>
+                                <option value="IX" {{ ($user->extension_name ?? '') === 'IX' ? 'selected' : '' }}>IX</option>
+                                <option value="X" {{ ($user->extension_name ?? '') === 'X' ? 'selected' : '' }}>X</option>
+                                @php $stdExt = ['Jr.','Sr.','III','IV','V','VI','VII','VIII','IX','X']; $extVal = $user->extension_name ?? ''; $isCustomExt = $extVal && !in_array($extVal, $stdExt); @endphp
+                                <option value="Others" {{ $isCustomExt ? 'selected' : '' }}>Others</option>
                             </select>
-                            <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
-                                <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
-                                <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                            <div id="extension_name_custom_wrapper" class="mt-2 {{ $isCustomExt ? '' : 'hidden' }}">
+                                <label for="extension_name_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
+                                <input type="text" id="extension_name_custom" name="extension_name_custom" value="{{ $isCustomExt ? $user->extension_name : '' }}" placeholder="Specify extension" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                             </div>
-                            <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                            <span class="text-red-500 text-sm hidden" id="extension_name-error"></span>
                         </div>
+                    </div>
+
+                    <div>
+                        <label for="post_nominal_title" class="block text-sm font-medium text-gray-700 mb-1">Post Nominal Title</label>
+                        <select id="post_nominal_title" name="post_nominal_title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                            <option value="">Select Title</option>
+                            <option value="CESO I" {{ $user->post_nominal_title === 'CESO I' ? 'selected' : '' }}>CESO I</option>
+                            <option value="CESO II" {{ $user->post_nominal_title === 'CESO II' ? 'selected' : '' }}>CESO II</option>
+                            <option value="CESO III" {{ $user->post_nominal_title === 'CESO III' ? 'selected' : '' }}>CESO III</option>
+                            <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
+                            <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
+                            <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
+                            <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
+                        </select>
+                        <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
+                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
+                            <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                        </div>
+                        <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
                     </div>
 
                     <!-- Designation -->
@@ -569,6 +592,7 @@
         });
 
         // Handle post nominal title "Others" option
+        // Extension Name & Post Nominal Title: custom field only required when "Others" is selected
         $('#post_nominal_title').on('change', function() {
             if ($(this).val() === 'Others') {
                 $('#post_nominal_title_custom_wrapper').removeClass('hidden');
@@ -578,6 +602,19 @@
                 $('#post_nominal_title_custom').prop('required', false).val('');
             }
         });
+        $('#extension_name').on('change', function() {
+            if ($(this).val() === 'Others') {
+                $('#extension_name_custom_wrapper').removeClass('hidden');
+                $('#extension_name_custom').prop('required', true);
+            } else {
+                $('#extension_name_custom_wrapper').addClass('hidden');
+                $('#extension_name_custom').prop('required', false).val('');
+            }
+        });
+        $('#extension_name_custom').prop('required', false);
+        $('#post_nominal_title_custom').prop('required', false);
+        if ($('#extension_name').val() === 'Others') $('#extension_name_custom').prop('required', true);
+        if ($('#post_nominal_title').val() === 'Others') $('#post_nominal_title_custom').prop('required', true);
 
         // Handle pre nominal title "Others" option
         $('#pre_nominal_title').on('change', function() {
@@ -779,6 +816,13 @@
             if (postNominalTitle === 'Others' && !postNominalCustom) {
                 showError('post_nominal_title', 'Post nominal title is required');
                 if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
+                isValid = false;
+            }
+            const extensionName = $('#extension_name').val();
+            const extensionNameCustom = $('#extension_name_custom').val().trim();
+            if (extensionName === 'Others' && !extensionNameCustom) {
+                showError('extension_name', 'Extension name (Others) is required');
+                if (!firstInvalidField) firstInvalidField = '#extension_name_custom';
                 isValid = false;
             }
             if (!firstName) {
@@ -999,9 +1043,11 @@
             government_agency_id: $('#government_agency_id').val(),
             representative_type: $('#representative_type').val(),
             pre_nominal_title: $('#pre_nominal_title').val(),
+            pre_nominal_title_custom: $('#pre_nominal_title').val() === 'Others' ? $('#pre_nominal_title_custom').val() : '',
             first_name: $('#first_name').val(),
             middle_initial: $('#middle_initial').val(),
             last_name: $('#last_name').val(),
+            extension_name: ($('#extension_name').val() === 'Others' ? $('#extension_name_custom').val() : $('#extension_name').val()) || '',
             post_nominal_title: finalPostNominal,
             designation: $('#designation').val(),
             sex: $('#sex').val(),

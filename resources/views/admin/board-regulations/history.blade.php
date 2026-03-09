@@ -55,7 +55,7 @@
                 <p class="text-sm text-gray-600">Uploaded By</p>
                 <p class="text-sm font-medium text-gray-900">
                     @if($regulation->uploader)
-                        {{ $regulation->uploader->first_name }} {{ $regulation->uploader->last_name }}
+                        {{ $regulation->uploader->short_name }}
                     @else
                         N/A
                     @endif
@@ -141,7 +141,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($version->uploader)
-                                    <div class="text-sm text-gray-900">{{ $version->uploader->first_name }} {{ $version->uploader->last_name }}</div>
+                                    <div class="text-sm text-gray-900">{{ $version->uploader->short_name }}</div>
                                 @else
                                     <span class="text-sm text-gray-400">N/A</span>
                                 @endif

@@ -167,7 +167,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Hello <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Hello <strong>{{ $user->short_name }}</strong>,
                             </p>
                             
                             <p class="greeting">

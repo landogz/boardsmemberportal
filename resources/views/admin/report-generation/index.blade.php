@@ -145,8 +145,8 @@
                     {{-- <option value="reference_materials" {{ (request('report_type') == 'reference_materials') ? 'selected' : '' }}>Reference Materials</option> --}}
                     {{-- <option value="attendance_confirmations" {{ (request('report_type') == 'attendance_confirmations') ? 'selected' : '' }}>Attendance Confirmations</option> --}}
                     <option value="quorum_guide" {{ (request('report_type') == 'quorum_guide') ? 'selected' : '' }}>Quorum Guide</option>
-                    <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting</option>
-                    <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Regular Meeting by Title</option>
+                    <option value="summary_regular_meeting" {{ (request('report_type') == 'summary_regular_meeting') ? 'selected' : '' }}>Summary of Regular Meeting of the Board</option>
+                    <option value="summary_regular_meeting_by_title" {{ (request('report_type') == 'summary_regular_meeting_by_title') ? 'selected' : '' }}>Summary of Approved Issuances per Board Meeting</option>
                 </select>
             </div>
 
@@ -232,7 +232,7 @@
                         <select name="user_id" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                             <option value="">All Users</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->first_name }} {{ $user->last_name }}</option>
+                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->short_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -263,7 +263,7 @@
                         <select name="user_id" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                             <option value="">All Users</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->first_name }} {{ $user->last_name }}</option>
+                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->short_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -294,7 +294,7 @@
                         <select name="user_id" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                             <option value="">All Users</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ (string)request('user_id') === (string)$user->id ? 'selected' : '' }}>{{ $user->first_name }} {{ $user->last_name }}</option>
+                                <option value="{{ $user->id }}" {{ (string)request('user_id') === (string)$user->id ? 'selected' : '' }}>{{ $user->short_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -401,9 +401,9 @@
                     @if(isset($reportType) && $reportType === 'quorum_guide')
                         Quorum Guide Report
                     @elseif(isset($reportType) && $reportType === 'summary_regular_meeting')
-                        Summary of Regular Meeting Report
+                        Summary of Regular Meeting of the Board Report
                     @elseif(isset($reportType) && $reportType === 'summary_regular_meeting_by_title')
-                        Summary of Regular Meeting by Title Report
+                        Summary of Approved Issuances per Board Meeting Report
                     @else
                         Results ({{ isset($results) ? $results->count() : 0 }} {{ Str::plural('record', isset($results) ? $results->count() : 0) }})
                     @endif
@@ -715,8 +715,8 @@
             'reference_materials': 'Reference Materials',
             'attendance_confirmations': 'Attendance Confirmations',
             'quorum_guide': 'Quorum Guide',
-            'summary_regular_meeting': 'Summary of Regular Meeting',
-            'summary_regular_meeting_by_title': 'Summary of Regular Meeting by Title'
+            'summary_regular_meeting': 'Summary of Regular Meeting of the Board',
+            'summary_regular_meeting_by_title': 'Summary of Approved Issuances per Board Meeting'
         };
 
         let filterInfo = '';

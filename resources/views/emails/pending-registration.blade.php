@@ -199,7 +199,7 @@
                             @if($forRegistrant ?? false)
                             {{-- Email for the registering user (pending approval notice) --}}
                             <p class="greeting">
-                                Dear {{ $registeredUser->pre_nominal_title ?? '' }} {{ $registeredUser->first_name }} {{ $registeredUser->last_name }},
+                                Dear {{ trim(($registeredUser->pre_nominal_title ?? '') . ' ' . ucwords(strtolower(trim($registeredUser->first_name . ' ' . $registeredUser->last_name))) . ($registeredUser->extension_name ? ' ' . $registeredUser->extension_name : '')) }},
                             </p>
                             
                             <p class="greeting">
@@ -214,12 +214,12 @@
                             </div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                For any inquiries or clarification, please coordinate with the system administrator.
+                                Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                             @else
                             {{-- Email for admins (new registration alert) --}}
                             <p class="greeting">
-                                Hello <strong>{{ $adminUser->first_name }} {{ $adminUser->last_name }}</strong>,
+                                Hello <strong>{{ $adminUser->short_name }}</strong>,
                             </p>
                             
                             <p class="greeting">
@@ -231,7 +231,7 @@
                                 <div class="registration-details">
                                     <div class="detail-item">
                                         <div class="detail-label">👤 Full Name</div>
-                                        <div class="detail-value">{{ $registeredUser->pre_nominal_title }} {{ $registeredUser->first_name }} {{ $registeredUser->middle_initial }} {{ $registeredUser->last_name }} {{ $registeredUser->post_nominal_title }}</div>
+                                        <div class="detail-value">{{ $registeredUser->full_name }}</div>
                                     </div>
                                     
                                     <div class="detail-item">

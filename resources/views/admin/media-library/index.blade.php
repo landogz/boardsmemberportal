@@ -265,7 +265,7 @@
                     </div>
                     <div class="text-right text-sm text-gray-500">
                         <p>{{ $media->created_at->format('M d, Y') }}</p>
-                        <p>{{ $media->uploader ? $media->uploader->first_name . ' ' . $media->uploader->last_name : 'Unknown' }}</p>
+                        <p>{{ $media->uploader ? $media->uploader->short_name : 'Unknown' }}</p>
                     </div>
                     <button onclick="viewMedia({{ $media->id }})" class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200">
                         View

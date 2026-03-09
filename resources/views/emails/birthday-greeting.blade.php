@@ -119,7 +119,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Dear {{ $user->pre_nominal_title ?? '' }} <strong>{{ $user->first_name }} {{ $user->last_name }}</strong>,
+                                Dear {{ $user->pre_nominal_title ?? '' }} <strong>{{ $user->short_name }}</strong>,
                             </p>
                             <p class="greeting">
                                 The Board Members Portal team wishes you a very happy birthday! We hope your special day is filled with joy, good health, and wonderful moments with your loved ones.

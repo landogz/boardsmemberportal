@@ -336,7 +336,7 @@ class MediaLibraryController extends Controller
                 'size' => $fileSize,
                 'size_formatted' => $this->formatBytes($fileSize),
                 'dimensions' => $dimensions,
-                'uploaded_by' => $media->uploader ? $media->uploader->first_name . ' ' . $media->uploader->last_name : 'Unknown',
+                'uploaded_by' => $media->uploader ? $media->uploader->short_name : 'Unknown',
                 'uploaded_by_id' => $media->uploader ? $media->uploader->id : null,
                 'uploaded_at' => $media->created_at->format('F d, Y g:i A'),
                 'uploaded_at_short' => $media->created_at->format('M d, Y'),

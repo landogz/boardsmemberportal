@@ -141,11 +141,11 @@
         <div class="flex items-center space-x-4">
             @php
                 $profileMedia = $material->user->profile_picture ? \App\Models\MediaLibrary::find($material->user->profile_picture) : null;
-                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($material->user->first_name . ' ' . $material->user->last_name) . '&size=64&background=055498&color=fff';
+                $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($material->user->short_name) . '&size=64&background=055498&color=fff';
             @endphp
             <img src="{{ $profileUrl }}" alt="Profile" class="h-16 w-16 rounded-full object-cover border-2" style="border-color: #055498;">
             <div>
-                <p class="text-lg font-semibold text-gray-900">{{ $material->user->first_name }} {{ $material->user->last_name }}</p>
+                <p class="text-lg font-semibold text-gray-900">{{ $material->user->short_name }}</p>
                 <p class="text-sm text-gray-600">{{ $material->user->email }}</p>
                 @if($material->user->governmentAgency)
                     <p class="text-sm text-gray-500">{{ $material->user->governmentAgency->name }}</p>
@@ -250,7 +250,7 @@
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed By</label>
                 <p class="text-sm font-semibold text-gray-900 mt-1">
-                    {{ $material->reviewer ? $material->reviewer->first_name . ' ' . $material->reviewer->last_name : 'N/A' }}
+                    {{ $material->reviewer ? $material->reviewer->short_name : 'N/A' }}
                 </p>
             </div>
             <div>

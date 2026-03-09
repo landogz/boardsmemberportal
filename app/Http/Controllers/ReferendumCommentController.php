@@ -69,14 +69,14 @@ class ReferendumCommentController extends Controller
                         'user_id' => $parentComment->user_id,
                         'type' => 'referendum_comment_reply',
                         'title' => 'New Reply to Your Comment',
-                        'message' => Auth::user()->first_name . ' ' . Auth::user()->last_name . ' replied to your comment on "' . $referendum->title . '"',
+                        'message' => Auth::user()->short_name . ' replied to your comment on "' . $referendum->title . '"',
                         'url' => route('referendums.show', $referendum->id) . '#comment-' . $comment->id,
                         'data' => [
                             'referendum_id' => $referendum->id,
                             'comment_id' => $comment->id,
                             'parent_comment_id' => $parentComment->id,
                             'replier_id' => $userId,
-                            'replier_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+                            'replier_name' => Auth::user()->short_name,
                         ],
                     ]);
                 }
@@ -87,7 +87,7 @@ class ReferendumCommentController extends Controller
 
             // Get profile picture URL
             $userProfileMedia = $comment->user->profile_picture ? \App\Models\MediaLibrary::find($comment->user->profile_picture) : null;
-            $userProfileUrl = $userProfileMedia ? asset('storage/' . $userProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->first_name . ' ' . $comment->user->last_name) . '&size=150&background=1877f2&color=fff';
+            $userProfileUrl = $userProfileMedia ? asset('storage/' . $userProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->short_name) . '&size=150&background=1877f2&color=fff';
 
             return response()->json([
                 'success' => true,
@@ -97,7 +97,7 @@ class ReferendumCommentController extends Controller
                     'content' => $comment->content,
                     'user' => [
                         'id' => $comment->user->id,
-                        'name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                        'name' => $comment->user->short_name,
                         'email' => $comment->user->email,
                         'profile_picture' => $userProfileUrl,
                         'is_online' => $comment->user->is_online ?? false,
@@ -105,7 +105,7 @@ class ReferendumCommentController extends Controller
                     'parent_id' => $comment->parent_id,
                     'parent_user' => $comment->parent ? [
                         'id' => $comment->parent->user->id,
-                        'name' => $comment->parent->user->first_name . ' ' . $comment->parent->user->last_name,
+                        'name' => $comment->parent->user->short_name,
                     ] : null,
                     'created_at' => $comment->created_at->toDateTimeString(),
                     'created_at_human' => $comment->created_at->diffInSeconds(now()) < 20 ? 'Just Now' : $comment->created_at->diffForHumans(),

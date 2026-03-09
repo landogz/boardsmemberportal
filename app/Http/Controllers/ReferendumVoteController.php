@@ -96,7 +96,7 @@ class ReferendumVoteController extends Controller
             'accept_votes' => $acceptVotes->map(function ($vote) {
                 return [
                     'user_id' => $vote->user_id,
-                    'user_name' => $vote->user->first_name . ' ' . $vote->user->last_name,
+                    'user_name' => $vote->user->short_name,
                     'user_email' => $vote->user->email,
                     'voted_at' => $vote->created_at->toDateTimeString(),
                 ];
@@ -104,7 +104,7 @@ class ReferendumVoteController extends Controller
             'decline_votes' => $declineVotes->map(function ($vote) {
                 return [
                     'user_id' => $vote->user_id,
-                    'user_name' => $vote->user->first_name . ' ' . $vote->user->last_name,
+                    'user_name' => $vote->user->short_name,
                     'user_email' => $vote->user->email,
                     'voted_at' => $vote->created_at->toDateTimeString(),
                 ];

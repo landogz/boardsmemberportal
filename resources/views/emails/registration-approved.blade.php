@@ -156,7 +156,7 @@
                     <tr>
                         <td class="email-body">
                             <p class="greeting">
-                                Dear {{ $user->pre_nominal_title ?? '' }} {{ $user->first_name }} {{ $user->last_name }},
+                                Dear {{ trim(($user->pre_nominal_title ?? '') . ' ' . ucwords(strtolower(trim($user->first_name . ' ' . $user->last_name))) . ($user->extension_name ? ' ' . $user->extension_name : '')) }},
                             </p>
                             
                             <p class="greeting">
@@ -180,7 +180,7 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                For any inquiries or clarification, please coordinate with the system administrator.
+                                Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                         </td>
                     </tr>

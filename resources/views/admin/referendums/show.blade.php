@@ -206,7 +206,7 @@
                 {{ $referendum->isExpired() ? 'Expired' : 'Active' }}
             </span>
             <span class="text-sm text-gray-600">
-                Created by: {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                Created by: {{ $referendum->creator->short_name }}
             </span>
             <span class="text-sm text-gray-600">
                 Expires: {{ $referendum->expires_at->format('M d, Y h:i A') }}
@@ -299,7 +299,7 @@
                         @foreach($comments as $comment)
                             @php
                                 // Get user profile picture
-                                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->first_name . ' ' . $comment->user->last_name) . '&size=64&background=055498&color=fff';
+                                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->short_name) . '&size=64&background=055498&color=fff';
                                 if ($comment->user->profile_picture) {
                                     $media = \App\Models\MediaLibrary::find($comment->user->profile_picture);
                                     if ($media) {
@@ -427,7 +427,7 @@
                 <div class="space-y-2 max-h-64 overflow-y-auto">
                     @foreach($acceptVotes as $vote)
                         @php
-                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->first_name . ' ' . $vote->user->last_name) . '&size=64&background=10B981&color=fff';
+                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->short_name) . '&size=64&background=10B981&color=fff';
                             if ($vote->user->profile_picture) {
                                 $media = \App\Models\MediaLibrary::find($vote->user->profile_picture);
                                 if ($media) {
@@ -436,10 +436,10 @@
                             }
                         @endphp
                         <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                            <img src="{{ $profilePic }}" alt="{{ $vote->user->first_name }} {{ $vote->user->last_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-green-600">
+                            <img src="{{ $profilePic }}" alt="{{ $vote->user->short_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-green-600">
                             <div class="flex-1 min-w-0">
                                 <span class="text-sm font-medium text-gray-700 block truncate">
-                                    {{ $vote->user->first_name }} {{ $vote->user->last_name }}
+                                    {{ $vote->user->short_name }}
                                 </span>
                                 <span class="text-xs text-gray-500 truncate block">{{ $vote->user->email }}</span>
                             </div>
@@ -459,7 +459,7 @@
                 <div class="space-y-2 max-h-64 overflow-y-auto">
                     @foreach($declineVotes as $vote)
                         @php
-                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->first_name . ' ' . $vote->user->last_name) . '&size=64&background=EF4444&color=fff';
+                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($vote->user->short_name) . '&size=64&background=EF4444&color=fff';
                             if ($vote->user->profile_picture) {
                                 $media = \App\Models\MediaLibrary::find($vote->user->profile_picture);
                                 if ($media) {
@@ -468,10 +468,10 @@
                             }
                         @endphp
                         <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                            <img src="{{ $profilePic }}" alt="{{ $vote->user->first_name }} {{ $vote->user->last_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">
+                            <img src="{{ $profilePic }}" alt="{{ $vote->user->short_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">
                             <div class="flex-1 min-w-0">
                                 <span class="text-sm font-medium text-gray-700 block truncate">
-                                    {{ $vote->user->first_name }} {{ $vote->user->last_name }}
+                                    {{ $vote->user->short_name }}
                                 </span>
                                 <span class="text-xs text-gray-500 truncate block">{{ $vote->user->email }}</span>
                             </div>
@@ -490,7 +490,7 @@
                 <div class="space-y-2 max-h-64 overflow-y-auto">
                     @foreach($referendum->allowedUsers as $user)
                         @php
-                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=64&background=055498&color=fff';
+                            $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=64&background=055498&color=fff';
                             if ($user->profile_picture) {
                                 $media = \App\Models\MediaLibrary::find($user->profile_picture);
                                 if ($media) {
@@ -499,10 +499,10 @@
                             }
                         @endphp
                         <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                            <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-10 h-10 rounded-full object-cover border-2" style="border-color: #055498;">
+                            <img src="{{ $profilePic }}" alt="{{ $user->short_name }}" class="w-10 h-10 rounded-full object-cover border-2" style="border-color: #055498;">
                             <div class="flex-1 min-w-0">
                                 <span class="text-sm font-medium text-gray-700 block truncate">
-                                    {{ $user->first_name }} {{ $user->last_name }}
+                                    {{ $user->short_name }}
                                 </span>
                                 <span class="text-xs text-gray-500 truncate block">{{ $user->email }}</span>
                             </div>

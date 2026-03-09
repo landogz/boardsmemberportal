@@ -98,7 +98,7 @@
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             @php
-                                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($announcement->creator->first_name . ' ' . $announcement->creator->last_name) . '&size=32&background=055498&color=fff&bold=true';
+                                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($announcement->creator->short_name) . '&size=32&background=055498&color=fff&bold=true';
                                 if ($announcement->creator->profile_picture) {
                                     $media = \App\Models\MediaLibrary::find($announcement->creator->profile_picture);
                                     if ($media) {
@@ -106,8 +106,8 @@
                                     }
                                 }
                             @endphp
-                            <img src="{{ $profilePic }}" alt="{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}" class="w-8 h-8 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
-                            <span class="font-medium text-gray-700">{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
+                            <img src="{{ $profilePic }}" alt="{{ $announcement->creator->short_name }}" class="w-8 h-8 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
+                            <span class="font-medium text-gray-700">{{ $announcement->creator->short_name }}</span>
                         </div>
                         <div class="flex items-center gap-2 text-gray-500">
                             <i class="fas fa-calendar text-xs"></i>
@@ -145,7 +145,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($announcement->allowedUsers as $user)
                 @php
-                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=48&background=055498&color=fff&bold=true';
+                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=48&background=055498&color=fff&bold=true';
                     if ($user->profile_picture) {
                         $media = \App\Models\MediaLibrary::find($user->profile_picture);
                         if ($media) {
@@ -155,10 +155,10 @@
                 @endphp
                 <div class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
                     <div class="flex-shrink-0">
-                        <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
+                        <img src="{{ $profilePic }}" alt="{{ $user->short_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-yellow-200 shadow-sm">
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $user->first_name }} {{ $user->last_name }}</div>
+                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $user->short_name }}</div>
                         <div class="text-xs text-gray-500 truncate">{{ $user->email }}</div>
                     </div>
                 </div>

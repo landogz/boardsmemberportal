@@ -683,7 +683,7 @@
                             $userVote = $currentUserId ? $referendum->votes->firstWhere('user_id', $currentUserId) : null;
                             
                             // Get creator profile picture
-                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->first_name . ' ' . $referendum->creator->last_name) . '&size=80&background=1877f2&color=fff';
+                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->short_name) . '&size=80&background=1877f2&color=fff';
                             if ($referendum->creator->profile_picture) {
                                 $media = \App\Models\MediaLibrary::find($referendum->creator->profile_picture);
                                 if ($media) {
@@ -723,14 +723,14 @@
                                     $isPublic = $totalUsers === $allowedUsersCount;
                                 @endphp
                                 <div class="profile-picture-container flex-shrink-0 relative">
-                                    <img src="{{ $creatorProfilePic }}" alt="{{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 shadow-sm block fb-post-avatar" style="border-color: #055498; aspect-ratio: 1/1;">
+                                    <img src="{{ $creatorProfilePic }}" alt="{{ $referendum->creator->short_name }}" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 shadow-sm block fb-post-avatar" style="border-color: #055498; aspect-ratio: 1/1;">
                                     <div class="{{ $isCreatorOnline ? 'online-indicator' : 'offline-indicator' }}"></div>
                                 </div>
                                 <div class="fb-post-header-info">
                                     <div class="flex items-center flex-wrap gap-1.5 sm:gap-2 mb-1">
                                         <h3 class="text-sm sm:text-base font-bold text-gray-800 dark:text-white truncate">
                                             <a href="{{ route('referendums.show', $referendum->id) }}" class="text-gray-800 dark:text-white hover:underline">
-                                                {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                                                {{ $referendum->creator->short_name }}
                                             </a>
                                         </h3>
                                         <span class="status-badge {{ $isExpired ? 'status-expired' : 'status-active' }}">

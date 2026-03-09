@@ -222,7 +222,7 @@
                             <div class="decline-card">
                                 <div class="decline-title">✗ Invitation Declined</div>
                                 <p class="decline-message">
-                                    <strong>{{ $user->first_name }} {{ $user->last_name }}</strong> has declined the invitation to attend the notice: <strong>"{{ $notice->title }}"</strong>.
+                                    <strong>{{ $user->short_name }}</strong> has declined the invitation to attend the notice: <strong>"{{ $notice->title }}"</strong>.
                                 </p>
                             </div>
                             
@@ -242,7 +242,7 @@
                             
                             <div class="user-info">
                                 <strong>Declined By:</strong>
-                                <span class="user-name">{{ $user->first_name }} {{ $user->last_name }}</span><br>
+                                <span class="user-name">{{ $user->short_name }}</span><br>
                                 <span style="color: #4b5563; font-size: 13px;">{{ $user->email }}</span>
                                 @if($user->governmentAgency)
                                     <br><span style="color: #6b7280; font-size: 13px;">{{ $user->governmentAgency->name }}</span>
@@ -265,7 +265,7 @@
                         <td class="footer">
                             <p class="footer-text">
                                 This email was sent to notify you that a user has declined the notice invitation.<br>
-                                If you have any questions, please contact the administrator.
+                                Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                             <p class="footer-text" style="margin-top: 15px;">
                                 © {{ date('Y') }} Board Members Portal. All rights reserved.

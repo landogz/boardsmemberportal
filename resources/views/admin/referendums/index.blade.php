@@ -158,12 +158,12 @@
                                 <div class="flex-shrink-0">
                                     @php
                                         $profileMedia = $referendum->creator->profile_picture ? \App\Models\MediaLibrary::find($referendum->creator->profile_picture) : null;
-                                        $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->first_name . ' ' . $referendum->creator->last_name) . '&size=40&background=055498&color=fff';
+                                        $profileUrl = $profileMedia ? asset('storage/' . $profileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->short_name) . '&size=40&background=055498&color=fff';
                                     @endphp
                                     <img src="{{ $profileUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2" style="border-color: #055498;">
                                 </div>
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $referendum->creator->first_name }} {{ $referendum->creator->last_name }}
+                                    {{ $referendum->creator->short_name }}
                                 </div>
                             </div>
                         </td>

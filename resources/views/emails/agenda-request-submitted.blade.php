@@ -241,7 +241,7 @@
                             <div class="request-card">
                                 <div class="request-title">📋 New Agenda Inclusion Request</div>
                                 <p class="request-message">
-                                    <strong>{{ $user->first_name }} {{ $user->last_name }}</strong> has submitted a request for agenda inclusion for the notice: <strong>"{{ $notice->title }}"</strong>.
+                                    <strong>{{ $user->short_name }}</strong> has submitted a request for agenda inclusion for the notice: <strong>"{{ $notice->title }}"</strong>.
                                 </p>
                             </div>
                             
@@ -261,7 +261,7 @@
                             
                             <div class="user-info">
                                 <strong>Requested By:</strong>
-                                <span class="user-name">{{ $user->first_name }} {{ $user->last_name }}</span><br>
+                                <span class="user-name">{{ $user->short_name }}</span><br>
                                 <span style="color: #4b5563; font-size: 13px;">{{ $user->email }}</span>
                                 @if($user->governmentAgency)
                                     <br><span style="color: #6b7280; font-size: 13px;">{{ $user->governmentAgency->name }}</span>

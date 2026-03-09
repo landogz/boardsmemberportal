@@ -310,13 +310,13 @@ class NoticeController extends Controller
                 'user_id' => $notice->creator->id,
                 'type' => 'notice_accepted',
                 'title' => 'Notice Accepted',
-                'message' => $user->first_name . ' ' . $user->last_name . ' has accepted the invitation to "' . $notice->title . '".',
+                'message' => $user->short_name . ' has accepted the invitation to "' . $notice->title . '".',
                 'url' => $noticeUrl,
                 'data' => [
                     'notice_id' => $notice->id,
                     'notice_title' => $notice->title,
                     'user_id' => $user->id,
-                    'user_name' => $user->first_name . ' ' . $user->last_name,
+                    'user_name' => $user->short_name,
                 ],
             ]);
             
@@ -395,13 +395,13 @@ class NoticeController extends Controller
                 'user_id' => $notice->creator->id,
                 'type' => 'notice_declined',
                 'title' => 'Notice Declined',
-                'message' => $user->first_name . ' ' . $user->last_name . ' has declined the invitation to "' . $notice->title . '".',
+                'message' => $user->short_name . ' has declined the invitation to "' . $notice->title . '".',
                 'url' => $noticeUrl,
                 'data' => [
                     'notice_id' => $notice->id,
                     'notice_title' => $notice->title,
                     'user_id' => $user->id,
-                    'user_name' => $user->first_name . ' ' . $user->last_name,
+                    'user_name' => $user->short_name,
                     'declined_reason' => $request->reason,
                 ],
             ]);
@@ -642,14 +642,14 @@ class NoticeController extends Controller
                     'user_id' => $notice->creator->id,
                     'type' => 'agenda_request_submitted',
                     'title' => 'New Agenda Request',
-                    'message' => $user->first_name . ' ' . $user->last_name . ' has submitted an agenda inclusion request for "' . $notice->title . '".',
+                    'message' => $user->short_name . ' has submitted an agenda inclusion request for "' . $notice->title . '".',
                     'url' => $agendaRequestUrl,
                     'data' => [
                         'agenda_request_id' => $agendaRequest->id,
                         'notice_id' => $notice->id,
                         'notice_title' => $notice->title,
                         'user_id' => $user->id,
-                        'user_name' => $user->first_name . ' ' . $user->last_name,
+                        'user_name' => $user->short_name,
                     ],
                 ]);
                 
@@ -756,14 +756,14 @@ class NoticeController extends Controller
                     'user_id' => $notice->creator->id,
                     'type' => 'reference_material_submitted',
                     'title' => 'New Reference Materials Submitted',
-                    'message' => $user->first_name . ' ' . $user->last_name . ' has submitted reference materials for "' . $notice->title . '".',
+                    'message' => $user->short_name . ' has submitted reference materials for "' . $notice->title . '".',
                     'url' => $referenceMaterialUrl,
                     'data' => [
                         'reference_material_id' => $referenceMaterial->id,
                         'notice_id' => $notice->id,
                         'notice_title' => $notice->title,
                         'user_id' => $user->id,
-                        'user_name' => $user->first_name . ' ' . $user->last_name,
+                        'user_name' => $user->short_name,
                     ],
                 ]);
                 

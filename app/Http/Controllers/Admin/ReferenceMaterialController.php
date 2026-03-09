@@ -162,7 +162,7 @@ class ReferenceMaterialController extends Controller
                 $addFileFromMedia(
                     $media,
                     $material->created_at,
-                    $material->user->first_name . ' ' . $material->user->last_name,
+                    $material->user->short_name,
                     $material->user->profile_picture ? optional(MediaLibrary::find($material->user->profile_picture))->file_path : null,
                     $material->id,
                     null
@@ -174,7 +174,7 @@ class ReferenceMaterialController extends Controller
         $noticeAttachmentIds = $notice->attachments ?? [];
         if (!empty($noticeAttachmentIds)) {
             $creator = $notice->creator;
-            $ownerName = $creator ? ($creator->first_name . ' ' . $creator->last_name) : 'Notice';
+            $ownerName = $creator ? $creator->short_name : 'Notice';
             $ownerAvatar = $creator && $creator->profile_picture ? optional(MediaLibrary::find($creator->profile_picture))->file_path : null;
             foreach (MediaLibrary::whereIn('id', $noticeAttachmentIds)->get() as $media) {
                 $addFileFromMedia($media, $notice->updated_at ?? $notice->created_at, $ownerName, $ownerAvatar, null, 'Notice');
@@ -204,7 +204,7 @@ class ReferenceMaterialController extends Controller
                 continue;
             }
             $user = $agendaRequest->user;
-            $ownerName = $user ? ($user->first_name . ' ' . $user->last_name) : 'Agenda item';
+            $ownerName = $user ? $user->short_name : 'Agenda item';
             $ownerAvatar = $user && $user->profile_picture ? optional(MediaLibrary::find($user->profile_picture))->file_path : null;
             foreach (MediaLibrary::whereIn('id', $attachmentIds)->get() as $media) {
                 $addFileFromMedia($media, $agendaRequest->updated_at ?? $agendaRequest->created_at, $ownerName, $ownerAvatar, null, null);
@@ -216,7 +216,7 @@ class ReferenceMaterialController extends Controller
             ->orWhereIn('id', $notice->board_regulations ?? [])
             ->get();
         $creator = $notice->creator;
-        $noticeOwnerName = $creator ? ($creator->first_name . ' ' . $creator->last_name) : 'Notice';
+        $noticeOwnerName = $creator ? $creator->short_name : 'Notice';
         $noticeOwnerAvatar = $creator && $creator->profile_picture ? optional(MediaLibrary::find($creator->profile_picture))->file_path : null;
         foreach ($regulations as $regulation) {
             if ($regulation->pdf_file && ($media = MediaLibrary::find($regulation->pdf_file))) {

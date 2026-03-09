@@ -284,7 +284,7 @@
                                         @endphp
                                     @endif
                                     @php
-                                        $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=64&background=055498&color=fff';
+                                        $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=64&background=055498&color=fff';
                                         if ($user->profile_picture) {
                                             $media = \App\Models\MediaLibrary::find($user->profile_picture);
                                             if ($media) {
@@ -299,10 +299,10 @@
                                             value="{{ $user->id }}"
                                             class="user-checkbox h-4 w-4 text-[#055498] border-gray-300 rounded focus:ring-[#055498] flex-shrink-0"
                                         >
-                                        <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-10 h-10 rounded-full object-cover border-2 flex-shrink-0" style="border-color: #055498;">
+                                        <img src="{{ $profilePic }}" alt="{{ $user->short_name }}" class="w-10 h-10 rounded-full object-cover border-2 flex-shrink-0" style="border-color: #055498;">
                                         <div class="flex-1 min-w-0">
                                             <span class="text-sm font-medium text-gray-700 block truncate">
-                                                {{ $user->first_name }} {{ $user->last_name }}
+                                                {{ $user->short_name }}
                                             </span>
                                             <span class="text-xs text-gray-500 block truncate">{{ $user->email }}</span>
                                             @if($user->governmentAgency)

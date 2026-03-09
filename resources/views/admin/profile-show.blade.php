@@ -22,7 +22,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <h1 class="text-lg sm:text-2xl font-bold text-gray-900 break-words">
-                            {{ trim(($user->pre_nominal_title ?? '') . ' ' . $user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . '.' : '') . ' ' . $user->last_name . ' ' . ($user->post_nominal_title ?? '')) }}
+                            {{ $user->full_name }}
                         </h1>
                         <p class="text-xs sm:text-sm text-gray-600">
                             {{ $user->designation ?? 'Board Member' }}
@@ -54,7 +54,7 @@
                             <div>
                                 <p class="text-gray-500 text-xs uppercase">Full Name</p>
                                 <p class="mt-1 text-gray-900 font-medium">
-                                    {{ $user->first_name }} {{ $user->middle_initial }} {{ $user->last_name }}
+                                    {{ $user->first_name }}{{ $user->middle_initial ? ' ' . $user->middle_initial . '.' : '' }} {{ $user->last_name }}{{ $user->extension_name ? ' ' . $user->extension_name : '' }}
                                 </p>
                             </div>
                             <div>

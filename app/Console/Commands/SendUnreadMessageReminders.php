@@ -72,12 +72,12 @@ class SendUnreadMessageReminders extends Command
                     'user_id' => $message->receiver_id,
                     'type' => 'unread_message_reminder',
                     'title' => 'Unread Message Reminder',
-                    'message' => 'You have an unread message from ' . $message->sender->first_name . ' ' . $message->sender->last_name . ' that has been waiting for over 24 hours.',
+                    'message' => 'You have an unread message from ' . $message->sender->short_name . ' that has been waiting for over 24 hours.',
                     'url' => $messagesUrl,
                     'data' => [
                         'message_id' => $message->id,
                         'sender_id' => $message->sender_id,
-                        'sender_name' => $message->sender->first_name . ' ' . $message->sender->last_name,
+                        'sender_name' => $message->sender->short_name,
                     ],
                     'is_read' => false,
                 ]);
@@ -141,14 +141,14 @@ class SendUnreadMessageReminders extends Command
                         'user_id' => $member->user_id,
                         'type' => 'unread_message_reminder',
                         'title' => 'Unread Group Message Reminder',
-                        'message' => 'You have an unread message in "' . $message->group->name . '" from ' . $message->sender->first_name . ' ' . $message->sender->last_name . ' that has been waiting for over 24 hours.',
+                        'message' => 'You have an unread message in "' . $message->group->name . '" from ' . $message->sender->short_name . ' that has been waiting for over 24 hours.',
                         'url' => $messagesUrl,
                         'data' => [
                             'message_id' => $message->id,
                             'group_id' => $message->group_id,
                             'group_name' => $message->group->name,
                             'sender_id' => $message->sender_id,
-                            'sender_name' => $message->sender->first_name . ' ' . $message->sender->last_name,
+                            'sender_name' => $message->sender->short_name,
                         ],
                         'is_read' => false,
                     ]);

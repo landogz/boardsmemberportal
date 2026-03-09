@@ -106,7 +106,7 @@
                             @if(Auth::user()->profile_picture)
                                 @php
                                     $media = \App\Models\MediaLibrary::find(Auth::user()->profile_picture);
-                                    $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name);
+                                    $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name);
                                 @endphp
                                 <img src="{{ $profilePic }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                             @else

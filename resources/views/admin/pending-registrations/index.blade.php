@@ -87,7 +87,8 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $registration->pre_nominal_title }} {{ $registration->first_name }} {{ $registration->middle_initial ? $registration->middle_initial . '.' : '' }} {{ $registration->last_name }} {{ $registration->post_nominal_title ? ', ' . $registration->post_nominal_title : '' }}
+                                    @php $regName = $registration->full_name ?? trim(($registration->pre_nominal_title ?? '') . ' ' . ($registration->first_name ?? '') . ' ' . ($registration->middle_initial ? $registration->middle_initial . '.' : '') . ' ' . ($registration->last_name ?? '') . ($registration->extension_name ? ' ' . $registration->extension_name : '') . ($registration->post_nominal_title ? ' ' . $registration->post_nominal_title : '')); @endphp
+                                    {{ $regName }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -130,13 +131,13 @@
                                     </a>
                                     @endcan
                                     @can('approve pending registrations')
-                                    <button type="button" class="approve-btn inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition" data-registration-id="{{ $registration->id }}" data-registration-name="{{ $registration->pre_nominal_title }} {{ $registration->first_name }} {{ $registration->last_name }}">
+                                    <button type="button" class="approve-btn inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition" data-registration-id="{{ $registration->id }}" data-registration-name="{{ $regName }}">
                                         <i class="fas fa-check mr-2"></i>
                                         Approve
                                     </button>
                                     @endcan
                                     @can('disapprove pending registrations')
-                                    <button type="button" class="disapprove-btn inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition" data-registration-id="{{ $registration->id }}" data-registration-name="{{ $registration->pre_nominal_title }} {{ $registration->first_name }} {{ $registration->last_name }}">
+                                    <button type="button" class="disapprove-btn inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition" data-registration-id="{{ $registration->id }}" data-registration-name="{{ $regName }}">
                                         <i class="fas fa-times mr-2"></i>
                                         Disapprove
                                     </button>

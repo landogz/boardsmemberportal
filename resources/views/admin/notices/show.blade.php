@@ -591,7 +591,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach($notice->allowedUsers as $user)
                 @php
-                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name . ' ' . $user->last_name) . '&size=48&background=055498&color=fff&bold=true';
+                    $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($user->short_name) . '&size=48&background=055498&color=fff&bold=true';
                     if ($user->profile_picture) {
                         $media = \App\Models\MediaLibrary::find($user->profile_picture);
                         if ($media) {
@@ -600,9 +600,9 @@
                     }
                 @endphp
                 <div class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                    <img src="{{ $profilePic }}" alt="{{ $user->first_name }} {{ $user->last_name }}" class="w-10 h-10 rounded-lg object-cover border-2 border-blue-200 shadow-sm">
+                    <img src="{{ $profilePic }}" alt="{{ $user->short_name }}" class="w-10 h-10 rounded-lg object-cover border-2 border-blue-200 shadow-sm">
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $user->first_name }} {{ $user->last_name }}</div>
+                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $user->short_name }}</div>
                         <div class="text-xs text-gray-500 truncate">{{ $user->email }}</div>
                         @if($user->governmentAgency)
                             <div class="text-xs text-gray-400 truncate mt-0.5">{{ $user->governmentAgency->name }}</div>

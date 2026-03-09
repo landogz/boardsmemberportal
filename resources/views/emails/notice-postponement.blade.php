@@ -153,7 +153,7 @@
                             <div class="divider"></div>
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
                                 This notice was sent through the <strong>Board Members Portal</strong>.
-                                For any inquiries or clarification, please coordinate with the system administrator.
+                                Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.
                             </p>
                         </td>
                     </tr>

@@ -1,6 +1,6 @@
 @php
     // Get reply user profile picture
-    $replyProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->first_name . ' ' . $reply->user->last_name) . '&size=64&background=055498&color=fff';
+    $replyProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->short_name) . '&size=64&background=055498&color=fff';
     if ($reply->user->profile_picture) {
         $replyMedia = \App\Models\MediaLibrary::find($reply->user->profile_picture);
         if ($replyMedia) {
@@ -16,7 +16,7 @@
         <!-- Reply Profile Picture with Online Indicator -->
         <div class="flex-shrink-0 relative">
             <img src="{{ $replyProfilePic }}" 
-                 alt="{{ $reply->user->first_name }} {{ $reply->user->last_name }}" 
+                 alt="{{ $reply->user->short_name }}" 
                  class="w-8 h-8 rounded-full object-cover border-2 border-gray-200">
             @if($replyIsOnline)
                 <span class="online-indicator" style="width: 10px; height: 10px; border-width: 1.5px;"></span>
@@ -28,7 +28,7 @@
             <div class="bg-gray-50 rounded-2xl px-3 py-2 inline-block max-w-full">
                 <div class="flex items-baseline space-x-2 mb-1">
                     <span class="font-semibold text-xs text-gray-900 hover:underline cursor-pointer">
-                        {{ $reply->user->first_name }} {{ $reply->user->last_name }}
+                        {{ $reply->user->short_name }}
                     </span>
                     @if($replyIsOnline)
                         <span class="text-xs text-green-600 font-medium">● Online</span>

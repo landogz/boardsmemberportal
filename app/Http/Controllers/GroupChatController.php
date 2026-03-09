@@ -61,7 +61,7 @@ class GroupChatController extends Controller
                     $creator = User::find($currentUserId);
                     $addedUser = User::find($memberId);
                     if ($addedUser && $creator) {
-                        $adderName = $creator->first_name . ' ' . $creator->last_name;
+                        $adderName = $creator->short_name;
                         $messagesUrl = in_array($addedUser->privilege, ['admin', 'consec'])
                             ? url('/admin/messages')
                             : url('/messages');
@@ -316,7 +316,7 @@ class GroupChatController extends Controller
                 // Notify the added user so it appears in the header notifications
                 $addedUser = User::find($userId);
                 if ($addedUser) {
-                    $adderName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
+                    $adderName = Auth::user()->short_name;
                     $messagesUrl = in_array($addedUser->privilege, ['admin', 'consec'])
                         ? url('/admin/messages')
                         : url('/messages');
@@ -1040,7 +1040,7 @@ class GroupChatController extends Controller
         }
 
         // Fallback to UI Avatars
-        $name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+        $name = $user->short_name;
         return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=64&background=055498&color=fff';
     }
 }

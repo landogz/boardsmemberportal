@@ -118,7 +118,7 @@ class PendingRegistrationsController extends Controller
 
         // Store user data for audit log and email before deletion
         $userEmail = $user->email;
-        $userName = trim(($user->pre_nominal_title ?? '') . ' ' . $user->first_name . ' ' . ($user->middle_initial ? $user->middle_initial . '.' : '') . ' ' . $user->last_name . ' ' . ($user->post_nominal_title ?? ''));
+        $userName = $user->full_name;
         $rejectionReason = $validated['rejection_reason'] ?? 'No reason provided';
 
         // Send disapproval email to user before deletion

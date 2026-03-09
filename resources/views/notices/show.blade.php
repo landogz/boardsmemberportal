@@ -781,7 +781,7 @@
                 <p class="notice-byline">
                     <span class="byline-item">
                         @php
-                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($notice->creator->first_name . ' ' . $notice->creator->last_name) . '&size=64&background=055498&color=fff&bold=true';
+                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($notice->creator->short_name) . '&size=64&background=055498&color=fff&bold=true';
                             if ($notice->creator->profile_picture) {
                                 $creatorMedia = \App\Models\MediaLibrary::find($notice->creator->profile_picture);
                                 if ($creatorMedia) {
@@ -789,9 +789,9 @@
                                 }
                             }
                         @endphp
-                        <img src="{{ $creatorProfilePic }}" alt="{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}" class="byline-avatar">
+                        <img src="{{ $creatorProfilePic }}" alt="{{ $notice->creator->short_name }}" class="byline-avatar">
                         <span class="byline-label">Created by</span>
-                        <span class="byline-value">{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}</span>
+                        <span class="byline-value">{{ $notice->creator->short_name }}</span>
                     </span>
                     <span class="byline-sep" aria-hidden="true"></span>
                     <span class="byline-item">

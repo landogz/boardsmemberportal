@@ -2,7 +2,7 @@
     <div class="space-y-4">
         @foreach($comments as $comment)
             @php
-                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->first_name . ' ' . $comment->user->last_name) . '&size=64&background=055498&color=fff';
+                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->short_name) . '&size=64&background=055498&color=fff';
                 if ($comment->user->profile_picture) {
                     $media = \App\Models\MediaLibrary::find($comment->user->profile_picture);
                     if ($media) {
@@ -15,7 +15,7 @@
                 <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0 relative">
                         <img src="{{ $profilePic }}"
-                             alt="{{ $comment->user->first_name }} {{ $comment->user->last_name }}"
+                             alt="{{ $comment->user->short_name }}"
                              class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
                         @if($isOnline)
                             <span class="online-indicator"></span>
@@ -25,7 +25,7 @@
                         <div class="bg-gray-50 rounded-2xl px-4 py-2.5 inline-block max-w-full">
                             <div class="flex items-baseline space-x-2 mb-1">
                                 <span class="font-semibold text-sm text-gray-900 hover:underline cursor-pointer">
-                                    {{ $comment->user->first_name }} {{ $comment->user->last_name }}
+                                    {{ $comment->user->short_name }}
                                 </span>
                                 @if($isOnline)
                                     <span class="text-xs text-green-600 font-medium">● Online</span>

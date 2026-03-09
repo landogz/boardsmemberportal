@@ -8,15 +8,15 @@
                     @if(Auth::user()->profile_picture)
                         @php
                             $media = \App\Models\MediaLibrary::find(Auth::user()->profile_picture);
-                            $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name);
+                            $profilePic = $media ? asset('storage/' . $media->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->short_name);
                         @endphp
                         <img id="sidebarProfilePicture" class="h-12 w-12 rounded-full object-cover" src="{{ $profilePic }}" alt="Profile" />
                     @else
-                        <img id="sidebarProfilePicture" class="h-12 w-12 rounded-full object-cover" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) }}" alt="Profile" />
+                        <img id="sidebarProfilePicture" class="h-12 w-12 rounded-full object-cover" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->short_name) }}" alt="Profile" />
                     @endif
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold truncate">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                    <p class="text-sm font-semibold truncate">{{ Auth::user()->short_name }}</p>
                     <div class="flex items-center space-x-2 mt-1">
                         <span class="online_animation mr-1"></span>
                         <span class="text-xs text-gray-400">Online</span>

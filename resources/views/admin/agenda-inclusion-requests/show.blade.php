@@ -127,7 +127,7 @@
         </h3>
         <div class="flex items-center gap-4">
             @php
-                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($request->user->first_name . ' ' . $request->user->last_name) . '&size=64&background=7C3AED&color=fff&bold=true';
+                $profilePic = 'https://ui-avatars.com/api/?name=' . urlencode($request->user->short_name) . '&size=64&background=7C3AED&color=fff&bold=true';
                 if ($request->user->profile_picture) {
                     $media = \App\Models\MediaLibrary::find($request->user->profile_picture);
                     if ($media) {
@@ -244,7 +244,7 @@
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Reviewed By</label>
                     <p class="text-sm font-semibold text-gray-900 mt-1">
-                        {{ $request->reviewer ? $request->reviewer->first_name . ' ' . $request->reviewer->last_name : 'N/A' }}
+                        {{ $request->reviewer ? $request->reviewer->short_name : 'N/A' }}
                     </p>
                 </div>
                 <div>

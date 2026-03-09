@@ -42,7 +42,7 @@
                             <div class="info-card">
                                 <p class="info-message" style="font-size: 14px; color: #4b5563; line-height: 1.7; margin: 0;"><strong>{{ $announcementTitle }}</strong></p>
                             </div>
-                            <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">For any inquiries, please coordinate with the system administrator.</p>
+                            <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">Should you have any questions or require further assistance, kindly contact the Conference Secretariat through email at boardsec@ddb.gov.ph.</p>
                         </td>
                     </tr>
                     <tr>

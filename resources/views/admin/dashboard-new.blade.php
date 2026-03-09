@@ -152,7 +152,7 @@
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
-            <p class="text-sm text-gray-600 mb-4">Today Tasks for {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+            <p class="text-sm text-gray-600 mb-4">Today Tasks for {{ Auth::user()->short_name }}</p>
             <ul class="space-y-3">
                 <li class="task-item border-l-4 border-blue-500 pl-4 py-2 cursor-pointer hover:bg-gray-50 rounded">
                     <a href="#" class="text-sm font-medium text-gray-800">Review pending attendance confirmations</a>
