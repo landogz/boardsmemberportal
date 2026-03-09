@@ -44,7 +44,7 @@
             padding: 2rem 1rem 4rem;
         }
         .deploy-container {
-            max-width: 720px;
+            max-width: 960px;
             margin: 0 auto;
         }
         .deploy-hero {
@@ -82,18 +82,11 @@
         .deploy-tabs {
             display: flex;
             align-items: stretch;
+            justify-content: center;
+            flex-wrap: wrap;
             gap: 0.75rem;
             padding: 0 0 1.5rem;
             margin-bottom: 1.5rem;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .deploy-tabs::-webkit-scrollbar {
-            height: 6px;
-        }
-        .deploy-tabs::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.6);
-            border-radius: 9999px;
         }
         .deploy-tab {
             flex-shrink: 0;
@@ -152,7 +145,6 @@
             font-size: 0.9375rem;
             line-height: 1.7;
             color: var(--deploy-text);
-            overflow-x: auto;
         }
         .deploy-content > *:first-child { margin-top: 0; }
         .deploy-content > *:last-child { margin-bottom: 0; }
@@ -208,9 +200,10 @@
             color: var(--deploy-pre-text);
             padding: 1.25rem 1.25rem;
             border-radius: 0.5rem;
-            overflow-x: auto;
             margin: 1rem 0;
             border-left: 3px solid var(--deploy-accent);
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         .deploy-content pre code {
             background: transparent;
@@ -285,9 +278,7 @@
     </style>
 </head>
 <body class="bg-[#F9FAFB] dark:bg-[#0F172A] text-[#0A0A0A] dark:text-[#F1F5F9] transition-colors duration-300">
-    @include('components.header')
     @include('components.theme-toggle-script')
-
     <main class="deploy-page">
         <div class="deploy-container">
             <header class="deploy-hero">
@@ -337,8 +328,6 @@
             </section>
         </div>
     </main>
-
-    @include('components.footer')
 
     @if (empty($showBackLink))
         <script>
