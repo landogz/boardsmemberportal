@@ -2222,18 +2222,20 @@
                 return;
             }
             
-            // Find the wrapper element (.fb-comment-reply for replies, or the .fb-comment itself for main comments)
+            // Find the specific wrapper element for this comment:
+            // - replies use .fb-comment-reply
+            // - main comments use .fb-comment
             let $commentElement = $commentWithId.closest('.fb-comment-reply');
             if ($commentElement.length === 0) {
-                // It's a main comment, find the parent .fb-comment container
-                $commentElement = $commentWithId.closest('.fb-comment').parent();
-                if ($commentElement.length === 0) {
-                    $commentElement = $commentWithId.closest('.fb-comment');
-                }
+                $commentElement = $commentWithId.closest('.fb-comment');
+            }
+            if ($commentElement.length === 0) {
+                console.error('Wrapper element for comment not found for ID:', commentId);
+                return;
             }
             
-            // Check if it's a main comment (not inside a replies-container)
-            const isMainComment = $commentElement.closest('#commentsList > .fb-comment, #commentsList > div > .fb-comment').length > 0 && 
+            // Check if it's a main comment (top-level, not inside a replies-container)
+            const isMainComment = $commentElement.hasClass('fb-comment') &&
                                   $commentElement.closest('.replies-container').length === 0;
             
             const result = await Swal.fire({
