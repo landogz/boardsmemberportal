@@ -514,21 +514,14 @@
                                     <span>{{ \Carbon\Carbon::parse($notice->meeting_time)->format('g:i A') }}</span>
                                 </div>
                             @endif
-                            @if($notice->creator)
-                                <div class="meta-item">
-                                    @php
-                                        $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($notice->creator->first_name . ' ' . $notice->creator->last_name) . '&size=32&background=055498&color=fff&bold=true';
-                                        if ($notice->creator->profile_picture) {
-                                            $media = \App\Models\MediaLibrary::find($notice->creator->profile_picture);
-                                            if ($media) {
-                                                $creatorProfilePic = asset('storage/' . $media->file_path);
-                                            }
-                                        }
-                                    @endphp
-                                    <img src="{{ $creatorProfilePic }}" alt="{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}" class="w-4 h-4 rounded-full object-cover border border-gray-300 dark:border-gray-600" style="margin-right: 0.25rem;">
-                                    <span>{{ $notice->creator->first_name }} {{ $notice->creator->last_name }}</span>
-                                </div>
-                            @endif
+                            <div class="meta-item">
+                                @php
+                                    // Avatar initials: CS
+                                    $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode('CS') . '&size=32&background=055498&color=fff&bold=true';
+                                @endphp
+                                <img src="{{ $creatorProfilePic }}" alt="CS" class="w-4 h-4 rounded-full object-cover border border-gray-300 dark:border-gray-600" style="margin-right: 0.25rem;">
+                                <span>CONSEC</span>
+                            </div>
                         </div>
                         
                         @if(isset($attendanceConfirmations[$notice->id]))

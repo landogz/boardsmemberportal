@@ -232,25 +232,17 @@
                 .then(response => {
                     const announcement = response.data.announcement;
                     
-                    // Set author info
-                    const authorName = announcement.author;
-                    const authorInitials = authorName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    // Set author info (user side: always show CONSEC; avatar initials: CS)
+                    const authorName = 'CONSEC';
+                    const authorInitials = 'CS';
                     const authorAvatar = document.getElementById('modalAuthorAvatar');
                     const authorAvatarImg = document.getElementById('modalAuthorAvatarImg');
                     const authorAvatarInitials = document.getElementById('modalAuthorAvatarInitials');
                     
-                    // Display profile picture if available, otherwise show initials
-                    if (announcement.author_profile_url) {
-                        authorAvatarImg.src = announcement.author_profile_url;
-                        authorAvatarImg.alt = authorName;
-                        authorAvatarImg.classList.remove('hidden');
-                        authorAvatarInitials.textContent = '';
-                        authorAvatarInitials.classList.add('hidden');
-                    } else {
-                        authorAvatarImg.classList.add('hidden');
-                        authorAvatarInitials.textContent = authorInitials;
-                        authorAvatarInitials.classList.remove('hidden');
-                    }
+                    // Always use generic CONSEC avatar/initials
+                    authorAvatarImg.classList.add('hidden');
+                    authorAvatarInitials.textContent = authorInitials;
+                    authorAvatarInitials.classList.remove('hidden');
                     
                     document.getElementById('modalAuthorName').textContent = authorName;
                     document.getElementById('modalDateText').textContent = announcement.created_at;

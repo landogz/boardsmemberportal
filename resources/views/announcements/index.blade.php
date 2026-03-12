@@ -210,17 +210,11 @@
                                 <div class="flex items-center justify-between gap-4 mb-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                     <div class="flex items-center min-w-0">
                                         <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#055498] to-[#123a60] flex items-center justify-center text-white font-semibold text-xs mr-3 overflow-hidden flex-shrink-0 shadow-sm">
-                                            @if($announcement->creator->profilePictureMedia)
-                                                <img src="{{ asset('storage/' . $announcement->creator->profilePictureMedia->file_path) }}" 
-                                                     alt="{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}" 
-                                                     class="w-full h-full object-cover">
-                                            @else
-                                                <span>{{ strtoupper(substr($announcement->creator->first_name, 0, 1) . substr($announcement->creator->last_name, 0, 1)) }}</span>
-                                            @endif
+                                            <span>CS</span>
                                         </div>
                                         <div class="flex flex-col min-w-0">
                                             <span class="truncate font-semibold text-gray-800 dark:text-gray-100">
-                                                {{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}
+                                                CONSEC
                                             </span>
                                             <div class="flex items-center gap-2 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
                                                 <span>{{ $announcement->created_at->format('M d, Y') }}</span>

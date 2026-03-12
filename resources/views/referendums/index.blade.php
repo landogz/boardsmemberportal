@@ -682,14 +682,8 @@
                             $currentUserId = auth()->id();
                             $userVote = $currentUserId ? $referendum->votes->firstWhere('user_id', $currentUserId) : null;
                             
-                            // Get creator profile picture
-                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->short_name) . '&size=80&background=1877f2&color=fff';
-                            if ($referendum->creator->profile_picture) {
-                                $media = \App\Models\MediaLibrary::find($referendum->creator->profile_picture);
-                                if ($media) {
-                                    $creatorProfilePic = asset('storage/' . $media->file_path);
-                                }
-                            }
+                            // Use generic CONSEC creator for user-side display (avatar initials: CS)
+                            $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode('CS') . '&size=80&background=1877f2&color=fff';
                             
                             // Get first image and all PDF/other attachments for preview
                             $firstImage = null;
@@ -730,7 +724,7 @@
                                     <div class="flex items-center flex-wrap gap-1.5 sm:gap-2 mb-1">
                                         <h3 class="text-sm sm:text-base font-bold text-gray-800 dark:text-white truncate">
                                             <a href="{{ route('referendums.show', $referendum->id) }}" class="text-gray-800 dark:text-white hover:underline">
-                                                {{ $referendum->creator->short_name }}
+                                                CONSEC
                                             </a>
                                         </h3>
                                         <span class="status-badge {{ $isExpired ? 'status-expired' : 'status-active' }}">

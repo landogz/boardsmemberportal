@@ -542,9 +542,9 @@
                                 <!-- Post Header -->
                                 <div class="flex items-start sm:items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
                                     @php
-                                        $creatorProfileMedia = $referendum->creator->profile_picture ? \App\Models\MediaLibrary::find($referendum->creator->profile_picture) : null;
-                                        $creatorProfileUrl = $creatorProfileMedia ? asset('storage/' . $creatorProfileMedia->file_path) : 'https://ui-avatars.com/api/?name=' . urlencode($referendum->creator->short_name) . '&size=150&background=1877f2&color=fff';
-                                        $isCreatorOnline = $referendum->creator->is_online ?? false;
+                                        // Avatar initials: CS
+                                        $creatorProfileUrl = 'https://ui-avatars.com/api/?name=' . urlencode('CS') . '&size=150&background=1877f2&color=fff';
+                                        $isCreatorOnline = false;
                                     @endphp
                                     <div class="profile-picture-container flex-shrink-0 relative">
                                         <img src="{{ $creatorProfileUrl }}" alt="{{ $referendum->creator->short_name }}" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 shadow-sm block" style="border-color: #055498; aspect-ratio: 1/1;">
@@ -553,7 +553,7 @@
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center flex-wrap gap-1.5 sm:gap-2 mb-1">
                                             <h3 class="text-sm sm:text-base font-bold text-gray-800 dark:text-white truncate">
-                                                {{ $referendum->creator->short_name }}
+                                                CONSEC
                                             </h3>
                                             <span class="status-badge {{ $referendum->isExpired() ? 'status-expired' : 'status-active' }}">
                                                 {{ $referendum->isExpired() ? 'ENDED' : 'Active' }}

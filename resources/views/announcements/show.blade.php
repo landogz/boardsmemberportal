@@ -20,7 +20,7 @@
             <div class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600 border-b pb-4">
                 <div class="flex items-center">
                     <i class="fas fa-user mr-2"></i>
-                    <span>{{ $announcement->creator->first_name }} {{ $announcement->creator->last_name }}</span>
+                    <span>CONSEC</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-calendar mr-2"></i>

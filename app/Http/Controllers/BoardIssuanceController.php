@@ -154,16 +154,9 @@ class BoardIssuanceController extends Controller
             }
             $paginator = $query->paginate($perPage, ['*'], 'page', $page);
             $items = $paginator->getCollection()->map(function ($r) {
-                $creatorImg = '';
-                if ($r->uploader) {
-                    $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($r->uploader->short_name) . '&size=64&background=055498&color=fff&bold=true';
-                    if ($r->uploader->profile_picture) {
-                        $media = \App\Models\MediaLibrary::find($r->uploader->profile_picture);
-                        if ($media) {
-                            $creatorImg = asset('storage/' . $media->file_path);
-                        }
-                    }
-                }
+                // For user-side display, always show a generic CONSEC creator label/avatar
+                $creatorLabel = 'CONSEC';
+                $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
                     'id' => $r->id,
                     'title' => $r->title,
@@ -173,7 +166,7 @@ class BoardIssuanceController extends Controller
                     'pdf_url' => $r->pdf ? asset('storage/' . $r->pdf->file_path) : null,
                     'date' => $r->effective_date ? $r->effective_date->format('M d, Y') : '',
                     'description' => $r->description ?? '',
-                    'creator' => $r->uploader ? $r->uploader->short_name : '',
+                    'creator' => $creatorLabel,
                     'creator_image' => $creatorImg,
                 ];
             })->values()->all();
@@ -190,16 +183,9 @@ class BoardIssuanceController extends Controller
             }
             $paginator = $query->paginate($perPage, ['*'], 'page', $page);
             $items = $paginator->getCollection()->map(function ($d) {
-                $creatorImg = '';
-                if ($d->uploader) {
-                    $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($d->uploader->short_name) . '&size=64&background=055498&color=fff&bold=true';
-                    if ($d->uploader->profile_picture) {
-                        $media = \App\Models\MediaLibrary::find($d->uploader->profile_picture);
-                        if ($media) {
-                            $creatorImg = asset('storage/' . $media->file_path);
-                        }
-                    }
-                }
+                // For user-side display, always show a generic CONSEC creator label/avatar
+                $creatorLabel = 'CONSEC';
+                $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
                     'id' => $d->id,
                     'title' => $d->title,
@@ -209,7 +195,7 @@ class BoardIssuanceController extends Controller
                     'pdf_url' => $d->pdf ? asset('storage/' . $d->pdf->file_path) : null,
                     'date' => $d->effective_date ? $d->effective_date->format('M d, Y') : '',
                     'description' => $d->description ?? '',
-                    'creator' => $d->uploader ? $d->uploader->short_name : '',
+                    'creator' => $creatorLabel,
                     'creator_image' => $creatorImg,
                 ];
             })->values()->all();
