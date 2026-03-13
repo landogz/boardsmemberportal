@@ -302,6 +302,7 @@
                     <span id="pdfModalCreatorWrap" class="flex items-center gap-2">
                         <img id="pdfModalCreatorImage" src="" alt="" class="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600 hidden">
                         <span id="pdfModalCreator"></span>
+                        <span id="pdfModalEffectiveDate" class="text-xs text-gray-500 dark:text-gray-400"></span>
                     </span>
                 </div>
             </div>
@@ -460,7 +461,7 @@
         function viewPDFWithMeta(el) {
             const pdfUrl = el.getAttribute('data-pdf-url');
             const title = el.getAttribute('data-title') || '';
-            const type = (el.getAttribute('data-type') === 'resolution') ? 'resolution' : 'document';
+            const type = (el.getAttribute('data-type') === 'resolution') ? 'resolution' : 'regulation';
             const description = el.getAttribute('data-description') || '';
             const date = el.getAttribute('data-date') || '';
             const creator = el.getAttribute('data-creator') || '';
@@ -482,12 +483,15 @@
             const creatorEl = document.getElementById('pdfModalCreator');
             const creatorWrap = document.getElementById('pdfModalCreatorWrap');
             const creatorImgEl = document.getElementById('pdfModalCreatorImage');
+            const effectiveEl = document.getElementById('pdfModalEffectiveDate');
 
             // Set title based on type
             if (type === 'resolution') {
-                modalTitle.textContent = 'Resolution: ' + (identifier || 'N/A');
+                modalTitle.textContent = 'Board Resolution: ' + (identifier || 'N/A');
+            } else if (type === 'regulation') {
+                modalTitle.textContent = 'Board Regulation: ' + (identifier || 'N/A');
             } else {
-                modalTitle.textContent = (identifier || 'Document');
+                modalTitle.textContent = identifier || 'Board Issuance';
             }
 
             // Show description, date, creator (with image)
@@ -496,6 +500,9 @@
             creatorEl.textContent = creator || '';
             dateWrap.style.display = date ? '' : 'none';
             creatorWrap.style.display = creator ? '' : 'none';
+            if (effectiveEl) {
+                effectiveEl.textContent = date ? `(Approved: ${date})` : '';
+            }
             if (creatorImage) {
                 creatorImgEl.src = creatorImage;
                 creatorImgEl.alt = creator || 'Creator';

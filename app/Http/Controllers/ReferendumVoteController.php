@@ -34,7 +34,7 @@ class ReferendumVoteController extends Controller
         }
 
         $validated = $request->validate([
-            'vote' => 'required|in:accept,decline',
+            'vote' => 'required|in:accept,decline,abstain',
         ]);
 
         try {
@@ -55,12 +55,14 @@ class ReferendumVoteController extends Controller
             // Get updated vote counts
             $acceptCount = $referendum->acceptVotes()->count();
             $declineCount = $referendum->declineVotes()->count();
+            $abstainCount = $referendum->abstainVotes()->count();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Vote recorded successfully.',
                 'accept_count' => $acceptCount,
                 'decline_count' => $declineCount,
+                'abstain_count' => $abstainCount,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -87,11 +89,13 @@ class ReferendumVoteController extends Controller
 
         $acceptVotes = $referendum->acceptVotes()->with('user')->get();
         $declineVotes = $referendum->declineVotes()->with('user')->get();
+        $abstainVotes = $referendum->abstainVotes()->with('user')->get();
 
         return response()->json([
             'success' => true,
             'accept_count' => $acceptVotes->count(),
             'decline_count' => $declineVotes->count(),
+            'abstain_count' => $abstainVotes->count(),
             'total_votes' => $referendum->votes()->count(),
             'accept_votes' => $acceptVotes->map(function ($vote) {
                 return [

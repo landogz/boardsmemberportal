@@ -822,7 +822,7 @@
                                     @endif
                                 </button>
                             @endif
-                            @if($attendanceConfirmation->status === 'accepted' && !$isMeetingDone && !$agendaRequest && ($notice->status ?? null) !== 'postponed')
+                            @if($attendanceConfirmation->status === 'accepted' && !$isMeetingDone && (($agendaRequest === null) || $agendaRequest->status === 'rejected') && ($notice->status ?? null) !== 'postponed')
                                 <button type="button" class="btn-change-response btn-change-agenda" onclick="requestAgendaInclusion({{ $notice->id }})">
                                     <i class="fas fa-plus"></i>
                                     <span>Request Agenda Inclusion</span>

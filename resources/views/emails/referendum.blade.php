@@ -196,7 +196,7 @@
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
                                 This referendum was sent to you by <strong>Board Members Portal</strong>.
-                                Please review the details and cast your vote before the expiration date.
+                                Please review the details and submit your manifestation before the expiration date.
                             </p>
                         </td>
                     </tr>

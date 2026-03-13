@@ -726,7 +726,7 @@
             @else
                 <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 50%, #055498 100%);">
                     <div class="text-center px-2 sm:px-4 text-white relative z-10">
-                        <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Member Portal</h1>
+                        <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">Welcome to Board Members Portal</h1>
                         <p class="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 opacity-90 px-2">Your gateway to seamless board management, meetings, and collaboration</p>
                     </div>
                 </div>
@@ -776,12 +776,12 @@
                                     <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Announcements</span>
                                 </div>
                                 <div class="flex items-center gap-1 sm:gap-1.5">
-                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #CE2028; border: 1px solid #a01a1f;"></span>
-                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Resolutions</span>
-                                </div>
-                                <div class="flex items-center gap-1 sm:gap-1.5">
                                     <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #055498; border: 1px solid #044080;"></span>
                                     <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Regulations</span>
+                                </div>
+                                <div class="flex items-center gap-1 sm:gap-1.5">
+                                    <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #CE2028; border: 1px solid #a01a1f;"></span>
+                                    <span class="text-[10px] xs:text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Resolutions</span>
                                 </div>
                                 <div class="flex items-center gap-1 sm:gap-1.5">
                                     <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style="background-color: #7C3AED; border: 1px solid #6D28D9;"></span>
@@ -855,40 +855,8 @@
     </section>
     @endauth
 
-    <!-- Public Announcements Section (Logged-in users only) -->
-    @auth
-    <section id="announcements" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center sm:text-left gradient-text px-2">
-                    Public Announcements
-                </h2>
-                <a href="{{ route('announcements.index') }}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base">
-                    <i class="fas fa-list mr-2"></i>
-                    View All Announcements
-                </a>
-            </div>
-            
-            <!-- Loading State -->
-            <div id="announcementsLoading" class="text-center py-12">
-                <i class="fas fa-spinner fa-spin text-4xl text-[#055498] mb-4"></i>
-                <p class="text-gray-600 dark:text-gray-400">Loading announcements...</p>
-            </div>
-
-            <!-- Empty State -->
-            <div id="announcementsEmpty" class="hidden text-center py-12">
-                <i class="fas fa-bullhorn text-6xl text-gray-400 mb-4"></i>
-                <p class="text-gray-600 dark:text-gray-400 text-lg">No announcements available at this time.</p>
-            </div>
-            
-            <!-- Logged-in User Design: News-style cards with images -->
-            <div id="announcementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
-                <!-- Announcements will be loaded here dynamically (max 3) -->
-            </div>
-        </div>
-    </section>
-
     <!-- Board Member Activities Announcements Section (Logged-in users only) -->
+    @auth
     <section id="board-activities-announcements" class="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-50 dark:bg-[#020617] border-t border-gray-100 dark:border-gray-800">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
@@ -916,6 +884,38 @@
             <!-- Cards -->
             <div id="boardActivitiesAnnouncementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
                 <!-- Board Member Activities announcements will be loaded here dynamically (max 3) -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Public Announcements Section (Logged-in users only) -->
+    <section id="announcements" class="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-[#0F172A]">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center sm:text-left gradient-text px-2">
+                    Public Announcements
+                </h2>
+                <a href="{{ route('announcements.index') }}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#055498] to-[#123a60] text-white font-semibold rounded-lg hover:from-[#123a60] hover:to-[#055498] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Announcements
+                </a>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="announcementsLoading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-[#055498] mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400">Loading announcements...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="announcementsEmpty" class="hidden text-center py-12">
+                <i class="fas fa-bullhorn text-6xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">No announcements available at this time.</p>
+            </div>
+            
+            <!-- Logged-in User Design: News-style cards with images -->
+            <div id="announcementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
+                <!-- Announcements will be loaded here dynamically (max 3) -->
             </div>
         </div>
     </section>
@@ -2003,10 +2003,10 @@
                             if (eventType === 'notice') {
                                 const hideNoticeDetails = noticeType === 'Agenda' || noticeType === 'Notice of Postponement';
                                 
-                                // For Agenda and Notice of Postponement, don't show the Notice Details block at all
+                                // For Agenda and Notice of Postponement, don't show the Meeting Details block at all
                                 if (!hideNoticeDetails) {
                                     noticeFields = '<div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">';
-                                    noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Notice Details</p>';
+                                    noticeFields += '<p class="text-sm font-semibold text-purple-800 mb-2"><i class="fas fa-info-circle mr-1"></i>Meeting Details</p>';
                                     if (noticeStatus === 'postponed') {
                                         noticeFields += '<p class="mb-2 text-sm"><strong>Status:</strong> <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">Postponed</span></p>';
                                     }
@@ -2033,16 +2033,25 @@
                                 }
                             }
                             
+                            // Compute friendly type label and, for resolutions/regulations, include Effective Date beside the type
+                            let typeLabel = eventType;
+                            if (eventType === 'resolution') typeLabel = 'Board Resolution';
+                            if (eventType === 'regulation') typeLabel = 'Board Regulation';
+                            const typeExtra =
+                                (eventType === 'resolution' || eventType === 'regulation') && effectiveDate
+                                    ? ` <span class="text-gray-500 text-xs sm:text-sm">(Effective: ${effectiveDate})</span>`
+                                    : '';
+
                             Swal.fire({
                                 title: info.event.title,
                                 html: `
                                     <div class="text-left">
-                                        <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${eventType}</span></p>
+                                        <p class="mb-2"><strong>Type:</strong> <span class="capitalize">${typeLabel}</span>${typeExtra}</p>
                                         ${showEventDate ? `<p class="mb-2"><strong>Date:</strong> ${eventDate}</p>` : ''}
                                         ${dateFields}
                                         ${noticeFields}
                                         <p class="mb-2 mt-3"><strong>Description:</strong></p>
-                                        <p class="text-sm text-gray-600 mb-3">${description}</p>
+                                        <p class="text-base text-gray-700 mb-3 leading-relaxed">${description}</p>
                                         ${actionButton}
                                     </div>
                                 `,

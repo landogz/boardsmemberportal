@@ -104,7 +104,7 @@ class ReferendumController extends Controller
                         'user_id' => $userId,
                         'type' => 'announcement',
                         'title' => 'New Ad Referendum Available',
-                        'message' => 'A new ad referendum \"' . $referendum->title . '\" has been created and is now available for your review and vote.',
+                        'message' => 'A new ad referendum "' . $referendum->title . '" has been created and is now available for your review and manifestation.',
                         'url' => route('referendums.show', $referendum->id),
                         'data' => [
                             'referendum_id' => $referendum->id,
@@ -157,6 +157,7 @@ class ReferendumController extends Controller
         // Get vote statistics
         $acceptVotes = $referendum->acceptVotes()->with('user')->get();
         $declineVotes = $referendum->declineVotes()->with('user')->get();
+        $abstainVotes = $referendum->abstainVotes()->with('user')->get();
         $totalVotes = $referendum->votes()->count();
         $totalComments = $referendum->allComments()->count();
 

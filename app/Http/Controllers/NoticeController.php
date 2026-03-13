@@ -76,11 +76,12 @@ class NoticeController extends Controller
             ->first();
         $hasDeclined = $attendanceConfirmation && $attendanceConfirmation->status === 'declined';
         
-        // Get current user's agenda inclusion request if exists
+        // Get current user's latest agenda inclusion request if exists
         $agendaRequest = null;
         if ($attendanceConfirmation && $attendanceConfirmation->status === 'accepted') {
             $agendaRequest = AgendaInclusionRequest::where('notice_id', $id)
                 ->where('user_id', $userId)
+                ->orderByDesc('created_at')
                 ->first();
         }
         
@@ -605,15 +606,17 @@ class NoticeController extends Controller
             ], 400);
         }
         
-        // Check if already submitted
+        // Check if there's a previous request that is still pending or approved.
+        // If the latest request was rejected, allow submitting a new/revised request.
         $existing = AgendaInclusionRequest::where('notice_id', $id)
             ->where('user_id', $userId)
+            ->orderByDesc('created_at')
             ->first();
         
-        if ($existing) {
+        if ($existing && $existing->status !== 'rejected') {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already submitted an agenda inclusion request for this notice.'
+                'message' => 'You already have an agenda inclusion request that is pending or approved for this notice.'
             ], 400);
         }
         

@@ -399,16 +399,23 @@
                     <button type="button" onclick="showVotersModal('accept')" class="w-full flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer">
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-check-circle text-green-600"></i>
-                            <span class="font-medium text-gray-700">Accept</span>
+                            <span class="font-medium text-gray-700">Agree</span>
                         </div>
                         <span class="text-xl font-bold text-green-600">{{ $acceptVotes->count() }}</span>
                     </button>
                     <button type="button" onclick="showVotersModal('decline')" class="w-full flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors cursor-pointer">
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-times-circle text-red-600"></i>
-                            <span class="font-medium text-gray-700">Decline</span>
+                            <span class="font-medium text-gray-700">Disagree</span>
                         </div>
                         <span class="text-xl font-bold text-red-600">{{ $declineVotes->count() }}</span>
+                    </button>
+                    <button type="button" onclick="showVotersModal('abstain')" class="w-full flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors cursor-pointer">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-minus-circle text-yellow-600"></i>
+                            <span class="font-medium text-gray-700">Abstain</span>
+                        </div>
+                        <span class="text-xl font-bold text-yellow-600">{{ $abstainVotes->count() }}</span>
                     </button>
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span class="font-medium text-gray-700">Total Votes</span>
@@ -417,11 +424,11 @@
                 </div>
             </div>
 
-            <!-- Accept Voters -->
+            <!-- Agree Voters -->
             @if($acceptVotes->count() > 0)
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                    Accept Votes 
+                    Agree Manifestations 
                     <span class="text-sm font-normal text-gray-500">({{ $acceptVotes->count() }})</span>
                 </h3>
                 <div class="space-y-2 max-h-64 overflow-y-auto">
@@ -449,11 +456,11 @@
             </div>
             @endif
 
-            <!-- Decline Voters -->
+            <!-- Disagree Voters -->
             @if($declineVotes->count() > 0)
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                    Decline Votes 
+                    Disagree Manifestations 
                     <span class="text-sm font-normal text-gray-500">({{ $declineVotes->count() }})</span>
                 </h3>
                 <div class="space-y-2 max-h-64 overflow-y-auto">
@@ -587,24 +594,39 @@
 <script>
     const acceptVoters = @json($acceptVotersData);
     const declineVoters = @json($declineVotersData);
+    const abstainVoters = @json($abstainVotes->map(function($vote) {
+        return [
+            'name' => $vote->user->short_name,
+            'email' => $vote->user->email,
+            'profile_picture' => $vote->user->profile_picture ? optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path ? asset('storage/' . optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path) : null : null,
+        ];
+    }));
 
     function showVotersModal(type) {
         const modal = document.getElementById('votersModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalContent = document.getElementById('modalContent');
         
-        let voters, title, icon, iconColor;
+        let voters, title, icon, iconColor, badgeColor;
         
         if (type === 'accept') {
             voters = acceptVoters;
-            title = 'Accept Votes';
+            title = 'Agree Manifestations';
             icon = 'fa-check-circle';
             iconColor = 'text-green-600';
-        } else {
+            badgeColor = 'border-green-600';
+        } else if (type === 'decline') {
             voters = declineVoters;
-            title = 'Decline Votes';
+            title = 'Disagree Manifestations';
             icon = 'fa-times-circle';
             iconColor = 'text-red-600';
+            badgeColor = 'border-red-600';
+        } else {
+            voters = abstainVoters;
+            title = 'Abstain Manifestations';
+            icon = 'fa-minus-circle';
+            iconColor = 'text-yellow-600';
+            badgeColor = 'border-yellow-600';
         }
         
         modalTitle.innerHTML = `<i class="fas ${icon} ${iconColor} mr-2"></i>${title} (${voters.length})`;
@@ -613,17 +635,17 @@
             modalContent.innerHTML = `
                 <div class="text-center py-8">
                     <i class="fas ${icon} ${iconColor} text-4xl mb-3"></i>
-                    <p class="text-gray-500">No ${type} votes yet.</p>
+                    <p class="text-gray-500">No ${type} manifestations yet.</p>
                 </div>
             `;
         } else {
             let html = '<div class="space-y-2">';
             voters.forEach((voter, index) => {
-                const profilePic = voter.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(voter.name)}&size=64&background=${type === 'accept' ? '10B981' : 'EF4444'}&color=fff`;
+                const profilePic = voter.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(voter.name)}&size=64&background=${type === 'accept' ? '10B981' : (type === 'decline' ? 'EF4444' : 'FACC15')}&color=fff`;
                 html += `
                     <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         <div class="flex items-center space-x-3">
-                            <img src="${profilePic}" alt="${voter.name}" class="w-10 h-10 rounded-full object-cover border-2 ${type === 'accept' ? 'border-green-600' : 'border-red-600'}">
+                            <img src="${profilePic}" alt="${voter.name}" class="w-10 h-10 rounded-full object-cover border-2 ${badgeColor}">
                             <div>
                                 <p class="font-medium text-gray-800">${voter.name}</p>
                                 <p class="text-sm text-gray-500">${voter.email}</p>

@@ -797,54 +797,30 @@
                                 </div>
                             @endif
                             
-                            <!-- Vote Breakdown -->
-                            @if($totalVotes > 0)
-                                <div class="fb-vote-breakdown">
-                                    <div class="fb-vote-breakdown-header">
-                                        <div class="fb-vote-stat fb-vote-stat-accept">
-                                            <i class="fas fa-check-circle fb-vote-stat-icon"></i>
-                                            <span>Accept: {{ $acceptCount }}</span>
-                                        </div>
-                                        <div class="fb-vote-stat fb-vote-stat-decline">
-                                            <i class="fas fa-times-circle fb-vote-stat-icon"></i>
-                                            <span>Decline: {{ $declineCount }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="fb-vote-bar">
-                                        @php
-                                            $acceptPercent = $totalVotes > 0 ? ($acceptCount / $totalVotes) * 100 : 0;
-                                        @endphp
-                                        <div class="fb-vote-bar-fill" style="width: {{ $acceptPercent }}%"></div>
-                                    </div>
-                                </div>
-                            @endif
-
                             @if($userVote)
+                                @php
+                                    $voteLabel = $userVote->vote === 'accept'
+                                        ? 'Agree'
+                                        : ($userVote->vote === 'decline' ? 'Disagree' : 'Abstain');
+                                @endphp
                                 <div class="mt-2 text-xs text-blue-700 dark:text-blue-300 px-4">
-                                    You voted:
-                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                        {{ ucfirst($userVote->vote) }}
+                                    You manifested:
+                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : ($userVote->vote === 'decline' ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400') }}">
+                                        {{ $voteLabel }}
                                     </span>
                                     <span class="text-blue-700/80 dark:text-blue-300/80">
-                                        • You can change this vote while the referendum is active.
+                                        • You can change this while the referendum is active.
                                     </span>
                                 </div>
                             @elseif(!$isExpired)
                                 <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 px-4">
-                                    You have not voted on this referendum yet.
+                                    You have not submitted a manifestation for this referendum yet.
                                 </div>
                             @endif
                             
-                            <!-- Post Stats -->
+                            <!-- Post Stats (comments only for end-users) -->
                             <div class="fb-post-stats">
-                                <div class="fb-post-stats-left">
-                                    @if($totalVotes > 0)
-                                        <span class="text-[#1877f2] dark:text-[#4599ff]">
-                                            <i class="fas fa-thumbs-up"></i>
-                                            {{ $totalVotes }}
-                                        </span>
-                                    @endif
-                                </div>
+                                <div class="fb-post-stats-left"></div>
                                 <div class="fb-post-stats-right">
                                     @if($totalComments > 0)
                                         <a href="{{ route('referendums.show', $referendum->id) }}#comments" class="fb-post-stats-link">

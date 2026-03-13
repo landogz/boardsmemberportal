@@ -213,7 +213,7 @@ class NoticeController extends Controller
                 Notification::create([
                     'user_id' => $user->id,
                     'type' => 'notice',
-                    'title' => 'New Notice',
+                    'title' => 'Notice of ' . $notice->title,
                     'message' => 'A new notice "' . $notice->title . '" has been created and is now available for your review.',
                     'url' => $noticeUrl,
                     'data' => [

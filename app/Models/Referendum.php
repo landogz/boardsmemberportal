@@ -58,6 +58,14 @@ class Referendum extends Model
     }
 
     /**
+     * Get abstain votes
+     */
+    public function abstainVotes()
+    {
+        return $this->votes()->where('vote', 'abstain');
+    }
+
+    /**
      * Get all comments for this referendum
      */
     public function comments()

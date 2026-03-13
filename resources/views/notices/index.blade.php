@@ -644,7 +644,7 @@
                                 @php
                                     $isMeetingDone = $notice->meeting_date && \Carbon\Carbon::parse($notice->meeting_date)->isPast();
                                 @endphp
-                                @if(!$isMeetingDone && !isset($agendaRequests[$notice->id]) && ($notice->status ?? null) !== 'postponed')
+                                @if(!$isMeetingDone && ($notice->status ?? null) !== 'postponed')
                                     <button class="btn-action btn-agenda" onclick="event.stopPropagation(); requestAgendaInclusion({{ $notice->id }});">
                                         <i class="fas fa-plus"></i>
                                         <span>Request Agenda Inclusion</span>

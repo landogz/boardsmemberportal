@@ -689,7 +689,7 @@
                                 <div class="bg-gradient-to-br from-white to-gray-50 dark:from-[#1e293b] dark:to-[#0f172a] rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-lg">
                                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                                         <i class="fas fa-vote-yea mr-2 text-[#055498]"></i>
-                                        Cast Your Vote
+                                        Submit Manifestation
                                     </h3>
                                     @if($userVote)
                                         <div class="mb-4 px-4 py-3 rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100/70 dark:from-blue-900/40 dark:to-blue-900/10 flex items-start gap-3">
@@ -698,15 +698,20 @@
                                             </div>
                                             <div class="flex-1">
                                                 <p class="text-base font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-                                                    Your current vote
+                                                    Your current manifestation
                                                 </p>
                                                 <p class="text-lg text-blue-900 dark:text-blue-100">
-                                                    You voted:
-                                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                                        {{ ucfirst($userVote->vote) }}
+                                                    You manifested:
+                                                    @php
+                                                        $voteLabel = $userVote->vote === 'accept'
+                                                            ? 'Agree'
+                                                            : ($userVote->vote === 'decline' ? 'Disagree' : 'Abstain');
+                                                    @endphp
+                                                    <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : ($userVote->vote === 'decline' ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400') }}">
+                                                        {{ $voteLabel }}
                                                     </span>
                                                     <span class="text-blue-900/80 dark:text-blue-200/80">
-                                                        • You can change this while the referendum is active.
+                                                        • You can change this while the ad referendum is active.
                                                     </span>
                                                 </p>
                                             </div>
@@ -720,7 +725,7 @@
                                             class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500 disabled:hover:from-gray-400 disabled:hover:to-gray-500"
                                         >
                                             <i class="fas fa-check-circle mr-2"></i>
-                                            Accept
+                                            Agree
                                         </button>
                                         <button 
                                             type="button" 
@@ -729,37 +734,48 @@
                                             class="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500 disabled:hover:from-gray-400 disabled:hover:to-gray-500"
                                         >
                                             <i class="fas fa-times-circle mr-2"></i>
-                                            Decline
+                                            Disagree
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            id="voteAbstainBtn"
+                                            @if($userVote && $userVote->vote === 'abstain') disabled @endif
+                                            class="w-full px-4 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500 disabled:hover:from-gray-400 disabled:hover:to-gray-500"
+                                        >
+                                            <i class="fas fa-minus-circle mr-2"></i>
+                                            Abstain
                                         </button>
                                     </div>
 
-                                    <!-- Vote Statistics - Gen Z Design -->
-                                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Total Votes</span>
-                                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
-                                        </div>
-                                        <div class="flex gap-3 mb-4">
-                                            <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-accept" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%); color: #10B981; border: 2px solid rgba(16, 185, 129, 0.2);">
-                                                <i class="fas fa-check-circle text-base"></i>
-                                                <span>Accept: {{ $acceptCount }}</span>
-                                                </div>
-                                            <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-decline" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%); color: #EF4444; border: 2px solid rgba(239, 68, 68, 0.2);">
-                                                <i class="fas fa-times-circle text-base"></i>
-                                                <span>Decline: {{ $declineCount }}</span>
+                                    <!-- Vote Statistics hidden for end-users; visible only on CONSEC/admin side -->
+                                    @if(auth()->user()->privilege === 'consec' || auth()->user()->privilege === 'admin')
+                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Total Votes</span>
+                                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
                                             </div>
-                                        </div>
-                                        @if($totalVotes > 0)
-                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner" style="box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);">
-                                                @php
-                                                    $acceptPercent = ($acceptCount / $totalVotes) * 100;
-                                                @endphp
-                                                <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 h-full rounded-full transition-all duration-500 relative overflow-hidden" style="width: {{ $acceptPercent }}%; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
-                                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                            <div class="flex gap-3 mb-4">
+                                                <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-accept" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%); color: #10B981; border: 2px solid rgba(16, 185, 129, 0.2);">
+                                                    <i class="fas fa-check-circle text-base"></i>
+                                                    <span>Accept: {{ $acceptCount }}</span>
+                                                </div>
+                                                <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-decline" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%); color: #EF4444; border: 2px solid rgba(239, 68, 68, 0.2);">
+                                                    <i class="fas fa-times-circle text-base"></i>
+                                                    <span>Decline: {{ $declineCount }}</span>
                                                 </div>
                                             </div>
-                                        @endif
-                                    </div>
+                                            @if($totalVotes > 0)
+                                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner" style="box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                                    @php
+                                                        $acceptPercent = ($acceptCount / $totalVotes) * 100;
+                                                    @endphp
+                                                    <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 h-full rounded-full transition-all duration-500 relative overflow-hidden" style="width: {{ $acceptPercent }}%; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             @else
                                 <div class="bg-gradient-to-br from-white to-gray-50 dark:from-[#1e293b] dark:to-[#0f172a] rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-lg">
@@ -770,33 +786,35 @@
                                     <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
                                         This referendum has ended. Voting is no longer available.
                                     </p>
-                                    <!-- Final Vote Statistics - Gen Z Design -->
-                                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Final Results</span>
-                                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
-                                        </div>
-                                        <div class="flex gap-3 mb-4">
-                                            <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-accept" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%); color: #10B981; border: 2px solid rgba(16, 185, 129, 0.2);">
-                                                <i class="fas fa-check-circle text-base"></i>
-                                                <span>Accept: {{ $acceptCount }}</span>
-                                                </div>
-                                            <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-decline" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%); color: #EF4444; border: 2px solid rgba(239, 68, 68, 0.2);">
-                                                <i class="fas fa-times-circle text-base"></i>
-                                                <span>Decline: {{ $declineCount }}</span>
+                                    <!-- Final Vote Statistics - visible only on CONSEC/admin side -->
+                                    @if(auth()->user()->privilege === 'consec' || auth()->user()->privilege === 'admin')
+                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Final Results</span>
+                                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
                                             </div>
-                                        </div>
-                                        @if($totalVotes > 0)
-                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner" style="box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);">
-                                                @php
-                                                    $acceptPercent = ($acceptCount / $totalVotes) * 100;
-                                                @endphp
-                                                <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 h-full rounded-full transition-all duration-500 relative overflow-hidden" style="width: {{ $acceptPercent }}%; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
-                                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                            <div class="flex gap-3 mb-4">
+                                                <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-accept" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%); color: #10B981; border: 2px solid rgba(16, 185, 129, 0.2);">
+                                                    <i class="fas fa-check-circle text-base"></i>
+                                                    <span>Accept: {{ $acceptCount }}</span>
+                                                </div>
+                                                <div class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all vote-stat-decline" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%); color: #EF4444; border: 2px solid rgba(239, 68, 68, 0.2);">
+                                                    <i class="fas fa-times-circle text-base"></i>
+                                                    <span>Decline: {{ $declineCount }}</span>
                                                 </div>
                                             </div>
-                                        @endif
-                                    </div>
+                                            @if($totalVotes > 0)
+                                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner" style="box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                                    @php
+                                                        $acceptPercent = ($acceptCount / $totalVotes) * 100;
+                                                    @endphp
+                                                    <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 h-full rounded-full transition-all duration-500 relative overflow-hidden" style="width: {{ $acceptPercent }}%; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
 
@@ -1274,29 +1292,37 @@
             }, 100);
         });
 
-        // Voting functionality (allow changing vote before expiry)
-        $('#voteAcceptBtn, #voteDeclineBtn').on('click', async function() {
+        // Voting functionality (allow changing manifestation before expiry)
+        $('#voteAcceptBtn, #voteDeclineBtn, #voteAbstainBtn').on('click', async function() {
             if (isExpired) {
                 return;
             }
 
-            const vote = $(this).attr('id') === 'voteAcceptBtn' ? 'accept' : 'decline';
-            const voteText = vote === 'accept' ? 'Accept' : 'Decline';
+            let vote;
+            const id = $(this).attr('id');
+            if (id === 'voteAcceptBtn') {
+                vote = 'accept';
+            } else if (id === 'voteDeclineBtn') {
+                vote = 'decline';
+            } else {
+                vote = 'abstain';
+            }
+            const voteText = vote === 'accept' ? 'Agree' : (vote === 'decline' ? 'Disagree' : 'Abstain');
 
             const alreadyVoted = hasVoted;
             const questionText = alreadyVoted
-                ? `Are you sure you want to change your vote to "${voteText}"?`
-                : `Are you sure you want to vote "${voteText}"?`;
+                ? 'Are you sure you want to change your manifestation?'
+                : `Are you sure you want to submit "${voteText}" as your manifestation?`;
             const confirmText = alreadyVoted
                 ? `Yes, change to ${voteText}`
-                : `Yes, vote ${voteText}`;
+                : `Yes, submit ${voteText}`;
 
             const result = await Swal.fire({
-                title: 'Confirm Your Vote',
+                title: 'Confirm Your Manifestation',
                 text: questionText,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: vote === 'accept' ? '#10B981' : '#EF4444',
+                confirmButtonColor: vote === 'accept' ? '#10B981' : (vote === 'decline' ? '#EF4444' : '#FACC15'),
                 cancelButtonColor: '#6B7280',
                 confirmButtonText: confirmText,
                 cancelButtonText: 'Cancel'
@@ -1313,7 +1339,7 @@
 
                         Toast.fire({
                             icon: 'success',
-                            title: 'Vote saved successfully!'
+                            title: 'Your manifestation has been duly recorded.'
                         });
                         
                         // Reload page to show updated vote status and banner

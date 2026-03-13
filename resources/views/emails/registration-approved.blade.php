@@ -174,7 +174,7 @@
                             </div>
                             
                             <div class="button-container">
-                                <a href="{{ $loginUrl }}" class="button" style="background-color: #10B981; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #ffffff !important; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px; display: inline-block;">Sign In Now</a>
+                                <a href="{{ $loginUrl }}" class="button" style="background-color: #10B981; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #ffffff !important; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px; display: inline-block;">Sign in to view</a>
                             </div>
                             
                             <div class="divider"></div>
