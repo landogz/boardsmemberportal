@@ -1,9 +1,9 @@
 @extends('admin.layout')
 
-@section('title', 'Attendance Confirmations')
+@section('title', 'Monitor attendance confirmation')
 
 @php
-    $pageTitle = 'Attendance Confirmations';
+    $pageTitle = 'Monitor attendance confirmation';
     $hideDefaultActions = false;
 @endphp
 
@@ -73,7 +73,7 @@
 @section('content')
 <div class="p-4 sm:p-6">
     <div class="mb-4 sm:mb-6">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Attendance Confirmations</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Monitor attendance confirmation</h2>
         <p class="text-sm sm:text-base text-gray-600 mt-1">View attendance confirmations and agenda requests for all notices</p>
         @if(isset($noticeId) && $noticeId)
             @php
