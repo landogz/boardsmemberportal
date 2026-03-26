@@ -257,7 +257,7 @@
 
                     <!-- Birth Date -->
                     <div>
-                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date (18 yrs+) *</label>
+                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date *</label>
                         <input type="date" id="birth_date" name="birth_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                         <span class="text-red-500 text-sm hidden" id="birth_date-error"></span>
                     </div>

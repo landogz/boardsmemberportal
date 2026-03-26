@@ -52,7 +52,9 @@ class ContactFormMail extends Mailable
                 'name' => $this->name,
                 'email' => $this->email,
                 'subject' => $this->subject,
-                'message' => $this->message,
+                // Avoid using `$message` because Blade/Laravel mailables use `$message` as the underlying
+                // Illuminate\Mail\Message instance; using it here breaks rendering for this mailable.
+                'contactMessage' => $this->message,
             ],
         );
     }

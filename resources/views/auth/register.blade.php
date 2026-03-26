@@ -641,7 +641,7 @@
 
                         <!-- Birth Date (Age verification: 18+) -->
                         <div class="form-field">
-                            <label for="birth_date" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Birth Date (18 yrs+) *</label>
+                            <label for="birth_date" class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">Birth Date *</label>
                             <input 
                                 type="date" 
                                 id="birth_date" 

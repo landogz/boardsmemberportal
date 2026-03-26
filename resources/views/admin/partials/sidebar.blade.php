@@ -41,12 +41,12 @@
                     </li>
                     @if(Auth::user()->can('view users') || Auth::user()->privilege === 'consec')
                     <li>
-                        <a href="#" class="menu-toggle flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
+                        <a href="#" class="menu-toggle flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.admin-accounts.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.admin-accounts.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'background-color: #055498;' : '' }}">
                             <i class="fas fa-users w-5" style="color: #FBD116;"></i>
                             <span class="ml-3 flex-1">User Management</span>
-                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'rotate-180' : '' }}"></i>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.admin-accounts.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? 'rotate-180' : '' }}"></i>
                         </a>
-                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
+                        <ul class="mt-2 ml-4 space-y-1 pl-4 {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.consec.*') || request()->routeIs('admin.admin-accounts.*') || request()->routeIs('admin.board-members.*') || request()->routeIs('admin.pending-registrations.*') ? '' : 'hidden' }}" style="border-left: 2px solid #055498;">
                             @can('view board members')
                             <li>
                                 <a href="{{ route('admin.board-members.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.board-members.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.board-members.*') ? 'background-color: #055498;' : '' }}">
@@ -73,6 +73,14 @@
                             </li>
                             @endif
                             @endcan
+                            @if(Auth::user()->privilege === 'admin')
+                            <li>
+                                <a href="{{ route('admin.admin-accounts.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.admin-accounts.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.admin-accounts.*') ? 'background-color: #055498;' : '' }}">
+                                    <i class="fas fa-user-shield w-4 transition-colors" style="color: #FBD116;"></i>
+                                    <span class="ml-3">Admin Accounts</span>
+                                </a>
+                            </li>
+                            @endif
                             @can('view roles')
                             <li>
                                 <a href="{{ route('admin.roles.index') }}" class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200 group {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}" style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'background-color: #055498;' : '' }}">

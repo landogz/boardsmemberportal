@@ -164,7 +164,7 @@
                             
                             <div class="message-box">
                                 <div class="info-label" style="margin-bottom: 12px;">Message</div>
-                                <div class="message-text">{{ $message }}</div>
+                                <div class="message-text">{{ $contactMessage }}</div>
                             </div>
                             
                             <div class="divider"></div>

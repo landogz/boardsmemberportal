@@ -1041,7 +1041,6 @@
         <div class="container mx-auto px-4 sm:px-6">
             <div class="max-w-5xl mx-auto">
                 <header class="text-center mb-12 sm:mb-16">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#055498] dark:text-[#5b9bd5] mb-3">About the Board</p>
                     <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight px-2">Composition of the Board</h2>
                     <div class="mt-4 h-0.5 w-16 mx-auto rounded-full bg-[#055498]/30 dark:bg-[#5b9bd5]/40" aria-hidden="true"></div>
                 </header>

@@ -240,6 +240,17 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/permissions', [\App\Http\Controllers\Admin\CONSECController::class, 'updatePermissions'])->name('update-permissions');
     });
 
+    // Admin Account Management (admin only)
+    Route::prefix('admin/admin-accounts')->name('admin.admin-accounts.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AdminAccountController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\AdminAccountController::class, 'create'])->name('create');
+        Route::post('/store', [\App\Http\Controllers\Admin\AdminAccountController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\AdminAccountController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\AdminAccountController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\AdminAccountController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/toggle-status', [\App\Http\Controllers\Admin\AdminAccountController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
     // Board Member Management (admin)
     Route::prefix('admin/board-members')->name('admin.board-members.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\BoardMemberController::class, 'index'])->name('index');
