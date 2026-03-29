@@ -465,7 +465,7 @@
                 max-height: 300px !important;
             }
         }
-        .conversations-list {
+            .conversations-list {
             flex: 1 1 0 !important;
             min-height: 0 !important;
             overflow-y: auto !important;
@@ -705,27 +705,27 @@
             }
             /* Legacy support for older structure – keep minimal so bar doesn’t cover screen */
             @media (max-width: 640px) {
-                #activeChat:not(.hidden) > div:last-child {
-                    display: block !important;
-                    visibility: visible !important;
-                    position: fixed !important;
-                    bottom: 0 !important;
-                    left: 0 !important;
-                    right: 0 !important;
-                    background: white !important;
-                    z-index: 50 !important;
-                    border-top: 1px solid #e5e7eb !important;
+            #activeChat:not(.hidden) > div:last-child {
+                display: block !important;
+                visibility: visible !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: white !important;
+                z-index: 50 !important;
+                border-top: 1px solid #e5e7eb !important;
                     padding: 2px 6px 4px !important;
                     padding-top: 2px !important;
                     box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05) !important;
-                    margin: 0 !important;
-                }
-                .dark #activeChat:not(.hidden) > div:last-child {
-                    background: #1f2937 !important;
-                    border-top-color: #374151 !important;
-                }
-                @supports (padding-bottom: env(safe-area-inset-bottom)) {
-                    #activeChat:not(.hidden) > div:last-child {
+                margin: 0 !important;
+            }
+            .dark #activeChat:not(.hidden) > div:last-child {
+                background: #1f2937 !important;
+                border-top-color: #374151 !important;
+            }
+            @supports (padding-bottom: env(safe-area-inset-bottom)) {
+                #activeChat:not(.hidden) > div:last-child {
                         padding-bottom: calc(4px + env(safe-area-inset-bottom)) !important;
                     }
                 }
@@ -1181,7 +1181,7 @@
                     <div id="activeChat" class="flex flex-col h-full hidden" style="position: relative; display: flex; flex-direction: column;">
                         <!-- Chat Header (sticky on mobile so it stays on top when scrolling) -->
                         <div class="sticky top-0 z-20 flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                                     <!-- Back button for mobile / tablet / small laptop -->
                                     <button id="backToConversations" class="xl:hidden mr-2 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0" aria-label="Back to conversations">
@@ -1189,7 +1189,7 @@
                                     </button>
                                     <div id="chatHeaderAvatar" class="relative flex-shrink-0">
                                         <!-- Avatar will be inserted here -->
-                    </div>
+                                    </div>
                                     <div class="flex-1 min-w-0">
                                         <h3 id="chatHeaderName" class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate leading-tight"></h3>
                                         <div id="chatHeaderStatus" class="flex items-center gap-1.5 mt-0.5">
@@ -1210,10 +1210,10 @@
                                     <!-- Group settings button (only for group admins) -->
                                     <button id="groupSettingsBtn" class="hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0" aria-label="Group settings">
                                         <i class="fas fa-cog text-lg"></i>
-                                    </button>
+                    </button>
                                 </div>
-                </div>
-            </div>
+                            </div>
+                        </div>
 
                         <!-- Messages Area -->
                         <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 space-y-4 bg-gray-50 dark:bg-gray-900/30 chat-messages-area" id="chatMessagesArea" style="flex: 1 1 auto; min-height: 0;">
@@ -1307,7 +1307,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-                    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <input type="text" id="userSearchInput" placeholder="Search users..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
                     </div>
             <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
@@ -2296,23 +2296,23 @@
                         }, 10);
                     } else {
                         // Desktop/Laptop: Position relative to button (original behavior)
-                        const buttonRect = emojiBtn.getBoundingClientRect();
+                    const buttonRect = emojiBtn.getBoundingClientRect();
                         pickerWidth = Math.min(320, window.innerWidth - 16);
                         pickerHeight = Math.min(300, window.innerHeight - 16);
                         
                         // Ensure picker has correct dimensions
                         emojiPicker.style.width = `${pickerWidth}px`;
                         emojiPicker.style.height = `${pickerHeight}px`;
-                        
-                        // Position above the button, aligned to the right
+                    
+                    // Position above the button, aligned to the right
                         top = buttonRect.top - pickerHeight - 8; // 8px gap above button
                         left = buttonRect.right - pickerWidth; // Align right edge with button right edge
-                        
-                        // Adjust if picker goes off screen
-                        if (top < 8) {
-                            // If not enough space above, show below
-                            top = buttonRect.bottom + 8;
-                        }
+                    
+                    // Adjust if picker goes off screen
+                    if (top < 8) {
+                        // If not enough space above, show below
+                        top = buttonRect.bottom + 8;
+                    }
                     }
                     
                     // Ensure picker stays within viewport bounds (for all screen sizes)
@@ -2500,7 +2500,7 @@
                     }
                     
                     // Show header again when going back to conversations
-                    document.body.classList.remove('header-hidden-mobile');
+                        document.body.classList.remove('header-hidden-mobile');
                     
                     currentChatUserId = null;
                 });
@@ -2553,7 +2553,7 @@
                             if (window.innerWidth <= 767 || (window.innerWidth <= 896 && window.innerWidth > window.innerHeight)) {
                                 document.body.classList.remove('header-hidden-mobile');
                             }
-                            currentChatUserId = null;
+                    currentChatUserId = null;
                             Swal.fire({ title: 'Removed', text: 'Conversation removed from your list.', icon: 'success', timer: 2000, showConfirmButton: false });
                         } else {
                             Swal.fire({ title: 'Error', text: (res.data && res.data.message) || 'Could not remove conversation.', icon: 'error' });
@@ -3051,7 +3051,7 @@
                 const groupId = currentChatUserId.replace('group_', '');
                 formData.append('group_id', groupId);
             } else {
-                formData.append('receiver_id', currentChatUserId);
+            formData.append('receiver_id', currentChatUserId);
             }
             formData.append('voice_duration', duration);
             formData.append('attachments[0]', voiceFile);
@@ -3516,7 +3516,7 @@
                 })
                 .catch(error => {
                     console.error('Error updating unread counts:', error);
-                });
+            });
         }
 
         function renderConversations(conversations) {
@@ -3591,7 +3591,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-1 gap-2">
                                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
-                                        <p class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white truncate">${fullName}</p>
+                                    <p class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white truncate">${fullName}</p>
                                         ${isGroup ? '<i class="fas fa-users text-xs text-gray-400 dark:text-gray-500 flex-shrink-0"></i>' : ''}
                                     </div>
                                     ${unreadCount > 0 ? `<span class="flex-shrink-0 px-2 py-0.5 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[20px] text-center shadow-sm">${unreadCount}</span>` : ''}
@@ -4028,7 +4028,7 @@
                 if (isGroup) {
                     chatHeaderStatusText.textContent = 'Group chat';
                 } else {
-                    chatHeaderStatusText.textContent = isOnline ? 'Active now' : 'Offline';
+                chatHeaderStatusText.textContent = isOnline ? 'Active now' : 'Offline';
                 }
             }
             
@@ -4170,26 +4170,26 @@
                     if (response.data.success) {
                         // Check if data is encrypted and decrypt it
                         let processMessages = (messages) => {
-                            messagesArea.innerHTML = '';
-                            lastMessageTimestamp = null;
-                            lastSentMessageId = null; // Reset last sent message ID
+                        messagesArea.innerHTML = '';
+                        lastMessageTimestamp = null;
+                        lastSentMessageId = null; // Reset last sent message ID
                             if (messages && messages.length > 0) {
-                                let previousMsg = null;
+                            let previousMsg = null;
                                 messages.forEach(msg => {
-                                    appendMessageToPage(msg, userId, previousMsg);
-                                    previousMsg = msg;
-                                    if (!lastMessageTimestamp || msg.created_at > lastMessageTimestamp) {
-                                        lastMessageTimestamp = msg.created_at;
-                                    }
-                                });
-                                
-                                // Find the last sent message after all messages are loaded
-                                const sentMessages = messages.filter(m => m.is_sender);
-                                if (sentMessages.length > 0) {
-                                    // Sort by created_at descending and get the first one
-                                    sentMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                                    lastSentMessageId = sentMessages[0].id;
+                                appendMessageToPage(msg, userId, previousMsg);
+                                previousMsg = msg;
+                                if (!lastMessageTimestamp || msg.created_at > lastMessageTimestamp) {
+                                    lastMessageTimestamp = msg.created_at;
                                 }
+                            });
+                            
+                            // Find the last sent message after all messages are loaded
+                                const sentMessages = messages.filter(m => m.is_sender);
+                            if (sentMessages.length > 0) {
+                                // Sort by created_at descending and get the first one
+                                sentMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                                lastSentMessageId = sentMessages[0].id;
+                            }
                             }
                             
                             // Capture search term before it could be cleared
@@ -4198,7 +4198,7 @@
 
                             // Highlight search matches AFTER themes are applied (themes fire at ~500ms)
                             if (pendingSearchTerm && pendingSearchTerm.length >= 2) {
-                                setTimeout(() => {
+                            setTimeout(() => {
                                     highlightAndScrollToSearch(messagesArea, pendingSearchTerm);
                                 }, 800);
                             }
@@ -4218,7 +4218,7 @@
                                     setTimeout(() => {
                                         // Only mark as read if this is still the active chat
                                         if (currentChatUserId === userId) {
-                                            axios.post(`{{ route('messages.mark-as-read', ':userId') }}`.replace(':userId', userId))
+                            axios.post(`{{ route('messages.mark-as-read', ':userId') }}`.replace(':userId', userId))
                                                 .then((response) => {
                                                     
                                                     // Update unread count immediately for this conversation
@@ -4276,7 +4276,7 @@
                             .then(decryptResponse => {
                                 if (decryptResponse.data.success) {
                                     processMessages(decryptResponse.data.messages || []);
-                                } else {
+                        } else {
                                     console.error('Decryption failed:', decryptResponse.data.message);
                                     messagesArea.innerHTML = '<div class="p-4 text-center text-red-500">Failed to decrypt messages. Please refresh the page.</div>';
                                     return;
@@ -4391,8 +4391,8 @@
                     // Timestamps don't match, remove temp separator and let normal logic decide
                     tempSeparator.remove();
                     if (shouldAddTimestampSeparator(msg, previousMsg, messagesArea)) {
-                        const separator = createTimestampSeparator(msg.created_at);
-                        messagesArea.appendChild(separator);
+                const separator = createTimestampSeparator(msg.created_at);
+                messagesArea.appendChild(separator);
                     }
                 }
             } else {
@@ -4464,7 +4464,7 @@
                     // Check if it's a video file (but exclude voice messages)
                     // Prioritize video detection for actual video files
                     const isVideo = !isVoiceMessage && (
-                        (attachment.type && attachment.type.startsWith('video/')) || 
+                                   (attachment.type && attachment.type.startsWith('video/')) || 
                         (attachment.name && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)$/i.test(attachment.name)) ||
                         (attachment.url && /\.(mp4|webm|mov|avi|wmv|flv|mkv|3gp|m4v)(\?|$|#)/i.test(attachment.url))
                     );
@@ -4474,7 +4474,7 @@
                         (attachment.type && attachment.type.startsWith('audio/')) ||
                         (attachment.name && /\.(mp3|wav|ogg|m4a|aac)$/i.test(attachment.name)) ||
                         (attachment.url && /\.(mp3|wav|ogg|m4a|aac)(\?|$|#)/i.test(attachment.url))
-                    );
+                                   );
                     
                     if (isVideo) {
                         if (!attachment.url) return;
@@ -4795,7 +4795,7 @@
             if (isSender) {
                 const senderAvatarContent = showSenderAvatar
                     ? (currentUserProfilePicture 
-                        ? `<img src="${currentUserProfilePicture}" alt="You" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 flex-shrink-0">`
+                    ? `<img src="${currentUserProfilePicture}" alt="You" class="w-6 h-6 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 flex-shrink-0">`
                         : `<div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">${currentUserInitials}</div>`)
                     : `<div class="w-6 h-6 flex-shrink-0" aria-hidden="true"></div>`; // Spacer so layout stays aligned
                 const senderAvatar = senderAvatarContent;
@@ -5600,10 +5600,10 @@
                         }
                         
                         // Scroll to bottom
-                        setTimeout(() => {
-                            if (messagesArea && !isScrollingToParent) {
-                                messagesArea.scrollTop = messagesArea.scrollHeight;
-                            }
+                    setTimeout(() => {
+                        if (messagesArea && !isScrollingToParent) {
+                            messagesArea.scrollTop = messagesArea.scrollHeight;
+                        }
                         }, 100);
                     }
                     
@@ -5664,13 +5664,13 @@
                 }
                 
                 if (window.Swal) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
                         text: errorMessage,
                         timer: 5000,
                         showConfirmButton: true
-                    });
+                });
                 }
             });
         }
@@ -5709,27 +5709,27 @@
                             // Check if message already exists to avoid duplicates
                             const existingMessage = messagesArea.querySelector(`[data-message-id="${msg.id}"]`);
                             if (!existingMessage) {
-                                appendMessageToPage(msg, userId, previousMsg);
-                                previousMsg = msg;
+                            appendMessageToPage(msg, userId, previousMsg);
+                            previousMsg = msg;
                                 hasNewMessages = true;
                                 
-                                if (msg.created_at > lastMessageTimestamp) {
-                                    lastMessageTimestamp = msg.created_at;
-                                }
-                                // Update last sent message ID if this is a sent message
-                                if (msg.is_sender) {
-                                    if (!lastSentMessageId) {
+                            if (msg.created_at > lastMessageTimestamp) {
+                                lastMessageTimestamp = msg.created_at;
+                            }
+                            // Update last sent message ID if this is a sent message
+                            if (msg.is_sender) {
+                                if (!lastSentMessageId) {
+                                    lastSentMessageId = msg.id;
+                                } else {
+                                    // Compare timestamps to find the most recent
+                                    const currentLastMsg = response.data.messages.find(m => m.id == lastSentMessageId);
+                                    if (currentLastMsg && new Date(msg.created_at) > new Date(currentLastMsg.created_at)) {
                                         lastSentMessageId = msg.id;
-                                    } else {
-                                        // Compare timestamps to find the most recent
-                                        const currentLastMsg = response.data.messages.find(m => m.id == lastSentMessageId);
-                                        if (currentLastMsg && new Date(msg.created_at) > new Date(currentLastMsg.created_at)) {
-                                            lastSentMessageId = msg.id;
-                                        } else if (!currentLastMsg) {
-                                            // If current last message not found, use this one
-                                            lastSentMessageId = msg.id;
-                                        }
+                                    } else if (!currentLastMsg) {
+                                        // If current last message not found, use this one
+                                        lastSentMessageId = msg.id;
                                     }
+                                }
                                 }
                             } else {
                                 // Message already exists, update previousMsg for next iteration
@@ -5787,7 +5787,7 @@
 
         // Global selected users array for user selection modal
         let selectedUsers = [];
-        
+
         function renderUsersForSelection(users) {
             const container = document.getElementById('usersListContainer');
             
@@ -5882,13 +5882,13 @@
                         
                         html += `
                             <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer user-item border-b border-gray-100 dark:border-gray-700" data-user-id="${user.id}" data-user-name="${fullName}" data-user-data='${userDataJson.replace(/'/g, "&#39;")}'>
-                            <div class="flex items-center space-x-3">
+                                <div class="flex items-center space-x-3">
                                     <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" data-user-id="${user.id}" data-user-name="${fullName}" data-user-data='${userDataJson.replace(/'/g, "&#39;")}'>
                                     <div class="relative flex-shrink-0">
                                         ${avatarHtml}
                                         <div class="absolute bottom-0 right-0 w-3 h-3 ${indicatorColor} rounded-full border-2 border-white dark:border-gray-800"></div>
-                                </div>
-                                <div class="flex-1 min-w-0">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
                                         <p class="text-sm font-medium text-gray-800 dark:text-white truncate">${fullName}</p>
                                         ${user.position ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate">${user.position}</p>` : ''}
                                     </div>
@@ -6039,8 +6039,8 @@
                         checkbox.dispatchEvent(new Event('change'));
                     } else {
                         // Fallback: single user selection (old behavior)
-                        const userId = this.getAttribute('data-user-id');
-                        const userName = this.getAttribute('data-user-name');
+                    const userId = this.getAttribute('data-user-id');
+                    const userName = this.getAttribute('data-user-name');
                         const userDataJson = this.getAttribute('data-user-data');
                         
                         let userData = null;
@@ -6060,7 +6060,7 @@
                             agency: userData.agency
                         } : null;
                         
-                        document.getElementById('userSelectionModal').classList.add('hidden');
+                    document.getElementById('userSelectionModal').classList.add('hidden');
                         openChat(userId, userName, convData);
                     }
                 });
@@ -6152,11 +6152,11 @@
                             }
                             
                             if (matches) {
-                                item.style.display = '';
-                            } else {
-                                item.style.display = 'none';
-                            }
-                        });
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
                         
                         // Hide/show section headers based on visible users in their section
                         sectionHeaders.forEach(header => {
@@ -6367,7 +6367,7 @@
                             <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 flex-shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" aria-label="Remove file">
                                 <i class="fas fa-times"></i>
                             </button>
-                                </div>
+                        </div>
                     `;
                 }).join('');
                 
@@ -6684,8 +6684,8 @@
                 }
                 
                 // Apply positioning and make visible
-                picker.style.top = `${top}px`;
-                picker.style.left = `${left}px`;
+            picker.style.top = `${top}px`;
+            picker.style.left = `${left}px`;
                 picker.style.visibility = 'visible';
             });
             
@@ -6836,18 +6836,18 @@
                 } else {
                     // Fallback: append to end of container
                     messageContentContainer.insertAdjacentHTML('beforeend', reactionsDisplay);
-                }
-                
+            }
+            
                 // Re-attach click event listener
                 const newReactionsDiv = messageContentContainer.querySelector('.message-reactions[data-message-id="' + messageIdStr + '"]');
-                if (newReactionsDiv) {
+            if (newReactionsDiv) {
                     // Remove old listener if any by cloning
-                    const newReactionsDivClone = newReactionsDiv.cloneNode(true);
-                    newReactionsDiv.parentNode.replaceChild(newReactionsDivClone, newReactionsDiv);
-                    newReactionsDivClone.addEventListener('click', function(e) {
-                        e.stopPropagation();
+                const newReactionsDivClone = newReactionsDiv.cloneNode(true);
+                newReactionsDiv.parentNode.replaceChild(newReactionsDivClone, newReactionsDiv);
+                newReactionsDivClone.addEventListener('click', function(e) {
+                    e.stopPropagation();
                         showReactionsModal(messageIdStr, reactions || []);
-                    });
+                });
                 }
             }
         }
@@ -6877,7 +6877,7 @@
             axios.post(`{{ route('messages.reactions.batch') }}`, {
                 message_ids: messageIds
             })
-            .then(response => {
+                        .then(response => {
                 if (response.data && response.data.success && response.data.reactions) {
                     const reactionsData = response.data.reactions;
                     
@@ -6919,13 +6919,13 @@
                         const messageIdStr = String(requestedMessageId);
                         updateMessageReactions(messageIdStr, []);
                     });
-                }
-            })
-            .catch(error => {
-                // Silently fail - reactions might not exist for all messages
-                if (error.response && error.response.status !== 404) {
+                            }
+                        })
+                        .catch(error => {
+                            // Silently fail - reactions might not exist for all messages
+                            if (error.response && error.response.status !== 404) {
                     console.debug('Error fetching batch reactions:', error);
-                }
+                            }
             });
         }
         
@@ -7082,18 +7082,18 @@
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                         </svg>
-                                <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0">
                             <p class="text-xs text-gray-700 dark:text-gray-200 truncate">
                                 <span class="text-gray-500 dark:text-gray-400">You replied to </span>
                                 <span class="font-medium text-gray-800 dark:text-gray-100">${senderName}</span>
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">${escapeHtml(messageText.substring(0, 60))}${messageText.length > 60 ? '...' : ''}</p>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
                     <button id="cancelReplyBtn" class="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 flex-shrink-0">
                         <i class="fas fa-times"></i>
                     </button>
-                            </div>
+                </div>
             `;
             
             // Store current scroll position
@@ -7276,7 +7276,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
-                                </div>
+                    </div>
                     <div class="flex items-center gap-1 px-4 pt-3 border-b border-gray-200 reactions-tabs"></div>
                     <div class="flex-1 overflow-y-auto p-4 reactions-content">
                         <div class="flex items-center justify-center py-8">
@@ -7397,13 +7397,13 @@
                         <div class="flex items-center gap-3 flex-1 min-w-0">
                             <img src="${user.profile_picture_url}" alt="${user.name}" 
                                  class="w-10 h-10 rounded-full object-cover flex-shrink-0">
-                                <div class="flex-1 min-w-0">
+                            <div class="flex-1 min-w-0">
                                 <p class="text-gray-900 font-medium truncate">${escapeHtml(user.name)}</p>
                                 ${user.is_current_user ? '<p class="text-xs text-gray-500">Click to remove</p>' : ''}
-                                    </div>
-                                </div>
-                        <div class="text-2xl flex-shrink-0 ml-3">${user.reaction_emoji}</div>
                             </div>
+                        </div>
+                        <div class="text-2xl flex-shrink-0 ml-3">${user.reaction_emoji}</div>
+                    </div>
                 `;
             });
             contentHTML += '</div>';
@@ -8314,21 +8314,21 @@
                                 <p class="text-xs">Hey! How are you doing?</p>
                                 </div>
                             <div class="text-[10px] mt-1" style="color: ${theme.receiver_text}; opacity: 0.5;">10:30 AM</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Sent Message -->
+                        <!-- Sent Message -->
                     <div class="flex items-start space-x-2 justify-end">
-                        <div class="flex-1 flex justify-end">
+                            <div class="flex-1 flex justify-end">
                             <div class="rounded-lg p-2 max-w-[75%] shadow-sm" style="background: ${theme.sender_bubble}; color: ${theme.sender_text};">
                                 <p class="text-xs">I'm doing great, thanks!</p>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
                         <div class="flex-shrink-0">
                             <div class="w-6 h-6 rounded-full bg-gray-300"></div>
-            </div>
-        </div>
-    </div>
+                            </div>
+                            </div>
+                        </div>
 
                 <!-- Input Area Preview -->
                 <div class="border-t rounded-b-lg p-2" style="${theme.background_image ? `background-image: url(${theme.background_image}); background-size: cover; background-position: center; background-color: ${theme.background};` : `background: ${theme.background};`} border-color: ${theme.receiver_bubble};">
@@ -8338,12 +8338,12 @@
                         </button>
                         <div class="flex-1 rounded-lg border px-3 py-2" style="background: white; border-color: ${theme.receiver_bubble};">
                             <input type="text" placeholder="Type a message..." class="w-full text-xs outline-none" style="color: #1f2937;" disabled>
-                        </div>
+                            </div>
                         <button class="p-2 rounded-lg transition" style="background: ${theme.accent_color || '#3b82f6'}; color: #ffffff;">
                             <i class="fas fa-paper-plane text-sm"></i>
                         </button>
-                    </div>
-                </div>
+                                </div>
+                            </div>
             `;
             
             // Ensure preview section is visible
@@ -8847,7 +8847,7 @@
                 
                 // Remove link and reset flag after a short delay
                 setTimeout(() => {
-                    document.body.removeChild(link);
+                document.body.removeChild(link);
                     isDownloading = false;
                 }, 100);
             }
@@ -9458,9 +9458,9 @@
                                 <div class="absolute bottom-2 left-0 right-0 flex items-end justify-center gap-1.5 px-2">
                                     <div class="w-8 h-5 rounded-md shadow-sm border border-white/30" style="background: ${theme.receiver_bubble};"></div>
                                     <div class="w-10 h-6 rounded-md shadow-sm border border-white/30" style="background: ${theme.sender_bubble};"></div>
-                                </div>
-                            </div>
-                            
+                        </div>
+                    </div>
+
                             <!-- Theme Info -->
                             <div class="flex-1 p-4 flex flex-col justify-between">
                                 <div>
@@ -9673,9 +9673,9 @@
                             <button class="p-1.5 rounded-full hover:bg-gray-100 transition text-gray-600">
                                 <i class="fas fa-cog text-sm"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
+            </div>
                 
                 <!-- Messages Area Preview -->
                 <div class="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px] max-h-[250px]" style="${theme.background_image ? `background-image: url(${theme.background_image}); background-size: cover; background-position: center; background-color: ${theme.background};` : `background: ${theme.background};`}">
@@ -9690,9 +9690,9 @@
                                 <p class="text-xs">Hey! How are you doing?</p>
                             </div>
                             <div class="text-[10px] mt-1" style="color: ${receiverTextColor}; opacity: 0.5;">10:30 AM</div>
-                        </div>
-                    </div>
-                    
+        </div>
+    </div>
+
                     <!-- Sent Message -->
                     <div class="flex items-start space-x-2 justify-end">
                         <div class="flex-1 flex justify-end">
@@ -9888,7 +9888,7 @@
         // Use event delegation for apply button (in case it's dynamically shown/hidden)
         document.addEventListener('click', function(e) {
             if (e.target.closest('#applySingleChatThemeBtn')) {
-                e.preventDefault();
+                    e.preventDefault();
                 e.stopPropagation();
                 applySingleChatTheme();
             }

@@ -181,8 +181,7 @@ class NotificationController extends Controller
             $query->where('is_read', true);
         }
 
-        // For the admin notifications page, only show announcement + notice related items
-        $query->whereIn('type', ['announcement', 'notice']);
+        // Show all notification types for this user (same scope as header dropdown / getRecent)
 
         $notifications = $query->orderBy('created_at', 'desc')
             ->paginate(20);
