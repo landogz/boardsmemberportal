@@ -1,580 +1,651 @@
 # Laravel Application Deployment Instructions
 
-Complete guide for deploying the Board Member Portal to a production server.
+Complete guide for deploying the Board Member Portal to a production server with a **separate database server**.
 
-**Configuration (replace with your values):**
-- Domain: `your-domain.com`
-- Project path: `/var/www/boardsmemberportal`  
-  - Web root (served by Nginx/Apache): `/var/www/boardsmemberportal/public`
-
-## Prerequisites
-
-- SSH access to your server
-- PHP 8.2+
-- Composer
-- MySQL or MariaDB
-- Node.js and npm (for building assets)
-- Git
+> **Replace the example IPs:** Use **your actual public IP** (or domain name) for the app server everywhere `116.50.254.36` appears (`APP_URL`, Nginx `server_name`, SSH, browser). Use **your real database host** (private LAN IP, VPN address, or hostname your app can reach) instead of `192.168.1.100`.
 
 ---
 
-## Step 1: Connect to Your Server via SSH
+## Configuration
 
-You need terminal access to the server to run deployment commands. Use **SSH (Secure Shell)** to connect.
+### App Server
 
-### What you need
+* Public IP or domain: `116.50.254.36` *(change to your actual public IP or hostname)*
+* Project path: `/var/www/boardsmemberportal`
+* Web root: `/var/www/boardsmemberportal/public`
+* SSH User: `bmpap`
 
-- **Server address**: IP address (e.g. `116.50.254.36`) or hostname (e.g. `your-domain.com`)
-- **Username**: the account name on the server (e.g. `bmpap`, `root`, or a user created by your host)
-- **Password or SSH key**: from your hosting provider or server admin
+### Database Server (Separate)
 
-### Connect from Mac or Linux
-
-1. Open **Terminal**.
-2. Run (replace with your username and server address):
-
-```bash
-ssh your-username@your-server-address
-```
-
-Example:
-
-```bash
-ssh bmpap@116.50.254.36
-```
-
-3. When prompted, enter the password. You will not see characters as you type (no dots or asterisks); that is normal.
-4. On first connection you may see a message about the host key; type `yes` and press Enter.
-
-If the server uses a **non-default SSH port** (e.g. 2222):
-
-```bash
-ssh -p 2222 your-username@your-server-address
-```
-
-### Connect from Windows
-
-**Option A – Windows 10/11 (PowerShell or Windows Terminal)**
-
-1. Open **PowerShell** or **Windows Terminal** (search in Start menu).
-2. Run the same command as above:
-
-```bash
-ssh your-username@your-server-address
-```
-
-3. Enter the password when prompted.
-
-**Option B – PuTTY**
-
-1. Download PuTTY from https://www.putty.org/ and open it.
-2. **Host Name**: enter the IP or hostname (e.g. `116.50.254.36`).
-3. **Port**: `22` (or the port given by your host). Click **Open**.
-4. When the terminal opens, enter your username and then your password when prompted.
-
-### After you are connected
-
-You should see a welcome message and a shell prompt (e.g. `bmpap@hostname:~$`). All following deployment steps assume you run commands in this SSH session (or in new SSH sessions to the same server).
+* DB Host: `192.168.1.100` *(change to your database server’s real IP or hostname)*
+* DB Name: `boardsmemberportal`
+* DB User: `bmp_user`
+* DB Password: `StrongPassword123`
 
 ---
 
-## Step 2: Install Prerequisites (Ubuntu/Debian)
+# 🖥️ PART 1 — DATABASE SERVER SETUP (FROM SCRATCH)
 
-> These are quick examples for a fresh Ubuntu/Debian server. For other Linux distributions (CentOS, Rocky, Alma, etc.), use the equivalent `yum`/`dnf` commands or follow the official docs linked below.
+👉 Run these steps on your **database server** (replace `192.168.1.100` with your DB host)
 
-### PHP 8.2+
+---
 
-- Official docs: https://www.php.net/manual/en/install.php
-
-```bash
-sudo apt update
-
-# Install required extensions for Laravel (tune as needed)
-sudo apt install -y \
-  php8.2 php8.2-cli php8.2-fpm \
-  php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql \
-  php8.2-intl php8.2-gd
-
-php -v   # should show PHP 8.2.x
-```
-
-### Composer
-
-- Official docs: https://getcomposer.org/download/
-
-```bash
-cd ~
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-rm composer-setup.php
-
-composer --version
-```
-
-### MySQL or MariaDB
-
-- MySQL docs: https://dev.mysql.com/doc/
-- MariaDB docs: https://mariadb.com/kb/en/documentation/
+## Step DB1: Install MySQL
 
 ```bash
 sudo apt update
-
-# Install MySQL Server (swap with mariadb-server if you prefer MariaDB)
 sudo apt install -y mysql-server
+```
 
-# Secure installation (set root password, remove test DB, etc.)
+---
+
+## Step DB2: Secure MySQL
+
+```bash
 sudo mysql_secure_installation
 ```
 
-### Node.js and npm (for building assets)
+Recommended answers:
 
-- Node.js downloads: https://nodejs.org/en/download
-- Recommended: install via NodeSource or nvm for a current LTS version.
+* Set root password → YES
+* Remove anonymous users → YES
+* Disallow root remote login → YES
+* Remove test database → YES
+* Reload privilege tables → YES
 
-**Option 1 – NodeSource (example for Node 20 LTS):**
+---
+
+## Step DB3: Allow Remote Connections
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-
-node -v
-npm -v
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
 ```
 
-**Option 2 – nvm (Node Version Manager):**
+Find:
 
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-nvm install --lts
-
-node -v
-npm -v
+```ini
+bind-address = 127.0.0.1
 ```
 
-### Git
+Change to:
 
-- Git docs: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-
-```bash
-sudo apt update
-sudo apt install -y git
-
-git --version
+```ini
+bind-address = 0.0.0.0
 ```
 
 ---
 
-## Step 3: Clone the Repository
+## Step DB4: Restart MySQL
 
 ```bash
-# Navigate to your web root (e.g. /var/www or your host’s document root)
+sudo systemctl restart mysql
+```
+
+---
+
+## Step DB5: Create Database and User
+
+```bash
+sudo mysql -u root -p
+```
+
+Then run:
+
+```sql
+CREATE DATABASE boardsmemberportal;
+
+CREATE USER 'bmp_user'@'%' IDENTIFIED BY 'StrongPassword123';
+
+GRANT ALL PRIVILEGES ON boardsmemberportal.* TO 'bmp_user'@'%';
+
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+---
+
+## Step DB6: Open Firewall
+
+```bash
+sudo ufw allow 3306
+```
+
+---
+
+## Step DB7: Test Remote Access (FROM APP SERVER)
+
+```bash
+mysql -h 192.168.1.100 -u bmp_user -p   # use your DB host instead of 192.168.1.100
+```
+
+👉 If this works ✅ your DB is ready
+
+---
+
+# 🖥️ PART 2 — APPLICATION SERVER SETUP
+
+👉 Run these on your **app server** (replace `116.50.254.36` with your public IP or hostname)
+
+---
+
+## Step 1: Connect
+
+```bash
+ssh bmpap@116.50.254.36   # use your actual public IP or hostname
+```
+
+---
+
+## Step 2: Install Core Packages
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y nginx git curl unzip software-properties-common
+```
+
+---
+
+## Step 3: Install PHP
+
+```bash
+sudo apt install -y \
+php8.2 php8.2-cli php8.2-fpm \
+php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql \
+php8.2-intl php8.2-gd
+```
+
+---
+
+## Step 4: Install Composer
+
+```bash
+cd ~
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+---
+
+## Step 5: Install Node.js
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+---
+
+## Step 6: Clone Project
+
+```bash
 cd /var/www
-
-# Clone the repository
-git clone https://github.com/landogz/boardsmemberportal.git
-
+sudo git clone https://github.com/landogz/boardsmemberportal.git
 cd boardsmemberportal
 ```
 
 ---
 
-## Step 4: Install PHP Dependencies
+## Step 7: Install Dependencies
 
 ```bash
-# Install Composer dependencies
-composer install --optimize-autoloader --no-dev
-
-# If composer is not installed globally, download it first:
-# curl -sS https://getcomposer.org/installer | php
-# php composer.phar install --optimize-autoloader --no-dev
+composer install --no-dev --optimize-autoloader
 ```
 
 ---
 
-## Step 5: Environment Configuration
+## Step 8: Setup Environment
 
 ```bash
-# Copy the environment file
 cp .env.example .env
-
-# Generate application key
 php artisan key:generate
-
-# Edit the .env file with your configuration
 nano .env
-# or
-vi .env
 ```
 
-### Required .env Configuration (Template):
+### FINAL `.env`
 
 ```env
 APP_NAME="Board Member Portal"
 APP_ENV=production
-APP_KEY=base64:... (generated by key:generate)
+APP_KEY=
 APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-LOG_CHANNEL=stack
-LOG_LEVEL=error
+APP_URL=http://116.50.254.36   # http(s)://YOUR_ACTUAL_PUBLIC_IP_OR_DOMAIN
 
 DB_CONNECTION=mysql
-DB_HOST=your-db-host
+DB_HOST=192.168.1.100   # YOUR_DB_HOST (reachable from the app server)
 DB_PORT=3306
-DB_DATABASE=your_db_name
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+DB_DATABASE=boardsmemberportal
+DB_USERNAME=bmp_user
+DB_PASSWORD=StrongPassword123
 
-# Single recipient for Contact Us form (landing page)
-CONTACT_RECIPIENT_EMAIL=boardsec@example.com
+# --- Mail (SMTP) — password resets, system mail, Contact Us, etc. ---
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=your-smtp-username
+MAIL_PASSWORD=your-smtp-password-or-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="Board Member Portal"
+
+# Contact Us (landing page): all submissions go to this single address
+CONTACT_RECIPIENT_EMAIL=office@yourdomain.com
 ```
+
+#### Email setup notes
+
+* **SMTP:** Set `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, and `MAIL_PASSWORD` from your mail provider (office 365, Google Workspace, cPanel SMTP, transactional providers, etc.). Typical ports: **587** with `MAIL_ENCRYPTION=tls`, or **465** with `MAIL_ENCRYPTION=ssl` (follow your provider’s docs).
+* **From address:** `MAIL_FROM_ADDRESS` should be an address your provider allows you to send as (often the same mailbox as `MAIL_USERNAME`).
+* **Gmail:** Enable 2-Step Verification and create an **App Password**; use that as `MAIL_PASSWORD` (not your normal Gmail password). `MAIL_HOST=smtp.gmail.com`, `MAIL_PORT=587`, `MAIL_ENCRYPTION=tls`.
+* **Firewall:** Allow outbound connections from the app server to your SMTP host on the chosen port.
+* **Contact Us:** `CONTACT_RECIPIENT_EMAIL` must be **one valid email** (no comma-separated list). It is where Contact form messages are delivered.
+
+> **Note:** After `php artisan key:generate`, `APP_KEY` is already set in `.env`. When you edit with `nano`, keep that line; add or adjust the other variables above.
 
 ---
 
-## Step 6: Database Setup
+## Step 9: Run Migration + Seeder
 
 ```bash
-# Create database (if not already created via cPanel/phpMyAdmin)
-# You may need to do this via your hosting control panel
-
-# Run migrations
-php artisan migrate --force
-
-# Seed the database (optional, for initial setup)
-php artisan db:seed --class=RolePermissionSeeder
-php artisan db:seed --class=GovernmentAgencySeeder
-```
-
----
-
-## Step 7: Storage and Cache Setup
-
-```bash
-# Create symbolic link for storage
-php artisan storage:link
-
-# Clear and cache configuration
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Clear application cache
-php artisan cache:clear
 php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+php artisan cache:clear
+
+php artisan migrate --seed --force
 ```
 
 ---
 
-## Step 8: Install and Build Frontend Assets
+## Step 10: Frontend Build
 
 ```bash
-# Install Node.js dependencies
 npm install
-
-# Build production assets
 npm run build
-
-# Or if you need to watch for changes during development:
-# npm run dev
 ```
 
 ---
 
-## Step 9: Set Permissions
+## Step 11: Permissions
 
 ```bash
-# From project root; use your web server user (e.g. www-data, apache, nginx)
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+sudo chown -R www-data:www-data /var/www/boardsmemberportal
+sudo chmod -R 775 storage bootstrap/cache
 ```
 
 ---
 
-## Step 10: Configure Web Server
-
-> This step is usually handled by the client’s hosting / infrastructure team.  
-> The only requirement is that the web server’s **document root** points to the Laravel `public` directory:
->
-> - Project path: `/var/www/boardsmemberportal`  
-> - Web root (document root): `/var/www/boardsmemberportal/public`
-
----
-
-## Step 11: Setup Laravel Reverb (WebSocket Server)
-
-### Install Reverb
+## Step 12: Nginx Config
 
 ```bash
-# Reverb should already be in composer.json, but if not:
-composer require laravel/reverb
-
-# Publish Reverb configuration
-php artisan reverb:install
+sudo nano /etc/nginx/sites-available/boardsmemberportal
 ```
 
-### Run Reverb
+```nginx
+server {
+    listen 80;
+    server_name 116.50.254.36;   # your actual public IP or domain
 
-Use a process manager so Reverb keeps running (e.g. Supervisor or your host’s process manager).
+    root /var/www/boardsmemberportal/public;
+    index index.php;
 
-**Option 1: Supervisor**
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+    }
+}
+```
 
 ```bash
-sudo nano /etc/supervisor/conf.d/reverb.conf
-```
-
-Add (adjust paths to your project):
-
-```ini
-[program:reverb]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/boardsmemberportal/artisan reverb:start --host=0.0.0.0 --port=8080
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/www/boardsmemberportal/storage/logs/reverb.log
-stopwaitsecs=3600
-```
-
-Then: `sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start reverb`
-
-**Option 2: screen/tmux (temporary)**
-
-```bash
-screen -S reverb
-cd /var/www/boardsmemberportal
-php artisan reverb:start --host=0.0.0.0 --port=8080
-# Detach: Ctrl+A then D. Reattach: screen -r reverb
+sudo ln -s /etc/nginx/sites-available/boardsmemberportal /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
 ---
 
-## Step 12: Setup Queue Workers
+## Step 13: Cron (Laravel Scheduler)
 
-Run a queue worker so jobs (e.g. emails) are processed. Use Supervisor or your host’s process manager.
+The app uses Laravel’s task scheduler (`routes/console.php`) for idle checks, publishing scheduled announcements, unread message reminders, and daily birthday greetings. **One cron entry** must call `schedule:run` every minute.
 
-```bash
-sudo nano /etc/supervisor/conf.d/laravel-worker.conf
-```
-
-Add (adjust paths):
-
-```ini
-[program:laravel-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/boardsmemberportal/artisan queue:work --sleep=3 --tries=3 --max-time=3600
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/www/boardsmemberportal/storage/logs/worker.log
-stopwaitsecs=3600
-```
-
-Then: `sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start laravel-worker`
-
----
-
-## Step 13: Setup Task Scheduler (Cron)
-
-Run the scheduler every minute:
+As the user that can read the project and run PHP (often `bmpap` or `www-data`), open crontab:
 
 ```bash
 crontab -e
 ```
 
-Add (adjust path):
+Add this line (adjust the path if your project is not `/var/www/boardsmemberportal`):
 
 ```cron
-* * * * * cd /var/www/boardsmemberportal && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/boardsmemberportal && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
----
+If `php` is not at `/usr/bin/php`, run `which php` and use that path.
 
-## Step 14: SSL Certificate (HTTPS)
-
-Enable HTTPS (e.g. Let’s Encrypt via Certbot or your host’s control panel). Then set in `.env`:
-
-```env
-APP_URL=https://your-domain.com
-REVERB_SCHEME=https
-```
-
----
-
-## Step 15: Final Verification
+To install the same line for `www-data` instead:
 
 ```bash
-# Check application status
-php artisan about
+sudo crontab -u www-data -e
+```
 
-# Test database connection
+Then paste the same `* * * * *` line.
+
+Verify the scheduler is registered:
+
+```bash
+cd /var/www/boardsmemberportal && php artisan schedule:list
+```
+
+---
+
+## Step 14: Reset portal data (optional — destructive)
+
+The app includes an Artisan command to **truncate** core portal content (announcements, notices, referendums, attendance, agenda requests, reference materials, banner slides, messaging tables, etc.). It is intended for **staging resets**, **demos**, or **controlled maintenance**, not routine production use.
+
+> **Warning:** This **permanently deletes** data. Take a **database backup** first. Do **not** run on production without explicit approval.
+
+From the project directory:
+
+```bash
+cd /var/www/boardsmemberportal
+php artisan portal:reset-data
+```
+
+The command asks for confirmation before running.
+
+**Also remove Board Member and CONSEC users** (keeps users whose `privilege` is not `user` or `consec`, e.g. admins):
+
+```bash
+php artisan portal:reset-data --with-users
+```
+
+After a reset, restore from backup or run your seeders as needed. This command **truncates** tables; it does **not** drop them or re-run migrations.
+
+---
+
+# 🚨 TROUBLESHOOTING
+
+Assume you are in the project directory unless noted:
+
+```bash
+cd /var/www/boardsmemberportal
+```
+
+---
+
+## Database (separate server)
+
+### ❌ Cannot connect / wrong credentials
+
+Test from the **app server** (replace host/user):
+
+```bash
+mysql -h 192.168.1.100 -P 3306 -u bmp_user -p
+```
+
+Check app `.env` matches: `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+
+**Typical fixes (on DB server):**
+
+* Firewall: `sudo ufw allow 3306` (and allow app server IP if you restrict sources)
+* MySQL `bind-address = 0.0.0.0` in `mysqld.cnf`, then `sudo systemctl restart mysql`
+* User host: `'bmp_user'@'%'` (or host matching your app server)
+
+### ❌ `SQLSTATE[HY000] [2002]` — connection refused / timed out
+
+DB host unreachable from the app server. Verify network path and port:
+
+```bash
+nc -zv 192.168.1.100 3306
+# or
+telnet 192.168.1.100 3306
+```
+
+### ❌ `SQLSTATE[HY000] [1045]` — access denied
+
+Wrong user/password or user not allowed from the app host. Re-check grants in MySQL and `.env`.
+
+### ❌ Verify Laravel can reach the DB
+
+```bash
+php artisan db:show
+php artisan migrate:status
+```
+
+Optional (interactive):
+
+```bash
 php artisan tinker
-# Then run: DB::connection()->getPdo();
+>>> DB::connection()->getPdo();
+```
 
-# Check queue status
-php artisan queue:work --once
+---
 
-# Check scheduled tasks
+## Laravel caches & config
+
+After changing `.env` or config, clear caches:
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+```
+
+One-shot clear (Laravel 11+):
+
+```bash
+php artisan optimize:clear
+```
+
+**Production** (rebuild caches after fixes):
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan optimize
+```
+
+App info:
+
+```bash
+php artisan about
+```
+
+---
+
+## Migrations
+
+See status:
+
+```bash
+php artisan migrate:status
+```
+
+Apply pending migrations:
+
+```bash
+php artisan migrate --force
+```
+
+**Destructive** — drops all tables and re-runs migrations (loses data):
+
+```bash
+php artisan migrate:fresh --seed --force
+```
+
+Use only when you intend a full database rebuild (e.g. empty staging).
+
+---
+
+## Permissions & storage
+
+```bash
+sudo chown -R www-data:www-data /var/www/boardsmemberportal
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+Public storage symlink (if missing uploaded/public files):
+
+```bash
+php artisan storage:link
+```
+
+---
+
+## Frontend / Vite assets
+
+```bash
+npm ci
+npm run build
+```
+
+If `node_modules` is corrupted:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+---
+
+## Nginx & PHP-FPM
+
+Test and reload Nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+# or
+sudo systemctl restart nginx
+```
+
+Restart PHP 8.2 FPM after PHP/config changes:
+
+```bash
+sudo systemctl restart php8.2-fpm
+```
+
+---
+
+## Mail (SMTP)
+
+After changing mail env vars:
+
+```bash
+php artisan config:clear
+```
+
+Test delivery depends on your setup; ensure outbound SMTP port is allowed from the app server.
+
+---
+
+## Scheduler (cron)
+
+List scheduled tasks:
+
+```bash
 php artisan schedule:list
+```
 
-# View logs
+Run the scheduler once (manual test):
+
+```bash
+php artisan schedule:run
+```
+
+---
+
+## Queue workers (if you use `QUEUE_CONNECTION=database` or `redis`)
+
+See failed jobs:
+
+```bash
+php artisan queue:failed
+```
+
+Process queue (foreground test):
+
+```bash
+php artisan queue:work --stop-when-empty
+```
+
+In production, use **Supervisor** or **systemd** to keep `queue:work` running (not covered in detail here).
+
+---
+
+## Composer & autoload
+
+```bash
+composer install --no-dev --optimize-autoloader
+composer dump-autoload -o
+```
+
+---
+
+## Project-specific Artisan commands
+
+| Command | Purpose |
+|--------|---------|
+| `php artisan portal:reset-data` | Truncate portal content (interactive; **destructive**) |
+| `php artisan portal:reset-data --with-users` | Same + delete `user` / `consec` accounts (**destructive**) |
+| `php artisan admin:create` | Create an admin user (optional args: first name, last name, email, password; `--username=`) |
+| `php artisan announcements:publish-scheduled` | Publish due scheduled announcements (also run by cron) |
+| `php artisan users:check-idle` | Idle-user check (also run by cron) |
+| `php artisan messages:send-unread-reminders` | Unread message reminders (also run by cron) |
+| `php artisan messages:delete-all` | Delete all messages (`--force` skips confirmation; **destructive**) |
+| `php artisan birthdays:send-greetings` | Birthday emails (also run by cron daily) |
+| `php artisan birthdays:send-sample {email}` | Send one sample birthday email to an address |
+
+List every Artisan command:
+
+```bash
+php artisan list
+```
+
+---
+
+## Logs
+
+```bash
 tail -f storage/logs/laravel.log
 ```
 
+Web server logs (paths may vary):
+
+```bash
+sudo tail -f /var/log/nginx/error.log
+```
+
 ---
 
-## Step 16: Update Application (Future Deployments)
+# ✅ DEPLOY UPDATE COMMAND
 
 ```bash
 cd /var/www/boardsmemberportal
 
 git pull origin main
 
-composer install --optimize-autoloader --no-dev
+composer install --no-dev --optimize-autoloader
 npm install
 npm run build
 
-php artisan migrate --force
-
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Restart Reverb and queue worker (e.g. sudo supervisorctl restart reverb laravel-worker)
+php artisan migrate --seed --force
+php artisan optimize
 ```
 
 ---
 
-## Troubleshooting
+# 🔐 FINAL CHECKLIST
 
-### Permission Issues
-
-```bash
-# Ensure web server can write to storage and bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
-# (Replace www-data with your web server user if different)
-```
-
-### Clear All Caches
-
-```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan optimize:clear
-```
-
-### Check Logs
-
-```bash
-# Application logs
-tail -f storage/logs/laravel.log
-
-# Reverb and queue worker logs
-tail -f storage/logs/reverb.log
-tail -f storage/logs/worker.log
-```
-
-### Database Connection Issues
-
-```bash
-# Test database connection
-php artisan tinker
-# Then: DB::connection()->getPdo();
-
-# Check .env file
-cat .env | grep DB_
-```
-
-### Reverb Connection Issues
-
-- Ensure port 8080 is open in firewall
-- Check Reverb service is running: `sudo systemctl status reverb`
-- Verify REVERB_* variables in .env
-- Check browser console for WebSocket connection errors
+* DB remote working ✅
+* APP_DEBUG=false ✅
+* Queue running ✅
+* Cron running ✅
+* Assets built ✅
+* Permissions correct ✅
 
 ---
-
-## Security Checklist
-
-- [ ] Set `APP_DEBUG=false` in production
-- [ ] Use strong database passwords
-- [ ] Enable HTTPS/SSL
-- [ ] Set proper file permissions
-- [ ] Keep dependencies updated
-- [ ] Use environment variables for sensitive data
-- [ ] Enable firewall
-- [ ] Regular backups of database and files
-- [ ] Keep Laravel and packages updated
-
----
-
-## Backup Strategy
-
-### Database Backup
-
-**Via command line**
-
-```bash
-# Create backup directory
-mkdir -p ~/backups
-
-# Create backup script
-nano ~/backups/backup-db.sh
-```
-
-Add (replace with your actual database credentials):
-
-```bash
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-mysqldump -u your_db_user -p'your_db_password' your_database_name > ~/backups/db_backup_$DATE.sql
-# Keep only last 7 days
-find ~/backups -name "db_backup_*.sql" -mtime +7 -delete
-```
-
-Make executable and schedule:
-
-```bash
-chmod +x ~/backups/backup-db.sh
-crontab -e
-# Add: 0 2 * * * ~/backups/backup-db.sh
-```
-
-### File Backup
-
-```bash
-# Create backup directory
-mkdir -p ~/backups
-
-# Backup storage and important files
-tar -czf ~/backups/files_backup_$(date +%Y%m%d).tar.gz /var/www/boardsmemberportal/storage
-
-# Keep only last 7 days
-find ~/backups -name "files_backup_*.tar.gz" -mtime +7 -delete
-```
-
----
-
-## Support
-
-For issues or questions:
-- Check Laravel documentation: https://laravel.com/docs
-- Check Laravel Reverb documentation: https://laravel.com/docs/reverb
-- Review application logs in `storage/logs/`
-
----
-
-Replace `/var/www/boardsmemberportal` with your actual project path wherever it appears in these instructions.
