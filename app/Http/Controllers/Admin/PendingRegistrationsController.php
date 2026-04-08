@@ -111,7 +111,10 @@ class PendingRegistrationsController extends Controller
         }
 
         $validated = $request->validate([
-            'rejection_reason' => 'nullable|string|max:500',
+            'rejection_reason' => 'required|string|min:3|max:500',
+        ], [
+            'rejection_reason.required' => 'Rejection remarks are required.',
+            'rejection_reason.min' => 'Rejection remarks must be at least 3 characters.',
         ]);
 
         $user = User::where('status', 'pending')->findOrFail($id);
@@ -119,7 +122,7 @@ class PendingRegistrationsController extends Controller
         // Store user data for audit log and email before deletion
         $userEmail = $user->email;
         $userName = $user->full_name;
-        $rejectionReason = $validated['rejection_reason'] ?? 'No reason provided';
+        $rejectionReason = trim($validated['rejection_reason']);
 
         // Send disapproval email to user before deletion
         try {

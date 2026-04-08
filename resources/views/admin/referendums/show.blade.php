@@ -4,6 +4,7 @@
 
 @php
     $pageTitle = 'Ad Referendum Details';
+    $abstainVotes = $abstainVotes ?? collect();
     $headerActions = [];
     $headerActions[] = [
         'url' => route('admin.referendums.index'),
@@ -594,13 +595,20 @@
 <script>
     const acceptVoters = @json($acceptVotersData);
     const declineVoters = @json($declineVotersData);
-    const abstainVoters = @json($abstainVotes->map(function($vote) {
-        return [
-            'name' => $vote->user->short_name,
-            'email' => $vote->user->email,
-            'profile_picture' => $vote->user->profile_picture ? optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path ? asset('storage/' . optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path) : null : null,
-        ];
-    }));
+    @php
+        $abstainVotersData = $abstainVotes->map(function ($vote) {
+            return [
+                'name' => $vote->user->short_name,
+                'email' => $vote->user->email,
+                'profile_picture' => $vote->user->profile_picture
+                    ? (optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path
+                        ? asset('storage/' . optional(\App\Models\MediaLibrary::find($vote->user->profile_picture))->file_path)
+                        : null)
+                    : null,
+            ];
+        });
+    @endphp
+    const abstainVoters = @json($abstainVotersData);
 
     function showVotersModal(type) {
         const modal = document.getElementById('votersModal');

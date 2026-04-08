@@ -936,7 +936,7 @@
     </div>` : `<div class="header">
         <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
         <h1>${reportTypeNames[reportType] || reportType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Report</h1>
-        <p>Board Member Portal - Report Generation</p>
+        <p>Board Members Portal - Report Generation</p>
     </div>`}
     
     ${reportType !== 'summary_regular_meeting' && reportType !== 'summary_regular_meeting_by_title' ? filterInfo : ''}
@@ -944,7 +944,7 @@
     ${tableContent}
     
     <div class="footer">
-        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Member Portal System</p>
+        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Members Portal System</p>
         ${reportType === 'summary_regular_meeting' && results.length > 0 ? 
             `<p style="margin-top: 5px;">Report contains ${results[0].total_meetings || 0} meeting(s) based on search criteria</p>` :
             `<p style="margin-top: 5px;">Report contains ${results.length} record(s) based on search criteria</p>`

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>Board Member Portal - Welcome</title>
+    <title>Board Members Portal - Welcome</title>
     <!-- Montserrat Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -726,7 +726,7 @@
         <div class="banner-slideshow">
             <div class="banner-slide active" style="background-image: linear-gradient(135deg, #055498 0%, #123a60 100%); display: flex; align-items: center; justify-content: center; color: white;">
                 <div class="text-center px-4">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Welcome to Board Member Portal</h1>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Welcome to Board Members Portal</h1>
                     <p class="text-lg sm:text-xl mb-6">Your gateway to seamless board management and collaboration</p>
                     <a href="#content" class="px-6 py-3 bg-white rounded-lg font-semibold hover:opacity-90 transition inline-block" style="color: #055498;">Get Started</a>
                 </div>
@@ -812,7 +812,7 @@
             <section id="about" class="mb-12">
                 <h2 class="text-2xl sm:text-3xl font-bold mb-6" style="color: #055498;">About Us</h2>
                 <p class="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-                    The Board Member Portal is a comprehensive digital platform designed to facilitate seamless communication, 
+                    The Board Members Portal is a comprehensive digital platform designed to facilitate seamless communication, 
                     collaboration, and management for board members. Our platform integrates modern technology with intuitive design 
                     to create an exceptional user experience.
                 </p>
@@ -916,7 +916,7 @@
                 </div>
                 <div>
                     <h4 class="mb-2">ABOUT PORTAL</h4>
-                    <p class="mb-2">Learn more about the Board Member Portal, its features, and how it facilitates seamless board management.</p>
+                    <p class="mb-2">Learn more about the Board Members Portal, its features, and how it facilitates seamless board management.</p>
                     <ul class="space-y-1" style="list-style: none; padding: 0;">
                         <li><a href="#about">About Us</a></li>
                         <li><a href="#announcements">Announcements</a></li>
@@ -934,7 +934,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-600 pt-4 text-center">
-                <p>&copy; 2024 Board Member Portal. All rights reserved. | Republic of the Philippines</p>
+                <p>&copy; 2024 Board Members Portal. All rights reserved. | Republic of the Philippines</p>
             </div>
         </div>
     </div>

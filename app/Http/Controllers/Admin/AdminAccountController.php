@@ -65,8 +65,8 @@ class AdminAccountController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
-                        $fail('The password must contain at least one special character.');
+                    if (!preg_match('/[!@#$%&*()\-_=+.,]/', $value)) {
+                        $fail('The password must contain at least one special character (! @ # $ % & * ( ) - _ = + . ,).');
                     }
                 },
             ],
@@ -150,8 +150,8 @@ class AdminAccountController extends Controller
                     if (!preg_match('/[0-9]/', $value)) {
                         $fail('The password must contain at least one number.');
                     }
-                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
-                        $fail('The password must contain at least one special character.');
+                    if (!preg_match('/[!@#$%&*()\-_=+.,]/', $value)) {
+                        $fail('The password must contain at least one special character (! @ # $ % & * ( ) - _ = + . ,).');
                     }
                 },
             ],

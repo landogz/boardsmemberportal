@@ -18,6 +18,23 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<style>
+    /* Match CONSEC table behavior: keep DataTables text from overlapping controls */
+    .dataTables_wrapper {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+
+    .dataTables_scrollBody {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+
+    #adminAccountsTable th,
+    #adminAccountsTable td {
+        vertical-align: middle;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -66,8 +83,8 @@
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex items-center gap-2">
+                            <td class="px-6 py-4 text-sm font-medium">
+                                <div class="flex flex-wrap items-center gap-2 min-w-[220px]">
                                     <a href="{{ route('admin.admin-accounts.edit', $account->id) }}" class="px-3 py-1.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50">
                                         <i class="fas fa-edit mr-1"></i>Edit
                                     </a>

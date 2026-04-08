@@ -675,7 +675,7 @@
     <div class="header">
         <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
         <h1>Calendar of Activities Report</h1>
-        <p>Board Member Portal - Calendar Events</p>
+        <p>Board Members Portal - Calendar Events</p>
     </div>
     
     ${filterInfo}
@@ -683,7 +683,7 @@
     ${eventsTable}
     
     <div class="footer">
-        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Member Portal System</p>
+        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Members Portal System</p>
         <p style="margin-top: 5px;">Report contains ${events.length} event(s) based on current calendar filters</p>
     </div>
 </body>

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>Register - Board Member Portal</title>
+    <title>Register - Board Members Portal</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -319,8 +319,8 @@
             <div id="termsModalScroll" class="flex-1 overflow-y-auto px-5 py-4 md:px-6 md:py-5">
                 <div class="space-y-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300 max-w-2xl mx-auto">
                 <section>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Board Member’s Portal Terms &amp; Conditions</h3>
-                    <p class="mb-2">Welcome to Board Member's Portal (BMP). These Terms and Conditions ("Terms") govern your use of the BMP. By downloading, accessing, or using the App, you agree to be bound by these Terms and Conditions. All information encoded in the BMP will be considered classified. <strong>IF YOU DO NOT AGREE WITH THE TERMS, PLEASE DO NOT ACCESS THE PORTAL.</strong></p>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Board Members Portal Terms &amp; Conditions</h3>
+                    <p class="mb-2">Welcome to Board Members Portal (BMP). These Terms and Conditions ("Terms") govern your use of the BMP. By downloading, accessing, or using the App, you agree to be bound by these Terms and Conditions. All information encoded in the BMP will be considered classified. <strong>IF YOU DO NOT AGREE WITH THE TERMS, PLEASE DO NOT ACCESS THE PORTAL.</strong></p>
                     <p class="mb-2">Some features of the BMP may require you to register. You are responsible for maintaining the confidentiality of your login information and for any activities under your account.</p>
                     <p class="mb-2"><strong>You agree not to:</strong></p>
                     <ul class="list-disc pl-6 mb-2 space-y-1">
@@ -346,14 +346,14 @@
                     <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><strong>Data Privacy Notice</strong></h3>
                     <p class="mb-2">Please read the herein stated Agreement carefully and evidence your acceptance of its terms by clicking on the Agree button below:</p>
                     <ul class="list-disc pl-6 mb-2 space-y-2">
-                        <li>I hereby accept the obligations contained in this Agreement in consideration of my being granted access to classified and/or sensitive information under the Board Member's Portal (BMP). As used in this Agreement, "classified information" refers to confidential information, including but not limited to oral communications.</li>
+                        <li>I hereby accept the obligations contained in this Agreement in consideration of my being granted access to classified and/or sensitive information under the Board Members Portal (BMP). As used in this Agreement, "classified information" refers to confidential information, including but not limited to oral communications.</li>
                         <li>I understand and accept that by being granted access to classified information within the portal, confidence and trust are placed in me by the <strong>Dangerous Drugs Board (DDB).</strong></li>
                         <li>I acknowledge that the DDB is the agency responsible for receiving, handling, and safeguarding all reports and requests for the board submitted through the BMP by concerned board members, authorized representatives, or stakeholders.</li>
                         <li>I am fully aware that the information gathered in the BMP shall also serve as the basis for the development and improvement of policies and drug abuse prevention programs.</li>
                         <li>I further acknowledge that stored documents and reports generated from the BMP may be shared, when necessary, with concerned board members, authorized representatives, and other stakeholders for purposes of intervention, referral, research, policy formulation, and program development.</li>
                         <li>I agree to ensure that all information submitted through the BMP is accurate, reliable, and provided in good faith, and to immediately notify the DDB if any errors or discrepancies are found in the data.</li>
                         <li>I agree to immediately notify the DDB if there are any errors or discrepancies in the reported data. I also commit to ensuring that all data input into the system is accurate and reliable.</li>
-                        <li>By your (i) use and/or continued use of this Board Member's Portal, or (ii) access and use of the service provided through this Board Member's Portal, you agree to indemnify and keep the DDB, its officers, and employees fully and effectively indemnified against all actions, liabilities, costs, claims, losses, damages, proceedings, and/or expenses (including all legal costs on an indemnity basis), without prejudice to the filing of any criminal charges for violation of any statute or law.</li>
+                        <li>By your (i) use and/or continued use of this Board Members Portal, or (ii) access and use of the service provided through this Board Members Portal, you agree to indemnify and keep the DDB, its officers, and employees fully and effectively indemnified against all actions, liabilities, costs, claims, losses, damages, proceedings, and/or expenses (including all legal costs on an indemnity basis), without prejudice to the filing of any criminal charges for violation of any statute or law.</li>
                         <li>Violation of any of the provisions of this agreement shall constitute a breach and shall terminate this agreement immediately without need of notice, without prejudice to criminal prosecution for violation of RA 10173 (Data Privacy Act of 2012), as well as other pertinent laws.</li>
                         <li>Unless and until I am released in writing that all conditions and obligations imposed upon me by this Agreement apply during the time, I am always granted access to classified information and thereafter.</li>
                         <li>For inquiries and other concerns, kindly contact our DDB Data Protection Officer, Assistant Secretary <strong>MA. VICTORIA C. SORNE</strong> or email us at <a href="mailto:dpo@ddb.gov.ph" class="text-[#055498] hover:underline">dpo@ddb.gov.ph</a></li>

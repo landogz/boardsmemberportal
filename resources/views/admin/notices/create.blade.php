@@ -322,9 +322,20 @@
                     <div class="sticky top-6 space-y-6">
                         <!-- Allowed Users Selection -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Users *</label>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Allowed Users *</label>
+                                <button
+                                    type="button"
+                                    id="openAllowedUsersModalBtn"
+                                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-[#055498] text-[#055498] hover:bg-[#055498] hover:text-white transition-colors"
+                                >
+                                    <i class="fas fa-expand mr-1.5"></i>Choose Participants
+                                </button>
+                            </div>
                             <p class="text-xs text-gray-500 mb-3">Select users who can view this notice. Ticked users receive the notice email as <strong>primary (To) recipients</strong>, not as CC. Only addresses added in “CC Emails” below are sent as CC.</p>
-                            <div class="border border-gray-300 rounded-lg p-4 max-h-[calc(100vh-500px)] overflow-y-auto">
+                            <p class="text-xs text-gray-600 mb-3">Selected participants: <span id="selectedUsersCount" class="font-semibold text-[#055498]">0</span></p>
+                            <div id="allowedUsersInlineHost">
+                            <div id="allowedUsersPicker" class="border border-gray-300 rounded-lg p-4 bg-white">
                                 <!-- Search -->
                                 <input 
                                     type="text" 
@@ -346,6 +357,7 @@
                                 </div>
                                 
                                 <!-- User List -->
+                                <div id="allowedUsersScrollable" class="max-h-[calc(100vh-500px)] overflow-y-auto">
                                 <div id="usersList" class="space-y-2">
                                     @php
                                         $currentPrivilege = null;
@@ -438,6 +450,8 @@
                                         </div>
                                     @endif
                                 </div>
+                                </div>
+                            </div>
                             </div>
                             <span class="text-red-500 text-sm hidden" id="allowed_users-error"></span>
                         </div>
@@ -483,6 +497,29 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Allowed Users Modal -->
+<div id="allowedUsersModal" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" id="allowedUsersModalBackdrop"></div>
+    <div class="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col">
+        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-gray-200">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Choose Participants</h3>
+                <p class="text-xs text-gray-500 mt-1">Select users who can view this notice and receive it as primary recipients.</p>
+            </div>
+            <button type="button" id="closeAllowedUsersModalBtn" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4 sm:p-5 overflow-hidden">
+            <div id="allowedUsersModalHost"></div>
+        </div>
+        <div class="flex items-center justify-end gap-2 p-4 sm:p-5 border-t border-gray-200">
+            <button type="button" id="cancelAllowedUsersModalBtn" class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">Cancel</button>
+            <button type="button" id="applyAllowedUsersModalBtn" class="px-4 py-2 text-sm rounded-lg text-white" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">Done</button>
+        </div>
     </div>
 </div>
 @endsection
@@ -690,6 +727,11 @@
         });
 
         // Select All functionality
+        function updateSelectedUsersCount() {
+            const selectedCount = $('.user-checkbox:checked').length;
+            $('#selectedUsersCount').text(selectedCount);
+        }
+
         function updateSelectAllState() {
             const visibleCheckboxes = $('.user-item:visible .user-checkbox');
             const checkedCheckboxes = $('.user-item:visible .user-checkbox:checked');
@@ -712,13 +754,39 @@
         $('#selectAllUsers').on('change', function() {
             const isChecked = $(this).prop('checked');
             $('.user-item:visible .user-checkbox').prop('checked', isChecked);
+            updateSelectedUsersCount();
         });
 
         $(document).on('change', '.user-checkbox', function() {
             updateSelectAllState();
+            updateSelectedUsersCount();
+        });
+
+        function closeAllowedUsersModal() {
+            $('#allowedUsersInlineHost').append($('#allowedUsersPicker'));
+            $('#allowedUsersModal').addClass('hidden').removeClass('flex');
+            $('body').removeClass('overflow-hidden');
+            $('#allowedUsersScrollable')
+                .removeClass('max-h-[65vh]')
+                .addClass('max-h-[calc(100vh-500px)]');
+        }
+
+        $('#openAllowedUsersModalBtn').on('click', function() {
+            $('#allowedUsersModalHost').append($('#allowedUsersPicker'));
+            $('#allowedUsersModal').removeClass('hidden').addClass('flex');
+            $('body').addClass('overflow-hidden');
+            $('#allowedUsersScrollable')
+                .removeClass('max-h-[calc(100vh-500px)]')
+                .addClass('max-h-[65vh]');
+            $('#userSearch').trigger('focus');
+        });
+
+        $('#closeAllowedUsersModalBtn, #cancelAllowedUsersModalBtn, #applyAllowedUsersModalBtn, #allowedUsersModalBackdrop').on('click', function() {
+            closeAllowedUsersModal();
         });
 
         updateSelectAllState();
+        updateSelectedUsersCount();
     });
 
     // CC Emails Management

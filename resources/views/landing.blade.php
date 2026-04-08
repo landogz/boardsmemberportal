@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
-    <title>Board Member Portal - Welcome</title>
+    <title>Board Members Portal - Welcome</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
     <link rel="shortcut icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Dangerous_Drugs_Board_%28DDB%29.svg/1209px-Dangerous_Drugs_Board_%28DDB%29.svg.png">
@@ -2649,7 +2649,7 @@
     <div class="header">
         <img src="${window.location.origin}/images/ddbheader.png" alt="DDB Header" onerror="this.style.display='none';">
         <h1>Calendar of Activities Report</h1>
-        <p>Board Member Portal - Calendar Events</p>
+        <p>Board Members Portal - Calendar Events</p>
     </div>
     
     ${filterInfo}
@@ -2657,7 +2657,7 @@
     ${eventsTable}
     
     <div class="footer">
-        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Member Portal System</p>
+        <p>This report was generated on ${currentDate} at ${currentTime} from the Board Members Portal System</p>
         <p style="margin-top: 5px;">Report contains ${events.length} event(s) based on current calendar filters</p>
     </div>
 </body>

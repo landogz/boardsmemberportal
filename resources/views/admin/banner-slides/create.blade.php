@@ -87,7 +87,7 @@
                             <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
                             <input type="text" id="title" name="title" required value="{{ old('title') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none"
-                                placeholder="e.g. Welcome to Board Member Portal">
+                                placeholder="e.g. Welcome to Board Members Portal">
                             @error('title')<span class="text-red-500 text-sm">{{ $message }}</span>@enderror
                         </div>
                         <div>

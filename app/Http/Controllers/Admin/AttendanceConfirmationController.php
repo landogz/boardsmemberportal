@@ -40,7 +40,12 @@ class AttendanceConfirmationController extends Controller
             $query->where('id', $noticeId);
         }
         
-        $notices = $query->orderBy('created_at', 'desc')->paginate(15);
+        $notices = $query
+            // Latest meeting first (primary sort), then newest created as fallback.
+            ->orderByDesc('meeting_date')
+            ->orderByDesc('meeting_time')
+            ->orderByDesc('created_at')
+            ->paginate(15);
 
         // Calculate statistics for each notice
         foreach ($notices as $notice) {

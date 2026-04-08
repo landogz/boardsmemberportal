@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon - Board Member Portal</title>
+    <title>Coming Soon - Board Members Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -454,7 +454,7 @@
         <p class="subtitle">Get ready for an amazing experience</p>
         
         <div class="message">
-            <p>We're putting the finishing touches on our new Board Member Portal. Stay tuned for an exciting launch that will transform how you manage board operations, meetings, and collaboration.</p>
+            <p>We're putting the finishing touches on our new Board Members Portal. Stay tuned for an exciting launch that will transform how you manage board operations, meetings, and collaboration.</p>
         </div>
 
         <div class="countdown">
@@ -500,7 +500,7 @@
                     $('#hours').text('00');
                     $('#minutes').text('00');
                     $('#seconds').text('00');
-                    $('.countdown-label').text('We\'re live! Welcome to Board Member Portal!');
+                    $('.countdown-label').text('We\'re live! Welcome to Board Members Portal!');
                     return;
                 }
 

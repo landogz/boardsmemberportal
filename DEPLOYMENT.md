@@ -3,7 +3,8 @@
 Choose your deployment type (sections below):
 
 - **[How to install Git, Composer, Node, PHP, MySQL](#how-to-install-git-composer-node-js-php-mysql)** – prerequisites for all environments (Windows, Mac, Linux)
-- **[Live deployment](#live-deployment)** – production server (Ubuntu/Debian, Nginx/Apache, SSH)
+- **[Live deployment](#live-deployment)** – production server (Ubuntu/Debian, Nginx, SSH); summary + link to full guide
+- **[Full live guide (separate DB, email, cron, troubleshooting)](/deployment-instructions/live)** – step-by-step production install (`DEPLOYMENT_INSTRUCTIONS.md`)
 - **[Localhost — Laragon (Windows)](#localhost-laragon-windows)** – local development on Windows using Laragon
 - **[Localhost — Mac (MAMP / Manager OS X)](#localhost-mac-mamp-manager-os-x)** – local development on macOS using MAMP or similar
 
@@ -25,7 +26,7 @@ On a production server, install from the terminal (SSH). Full step-by-step comma
 | **PHP 8.2+** | `sudo apt install -y php8.2 php8.2-cli php8.2-fpm php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-mysql php8.2-intl php8.2-gd` |
 | **Composer** | Download from [getcomposer.org](https://getcomposer.org/download/), then `php composer-setup.php --install-dir=/usr/local/bin --filename=composer` |
 | **MySQL** | `sudo apt install -y mysql-server` then `sudo mysql_secure_installation` |
-| **Node.js & npm** | NodeSource: `curl -fsSL https://deb.nodesource.com/setup_20.x \| sudo -E bash -` then `sudo apt install -y nodejs` |
+| **Node.js & npm** | NodeSource LTS: `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash -` then `sudo apt install -y nodejs` |
 
 Verify: `git --version`, `php -v`, `composer --version`, `node -v`, `npm -v`, and that MySQL is running.
 
@@ -91,22 +92,24 @@ Verify in Terminal: `git --version`, `composer --version`, `node -v`, `npm -v`, 
 
 ## Live deployment
 
-Full instructions for deploying the Board Member Portal to a **production server** (e.g. VPS, shared hosting with SSH).
+Deploy the Board Member Portal to a **production Linux server** (e.g. Ubuntu + Nginx + PHP-FPM). The **full guide** is written for an **application server** plus a **separate MySQL server** (replace every example IP with **your real public IP or domain** on the app side and **your real DB host** on the database side).
 
-- **Use when:** Deploying to a live domain (e.g. `https://your-domain.com`)
-- **Covers:** SSH, PHP 8.2+, Composer, MySQL, Node/npm, Reverb, Queue, Cron, SSL
+- **Use when:** Going live with a public URL (`APP_URL` and Nginx `server_name` must match **your** hostname or IP)
+- **Full guide covers:** Remote MySQL setup (`bind-address`, user, firewall), app server stack, **`.env` including `DB_*`, `MAIL_*`, and `CONTACT_RECIPIENT_EMAIL`**, migrations, `npm run build`, Nginx root → `public/`, **Laravel cron** (`schedule:run` every minute), optional **`portal:reset-data`** for staging, and a **troubleshooting** command reference
 
-**→ See [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md)** for the complete step-by-step guide.
+**→ Open the [full live deployment guide](/deployment-instructions/live)** (same content as [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md) in the repo).
 
-**Quick checklist:**
-- Connect via SSH
-- Install PHP, Composer, MySQL, Node.js, Git
-- Clone repo, `composer install --no-dev`, `npm run build`
-- Configure `.env` for production (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://...`, MySQL, Reverb over HTTPS)
-- Run migrations, seeders, `storage:link`, set permissions
-- Configure web server document root to `public/`
-- Run Reverb and queue worker (e.g. Supervisor)
-- Set up cron for `schedule:run`
+**Quick checklist**
+- **Database server (if separate):** MySQL installed, database + user created, remote access from app host (`3306`), firewall rules as needed
+- **App server:** SSH in; install Nginx, PHP 8.2-FPM, Composer, Node.js, Git
+- **App:** Clone to e.g. `/var/www/boardsmemberportal`; `composer install --no-dev --optimize-autoloader`; `npm ci` or `npm install`; `npm run build`
+- **`.env`:** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` = your public `http(s)://…` host; `DB_HOST` / `DB_*` reachable from the app; **`MAIL_MAILER=smtp`** and **`MAIL_HOST`**, **`MAIL_USERNAME`**, **`MAIL_PASSWORD`**, **`MAIL_FROM_*`**; **`CONTACT_RECIPIENT_EMAIL`** (single address for Contact Us)
+- **Laravel:** `php artisan key:generate` (once), `php artisan migrate --force` (use `--seed` only when you intend to seed)
+- **Storage:** `php artisan storage:link`; `chown`/`chmod` on `storage` and `bootstrap/cache` for the web user (e.g. `www-data`)
+- **Web:** Nginx (or Apache) document root = `public/`
+- **Cron (required for scheduled tasks):** e.g. `* * * * * cd /var/www/boardsmemberportal && /usr/bin/php artisan schedule:run >> /dev/null 2>&1` (adjust path and `php` binary)
+- **Real-time / jobs:** If you use Laravel Reverb or `QUEUE_CONNECTION=database`, run the matching processes (e.g. `php artisan reverb:start`, `php artisan queue:work`) under **Supervisor** or **systemd** in production
+- **HTTPS:** When you have a domain, terminate TLS (e.g. Let’s Encrypt + Certbot)
 
 ---
 
@@ -303,8 +306,8 @@ Deploy and run the app **locally on macOS** using [MAMP](https://www.mamp.info/)
 
 | Deployment        | Doc / section              | APP_URL example              |
 |-------------------|----------------------------|------------------------------|
-| Live              | [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md) | `https://your-domain.com`     |
+| Live              | [Full live guide](/deployment-instructions/live) · [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md) | Your **actual** public `https://…` or `http://…` |
 | Local — Laragon (Windows) | [Above](#localhost-laragon-windows) | `http://boardsmemberportal.test` or `http://localhost:8000` |
 | Local — Mac (MAMP / Manager OS X) | [Above](#localhost-mac-mamp-manager-os-x) | `http://localhost:8888/boardsmemberportal/public` or `http://localhost:8000` |
 
-For **.env** examples (live vs local), see [.env.example](.env.example). For live Reverb/queue/cron details, see [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md).
+For **.env** keys (live vs local), see [.env.example](.env.example). For **SMTP**, **cron**, **`portal:reset-data`**, and **troubleshooting commands**, use the [full live guide](/deployment-instructions/live).

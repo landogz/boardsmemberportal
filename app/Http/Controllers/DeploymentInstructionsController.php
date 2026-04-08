@@ -38,6 +38,8 @@ class DeploymentInstructionsController extends Controller
 
         return view('deployment-instructions', [
             'html' => $html,
+            'title' => 'Deployment Guide',
+            'description' => 'Install prerequisites, deploy to production (separate database server, email, cron), or run locally on Laragon or Mac. Use the full live guide for copy-paste server commands and troubleshooting.',
         ]);
     }
 

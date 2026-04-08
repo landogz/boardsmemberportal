@@ -3759,7 +3759,7 @@
                 }
                 // Hide header only on true mobile when chat is open
                 if (isMobile) {
-                    document.body.classList.add('header-hidden-mobile');
+                document.body.classList.add('header-hidden-mobile');
                 }
             }
             
@@ -4783,7 +4783,7 @@
                     // Also replace inline styles for sender bubbles
                     receivedMessageContent = receivedMessageContent.replace(/style="background: [^"]*sender_bubble[^"]*"/g, theme ? `style="background: ${theme.receiver_bubble}; color: ${theme.receiver_text};"` : '');
                     receivedMessageContent = `<div class="space-y-2">${receivedMessageContent}</div>`;
-} else if (msg.message && msg.message.trim()) {
+                } else if (msg.message && msg.message.trim()) {
                     const receiverStyle = theme
                         ? `style="background: ${theme.receiver_bubble}; color: ${theme.receiver_text};"`
                         : '';

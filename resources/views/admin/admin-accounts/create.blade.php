@@ -20,6 +20,11 @@
     }
     .password-requirements li.valid { color: #059669; }
     .password-requirements li.invalid { color: #DC2626; }
+    .field-error {
+        color: #DC2626;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
 </style>
 @endpush
 
@@ -56,6 +61,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Mobile (+63...)</label>
                     <input type="text" name="mobile" placeholder="+639123456789" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
+                    <p class="text-xs text-gray-500 mt-1">Format: +63 followed by 10 digits (e.g. +639171234567)</p>
+                    <p id="mobileValidationMessage" class="field-error hidden">Mobile must be +63 followed by exactly 10 digits.</p>
                 </div>
             </div>
 
@@ -110,24 +117,52 @@
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+    function validateMobile(mobile) {
+        return /^\+63[0-9]{10}$/.test(mobile || '');
+    }
+
+    function setRequirementState(selector, isValid) {
+        const $el = $(selector);
+        $el.removeClass('valid invalid').addClass(isValid ? 'valid' : 'invalid');
+    }
+
     function validatePassword(password) {
+        const specialCharacterPattern = /[!@#$%&*()\-_=+.,]/;
         return password.length >= 8 &&
             /[A-Z]/.test(password) &&
             /[a-z]/.test(password) &&
             /[0-9]/.test(password) &&
-            /[^A-Za-z0-9]/.test(password);
+            specialCharacterPattern.test(password);
     }
 
     function updatePasswordRequirements(password) {
-        $('#req-length').toggleClass('valid invalid', password.length >= 8);
-        $('#req-uppercase').toggleClass('valid invalid', /[A-Z]/.test(password));
-        $('#req-lowercase').toggleClass('valid invalid', /[a-z]/.test(password));
-        $('#req-number').toggleClass('valid invalid', /[0-9]/.test(password));
-        $('#req-special').toggleClass('valid invalid', /[^A-Za-z0-9]/.test(password));
+        const specialCharacterPattern = /[!@#$%&*()\-_=+.,]/;
+        setRequirementState('#req-length', password.length >= 8);
+        setRequirementState('#req-uppercase', /[A-Z]/.test(password));
+        setRequirementState('#req-lowercase', /[a-z]/.test(password));
+        setRequirementState('#req-number', /[0-9]/.test(password));
+        setRequirementState('#req-special', specialCharacterPattern.test(password));
     }
 
     $('#password').on('input', function() {
         updatePasswordRequirements($(this).val() || '');
+    });
+
+    $('[name="mobile"]').on('input', function() {
+        let value = ($(this).val() || '').replace(/\D/g, '');
+        if (value.startsWith('0')) value = value.substring(1);
+        if (value.startsWith('63')) value = value.substring(2);
+        value = value.substring(0, 10);
+        $(this).val(value ? `+63${value}` : '');
+    });
+
+    $('[name="mobile"]').on('blur', function() {
+        const mobile = ($(this).val() || '').trim();
+        if (!mobile) {
+            $('#mobileValidationMessage').addClass('hidden');
+            return;
+        }
+        $('#mobileValidationMessage').toggleClass('hidden', validateMobile(mobile));
     });
 
     $('#togglePassword').on('click', function() {
@@ -161,8 +196,37 @@
 
         const password = $('#password').val() || '';
         const passwordConfirmation = $('#password_confirmation').val() || '';
+        const mobile = ($('[name="mobile"]').val() || '').trim();
+
+        if (mobile && !validateMobile(mobile)) {
+            $('#mobileValidationMessage').removeClass('hidden');
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Mobile Number',
+                text: 'Mobile must be +63 followed by exactly 10 digits (e.g. +639171234567).'
+            });
+            submitBtn.prop('disabled', false);
+            return;
+        }
+        $('#mobileValidationMessage').addClass('hidden');
+
         if (!validatePassword(password)) {
-            Swal.fire({ icon: 'error', title: 'Invalid Password', text: 'Password does not meet the required format.' });
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                html: `
+                    <div class="text-left">
+                        <p class="mb-2">Password must meet all requirements:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Minimum of 8 characters</li>
+                            <li>At least 1 capital letter</li>
+                            <li>At least 1 small letter</li>
+                            <li>At least 1 number</li>
+                            <li>At least 1 special character (e.g. ! @ # $ % &amp; * ( ) - _ = + . , )</li>
+                        </ul>
+                    </div>
+                `
+            });
             submitBtn.prop('disabled', false);
             return;
         }

@@ -129,7 +129,18 @@
                                     {{ $notice->notice_type }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            @php
+                                $meetingDateForOrder = $notice->meeting_date ? \Carbon\Carbon::parse($notice->meeting_date)->startOfDay() : null;
+                                $meetingTimeForOrder = $notice->meeting_time ? \Carbon\Carbon::parse($notice->meeting_time) : null;
+                                $meetingOrderKey = $meetingDateForOrder
+                                    ? (
+                                        $meetingTimeForOrder
+                                            ? $meetingDateForOrder->copy()->setTime($meetingTimeForOrder->hour, $meetingTimeForOrder->minute, $meetingTimeForOrder->second)->timestamp
+                                            : $meetingDateForOrder->timestamp
+                                    )
+                                    : 0;
+                            @endphp
+                            <td class="px-6 py-4 whitespace-nowrap" data-order="{{ $meetingOrderKey }}">
                                 @if($notice->meeting_date)
                                     <div class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($notice->meeting_date)->format('M d, Y') }}</div>
                                 @endif

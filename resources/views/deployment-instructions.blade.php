@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Deployment Guide' }} - Board Member Portal</title>
+    <title>{{ $title ?? 'Deployment Guide' }} - Board Members Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -287,7 +287,7 @@
                     <span>Documentation</span>
                 </div>
                 <h1>{{ $title ?? 'Deployment Guide' }}</h1>
-                <p>{{ $description ?? 'Choose your deployment type: Live server, Laragon (Windows), or Mac (MAMP / Manager OS X).' }}</p>
+                <p>{{ $description ?? 'Choose your deployment type: live production (see full guide for DB, email, cron), Laragon (Windows), or Mac (MAMP / Manager OS X).' }}</p>
                 @if (!empty($showBackLink))
                     <p class="mt-3">
                         <a href="{{ route('deployment.instructions') }}" class="inline-flex items-center gap-2 text-sm font-medium" style="color: var(--deploy-accent);">
@@ -305,7 +305,7 @@
                     </button>
                     <button type="button" class="deploy-tab" data-target="live-deployment">
                         <span class="deploy-tab-label">Live deployment</span>
-                        <span class="deploy-tab-caption">Production server (Linux)</span>
+                        <span class="deploy-tab-caption">Production: checklist + link to full guide</span>
                     </button>
                     <button type="button" class="deploy-tab" data-target="localhost-laragon-windows">
                         <span class="deploy-tab-label">Laragon (Windows)</span>

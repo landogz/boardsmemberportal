@@ -246,10 +246,11 @@
                 html: `Are you sure you want to disapprove the registration for <strong>${registrationName}</strong>?`,
                 icon: 'warning',
                 input: 'textarea',
-                inputLabel: 'Rejection Reason (Optional)',
-                inputPlaceholder: 'Enter reason for rejection...',
+                inputLabel: 'Rejection Remarks (Required)',
+                inputPlaceholder: 'Enter rejection remarks...',
                 inputAttributes: {
-                    'aria-label': 'Enter reason for rejection'
+                    'aria-label': 'Enter rejection remarks',
+                    maxlength: 500
                 },
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
@@ -258,12 +259,17 @@
                 cancelButtonText: 'Cancel',
                 reverseButtons: true,
                 inputValidator: (value) => {
-                    // Optional field, no validation needed
+                    if (!value || !value.trim()) {
+                        return 'Rejection remarks are required.';
+                    }
+                    if (value.trim().length < 3) {
+                        return 'Rejection remarks must be at least 3 characters.';
+                    }
                     return null;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const rejectionReason = result.value || '';
+                    const rejectionReason = (result.value || '').trim();
 
                     // Show loading
                     Swal.fire({

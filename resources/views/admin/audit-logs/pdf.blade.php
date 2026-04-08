@@ -258,7 +258,7 @@
     @endif
     
     <div class="footer">
-        <p>This report was generated on {{ now()->format('F d, Y \a\t h:i A') }} from the Board Member Portal System</p>
+        <p>This report was generated on {{ now()->format('F d, Y \a\t h:i A') }} from the Board Members Portal System</p>
     </div>
 </body>
 </html>

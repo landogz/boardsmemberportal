@@ -66,7 +66,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
 <div class="page-header">
   <h1>🔐 Role-Based Access Control Flowchart</h1>
-  <p>Board Member Portal — Access permissions by user role</p>
+  <p>Board Members Portal — Access permissions by user role</p>
 </div>
 
 <div class="legend">
