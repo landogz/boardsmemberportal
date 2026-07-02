@@ -251,7 +251,7 @@
                                                     <strong style="color: #374151;">{{ $regulation->title }}</strong>
                                                     @if($regulation->effective_date)
                                                     <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
-                                                        Effective: {{ $regulation->effective_date->format('F d, Y') }}
+                                                        Effectivity: {{ $regulation->effective_date->format('F d, Y') }}
                                                     </div>
                                                     @endif
                                                 </div>
@@ -266,9 +266,9 @@
                                                 @foreach($resolutions as $resolution)
                                                 <div style="margin-bottom: 6px; padding: 8px; background-color: #f3f4f6; border-radius: 4px;">
                                                     <strong style="color: #374151;">{{ $resolution->title }}</strong>
-                                                    @if($resolution->effective_date)
+                                                    @if($resolution->approved_date)
                                                     <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
-                                                        Effective: {{ $resolution->effective_date->format('F d, Y') }}
+                                                        Approved: {{ $resolution->approved_date->format('F d, Y') }}
                                                     </div>
                                                     @endif
                                                 </div>

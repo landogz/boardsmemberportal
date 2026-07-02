@@ -163,13 +163,14 @@
                                 <option value="Director General" {{ $user->pre_nominal_title === 'Director General' ? 'selected' : '' }}>Director General</option>
                                 <option value="Executive Director" {{ $user->pre_nominal_title === 'Executive Director' ? 'selected' : '' }}>Executive Director</option>
                                 <option value="Attorney" {{ $user->pre_nominal_title === 'Attorney' ? 'selected' : '' }}>Attorney</option>
-                                <option value="Others" {{ $isCustomPreNominal ? 'selected' : '' }}>Others</option>
+                                <option value="Others" {{ $isCustomPreNominal ? 'selected' : '' }}>Others - Please Specifiy</option>
                             </select>
                             <div id="pre_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPreNominal ? '' : 'hidden' }}">
-                                <label for="pre_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
-                                <input type="text" id="pre_nominal_title_custom" name="pre_nominal_title_custom" value="{{ $isCustomPreNominal ? $user->pre_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                                <label for="pre_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Please specify *</label>
+                                <input type="text" id="pre_nominal_title_custom" name="pre_nominal_title_custom" value="{{ $isCustomPreNominal ? $user->pre_nominal_title : '' }}" placeholder="Enter pre nominal title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                             </div>
                             <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
+                            <span class="text-red-500 text-sm hidden" id="pre_nominal_title_custom-error"></span>
                         </div>
 
                         <div>
@@ -226,13 +227,14 @@
                             <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
                             <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
                             <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
-                            <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
+                            <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others - Please Specifiy</option>
                         </select>
                         <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
-                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
-                            <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Please specify *</label>
+                            <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Enter post nominal title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                         </div>
                         <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                        <span class="text-red-500 text-sm hidden" id="post_nominal_title_custom-error"></span>
                     </div>
 
                     <!-- Designation -->
@@ -517,6 +519,7 @@
         $('#post_nominal_title_custom').prop('required', false);
         if ($('#extension_name').val() === 'Others') $('#extension_name_custom').prop('required', true);
         if ($('#post_nominal_title').val() === 'Others') $('#post_nominal_title_custom').prop('required', true);
+        if ($('#pre_nominal_title').val() === 'Others') $('#pre_nominal_title_custom').prop('required', true);
 
         // Handle pre nominal title "Others" option
         $('#pre_nominal_title').on('change', function() {
@@ -697,14 +700,14 @@
             }
             const preNominalCustom = $('#pre_nominal_title_custom').val().trim();
             if (preNominalTitle === 'Others' && !preNominalCustom) {
-                showError('pre_nominal_title', 'Pre nominal title is required');
+                showError('pre_nominal_title_custom', 'Please specify your pre nominal title.');
                 if (!firstInvalidField) firstInvalidField = '#pre_nominal_title_custom';
                 isValid = false;
             }
             const postNominalTitle = $('#post_nominal_title').val();
             const postNominalCustom = $('#post_nominal_title_custom').val().trim();
             if (postNominalTitle === 'Others' && !postNominalCustom) {
-                showError('post_nominal_title', 'Post nominal title is required');
+                showError('post_nominal_title_custom', 'Please specify your post nominal title.');
                 if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
                 isValid = false;
             }
@@ -925,18 +928,33 @@
             return;
         }
         
-        // Prepare post nominal title (handle "Others" option)
+        const preNominalTitle = $('#pre_nominal_title').val();
+        const preNominalCustom = ($('#pre_nominal_title_custom').val() || '').trim();
+        if (preNominalTitle === 'Others' && !preNominalCustom) {
+            currentStep = 1;
+            showStep(1);
+            showError('pre_nominal_title_custom', 'Please specify your pre nominal title.');
+            return;
+        }
+
         const postNominalTitle = $('#post_nominal_title').val();
-        const finalPostNominal = postNominalTitle === 'Others' ? $('#post_nominal_title_custom').val() : postNominalTitle;
+        const postNominalCustom = ($('#post_nominal_title_custom').val() || '').trim();
+        if (postNominalTitle === 'Others' && !postNominalCustom) {
+            currentStep = 1;
+            showStep(1);
+            showError('post_nominal_title_custom', 'Please specify your post nominal title.');
+            return;
+        }
 
         const formData = {
-            pre_nominal_title: $('#pre_nominal_title').val(),
-            pre_nominal_title_custom: $('#pre_nominal_title').val() === 'Others' ? $('#pre_nominal_title_custom').val() : '',
+            pre_nominal_title: preNominalTitle,
+            pre_nominal_title_custom: preNominalTitle === 'Others' ? preNominalCustom : '',
             first_name: $('#first_name').val(),
             middle_initial: $('#middle_initial').val(),
             last_name: $('#last_name').val(),
             extension_name: ($('#extension_name').val() === 'Others' ? $('#extension_name_custom').val() : $('#extension_name').val()) || null,
-            post_nominal_title: finalPostNominal,
+            post_nominal_title: postNominalTitle,
+            post_nominal_title_custom: postNominalTitle === 'Others' ? postNominalCustom : '',
             designation: $('#designation').val(),
             sex: $('#sex').val(),
             gender: $('#gender').val(),

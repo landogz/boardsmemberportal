@@ -56,10 +56,10 @@ class ReportGenerationController extends Controller
             ->values()
             ->toArray();
 
-        // Distinct years from approved_date in Board Regulations and Board Resolutions (PHP so it works with any DB driver)
-        $regulationYears = BoardRegulation::whereNotNull('approved_date')
+        // Distinct years from effectivity date (regulations) and approved date (resolutions)
+        $regulationYears = BoardRegulation::whereNotNull('effective_date')
             ->get()
-            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->map(function ($r) { return $r->effective_date ? (int) $r->effective_date->format('Y') : null; })
             ->filter()
             ->unique()
             ->values()
@@ -86,6 +86,8 @@ class ReportGenerationController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to view reports.');
         }
 
+        $reportType = $request->input('report_type', 'notices');
+
         $request->validate([
             'report_type' => 'nullable|string|in:notices,announcements,board_regulations,board_resolutions,referendums,agenda_requests,reference_materials,attendance_confirmations,quorum_guide,summary_regular_meeting,summary_regular_meeting_by_title',
             'search' => 'nullable|string|max:255',
@@ -93,13 +95,16 @@ class ReportGenerationController extends Controller
             'date_to' => 'nullable|date|after_or_equal:date_from',
             'notice_date_from' => 'nullable|date',
             'notice_date_to' => 'nullable|date',
-            'notice_id' => 'nullable|integer|min:1',
+            'notice_id' => ($reportType === 'quorum_guide' ? 'required' : 'nullable') . '|integer|min:1',
+            'notice_title_id' => ($reportType === 'summary_regular_meeting_by_title' ? 'required' : 'nullable') . '|integer|min:1',
             'user_id' => 'nullable|uuid',
             'status' => 'nullable|string|max:64',
-            'year' => 'nullable|integer|min:2000|max:2100',
+            'year' => ($reportType === 'summary_regular_meeting' ? 'required' : 'nullable') . '|integer|min:2000|max:2100',
+        ], [
+            'notice_id.required' => 'Please select a Notice of Meeting to generate the Quorum Guide.',
+            'year.required' => 'Please select a year to generate the summary report.',
+            'notice_title_id.required' => 'Please select a meeting to generate the summary report.',
         ]);
-
-        $reportType = $request->input('report_type', 'notices');
         $results = collect();
         $filters = $request->except(['_token']);
 
@@ -164,25 +169,12 @@ class ReportGenerationController extends Controller
                 }
                 if ($request->filled('year')) {
                     $year = (int) $request->input('year');
-                    $query->whereNotNull('approved_date')
-                        ->whereBetween('approved_date', [
+                    $query->whereNotNull('effective_date')
+                        ->whereBetween('effective_date', [
                             Carbon::create($year, 1, 1)->startOfDay()->toDateString(),
                             Carbon::create($year, 12, 31)->endOfDay()->toDateString(),
                         ]);
                 }
-                if ($request->input('search')) {
-                    $search = $request->input('search');
-                    $query->where(function($q) use ($search) {
-                        $q->where('title', 'like', "%{$search}%")
-                          ->orWhere('description', 'like', "%{$search}%")
-                          ->orWhere('version', 'like', "%{$search}%");
-                    });
-                }
-                
-                $results = $query->orderBy('created_at', 'desc')->get();
-                break;
-
-            case 'board_resolutions':
                 $query = OfficialDocument::with(['uploader']);
                 
                 if ($dateFrom) {
@@ -352,6 +344,9 @@ class ReportGenerationController extends Controller
                 // Process registered users from attendance confirmations (all go to board_members, with attendance_mode for hybrid)
                 foreach ($acceptedConfirmations as $confirmation) {
                     $user = $confirmation->user;
+                    if (!$user) {
+                        continue;
+                    }
                     $agencyId = $user->government_agency_id ?? 0;
                     $agencyName = $user->governmentAgency->name ?? 'Unknown Agency';
 
@@ -427,7 +422,11 @@ class ReportGenerationController extends Controller
                     }
                 }
                 
-                $quorumData['attendees_by_agency'] = array_values($agenciesData);
+                $attendeesByAgency = array_values($agenciesData);
+                usort($attendeesByAgency, function ($a, $b) {
+                    return strcasecmp($a['agency_name'] ?? '', $b['agency_name'] ?? '');
+                });
+                $quorumData['attendees_by_agency'] = $attendeesByAgency;
                 $results = collect([$quorumData]);
                 break;
 
@@ -464,7 +463,7 @@ class ReportGenerationController extends Controller
                         }
                     }
                     if (!empty($regulationIds)) {
-                        foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('approved_date')->get() as $reg) {
+                        foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('effective_date')->get() as $reg) {
                             $regulations[] = ['title' => $reg->title, 'description' => $reg->description ?? '', 'version' => $reg->version];
                             $totalRegulations++;
                         }
@@ -520,7 +519,7 @@ class ReportGenerationController extends Controller
                     }
                 }
                 if (!empty($regulationIds)) {
-                    foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('approved_date')->get() as $reg) {
+                    foreach (BoardRegulation::whereIn('id', $regulationIds)->orderBy('effective_date')->get() as $reg) {
                         $regulations[] = ['title' => $reg->title, 'description' => $reg->description ?? '', 'version' => $reg->version];
                         $totalRegulations++;
                     }
@@ -588,9 +587,9 @@ class ReportGenerationController extends Controller
             ->toArray();
 
         // Distinct years for Board Regulations/Resolutions year dropdown (so it stays populated and selected after search)
-        $regulationYears = BoardRegulation::whereNotNull('approved_date')
+        $regulationYears = BoardRegulation::whereNotNull('effective_date')
             ->get()
-            ->map(function ($r) { return $r->approved_date ? (int) $r->approved_date->format('Y') : null; })
+            ->map(function ($r) { return $r->effective_date ? (int) $r->effective_date->format('Y') : null; })
             ->filter()
             ->unique()
             ->values()

@@ -187,7 +187,7 @@
                                 
                                 @if($regulation->effective_date)
                                 <div class="regulation-details">
-                                    <strong>Effective Date:</strong> {{ $regulation->effective_date->format('F d, Y') }}
+                                    <strong>Effectivity Date:</strong> {{ $regulation->effective_date->format('F d, Y') }}
                                 </div>
                                 @endif
                                 

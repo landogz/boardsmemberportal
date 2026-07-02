@@ -56,7 +56,7 @@
 
     <!-- Form -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form id="editNoticeForm" class="space-y-6">
+        <form id="editNoticeForm" class="space-y-6" novalidate>
             @csrf
             @method('PUT')
             
@@ -224,7 +224,7 @@
                                         </span>
                                         @if($regulation->effective_date)
                                             <span class="text-xs text-gray-500">
-                                                Effective: {{ $regulation->effective_date->format('F d, Y') }}
+                                                Effectivity: {{ $regulation->effective_date->format('F d, Y') }}
                                             </span>
                                         @endif
                                     </div>
@@ -256,7 +256,7 @@
                                 }
                             @endphp
                             @foreach($boardResolutions ?? [] as $resolution)
-                                <label class="resolution-item flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer" data-title="{{ strtolower($resolution->title) }}" data-date="{{ $resolution->effective_date ? strtolower($resolution->effective_date->format('F d, Y')) : '' }}">
+                                <label class="resolution-item flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer" data-title="{{ strtolower($resolution->title) }}" data-date="{{ $resolution->approved_date ? strtolower($resolution->approved_date->format('F d, Y')) : '' }}">
                                     <input 
                                         type="checkbox" 
                                         name="board_resolutions[]" 
@@ -268,9 +268,9 @@
                                         <span class="text-sm font-medium text-gray-700 block truncate">
                                             {{ $resolution->title }}
                                         </span>
-                                        @if($resolution->effective_date)
+                                        @if($resolution->approved_date)
                                             <span class="text-xs text-gray-500">
-                                                Effective: {{ $resolution->effective_date->format('F d, Y') }}
+                                                Approved: {{ $resolution->approved_date->format('F d, Y') }}
                                             </span>
                                         @endif
                                     </div>
@@ -745,6 +745,14 @@
         // Handle meeting type change
         // Venue for onsite/hybrid, meeting link for online/hybrid
         function toggleMeetingTypeFields() {
+            const meetingDetailsContainer = $('#meetingDetailsContainer');
+            if (meetingDetailsContainer.hasClass('hidden') || !meetingDetailsContainer.is(':visible')) {
+                $('#meeting_type').prop('required', false);
+                $('#venue').prop('required', false);
+                $('#meeting_link').prop('required', false);
+                return;
+            }
+
             const meetingType = $('#meeting_type').val();
             const venueContainer = $('#venueContainer');
             const venueInput = $('#venue');
@@ -771,7 +779,9 @@
             }
         }
         $('#meeting_type').on('change', toggleMeetingTypeFields);
-        toggleMeetingTypeFields(); // initial state
+        if (!$('#meetingDetailsContainer').hasClass('hidden') && $('#meetingDetailsContainer').is(':visible')) {
+            toggleMeetingTypeFields();
+        }
 
         // Search functionality for Board Regulations
         $('#boardRegulationsSearch').on('keyup', function() {

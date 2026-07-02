@@ -681,6 +681,8 @@
                             $totalComments = $referendum->allComments()->count();
                             $currentUserId = auth()->id();
                             $userVote = $currentUserId ? $referendum->votes->firstWhere('user_id', $currentUserId) : null;
+                            $isAuthorizedRepresentativeViewer = auth()->user()->privilege === 'user'
+                                && auth()->user()->representative_type === 'Authorized Representative';
                             
                             // Use generic CONSEC creator for user-side display (avatar initials: CS)
                             $creatorProfilePic = 'https://ui-avatars.com/api/?name=' . urlencode('CS') . '&size=80&background=1877f2&color=fff';
@@ -804,17 +806,21 @@
                                         : ($userVote->vote === 'decline' ? 'Disagree' : 'Abstain');
                                 @endphp
                                 <div class="mt-2 text-xs text-blue-700 dark:text-blue-300 px-4">
-                                    You manifested:
+                                    You manifested
                                     <span class="font-semibold {{ $userVote->vote === 'accept' ? 'text-emerald-600 dark:text-emerald-400' : ($userVote->vote === 'decline' ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400') }}">
                                         {{ $voteLabel }}
                                     </span>
                                     <span class="text-blue-700/80 dark:text-blue-300/80">
-                                        • You can change this while the referendum is active.
+                                        . You can change this while the Ad Referendum is active.
                                     </span>
+                                </div>
+                            @elseif($isAuthorizedRepresentativeViewer)
+                                <div class="mt-2 text-xs text-amber-700 dark:text-amber-300 px-4">
+                                    Authorized Representatives have viewing access only to this Ad Referendum. Voting privileges are disabled.
                                 </div>
                             @elseif(!$isExpired)
                                 <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 px-4">
-                                    You have not submitted a manifestation for this referendum yet.
+                                    You have not submitted a manifestation for this Ad Referendum yet.
                                 </div>
                             @endif
                             
@@ -834,7 +840,7 @@
                             <div class="fb-post-actions">
                                 <a href="{{ route('referendums.show', $referendum->id) }}" class="fb-post-action-btn primary">
                                     <i class="fas fa-vote-yea"></i>
-                                    <span>{{ $userVote ? 'Change Vote' : 'Vote' }}</span>
+                                    <span>{{ $isAuthorizedRepresentativeViewer ? 'View Only' : ($userVote ? 'Change Vote' : 'Vote') }}</span>
                                 </a>
                                 <a href="{{ route('referendums.show', $referendum->id) }}#comments" class="fb-post-action-btn">
                                     <i class="fas fa-comment"></i>

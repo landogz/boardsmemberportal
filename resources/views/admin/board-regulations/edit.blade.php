@@ -49,35 +49,48 @@
                 <span class="text-red-500 text-sm hidden" id="description-error"></span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="hidden">
-                    <label for="version" class="block text-sm font-medium text-gray-700 mb-2">Version</label>
-                    <input 
-                        type="text" 
-                        id="version" 
-                        name="version" 
-                        value="{{ $regulation->version }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        placeholder="e.g., 2025.1"
-                    >
-                </div>
+            <input type="hidden" id="version" name="version" value="{{ $regulation->version }}">
 
-                <div class="hidden">
-                    <input type="hidden" name="effective_date" value="{{ $regulation->effective_date ? $regulation->effective_date->format('Y-m-d') : '' }}">
-                </div>
-
-            <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
                     <label for="approved_date" class="block text-sm font-medium text-gray-700 mb-2">Approved Date *</label>
-                <input 
-                    type="date" 
-                    id="approved_date" 
-                    name="approved_date" 
+                    <input 
+                        type="date" 
+                        id="approved_date" 
+                        name="approved_date" 
                         required
-                    value="{{ $regulation->approved_date ? $regulation->approved_date->format('Y-m-d') : '' }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        placeholder="mm/dd/yyyy"
-                >
-                <p class="text-xs text-gray-500 mt-1">If left empty, approved date will default to effective date.</p>
+                        value="{{ $regulation->approved_date ? $regulation->approved_date->format('Y-m-d') : '' }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Date the Board approved this regulation (not the effectivity date).</p>
+                    <span class="text-red-500 text-sm hidden" id="approved_date-error"></span>
+                </div>
+
+                <div>
+                    <label for="effective_date" class="block text-sm font-medium text-gray-700 mb-2">Effectivity Date *</label>
+                    <input 
+                        type="date" 
+                        id="effective_date" 
+                        name="effective_date" 
+                        required
+                        value="{{ $regulation->effective_date ? $regulation->effective_date->format('Y-m-d') : '' }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Date the regulation takes legal effect (typically 15 days after publication).</p>
+                    <span class="text-red-500 text-sm hidden" id="effective_date-error"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="publication_date" class="block text-sm font-medium text-gray-700 mb-2">Publication Date (optional helper)</label>
+                    <input 
+                        type="date" 
+                        id="publication_date" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Enter publication date to suggest effectivity (+15 days). This field is not saved.</p>
+                    <button type="button" id="applyPublicationEffectivity" class="mt-2 text-sm text-[#055498] hover:underline font-medium">Apply suggested effectivity date</button>
                 </div>
 
                 <div>
@@ -145,6 +158,26 @@
 <script>
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+    function addDaysToDate(dateStr, days) {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-').map(Number);
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        date.setDate(date.getDate() + days);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    $('#applyPublicationEffectivity').on('click', function() {
+        const publicationDate = $('#publication_date').val();
+        if (!publicationDate) {
+            Swal.fire({ icon: 'warning', title: 'Publication date required', text: 'Enter a publication date to calculate the suggested effectivity date.' });
+            return;
+        }
+        $('#effective_date').val(addDaysToDate(publicationDate, 15));
+    });
 
     $('#editRegulationForm').on('submit', function(e) {
         e.preventDefault();

@@ -14,6 +14,21 @@ use Illuminate\Support\Facades\Mail;
 
 class ReferendumController extends Controller
 {
+    private function eligibleAdReferendumUsersQuery()
+    {
+        return User::query()
+            ->where('privilege', 'user')
+            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+            ->where(function ($query) {
+                $query->where('representative_type', 'Board Member')
+                    ->orWhere('representative_type', 'Ex-Officio Member')
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->where('pre_nominal_title', 'Undersecretary')
+                            ->where('representative_type', '!=', 'Authorized Representative');
+                    });
+            });
+    }
+
     /**
      * Display a listing of referendums
      */
@@ -47,13 +62,11 @@ class ReferendumController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'You do not have permission to create referendum.');
         }
 
-        $users = User::where('privilege', '!=', 'admin')
-            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+        $users = $this->eligibleAdReferendumUsersQuery()
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
-            ->orderBy('privilege')
-            ->orderByRaw("CASE WHEN privilege = 'user' AND representative_type = 'Board Member' THEN 0 WHEN privilege = 'user' AND representative_type = 'Authorized Representative' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE WHEN representative_type = 'Board Member' THEN 0 WHEN representative_type = 'Ex-Officio Member' THEN 1 WHEN pre_nominal_title = 'Undersecretary' THEN 2 ELSE 3 END")
             ->orderBy('government_agencies.name')
             ->orderBy('first_name')
             ->orderBy('last_name')
@@ -80,6 +93,14 @@ class ReferendumController extends Controller
             'allowed_users' => 'required|array|min:1',
             'allowed_users.*' => 'exists:users,id',
         ]);
+
+        $eligibleUserIds = $this->eligibleAdReferendumUsersQuery()->pluck('users.id')->map(fn ($id) => (string) $id)->all();
+        $selectedUserIds = collect($validated['allowed_users'])->map(fn ($id) => (string) $id)->all();
+
+        if (count(array_diff($selectedUserIds, $eligibleUserIds)) > 0) {
+            return back()->withInput()
+                ->withErrors(['allowed_users' => 'Ad Referendum voting may only be sent to Undersecretaries, Ex-Officio Members, and Regular Board Members.']);
+        }
 
         DB::beginTransaction();
         try {
@@ -346,13 +367,11 @@ class ReferendumController extends Controller
         }
 
         $referendum = Referendum::with('allowedUsers')->findOrFail($id);
-        $users = User::where('privilege', '!=', 'admin')
-            ->where('email', '!=', 'landogzwebsolutions@landogzwebsolutions.com')
+        $users = $this->eligibleAdReferendumUsersQuery()
             ->with('governmentAgency')
             ->leftJoin('government_agencies', 'users.government_agency_id', '=', 'government_agencies.id')
             ->select('users.*')
-            ->orderBy('privilege')
-            ->orderByRaw("CASE WHEN privilege = 'user' AND representative_type = 'Board Member' THEN 0 WHEN privilege = 'user' AND representative_type = 'Authorized Representative' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE WHEN representative_type = 'Board Member' THEN 0 WHEN representative_type = 'Ex-Officio Member' THEN 1 WHEN pre_nominal_title = 'Undersecretary' THEN 2 ELSE 3 END")
             ->orderBy('government_agencies.name')
             ->orderBy('first_name')
             ->orderBy('last_name')
@@ -384,6 +403,24 @@ class ReferendumController extends Controller
             'allowed_users.*' => 'exists:users,id',
         ]);
 
+        $eligibleUserIds = $this->eligibleAdReferendumUsersQuery()->pluck('users.id')->map(fn ($id) => (string) $id)->all();
+        $selectedUserIds = collect($validated['allowed_users'])->map(fn ($id) => (string) $id)->all();
+
+        if (count(array_diff($selectedUserIds, $eligibleUserIds)) > 0) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ad Referendum voting may only be sent to Undersecretaries, Ex-Officio Members, and Regular Board Members.',
+                    'errors' => [
+                        'allowed_users' => ['Ad Referendum voting may only be sent to Undersecretaries, Ex-Officio Members, and Regular Board Members.'],
+                    ],
+                ], 422);
+            }
+
+            return back()->withInput()
+                ->withErrors(['allowed_users' => 'Ad Referendum voting may only be sent to Undersecretaries, Ex-Officio Members, and Regular Board Members.']);
+        }
+
         DB::beginTransaction();
         try {
             $referendum->update([
@@ -407,8 +444,8 @@ class ReferendumController extends Controller
                 Notification::create([
                     'user_id' => $userId,
                     'type' => 'announcement',
-                    'title' => 'Referendum Updated - You Now Have Access',
-                    'message' => 'The referendum "' . $referendum->title . '" has been updated and you now have access to view, vote, and comment on it.',
+                    'title' => 'Ad Referendum Updated - You Now Have Access',
+                    'message' => 'The Ad Referendum "' . $referendum->title . '" has been updated and you now have access to view, vote, and comment on it.',
                     'url' => route('referendums.show', $referendum->id),
                     'data' => [
                         'referendum_id' => $referendum->id,
@@ -429,12 +466,12 @@ class ReferendumController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Referendum updated successfully.'
+                    'message' => 'Ad Referendum updated successfully.'
                 ]);
             }
 
             return redirect()->route('admin.referendums.index')
-                ->with('success', 'Referendum updated successfully.');
+                ->with('success', 'Ad Referendum updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -484,12 +521,12 @@ class ReferendumController extends Controller
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Referendum deleted successfully.'
+                    'message' => 'Ad Referendum deleted successfully.'
                 ]);
             }
 
             return redirect()->route('admin.referendums.index')
-                ->with('success', 'Referendum deleted successfully.');
+                ->with('success', 'Ad Referendum deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             

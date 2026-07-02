@@ -9,19 +9,34 @@ use Illuminate\Support\Facades\Auth;
 
 class ReferendumVoteController extends Controller
 {
+    private function isAuthorizedRepresentative($user): bool
+    {
+        return $user
+            && $user->privilege === 'user'
+            && $user->representative_type === 'Authorized Representative';
+    }
+
     /**
      * Store a vote for a referendum
      */
     public function store(Request $request, $referendumId)
     {
         $referendum = Referendum::findOrFail($referendumId);
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user?->id;
 
         // Check if user has access
         if (!$referendum->allowedUsers()->where('users.id', $userId)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have access to this referendum.'
+                'message' => 'You do not have access to this Ad Referendum.'
+            ], 403);
+        }
+
+        if ($this->isAuthorizedRepresentative($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Authorized Representatives have viewing access only to this Ad Referendum and cannot submit a manifestation.',
             ], 403);
         }
 
@@ -29,7 +44,7 @@ class ReferendumVoteController extends Controller
         if ($referendum->isExpired()) {
             return response()->json([
                 'success' => false,
-                'message' => 'This referendum has ended. Voting is no longer allowed.'
+                'message' => 'This Ad Referendum has ended. Voting is no longer allowed.'
             ], 403);
         }
 
@@ -67,7 +82,7 @@ class ReferendumVoteController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to record vote: ' . $e->getMessage()
+                'message' => 'Failed to record Ad Referendum manifestation: ' . $e->getMessage()
             ], 500);
         }
     }

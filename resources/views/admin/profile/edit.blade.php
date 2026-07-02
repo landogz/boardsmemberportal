@@ -303,13 +303,14 @@
                             <option value="CESO IV" {{ $user->post_nominal_title === 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
                             <option value="CESO V" {{ $user->post_nominal_title === 'CESO V' ? 'selected' : '' }}>CESO V</option>
                             <option value="CESO VI" {{ $user->post_nominal_title === 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
-                            <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others</option>
+                            <option value="Others" {{ $isCustomPostNominal ? 'selected' : '' }}>Others - Please Specifiy</option>
                         </select>
                         <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ $isCustomPostNominal ? '' : 'hidden' }}">
-                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Others:</label>
-                            <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Specify other title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
+                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 mb-1">Please specify *</label>
+                            <input type="text" id="post_nominal_title_custom" name="post_nominal_title_custom" value="{{ $isCustomPostNominal ? $user->post_nominal_title : '' }}" placeholder="Enter post nominal title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition">
                         </div>
                         <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                        <span class="text-red-500 text-sm hidden" id="post_nominal_title_custom-error"></span>
                     </div>
 
                     <!-- Designation -->
@@ -1215,7 +1216,7 @@
             const birthDate = $('#birth_date').val();
 
             if (postNominalTitle === 'Others' && !postNominalTitleCustom) {
-                showError('post_nominal_title', 'Please specify the other post nominal title.');
+                showError('post_nominal_title_custom', 'Please specify your post nominal title.');
                 if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
                 isValid = false;
             }
@@ -1307,7 +1308,13 @@
             return;
         }
         const postNominalTitle = $('#post_nominal_title').val();
-        const finalPostNominal = postNominalTitle === 'Others' ? $('#post_nominal_title_custom').val() : postNominalTitle;
+        const postNominalCustom = ($('#post_nominal_title_custom').val() || '').trim();
+        if (postNominalTitle === 'Others' && !postNominalCustom) {
+            Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please specify your post nominal title.' });
+            $('#post_nominal_title_custom').focus();
+            return;
+        }
+        const finalPostNominal = postNominalTitle === 'Others' ? postNominalCustom : postNominalTitle;
 
         const formData = new FormData();
         formData.append('pre_nominal_title', $('#pre_nominal_title').val());
@@ -1440,7 +1447,7 @@
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach(key => {
                     // Map backend field names to UI error spans when they differ
-                    const uiKey = key === 'post_nominal_title_custom' ? 'post_nominal_title' : key;
+                    const uiKey = ['post_nominal_title_custom', 'pre_nominal_title_custom'].includes(key) ? key : key;
                     const errorElement = $(`#${uiKey}-error`);
                     if (errorElement.length) {
                         errorElement.removeClass('hidden').text(errors[key][0]);

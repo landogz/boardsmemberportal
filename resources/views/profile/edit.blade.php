@@ -364,9 +364,9 @@
                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                         >
                             <option value="">Select Type</option>
-                            <option value="Board Member" {{ Auth::user()->representative_type === 'Board Member' ? 'selected' : '' }}>Board Member</option>
+                            <option value="Board Member" {{ Auth::user()->representative_type === 'Board Member' ? 'selected' : '' }}>Permanent Representative (USec or its eqv.)</option>
                             <option value="Authorized Representative" {{ Auth::user()->representative_type === 'Authorized Representative' ? 'selected' : '' }}>Authorized Representative</option>
-                            <option value="Ex-Officio Member" {{ Auth::user()->representative_type === 'Ex-Officio Member' ? 'selected' : '' }}>Ex-Officio Member</option>
+                            <option value="Ex-Officio Member" {{ Auth::user()->representative_type === 'Ex-Officio Member' ? 'selected' : '' }}>Ex-Officio Member (Head of Agency)</option>
                         </select>
                         <span class="text-red-500 text-sm hidden" id="representative_type-error"></span>
                     </div>
@@ -477,21 +477,22 @@
                             <option value="CESO IV" {{ $user->post_nominal_title == 'CESO IV' ? 'selected' : '' }}>CESO IV</option>
                             <option value="CESO V" {{ $user->post_nominal_title == 'CESO V' ? 'selected' : '' }}>CESO V</option>
                             <option value="CESO VI" {{ $user->post_nominal_title == 'CESO VI' ? 'selected' : '' }}>CESO VI</option>
-                            <option value="Others" {{ !in_array($user->post_nominal_title, ['CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) && $user->post_nominal_title ? 'selected' : '' }}>Others</option>
+                            <option value="Others" {{ !in_array($user->post_nominal_title, ['CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) && $user->post_nominal_title ? 'selected' : '' }}>Others - Please Specifiy</option>
                         </select>
                         <div id="post_nominal_title_custom_wrapper" class="mt-2 {{ !in_array($user->post_nominal_title, ['CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) && $user->post_nominal_title ? '' : 'hidden' }}">
-                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Others:</label>
-                            <input 
-                                type="text" 
-                                id="post_nominal_title_custom" 
-                                name="post_nominal_title_custom" 
+                            <label for="post_nominal_title_custom" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Please specify *</label>
+                            <input
+                                type="text"
+                                id="post_nominal_title_custom"
+                                name="post_nominal_title_custom"
                                 value="{{ !in_array($user->post_nominal_title, ['CESO I','CESO II','CESO III','CESO IV','CESO V','CESO VI', null, '']) ? $user->post_nominal_title : '' }}"
-                                placeholder="Specify other title"
+                                placeholder="Enter post nominal title"
                                 @if($isUserProfile) readonly @endif
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 @if($isUserProfile) bg-gray-100 dark:bg-gray-700 cursor-not-allowed @endif"
                             >
                         </div>
                         <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                        <span class="text-red-500 text-sm hidden" id="post_nominal_title_custom-error"></span>
                     </div>
 
                     <!-- Designation -->
@@ -1649,7 +1650,14 @@
                 const finalExtensionName = extensionNameEl && extensionNameEl.value === 'Others' && extensionNameCustomEl ? extensionNameCustomEl.value.trim() : (extensionNameEl ? extensionNameEl.value : '');
                 formData.append('extension_name', finalExtensionName || '');
                 const postNominalTitle = document.getElementById('post_nominal_title').value;
-                const finalPostNominal = postNominalTitle === 'Others' ? document.getElementById('post_nominal_title_custom').value : postNominalTitle;
+                const postNominalCustomEl = document.getElementById('post_nominal_title_custom');
+                const postNominalCustom = postNominalCustomEl ? postNominalCustomEl.value.trim() : '';
+                if (postNominalTitle === 'Others' && !postNominalCustom) {
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please specify your post nominal title.' });
+                    if (postNominalCustomEl) postNominalCustomEl.focus();
+                    return;
+                }
+                const finalPostNominal = postNominalTitle === 'Others' ? postNominalCustom : postNominalTitle;
                 formData.append('post_nominal_title', finalPostNominal);
                 formData.append('designation', document.getElementById('designation').value);
                 formData.append('sex', document.getElementById('sex').value);

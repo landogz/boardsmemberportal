@@ -18,6 +18,19 @@ use Illuminate\Support\Str;
 class BoardResolutionController extends Controller
 {
     /**
+     * Normalize empty strings to null for optional fields before validation/persistence.
+     */
+    private function normalizeRequest(Request $request): void
+    {
+        $request->merge([
+            'effective_date' => $request->filled('effective_date') ? $request->input('effective_date') : null,
+            'notice_id' => $request->filled('notice_id') ? $request->input('notice_id') : null,
+            'description' => $request->filled('description') ? $request->input('description') : null,
+            'version' => $request->filled('version') ? $request->input('version') : null,
+        ]);
+    }
+
+    /**
      * Display a listing of official documents
      */
     public function index()
@@ -27,7 +40,7 @@ class BoardResolutionController extends Controller
         }
 
         $documents = OfficialDocument::with(['pdf', 'uploader'])
-            ->orderBy('effective_date', 'desc')
+            ->orderBy('approved_date', 'desc')
             ->get();
 
         return view('admin.board-resolutions.index', compact('documents'));
@@ -62,15 +75,25 @@ class BoardResolutionController extends Controller
             ], 403);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'version' => 'nullable|string|max:255',
-            'effective_date' => 'nullable|date',
-            'approved_date' => 'required|date',
-            'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
-            'notice_id' => 'nullable|exists:notices,id',
-        ]);
+        try {
+            $this->normalizeRequest($request);
+
+            $validated = $request->validate([
+                'title' => 'required|string',
+                'description' => 'nullable|string',
+                'version' => 'nullable|string|max:255',
+                'effective_date' => 'nullable|date',
+                'approved_date' => 'required|date',
+                'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
+                'notice_id' => 'nullable|exists:notices,id',
+            ]);
+
+            if (!$request->hasFile('pdf_file') && (int) $request->server('CONTENT_LENGTH') > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The PDF file could not be uploaded. It may exceed the server upload limit (' . ini_get('upload_max_filesize') . ').',
+                ], 422);
+            }
 
         $pdfFileId = null;
 
@@ -103,7 +126,7 @@ class BoardResolutionController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'version' => $validated['version'] ?? null,
-            'effective_date' => $validated['effective_date'] ?? null,
+            'effective_date' => $validated['approved_date'],
             'approved_date' => $validated['approved_date'],
             'pdf_file' => $pdfFileId,
             'uploaded_by' => Auth::id(),
@@ -133,6 +156,16 @@ class BoardResolutionController extends Controller
             'message' => 'Board resolution created successfully.',
             'redirect' => route('admin.board-resolutions.index')
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Log::error('Board resolution store failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save board resolution. Please check all required fields and try again.',
+            ], 500);
+        }
     }
 
     /**
@@ -167,7 +200,10 @@ class BoardResolutionController extends Controller
 
         $document = OfficialDocument::findOrFail($id);
 
-        $validated = $request->validate([
+        try {
+            $this->normalizeRequest($request);
+
+            $validated = $request->validate([
             'title' => 'required|string',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
@@ -183,7 +219,6 @@ class BoardResolutionController extends Controller
         $hasDataChange = $document->title !== $validated['title'] ||
                         $document->description !== ($validated['description'] ?? null) ||
                         $document->version !== ($validated['version'] ?? null) ||
-                        $document->effective_date?->format('Y-m-d') !== ($validated['effective_date'] ?? null) ||
                         $document->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null) ||
                         $document->notice_id != ($validated['notice_id'] ?? null);
 
@@ -235,6 +270,7 @@ class BoardResolutionController extends Controller
 
         $updateData = $validated;
         $updateData['notice_id'] = !empty($validated['notice_id']) ? $validated['notice_id'] : null;
+        $updateData['effective_date'] = $validated['approved_date'];
         $document->update($updateData);
 
         AuditLogger::log(
@@ -248,6 +284,16 @@ class BoardResolutionController extends Controller
             'message' => 'Board resolution updated successfully.',
             'redirect' => route('admin.board-resolutions.index')
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Log::error('Board resolution update failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update board resolution. Please check all required fields and try again.',
+            ], 500);
+        }
     }
 
     /**

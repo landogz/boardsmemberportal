@@ -681,6 +681,11 @@
                                 </div>
                             </div>
 
+                @php
+                    $isAuthorizedRepresentativeViewer = auth()->user()->privilege === 'user'
+                        && auth()->user()->representative_type === 'Authorized Representative';
+                @endphp
+
                 <!-- Second Row: Details (Full Width) -->
                 <div class="w-full p-6">
                     <div class="mx-auto space-y-5">
@@ -689,9 +694,23 @@
                                 <div class="bg-gradient-to-br from-white to-gray-50 dark:from-[#1e293b] dark:to-[#0f172a] rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-lg">
                                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                                         <i class="fas fa-vote-yea mr-2 text-[#055498]"></i>
-                                        Submit Manifestation
+                                        {{ $isAuthorizedRepresentativeViewer ? 'Viewing Access' : 'Submit Manifestation' }}
                                     </h3>
-                                    @if($userVote)
+                                    @if($isAuthorizedRepresentativeViewer)
+                                        <div class="mb-4 px-4 py-3 rounded-xl border border-amber-100 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-amber-100/70 dark:from-amber-900/40 dark:to-amber-900/10 flex items-start gap-3">
+                                            <div class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm">
+                                                <i class="fas fa-eye text-base"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-base font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                                                    View-only access
+                                                </p>
+                                                <p class="text-sm text-amber-900 dark:text-amber-100">
+                                                    Authorized Representatives may view this Ad Referendum, but voting privileges are disabled.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @elseif($userVote)
                                         <div class="mb-4 px-4 py-3 rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100/70 dark:from-blue-900/40 dark:to-blue-900/10 flex items-start gap-3">
                                             <div class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
                                                 <i class="fas fa-check text-base"></i>
@@ -701,7 +720,7 @@
                                                     Your current manifestation
                                                 </p>
                                                 <p class="text-lg text-blue-900 dark:text-blue-100">
-                                                    You manifested:
+                                                    You manifested
                                                     @php
                                                         $voteLabel = $userVote->vote === 'accept'
                                                             ? 'Agree'
@@ -711,12 +730,13 @@
                                                         {{ $voteLabel }}
                                                     </span>
                                                     <span class="text-blue-900/80 dark:text-blue-200/80">
-                                                        • You can change this while the ad referendum is active.
+                                                        . You can change this while the Ad Referendum is active.
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
                                     @endif
+                                    @unless($isAuthorizedRepresentativeViewer)
                                     <div class="flex flex-col gap-3 mb-4">
                                         <button 
                                             type="button" 
@@ -746,6 +766,7 @@
                                             Abstain
                                         </button>
                                     </div>
+                                    @endunless
 
                                     <!-- Vote Statistics hidden for end-users; visible only on CONSEC/admin side -->
                                     @if(auth()->user()->privilege === 'consec' || auth()->user()->privilege === 'admin')
@@ -784,7 +805,7 @@
                                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Ad Referendum Ended</h3>
                                     </div>
                                     <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
-                                        This referendum has ended. Voting is no longer available.
+                                        This Ad Referendum has ended. Voting is no longer available.
                                     </p>
                                     <!-- Final Vote Statistics - visible only on CONSEC/admin side -->
                                     @if(auth()->user()->privilege === 'consec' || auth()->user()->privilege === 'admin')
@@ -1351,7 +1372,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: error.response?.data?.message || 'Failed to record vote. Please try again.'
+                        text: error.response?.data?.message || 'Failed to record Ad Referendum manifestation. Please try again.'
                     });
                 }
             }
@@ -1461,7 +1482,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Ended',
-                        text: 'This referendum has ended. Commenting is no longer available.'
+                        text: 'This Ad Referendum has ended. Commenting is no longer available.'
                     });
                     return;
                 }
@@ -1641,7 +1662,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'Ended',
-                    text: 'This referendum has ended. Comments cannot be edited.'
+                    text: 'This Ad Referendum has ended. Comments cannot be edited.'
                 });
                 return;
             }
@@ -2068,7 +2089,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Ended',
-                        text: 'This referendum has ended. Commenting is no longer available.'
+                        text: 'This Ad Referendum has ended. Commenting is no longer available.'
                     });
                     return;
                 }

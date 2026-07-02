@@ -44,8 +44,8 @@
                 <p class="text-sm font-medium text-gray-900">{{ $document->version ?? 'N/A' }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-600">Effective Date</p>
-                <p class="text-sm font-medium text-gray-900">{{ $document->effective_date ? $document->effective_date->format('M d, Y') : 'N/A' }}</p>
+                <p class="text-sm text-gray-600">Approved Date (Date Effective)</p>
+                <p class="text-sm font-medium text-gray-900">{{ $document->approved_date ? $document->approved_date->format('M d, Y') : 'N/A' }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-600">Uploaded By</p>
@@ -95,7 +95,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version #</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date (Date Effective)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change Notes</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated By</th>
@@ -119,7 +119,7 @@
                                 <div class="text-sm text-gray-900">{{ $version->version ?? 'N/A' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $version->effective_date ? $version->effective_date->format('M d, Y') : 'N/A' }}</div>
+                                <div class="text-sm text-gray-900">{{ $version->approved_date ? $version->approved_date->format('M d, Y') : ($version->effective_date ? $version->effective_date->format('M d, Y') : 'N/A') }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900 max-w-xs">{{ Str::limit($version->description, 50) }}</div>

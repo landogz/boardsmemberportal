@@ -189,13 +189,31 @@ class AuthController extends Controller
             'government_agency_id' => 'required|exists:government_agencies,id',
             'representative_type' => 'required|in:Board Member,Authorized Representative,Ex-Officio Member',
             // Pre nominal title: allow standard list or any custom text (final value is sent from frontend)
-            'pre_nominal_title' => 'required|string|max:255',
+            'pre_nominal_title' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (trim((string) $value) === '' || strcasecmp(trim((string) $value), 'Others') === 0) {
+                        $fail('Please specify your pre nominal title when Others - Please Specifiy is selected.');
+                    }
+                },
+            ],
             'first_name' => 'required|string|max:255',
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
             'extension_name' => 'nullable|string|max:50',
             // Post nominal title: allow standard list or any custom text (final value is sent from frontend)
-            'post_nominal_title' => 'nullable|string|max:255',
+            'post_nominal_title' => [
+                'nullable',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if ($value !== null && strcasecmp(trim((string) $value), 'Others') === 0) {
+                        $fail('Please specify your post nominal title when Others - Please Specifiy is selected.');
+                    }
+                },
+            ],
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',

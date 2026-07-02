@@ -130,6 +130,12 @@
         <p class="text-sm text-gray-600 mt-1">Generate comprehensive reports with advanced search and filtering options</p>
     </div>
 
+    @if($errors->any())
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
     <!-- Search Form -->
     <div class="filter-section">
         <form id="reportForm" method="GET" action="{{ route('admin.report-generation.search') }}">
@@ -187,7 +193,7 @@
                 <!-- Year filter (shared by Board Regulations and Board Resolutions - single name="year" to avoid duplicate params) -->
                 <div class="filter-row board_year-filters" style="display: none;">
                     <div class="filter-group">
-                        <label>Year (Approved Date)</label>
+                        <label>Year (Effectivity / Approved Date)</label>
                         <select name="year" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                             <option value="">All Years</option>
                             @foreach($regulationResolutionYears ?? [] as $y)
@@ -312,11 +318,11 @@
                 <!-- Quorum Guide filters -->
                 <div class="filter-row quorum_guide-filters" style="display: none;">
                     <div class="filter-group">
-                        <label>Notice of Meeting</label>
-                        <select name="notice_id" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
+                        <label>Notice of Meeting <span class="text-red-500">*</span></label>
+                        <select id="quorum_notice_id" name="notice_id" required class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none">
                             <option value="">Select Notice of Meeting</option>
                             @foreach($nomNotices as $notice)
-                                <option value="{{ $notice->id }}" {{ request('notice_id') == $notice->id ? 'selected' : '' }}>
+                                <option value="{{ $notice->id }}" {{ (string) request('notice_id') === (string) $notice->id ? 'selected' : '' }}>
                                     {{ $notice->title }} 
                                     @if($notice->meeting_date)
                                         ({{ $notice->meeting_date->format('M d, Y') }})
@@ -324,6 +330,7 @@
                                 </option>
                             @endforeach
                         </select>
+                        <p class="mt-1 text-xs text-gray-500">Select the meeting to generate the Quorum Guide for accepted attendees and invited board members.</p>
                     </div>
                 </div>
 
@@ -363,18 +370,13 @@
 
             <div class="flex gap-3 mt-4">
                 <button type="submit" class="px-6 py-2.5 bg-[#055498] text-white rounded-lg font-medium hover:bg-[#123a60] transition-colors">
-                    <i class="fas fa-search mr-2"></i>Search
+                    <i class="fas fa-file-alt mr-2"></i>Generate
                 </button>
                 <button type="button" onclick="resetForm()" class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
                     <i class="fas fa-redo mr-2"></i>Reset
                 </button>
                 @php
-                    $canPrint = false;
-                    if (isset($results) && $results->count() > 0) {
-                        $canPrint = true;
-                    } elseif (isset($reportType) && in_array($reportType, ['quorum_guide', 'summary_regular_meeting', 'summary_regular_meeting_by_title'])) {
-                        $canPrint = true;
-                    }
+                    $canPrint = isset($results) && $results->count() > 0;
                 @endphp
                 @if($canPrint)
                     <button type="button" onclick="printReport()" class="px-6 py-2.5 text-white rounded-lg font-medium hover:opacity-90 transition-colors" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
@@ -387,12 +389,8 @@
 
     <!-- Results Section -->
     @php
-        $showResults = false;
-        if (isset($results)) {
-            $showResults = true;
-        } elseif (isset($reportType) && in_array($reportType, ['quorum_guide', 'summary_regular_meeting', 'summary_regular_meeting_by_title'])) {
-            $showResults = true;
-        }
+        $showResults = isset($results) && isset($reportType);
+        $hasResults = isset($results) && $results->count() > 0;
     @endphp
     @if($showResults)
         <div class="results-section">
@@ -410,14 +408,6 @@
                 </h3>
             </div>
 
-            @php
-                $hasResults = false;
-                if (isset($results) && $results->count() > 0) {
-                    $hasResults = true;
-                } elseif (isset($reportType) && in_array($reportType, ['quorum_guide', 'summary_regular_meeting', 'summary_regular_meeting_by_title'])) {
-                    $hasResults = true;
-                }
-            @endphp
             @if($hasResults)
                 <div id="reportResults">
                     @include('admin.report-generation.results', ['results' => $results ?? collect(), 'reportType' => $reportType ?? ''])
@@ -425,7 +415,17 @@
             @else
                 <div class="text-center py-12">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-lg">No records found matching your search criteria</p>
+                    <p class="text-gray-500 text-lg">
+                        @if(($reportType ?? '') === 'quorum_guide')
+                            Please select a Notice of Meeting to generate the Quorum Guide.
+                        @elseif(($reportType ?? '') === 'summary_regular_meeting')
+                            Please select a year to generate the summary report.
+                        @elseif(($reportType ?? '') === 'summary_regular_meeting_by_title')
+                            Please select a meeting to generate the summary report.
+                        @else
+                            No records found matching your search criteria.
+                        @endif
+                    </p>
                 </div>
             @endif
         </div>
@@ -436,6 +436,57 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+    });
+
+    function isFilterRowVisible(row) {
+        return row && window.getComputedStyle(row).display !== 'none';
+    }
+
+    function syncReportFilterFields(reportType) {
+        document.querySelectorAll('.filter-row').forEach(row => {
+            const isVisible = row.classList.contains(reportType + '-filters')
+                || (row.classList.contains('board_year-filters') && ['board_regulations', 'board_resolutions'].includes(reportType));
+            row.style.display = isVisible ? 'grid' : 'none';
+
+            row.querySelectorAll('input, select, textarea').forEach(field => {
+                field.disabled = !isVisible;
+                if (!isVisible) {
+                    field.removeAttribute('required');
+                }
+            });
+        });
+
+        if (reportType === 'quorum_guide') {
+            const quorumNotice = document.getElementById('quorum_notice_id');
+            if (quorumNotice) {
+                quorumNotice.disabled = false;
+                quorumNotice.setAttribute('required', 'required');
+            }
+        }
+
+        if (reportType === 'summary_regular_meeting') {
+            const yearSelect = document.querySelector('.summary_regular_meeting-filters select[name="year"]');
+            if (yearSelect) {
+                yearSelect.disabled = false;
+                yearSelect.setAttribute('required', 'required');
+            }
+        }
+
+        if (reportType === 'summary_regular_meeting_by_title') {
+            const meetingSelect = document.getElementById('notice_title_id');
+            if (meetingSelect) {
+                meetingSelect.disabled = false;
+                meetingSelect.setAttribute('required', 'required');
+            }
+        }
+    }
+
     // Show/hide filters based on report type; reset all filter values so print Applied Filters are clean
     document.getElementById('report_type').addEventListener('change', function() {
         const reportType = this.value;
@@ -449,60 +500,30 @@
                 field.selectedIndex = 0;
             }
         });
-        // Hide all filter groups and remove required attributes
-        document.querySelectorAll('.filter-row').forEach(row => {
-            row.style.display = 'none';
-            row.querySelectorAll('select[required], input[required]').forEach(field => {
-                field.removeAttribute('required');
-            });
-        });
-        // Show relevant filter group
-        const relevantFilter = document.querySelector('.' + reportType + '-filters');
-        if (relevantFilter) {
-            relevantFilter.style.display = 'grid';
-        }
-        // Show shared year filter for board regulations and board resolutions
-        const yearFilter = document.querySelector('.board_year-filters');
-        if (yearFilter && (reportType === 'board_regulations' || reportType === 'board_resolutions')) {
-            yearFilter.style.display = 'grid';
-        }
+        syncReportFilterFields(reportType);
     });
     
-    // Remove required from hidden fields before form submission
-    document.querySelector('form').addEventListener('submit', function(e) {
-        // Remove required from all hidden filter fields
-        document.querySelectorAll('.filter-row[style*="display: none"] select[required], .filter-row[style*="display: none"] input[required]').forEach(field => {
-            field.removeAttribute('required');
-        });
-        // Also ensure all visible filter fields are optional (except for special report types)
+    // Prepare hidden fields before form submission
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
         const reportType = document.getElementById('report_type').value;
-        if (!['quorum_guide', 'summary_regular_meeting', 'summary_regular_meeting_by_title'].includes(reportType)) {
-            document.querySelectorAll('.filter-row:not([style*="display: none"]) select[required], .filter-row:not([style*="display: none"]) input[required]').forEach(field => {
-                field.removeAttribute('required');
-            });
+        syncReportFilterFields(reportType);
+
+        if (reportType === 'quorum_guide') {
+            const quorumNotice = document.getElementById('quorum_notice_id');
+            if (!quorumNotice || !quorumNotice.value) {
+                e.preventDefault();
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Please select a Notice of Meeting to generate the Quorum Guide.',
+                });
+            }
         }
     });
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         const reportType = document.getElementById('report_type').value;
-        // Hide all filter groups first
-        document.querySelectorAll('.filter-row').forEach(row => {
-            row.style.display = 'none';
-            row.querySelectorAll('select[required], input[required]').forEach(field => {
-                field.removeAttribute('required');
-            });
-        });
-        // Show relevant filter group
-        const relevantFilter = document.querySelector('.' + reportType + '-filters');
-        if (relevantFilter) {
-            relevantFilter.style.display = 'grid';
-        }
-        // Show shared year filter for board regulations and board resolutions
-        const yearFilter = document.querySelector('.board_year-filters');
-        if (yearFilter && (reportType === 'board_regulations' || reportType === 'board_resolutions')) {
-            yearFilter.style.display = 'grid';
-        }
+        syncReportFilterFields(reportType);
         
         // Preserve selected values from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -510,25 +531,30 @@
         const userId = urlParams.get('user_id');
         
         if (noticeId) {
-            const noticeSelect = document.querySelector('select[name="notice_id"]');
-            if (noticeSelect) {
-                noticeSelect.value = noticeId;
+            const quorumNotice = document.getElementById('quorum_notice_id');
+            if (quorumNotice) {
+                quorumNotice.value = noticeId;
             }
         }
         
         if (userId) {
-            const userSelect = document.querySelector('select[name="user_id"]');
+            const userSelect = document.querySelector('.filter-row:not([style*="display: none"]) select[name="user_id"]');
             if (userSelect) {
                 userSelect.value = userId;
             }
         }
+
+        @if($errors->any())
+            Toast.fire({
+                icon: 'error',
+                title: @json($errors->first()),
+            });
+        @endif
     });
 
     function resetForm() {
         document.getElementById('reportForm').reset();
-        document.querySelectorAll('.filter-row').forEach(row => {
-            row.style.display = 'none';
-        });
+        syncReportFilterFields(document.getElementById('report_type').value);
     }
 
     function printReport() {
@@ -666,6 +692,7 @@
                             'status' => $item->status ?? null,
                             'version' => $item->version ?? null,
                             'approved_date' => $item->approved_date ?? null,
+                            'effective_date' => $item->effective_date ?? null,
                             'created_at' => $item->created_at ? $item->created_at->toDateTimeString() : null,
                             'creator' => $item->creator ? ['first_name' => $item->creator->first_name, 'last_name' => $item->creator->last_name] : null,
                             'uploader' => $item->uploader ? ['first_name' => $item->uploader->first_name, 'last_name' => $item->uploader->last_name] : null,
@@ -1357,7 +1384,7 @@
         const headers = {
             'notices': ['Title', 'Type', 'Meeting Type', 'Meeting Date', 'Meeting Time', 'Meeting Link', 'Venue', 'Created By'],
             'announcements': ['Title', 'Description', 'Created By', 'Created At'],
-            'board_regulations': ['Title', 'Approved Date', 'Uploaded By'],
+            'board_regulations': ['Title', 'Effectivity Date', 'Uploaded By'],
             'board_resolutions': ['Title', 'Approved Date', 'Uploaded By'],
             'referendums': ['Title', 'Status', 'Created By', 'Created At'],
             'agenda_requests': ['Notice', 'User', 'Description', 'Status', 'Submitted At'],
@@ -1399,7 +1426,7 @@
             ],
             'board_regulations': [
                 item.title || '—',
-                item.approved_date ? new Date(item.approved_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+                item.effective_date ? new Date(item.effective_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
                 item.uploader ? (item.uploader.first_name + ' ' + item.uploader.last_name) : '—'
             ],
             'board_resolutions': [

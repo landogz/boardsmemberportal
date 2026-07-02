@@ -247,7 +247,15 @@
                         </div>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: rgba(5, 84, 152, 0.2); color: #055498;">2 New</span>
                     </div>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">View meeting communications and confirm attendance</p>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">View meeting communications, confirm attendance, and submit agenda-related requests when allowed.</p>
+                    <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+                        <p class="font-semibold">What BMP users can do</p>
+                        <ul class="mt-2 space-y-1 list-disc list-inside">
+                            <li>Accept or decline communication invitations.</li>
+                            <li>Request agenda inclusion and submit reference materials when permitted.</li>
+                            <li>Use "Other Matters" to invite external participants for agenda items, but all follow-up communication and transactions with external actors must happen outside the portal.</li>
+                        </ul>
+                    </div>
                     
                     <!-- Sample Meeting Communications -->
                     <div class="space-y-3 mb-4">
@@ -265,6 +273,35 @@
                     
                     <a href="#" class="inline-flex items-center font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
                         View Communications 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Ad Referendum Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Ad Referendum</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Review Ad Referendum items and participate based on your assigned access.</p>
+                    <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+                        <p class="font-semibold">Participation guidance</p>
+                        <ul class="mt-2 space-y-1 list-disc list-inside">
+                            <li>Regular Board Members, Ex-Officio Members, and Undersecretaries may view and vote when included in Ad Referendum access.</li>
+                            <li>Authorized Representatives have viewing access only and do not have voting rights in Ad Referendum activities.</li>
+                            <li>All participation remains subject to the Ad Referendum being active and accessible to your account.</li>
+                        </ul>
+                    </div>
+                    <a href="{{ route('referendums.index') }}" class="inline-flex items-center font-semibold transition" style="color: #055498;" onmouseover="this.style.color='#123a60'" onmouseout="this.style.color='#055498'">
+                        Open Ad Referendum
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>

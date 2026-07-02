@@ -53,12 +53,11 @@
 
             <div class="hidden">
                 <input type="text" id="version" name="version" value="{{ $document->version }}">
-                <input type="hidden" name="effective_date" value="{{ $document->effective_date ? $document->effective_date->format('Y-m-d') : '' }}">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="approved_date" class="block text-sm font-medium text-gray-700 mb-2">Approved Date *</label>
+                    <label for="approved_date" class="block text-sm font-medium text-gray-700 mb-2">Approved Date (Date Effective) *</label>
                     <input 
                         type="date" 
                         id="approved_date" 
@@ -66,9 +65,8 @@
                         required
                         value="{{ $document->approved_date ? $document->approved_date->format('Y-m-d') : '' }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                        placeholder="mm/dd/yyyy"
                     >
-                    <p class="text-xs text-gray-500 mt-1">If left empty, approved date will default to the effective date.</p>
+                    <p class="text-xs text-gray-500 mt-1">Board resolutions take effect upon approval; this date is the date of effectivity.</p>
                 </div>
                 <div>
                     <label for="notice_id" class="block text-sm font-medium text-gray-700 mb-2">Notice of Meeting</label>
@@ -138,6 +136,31 @@
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+    });
+
+    function getRequestErrorMessage(error, fallback) {
+        const data = error.response?.data;
+        if (!data) {
+            return error.message || fallback;
+        }
+        if (typeof data === 'string') {
+            return fallback;
+        }
+        if (data.errors) {
+            const messages = Object.values(data.errors).flat().filter(Boolean);
+            if (messages.length) {
+                return messages.join(' ');
+            }
+        }
+        return data.message || fallback;
+    }
+
     $('#editDocumentForm').on('submit', function(e) {
         e.preventDefault();
 
@@ -157,14 +180,18 @@
         })
         .then(response => {
             if (response.data.success) {
-                Swal.fire({
+                Toast.fire({
                     icon: 'success',
-                    title: 'Success!',
-                    text: response.data.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
+                    title: response.data.message || 'Board resolution updated successfully.'
+                });
+                setTimeout(() => {
                     window.location.href = response.data.redirect;
+                }, 1200);
+            } else {
+                submitBtn.prop('disabled', false).html(originalText);
+                Toast.fire({
+                    icon: 'error',
+                    title: response.data.message || 'Failed to update board resolution.'
                 });
             }
         })
@@ -178,10 +205,9 @@
                 });
             }
 
-            Swal.fire({
+            Toast.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error.response?.data?.message || 'An error occurred. Please try again.'
+                title: getRequestErrorMessage(error, 'Failed to update board resolution. Please try again.')
             });
         });
     });

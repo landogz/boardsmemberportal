@@ -17,6 +17,16 @@ use Illuminate\Support\Str;
 
 class BoardRegulationController extends Controller
 {
+    private function normalizeRequest(Request $request): void
+    {
+        $request->merge([
+            'effective_date' => $request->filled('effective_date') ? $request->input('effective_date') : null,
+            'notice_id' => $request->filled('notice_id') ? $request->input('notice_id') : null,
+            'description' => $request->filled('description') ? $request->input('description') : null,
+            'version' => $request->filled('version') ? $request->input('version') : null,
+        ]);
+    }
+
     public function index()
     {
         if (!Auth::user()->hasPermission('view board regulations')) {
@@ -50,15 +60,18 @@ class BoardRegulationController extends Controller
             return response()->json(['success' => false, 'message' => 'You do not have permission to create board regulations.'], 403);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'version' => 'nullable|string|max:255',
-            'effective_date' => 'nullable|date',
-            'approved_date' => 'required|date',
-            'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
-            'notice_id' => 'nullable|exists:notices,id',
-        ]);
+        try {
+            $this->normalizeRequest($request);
+
+            $validated = $request->validate([
+                'title' => 'required|string',
+                'description' => 'nullable|string',
+                'version' => 'nullable|string|max:255',
+                'effective_date' => 'required|date|after_or_equal:approved_date',
+                'approved_date' => 'required|date',
+                'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
+                'notice_id' => 'nullable|exists:notices,id',
+            ]);
 
         $pdfFileId = null;
 
@@ -86,7 +99,7 @@ class BoardRegulationController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'version' => $validated['version'] ?? null,
-            'effective_date' => $validated['effective_date'] ?? null,
+            'effective_date' => $validated['effective_date'],
             'approved_date' => $validated['approved_date'],
             'pdf_file' => $pdfFileId,
             'uploaded_by' => Auth::id(),
@@ -112,6 +125,16 @@ class BoardRegulationController extends Controller
             'message' => 'Board regulation created successfully.',
             'redirect' => route('admin.board-regulations.index'),
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Log::error('Board regulation store failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save board regulation. Please check all required fields and try again.',
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -138,11 +161,14 @@ class BoardRegulationController extends Controller
 
         $regulation = BoardRegulation::findOrFail($id);
 
-        $validated = $request->validate([
+        try {
+            $this->normalizeRequest($request);
+
+            $validated = $request->validate([
             'title' => 'required|string',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:255',
-            'effective_date' => 'nullable|date',
+            'effective_date' => 'required|date|after_or_equal:approved_date',
             'approved_date' => 'required|date',
             'pdf_file' => 'nullable|file|mimes:pdf|max:102400', // 100MB
             'notice_id' => 'nullable|exists:notices,id',
@@ -207,6 +233,16 @@ class BoardRegulationController extends Controller
             'message' => 'Board regulation updated successfully.',
             'redirect' => route('admin.board-regulations.index'),
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Log::error('Board regulation update failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update board regulation. Please check all required fields and try again.',
+            ], 500);
+        }
     }
 
     public function destroy($id)

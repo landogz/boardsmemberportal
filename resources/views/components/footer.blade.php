@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div>
-                <h3 class="text-lg font-bold mb-4" style="color: #055498;">Board Portal</h3>
+                <h3 class="text-lg font-bold mb-4" style="color: #055498;">Board Members Portal</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Modern board management platform for efficient collaboration and communication.</p>
             </div>
             <div>

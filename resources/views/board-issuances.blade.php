@@ -353,7 +353,7 @@
             var cursor = item.has_pdf ? 'cursor-pointer' : 'cursor-default';
             var attrs = 'id="' + escapeAttr(id) + '" class="issuance-item issuance-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 scroll-mt-20 ' + cursor + '" data-type="' + escapeAttr(item.type) + '" data-year="' + escapeAttr(item.year) + '"';
             if (item.has_pdf && item.pdf_url) {
-                attrs += ' data-pdf-url="' + escapeAttr(item.pdf_url) + '" data-title="' + escapeAttr(item.title) + '" data-description="' + escapeAttr(item.description || '') + '" data-date="' + escapeAttr(item.date || '') + '" data-creator="' + escapeAttr(item.creator || '') + '" data-creator-image="' + escapeAttr(item.creator_image || '') + '" onclick="viewPDFWithMeta(this)"';
+                attrs += ' data-pdf-url="' + escapeAttr(item.pdf_url) + '" data-title="' + escapeAttr(item.title) + '" data-description="' + escapeAttr(item.description || '') + '" data-date="' + escapeAttr(item.date || '') + '" data-date-label="' + escapeAttr(item.date_label || 'Date') + '" data-creator="' + escapeAttr(item.creator || '') + '" data-creator-image="' + escapeAttr(item.creator_image || '') + '" onclick="viewPDFWithMeta(this)"';
             }
             return '<div ' + attrs + '><h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line">' + escapeAttr(item.title) + '</h3></div>';
         }
@@ -464,13 +464,14 @@
             const type = (el.getAttribute('data-type') === 'resolution') ? 'resolution' : 'regulation';
             const description = el.getAttribute('data-description') || '';
             const date = el.getAttribute('data-date') || '';
+            const dateLabel = el.getAttribute('data-date-label') || 'Date';
             const creator = el.getAttribute('data-creator') || '';
             const creatorImage = el.getAttribute('data-creator-image') || '';
-            viewPDF(pdfUrl, title, title, type, description, date, creator, creatorImage);
+            viewPDF(pdfUrl, title, title, type, description, date, dateLabel, creator, creatorImage);
         }
 
         // View PDF in modal (user side); optional meta: description, date, creator, creatorImage
-        function viewPDF(pdfUrl, identifier, title, type, description, date, creator, creatorImage) {
+        function viewPDF(pdfUrl, identifier, title, type, description, date, dateLabel, creator, creatorImage) {
             const modal = document.getElementById('pdfModal');
             const iframe = document.getElementById('pdfViewer');
             const modalTitle = document.getElementById('pdfModalTitle');
@@ -496,12 +497,12 @@
 
             // Show description, date, creator (with image)
             descEl.textContent = description || '';
-            dateEl.textContent = date || '';
+            dateEl.textContent = date ? ((dateLabel || 'Date') + ': ' + date) : '';
             creatorEl.textContent = creator || '';
             dateWrap.style.display = date ? '' : 'none';
             creatorWrap.style.display = creator ? '' : 'none';
             if (effectiveEl) {
-                effectiveEl.textContent = date ? `(Approved: ${date})` : '';
+                effectiveEl.textContent = '';
             }
             if (creatorImage) {
                 creatorImgEl.src = creatorImage;

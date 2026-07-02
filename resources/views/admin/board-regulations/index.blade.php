@@ -82,7 +82,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Version</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Effective Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effectivity Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PDF</th>
@@ -101,7 +101,7 @@
                         <td class="px-6 py-4 whitespace-nowrap hidden">
                             <div class="text-sm text-gray-500">{{ $regulation->version ?? 'N/A' }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap hidden">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $regulation->effective_date ? $regulation->effective_date->format('M d, Y') : 'N/A' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">

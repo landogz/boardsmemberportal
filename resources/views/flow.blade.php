@@ -230,7 +230,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         </div>
       </div>
       <div class="module-card consec">
-        <div class="module-header consec">🗳️ Referendums</div>
+        <div class="module-header consec">🗳️ Ad Referendum</div>
         <div class="module-body">
           <div class="access-item"><span class="badge badge-cond">COND</span>Vote &amp; comment if in referendum_user_access</div>
           <div class="access-item"><span class="badge badge-cond">COND</span>Create &amp; manage if role permits</div>
@@ -297,11 +297,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
           <div class="access-item"><span class="badge badge-cond">COND</span>Sees /notices only if in notice_user_access</div>
           <div class="access-item"><span class="badge badge-full">ACTION</span>Accept / decline invitations</div>
           <div class="access-item"><span class="badge badge-full">ACTION</span>Submit agenda requests &amp; ref materials</div>
+          <div class="access-item"><span class="badge badge-cond">COND</span>Other Matters may include inviting external participants for agenda items</div>
+          <div class="access-item"><span class="badge badge-none">OUTSIDE</span>Subsequent communications and transactions with external participants happen outside the portal</div>
           <div class="access-item"><span class="badge badge-none">BLOCK</span>After decline → no meeting materials access</div>
         </div>
       </div>
       <div class="module-card bm">
-        <div class="module-header bm">🗳️ Referendums</div>
+        <div class="module-header bm">🗳️ Ad Referendum</div>
         <div class="module-body">
           <div class="access-item"><span class="badge badge-cond">COND</span>View &amp; vote only if in referendum_user_access</div>
           <div class="access-item"><span class="badge badge-cond">COND</span>Comment only if in referendum_user_access</div>

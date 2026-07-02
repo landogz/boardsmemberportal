@@ -44,7 +44,7 @@
                 <p class="text-sm font-medium text-gray-900">{{ $regulation->version ?? 'N/A' }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-600">Effective Date</p>
+                <p class="text-sm text-gray-600">Effectivity Date</p>
                 <p class="text-sm font-medium text-gray-900">{{ $regulation->effective_date ? $regulation->effective_date->format('M d, Y') : 'N/A' }}</p>
             </div>
             <div>
@@ -99,7 +99,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version #</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effectivity Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change Notes</th>

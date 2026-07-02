@@ -159,7 +159,7 @@
                     <!-- Header -->
                     <tr>
                         <td class="email-header">
-                            <h1>🗳️ New Referendum</h1>
+                            <h1>🗳️ New Ad Referendum</h1>
                         </td>
                     </tr>
                     
@@ -195,7 +195,7 @@
                             <div class="divider"></div>
                             
                             <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
-                                This referendum was sent to you by <strong>Board Members Portal</strong>.
+                                This Ad Referendum was sent to you by <strong>Board Members Portal</strong>.
                                 Please review the details and submit your manifestation before the expiration date.
                             </p>
                         </td>

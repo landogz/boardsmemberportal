@@ -262,7 +262,7 @@
                                         <div class="flex-1">
                                             <h5 class="text-sm font-semibold text-gray-900 mb-1">{{ $regulation->title }}</h5>
                                             @if($regulation->effective_date)
-                                                <p class="text-xs text-gray-500">Effective: {{ $regulation->effective_date->format('F d, Y') }}</p>
+                                                <p class="text-xs text-gray-500">Effectivity: {{ $regulation->effective_date->format('F d, Y') }}</p>
                                             @endif
                                         </div>
                                         @if($regulation->pdf)
@@ -286,8 +286,8 @@
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <h5 class="text-sm font-semibold text-gray-900 mb-1">{{ $resolution->title }}</h5>
-                                            @if($resolution->effective_date)
-                                                <p class="text-xs text-gray-500">Effective: {{ $resolution->effective_date->format('F d, Y') }}</p>
+                                            @if($resolution->approved_date)
+                                                <p class="text-xs text-gray-500">Approved: {{ $resolution->approved_date->format('F d, Y') }}</p>
                                             @endif
                                         </div>
                                         @if($resolution->pdf)

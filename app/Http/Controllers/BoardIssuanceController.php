@@ -46,10 +46,10 @@ class BoardIssuanceController extends Controller
         // Board regulations - only when type is not "resolution"
         if ($type !== 'resolution') {
             $regulationsQuery = BoardRegulation::with(['pdf', 'uploader'])
-                ->orderBy('approved_date', 'desc');
+                ->orderBy('effective_date', 'desc');
 
             if ($year) {
-                $regulationsQuery->whereYear('approved_date', $year);
+                $regulationsQuery->whereYear('effective_date', $year);
             }
             if ($keyword) {
                 $regulationsQuery->where(function ($q) use ($keyword) {
@@ -64,13 +64,13 @@ class BoardIssuanceController extends Controller
             $regulations = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
         }
 
-        // Years for filter dropdown (from approved_date)
+        // Years for filter dropdown (resolutions: approved_date; regulations: effectivity date)
         $allYears = OfficialDocument::selectRaw('YEAR(approved_date) as y')
             ->whereNotNull('approved_date')
             ->pluck('y')
             ->merge(
-                BoardRegulation::selectRaw('YEAR(approved_date) as y')
-                    ->whereNotNull('approved_date')
+                BoardRegulation::selectRaw('YEAR(effective_date) as y')
+                    ->whereNotNull('effective_date')
                     ->pluck('y')
             )
             ->filter()
@@ -81,9 +81,9 @@ class BoardIssuanceController extends Controller
         // Distinct years per type for accordion headers (respect type/year filter)
         $regulationYears = collect();
         if ($type !== 'resolution') {
-            $regulationYears = BoardRegulation::selectRaw('YEAR(approved_date) as y')
-                ->whereNotNull('approved_date')
-                ->when($year, fn ($q) => $q->whereYear('approved_date', $year))
+            $regulationYears = BoardRegulation::selectRaw('YEAR(effective_date) as y')
+                ->whereNotNull('effective_date')
+                ->when($year, fn ($q) => $q->whereYear('effective_date', $year))
                 ->when($keyword, function ($q) use ($keyword) {
                     $q->where(function ($q2) use ($keyword) {
                         $q2->where('title', 'like', '%' . $keyword . '%')
@@ -143,8 +143,8 @@ class BoardIssuanceController extends Controller
 
         if ($type === 'regulation') {
             $query = BoardRegulation::with(['pdf', 'uploader'])
-                ->whereYear('approved_date', $year)
-                ->orderBy('approved_date', 'desc');
+                ->whereYear('effective_date', $year)
+                ->orderBy('effective_date', 'desc');
             if ($keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', '%' . $keyword . '%')
@@ -164,7 +164,8 @@ class BoardIssuanceController extends Controller
                     'year' => $r->year,
                     'has_pdf' => (bool) $r->pdf,
                     'pdf_url' => $r->pdf ? asset('storage/' . $r->pdf->file_path) : null,
-                    'date' => $r->approved_date ? $r->approved_date->format('M d, Y') : ($r->effective_date ? $r->effective_date->format('M d, Y') : ''),
+                    'date' => $r->effective_date ? $r->effective_date->format('M d, Y') : '',
+                    'date_label' => 'Effectivity Date',
                     'description' => $r->description ?? '',
                     'creator' => $creatorLabel,
                     'creator_image' => $creatorImg,
@@ -193,7 +194,8 @@ class BoardIssuanceController extends Controller
                     'year' => $d->year,
                     'has_pdf' => (bool) $d->pdf,
                     'pdf_url' => $d->pdf ? asset('storage/' . $d->pdf->file_path) : null,
-                    'date' => $d->approved_date ? $d->approved_date->format('M d, Y') : ($d->effective_date ? $d->effective_date->format('M d, Y') : ''),
+                    'date' => $d->approved_date ? $d->approved_date->format('M d, Y') : '',
+                    'date_label' => 'Approved Date',
                     'description' => $d->description ?? '',
                     'creator' => $creatorLabel,
                     'creator_image' => $creatorImg,

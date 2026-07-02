@@ -441,6 +441,8 @@ Route::middleware(['auth', 'track.activity'])->group(function () {
         Route::post('/{id}/reference-materials', [\App\Http\Controllers\NoticeController::class, 'submitReferenceMaterial'])->name('reference-materials');
     });
 
+    Route::middleware('auth')->get('/reference-materials', [\App\Http\Controllers\NoticeController::class, 'referenceMaterials'])->name('reference-materials.index');
+
     // Board Issuances (only for authenticated users)
     Route::get('/board-issuances', [\App\Http\Controllers\BoardIssuanceController::class, 'index'])->name('board-issuances');
     Route::get('/board-issuances/data', [\App\Http\Controllers\BoardIssuanceController::class, 'data'])->name('board-issuances.data');

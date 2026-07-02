@@ -132,7 +132,7 @@
                         <!-- Allowed Users Selection -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Users *</label>
-                            <p class="text-xs text-gray-500 mb-3">Select users who can view, vote, and comment on this referendum</p>
+                            <p class="text-xs text-gray-500 mb-3">Ad Referendum voting may only be sent to Undersecretaries, Ex-Officio Members, and Regular Board Members.</p>
                             <div class="border border-gray-300 rounded-lg p-4 max-h-[calc(100vh-500px)] overflow-y-auto">
                                 <input 
                                     type="text" 
@@ -162,13 +162,7 @@
                                 @endif
                                 <div class="user-list-header mb-2 mt-3 first:mt-0">
                                     <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                                        @if($user->privilege === 'user')
-                                            Board Members
-                                        @elseif($user->privilege === 'consec')
-                                            CONSEC Accounts
-                                        @else
-                                            {{ ucfirst($user->privilege ?? 'Other') }}
-                                        @endif
+                                        Eligible Board Members
                                     </h5>
                                 </div>
                                 <div class="space-y-2">
@@ -185,9 +179,11 @@
                                 <div class="user-list-header ml-4 mb-1 mt-2">
                                     <h6 class="text-xs font-medium text-gray-600 uppercase tracking-wide">
                                         @if($user->representative_type === 'Board Member')
-                                            Board Members
-                                        @elseif($user->representative_type === 'Authorized Representative')
-                                            Authorized Representatives
+                                            Regular Board Members
+                                        @elseif($user->representative_type === 'Ex-Officio Member')
+                                            Ex-Officio Members
+                                        @elseif($user->pre_nominal_title === 'Undersecretary')
+                                            Undersecretaries
                                         @else
                                             {{ $user->representative_type ?? 'Other' }}
                                         @endif
@@ -230,9 +226,6 @@
                                         </span>
                                     @endif
                                 </div>
-                                @if($user->privilege === 'consec')
-                                    <span class="ml-auto px-2 py-0.5 text-xs rounded font-medium flex-shrink-0" style="background-color: #055498; color: #ffffff;">CONSEC</span>
-                                @endif
                             </label>
                         @endforeach
                         @if($currentPrivilege === 'user' && $currentRepresentativeType !== null)
@@ -612,7 +605,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',
-                    text: 'Referendum created successfully.',
+                    text: 'Ad Referendum created successfully.',
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {

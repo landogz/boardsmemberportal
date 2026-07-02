@@ -8,21 +8,42 @@ use Illuminate\Support\Facades\Auth;
 
 class ReferendumController extends Controller
 {
+    private function isAuthorizedRepresentative($user): bool
+    {
+        return $user
+            && $user->privilege === 'user'
+            && $user->representative_type === 'Authorized Representative';
+    }
+
+    private function canViewAdReferendum(Referendum $referendum, $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $referendum->allowedUsers()->where('users.id', $user->id)->exists()
+            || $this->isAuthorizedRepresentative($user)
+            || $user->hasPermission('view referendum');
+    }
+
     /**
      * Display a listing of referendums accessible to the authenticated user
      */
     public function index()
     {
-        $userId = Auth::id();
-        
-        // Only show referendums where the user is in the allowedUsers list
-        // This applies to all users, regardless of permissions
-        $referendums = Referendum::with(['creator', 'votes', 'allowedUsers'])
-            ->whereHas('allowedUsers', function($query) use ($userId) {
+        $user = Auth::user();
+        $userId = $user?->id;
+
+        $referendumsQuery = Referendum::with(['creator', 'votes', 'allowedUsers'])
+            ->orderBy('created_at', 'desc');
+
+        if (!$this->isAuthorizedRepresentative($user)) {
+            $referendumsQuery->whereHas('allowedUsers', function($query) use ($userId) {
                 $query->where('users.id', $userId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(6);
+            });
+        }
+
+        $referendums = $referendumsQuery->paginate(6);
         
         return view('referendums.index', compact('referendums'));
     }
@@ -33,11 +54,11 @@ class ReferendumController extends Controller
     public function show($id)
     {
         $referendum = Referendum::with(['creator', 'votes.user', 'allowedUsers'])->findOrFail($id);
-        $userId = Auth::id();
-        
-        // Check if user has access
-        if (!$referendum->allowedUsers()->where('users.id', $userId)->exists() && !Auth::user()->hasPermission('view referendum')) {
-            abort(403, 'You do not have access to this referendum.');
+        $user = Auth::user();
+        $userId = $user?->id;
+
+        if (!$this->canViewAdReferendum($referendum, $user)) {
+            abort(403, 'You do not have access to this Ad Referendum.');
         }
         
         $userVote = $referendum->getUserVote($userId);
@@ -129,13 +150,12 @@ class ReferendumController extends Controller
     public function getComments($id, Request $request)
     {
         $referendum = Referendum::findOrFail($id);
-        $userId = Auth::id();
-        
-        // Check if user has access
-        if (!$referendum->allowedUsers()->where('users.id', $userId)->exists() && !Auth::user()->hasPermission('view referendum')) {
+        $user = Auth::user();
+
+        if (!$this->canViewAdReferendum($referendum, $user)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have access to this referendum.'
+                'message' => 'You do not have access to this Ad Referendum.'
             ], 403);
         }
         
@@ -258,13 +278,12 @@ class ReferendumController extends Controller
     public function getNewComments($id, Request $request)
     {
         $referendum = Referendum::findOrFail($id);
-        $userId = Auth::id();
-        
-        // Check if user has access
-        if (!$referendum->allowedUsers()->where('users.id', $userId)->exists() && !Auth::user()->hasPermission('view referendum')) {
+        $user = Auth::user();
+
+        if (!$this->canViewAdReferendum($referendum, $user)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You do not have access to this referendum.'
+                'message' => 'You do not have access to this Ad Referendum.'
             ], 403);
         }
         

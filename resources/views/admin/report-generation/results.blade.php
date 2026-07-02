@@ -80,9 +80,15 @@
         <div class="result-item">
             <h4 class="result-title">{{ $regulation->title }}</h4>
             <div class="result-meta">
-                @if($regulation->approved_date)
+                @if($regulation->effective_date)
                     <span class="result-footer-item">
                         <i class="fas fa-calendar-check"></i>
+                        <span>Effectivity: {{ \Carbon\Carbon::parse($regulation->effective_date)->format('M d, Y') }}</span>
+                    </span>
+                @endif
+                @if($regulation->approved_date)
+                    <span class="result-footer-item">
+                        <i class="fas fa-gavel"></i>
                         <span>Approved: {{ \Carbon\Carbon::parse($regulation->approved_date)->format('M d, Y') }}</span>
                     </span>
                 @endif

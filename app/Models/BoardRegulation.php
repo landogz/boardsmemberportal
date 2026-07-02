@@ -44,7 +44,9 @@ class BoardRegulation extends Model
 
     public function getYearAttribute(): ?string
     {
-        return $this->approved_date ? $this->approved_date->format('Y') : null;
+        return $this->effective_date
+            ? $this->effective_date->format('Y')
+            : ($this->approved_date ? $this->approved_date->format('Y') : null);
     }
 
     /**

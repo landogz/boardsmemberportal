@@ -185,15 +185,9 @@
                                 </div>
                                 @endif
                                 
-                                @if($resolution->effective_date)
-                                <div class="resolution-details">
-                                    <strong>Effective Date:</strong> {{ $resolution->effective_date->format('F d, Y') }}
-                                </div>
-                                @endif
-                                
                                 @if($resolution->approved_date)
                                 <div class="resolution-details">
-                                    <strong>Approved Date:</strong> {{ $resolution->approved_date->format('F d, Y') }}
+                                    <strong>Approved Date (Date Effective):</strong> {{ $resolution->approved_date->format('F d, Y') }}
                                 </div>
                                 @endif
                                 

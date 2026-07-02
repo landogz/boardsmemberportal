@@ -377,7 +377,7 @@
         <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Create Account</h1>
-                <p class="text-gray-600 dark:text-gray-400">Register as a Board Member / Authorized Representative</p>
+                <p class="text-gray-600 dark:text-gray-400">Register as a Permanent Representative / Authorized Representative / Ex-Officio Member</p>
             </div>
 
             <!-- Pending Approval Notice -->
@@ -445,9 +445,9 @@
                                 class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                             >
                                 <option value="">Select Type</option>
-                                <option value="Board Member">Board Member</option>
+                                <option value="Board Member">Permanent Representative (USec or its eqv.)</option>
                                 <option value="Authorized Representative">Authorized Representative</option>
-                                <option value="Ex-Officio Member">Ex-Officio Member</option>
+                                <option value="Ex-Officio Member">Ex-Officio Member (Head of Agency)</option>
                             </select>
                             <span class="text-red-500 text-sm hidden" id="representative_type-error"></span>
                         </div>
@@ -472,19 +472,20 @@
                                     <option value="Executive Director">Executive Director</option>
                                     <option value="Dr.">Dr.</option>
                                     <option value="Assistant Secretary">Assistant Secretary</option>
-                                    <option value="Others">Others</option>
+                                    <option value="Others">Others - Please Specifiy</option>
                                 </select>
                                 <div id="pre_nominal_title_custom_wrapper" class="mt-2 hidden">
-                                    <label for="pre_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Others:</label>
+                                    <label for="pre_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Please specify *</label>
                                     <input 
                                         type="text" 
                                         id="pre_nominal_title_custom" 
                                         name="pre_nominal_title_custom" 
-                                        placeholder="Specify other title"
+                                        placeholder="Enter pre nominal title"
                                         class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                     >
                                 </div>
                                 <span class="text-red-500 text-sm hidden" id="pre_nominal_title-error"></span>
+                                <span class="text-red-500 text-sm hidden" id="pre_nominal_title_custom-error"></span>
                             </div>
 
                             <div class="form-field min-w-0">
@@ -570,19 +571,20 @@
                                 <option value="CESO IV">CESO IV</option>
                                 <option value="CESO V">CESO V</option>
                                 <option value="CESO VI">CESO VI</option>
-                                <option value="Others">Others</option>
+                                <option value="Others">Others - Please Specifiy</option>
                             </select>
                             <div id="post_nominal_title_custom_wrapper" class="mt-2 hidden">
-                                <label for="post_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Others:</label>
+                                <label for="post_nominal_title_custom" class="form-label text-xs font-medium text-gray-600 dark:text-gray-300">Please specify *</label>
                                 <input 
                                     type="text" 
                                     id="post_nominal_title_custom" 
                                     name="post_nominal_title_custom" 
-                                    placeholder="Specify other title"
+                                    placeholder="Enter post nominal title"
                                     class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
                                 >
                             </div>
                             <span class="text-red-500 text-sm hidden" id="post_nominal_title-error"></span>
+                            <span class="text-red-500 text-sm hidden" id="post_nominal_title_custom-error"></span>
                         </div>
 
                         <!-- Designation -->
@@ -1062,15 +1064,21 @@
 
             // Provinces, cities, and barangays are now loaded on-demand via API when dropdowns change
 
-            // Extension Name & Post Nominal Title: custom field only required when "Others" is selected
-            $('#post_nominal_title').on('change', function() {
-                if ($(this).val() === 'Others') {
-                    $('#post_nominal_title_custom_wrapper').removeClass('hidden');
-                    $('#post_nominal_title_custom').prop('required', true);
+            function toggleNominalCustomField(selectId, wrapperId, inputId, errorId) {
+                const value = $(selectId).val();
+                if (value === 'Others') {
+                    $(wrapperId).removeClass('hidden');
+                    $(inputId).prop('required', true);
                 } else {
-                    $('#post_nominal_title_custom_wrapper').addClass('hidden');
-                    $('#post_nominal_title_custom').prop('required', false).val('');
+                    $(wrapperId).addClass('hidden');
+                    $(inputId).prop('required', false).val('');
+                    $(errorId).addClass('hidden').text('');
                 }
+            }
+
+            // Post Nominal Title: custom field required when "Others - Please Specifiy" is selected
+            $('#post_nominal_title').on('change', function() {
+                toggleNominalCustomField('#post_nominal_title', '#post_nominal_title_custom_wrapper', '#post_nominal_title_custom', '#post_nominal_title_custom-error');
             });
             $('#extension_name').on('change', function() {
                 if ($(this).val() === 'Others') {
@@ -1083,18 +1091,14 @@
             });
             $('#extension_name_custom').prop('required', false);
             $('#post_nominal_title_custom').prop('required', false);
+            $('#pre_nominal_title_custom').prop('required', false);
             if ($('#extension_name').val() === 'Others') $('#extension_name_custom').prop('required', true);
             if ($('#post_nominal_title').val() === 'Others') $('#post_nominal_title_custom').prop('required', true);
+            if ($('#pre_nominal_title').val() === 'Others') $('#pre_nominal_title_custom').prop('required', true);
 
-            // Handle pre nominal title "Others" option
+            // Pre Nominal Title: custom field required when "Others - Please Specifiy" is selected
             $('#pre_nominal_title').on('change', function() {
-                if ($(this).val() === 'Others') {
-                    $('#pre_nominal_title_custom_wrapper').removeClass('hidden');
-                    $('#pre_nominal_title_custom').prop('required', true);
-                } else {
-                    $('#pre_nominal_title_custom_wrapper').addClass('hidden');
-                    $('#pre_nominal_title_custom').prop('required', false).val('');
-                }
+                toggleNominalCustomField('#pre_nominal_title', '#pre_nominal_title_custom_wrapper', '#pre_nominal_title_custom', '#pre_nominal_title_custom-error');
             });
 
             // Generate username: firstname.lastname (standardized)
@@ -1353,14 +1357,14 @@
                 }
                 const preNominalCustom = $('#pre_nominal_title_custom').val().trim();
                 if (preNominalTitle === 'Others' && !preNominalCustom) {
-                    showError('pre_nominal_title', 'Pre nominal title is required');
+                    showError('pre_nominal_title_custom', 'Please specify your pre nominal title.');
                     if (!firstInvalidField) firstInvalidField = '#pre_nominal_title_custom';
                     isValid = false;
                 }
                 const postNominalTitle = $('#post_nominal_title').val();
                 const postNominalCustom = $('#post_nominal_title_custom').val().trim();
                 if (postNominalTitle === 'Others' && !postNominalCustom) {
-                    showError('post_nominal_title', 'Post nominal title is required');
+                    showError('post_nominal_title_custom', 'Please specify your post nominal title.');
                     if (!firstInvalidField) firstInvalidField = '#post_nominal_title_custom';
                     isValid = false;
                 }
@@ -1631,12 +1635,27 @@
                 return;
             }
             
-            // Prepare form data (resolve \"Others\" options to final values)
+            // Prepare form data (resolve "Others" options to final values)
             const preNominalTitle = $('#pre_nominal_title').val();
-            const finalPreNominal = preNominalTitle === 'Others' ? $('#pre_nominal_title_custom').val() : preNominalTitle;
+            const preNominalCustom = ($('#pre_nominal_title_custom').val() || '').trim();
+            if (preNominalTitle === 'Others' && !preNominalCustom) {
+                currentStep = 1;
+                showStep(1);
+                showError('pre_nominal_title_custom', 'Please specify your pre nominal title.');
+                return;
+            }
 
             const postNominalTitle = $('#post_nominal_title').val();
-            const finalPostNominal = postNominalTitle === 'Others' ? $('#post_nominal_title_custom').val() : postNominalTitle;
+            const postNominalCustom = ($('#post_nominal_title_custom').val() || '').trim();
+            if (postNominalTitle === 'Others' && !postNominalCustom) {
+                currentStep = 1;
+                showStep(1);
+                showError('post_nominal_title_custom', 'Please specify your post nominal title.');
+                return;
+            }
+
+            const finalPreNominal = preNominalTitle === 'Others' ? preNominalCustom : preNominalTitle;
+            const finalPostNominal = postNominalTitle === 'Others' ? postNominalCustom : postNominalTitle;
             
             const formData = {
                 government_agency_id: $('#government_agency_id').val(),

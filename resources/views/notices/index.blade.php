@@ -634,7 +634,7 @@
                             @if($notice->notice_type !== 'Agenda' && ($notice->status ?? null) !== 'postponed' && !$noticeMeetingDone && (!isset($attendanceConfirmations[$notice->id]) || $attendanceConfirmations[$notice->id] === 'pending'))
                                 <button class="btn-action btn-accept" onclick="event.stopPropagation(); acceptNotice({{ $notice->id }}, '{{ $notice->meeting_type }}');">
                                     <i class="fas fa-check"></i>
-                                    <span>Approve</span>
+                                    <span>Accept</span>
                                 </button>
                                 <button class="btn-action btn-decline" onclick="event.stopPropagation(); declineNotice({{ $notice->id }});">
                                     <i class="fas fa-times"></i>
@@ -722,6 +722,11 @@
             <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Request for Agenda Inclusion</h3>
             <form id="agendaForm">
                 <input type="hidden" id="agendaNoticeId" name="notice_id">
+                <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+                    <p class="font-semibold">Other Matters (External Participants)</p>
+                    <p class="mt-1">BMP users may invite external actors for agenda items under "Other Matters."</p>
+                    <p class="mt-1">Subsequent communications and transactions with external actors shall be conducted outside the portal.</p>
+                </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Description <span class="text-red-500">*</span>
@@ -745,7 +750,7 @@
                             id="agendaAttachments" 
                             name="attachments[]" 
                             multiple
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.webm,.mkv"
                             class="hidden"
                         >
                         <div id="agendaDropZone" class="cursor-pointer">
@@ -753,7 +758,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                                 <span class="text-[#055498] font-semibold">Click to upload</span> or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500">Only the following file types are allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF (Max: 100MB per file)</p>
+                            <p class="text-xs text-gray-500">Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, MP4, MOV, AVI, WEBM, MKV. Maximum file upload size for agenda inclusion is 100MB per file.</p>
                         </div>
                         <div id="agendaAttachmentsPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
@@ -1043,6 +1048,7 @@
                     
                     uploadResponse.data.files.forEach(file => {
                         const isImage = file.type.startsWith('image/');
+                        const isVideo = file.type.startsWith('video/');
                         const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
                         const previewHtml = `
                             <div class="relative border rounded-lg p-2 attachment-item" data-file-id="${file.id}">
@@ -1051,6 +1057,10 @@
                                 </button>
                                 ${isImage ? 
                                     `<img src="${file.url}" alt="${file.name}" class="w-full h-24 object-cover rounded">` :
+                                    isVideo ?
+                                    `<video class="w-full h-24 object-cover rounded" controls>
+                                        <source src="${file.url}" type="${file.type || 'video/mp4'}">
+                                    </video>` :
                                     isPdf ?
                                     `<div class="w-full h-24 flex flex-col items-center justify-center bg-gray-100 rounded">
                                         <i class="fas fa-file-pdf text-3xl text-red-500 mb-1"></i>

@@ -233,7 +233,8 @@ class CONSECController extends Controller
             'middle_initial' => 'nullable|string|max:10',
             'last_name' => 'required|string|max:255',
             'extension_name' => 'nullable|string|max:50',
-            'post_nominal_title' => 'nullable|string|max:255',
+            'post_nominal_title' => 'nullable|in:CESO I,CESO II,CESO III,CESO IV,CESO V,CESO VI,Others',
+            'post_nominal_title_custom' => 'nullable|string|max:255|required_if:post_nominal_title,Others',
             'designation' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'gender' => 'required|in:Lesbian,Gay,Bisexual,Transgender,Queer,Intersex,Non-binary,Cisgender,Prefer not to say',
@@ -260,13 +261,17 @@ class CONSECController extends Controller
             ? $validated['pre_nominal_title_custom']
             : $validated['pre_nominal_title'];
 
+        $postNominalTitle = isset($validated['post_nominal_title']) && $validated['post_nominal_title'] === 'Others'
+            ? $validated['post_nominal_title_custom']
+            : ($validated['post_nominal_title'] ?? $user->post_nominal_title);
+
         $updateData = [
             'pre_nominal_title' => $preNominalTitle,
             'first_name' => $validated['first_name'],
             'middle_initial' => $validated['middle_initial'] ?? null,
             'last_name' => $validated['last_name'],
             'extension_name' => $validated['extension_name'] ?? null,
-            'post_nominal_title' => $validated['post_nominal_title'] ?? null,
+            'post_nominal_title' => $postNominalTitle,
             'designation' => $validated['designation'],
             'sex' => $validated['sex'],
             'gender' => $validated['gender'],

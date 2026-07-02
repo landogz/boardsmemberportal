@@ -22,6 +22,163 @@ use Illuminate\Support\Str;
 
 class NoticeController extends Controller
 {
+    private function buildReferenceFilesForNotice(Notice $notice): array
+    {
+        $referenceFiles = [];
+
+        $addFile = function ($media, $sourceLabel = null) use (&$referenceFiles) {
+            if (!$media || isset($referenceFiles[$media->id])) {
+                return;
+            }
+
+            $fileSize = 0;
+            if (Storage::disk('public')->exists($media->file_path)) {
+                $fileSize = Storage::disk('public')->size($media->file_path);
+            }
+
+            $referenceFiles[$media->id] = (object) [
+                'media_id' => $media->id,
+                'file_name' => $media->file_name,
+                'file_path' => $media->file_path,
+                'file_type' => $media->file_type,
+                'file_size' => $fileSize,
+                'file_extension' => strtolower(pathinfo($media->file_name, PATHINFO_EXTENSION)),
+                'source_label' => $sourceLabel,
+                'modified_at' => $media->updated_at ?? $media->created_at,
+            ];
+        };
+
+        $adminMaterials = ReferenceMaterial::with(['user'])
+            ->where('notice_id', $notice->id)
+            ->whereIn('status', ['approved', null])
+            ->get();
+
+        foreach ($adminMaterials as $material) {
+            $ids = $material->attachments ?? [];
+            $mediaItems = MediaLibrary::whereIn('id', $ids)->get();
+            foreach ($mediaItems as $media) {
+                $addFile($media, 'Reference Material');
+            }
+        }
+
+        foreach ($notice->attachments ?? [] as $attachmentId) {
+            $addFile(MediaLibrary::find($attachmentId), 'Communication');
+        }
+
+        $agendaNotices = Notice::where('related_notice_id', $notice->id)->get();
+        foreach ($agendaNotices as $agenda) {
+            foreach ($agenda->attachments ?? [] as $attachmentId) {
+                $addFile(MediaLibrary::find($attachmentId), 'Agenda');
+            }
+        }
+
+        $approvedAgendaRequests = AgendaInclusionRequest::where('notice_id', $notice->id)
+            ->where('status', 'approved')
+            ->get();
+        foreach ($approvedAgendaRequests as $agendaRequest) {
+            foreach ($agendaRequest->attachments ?? [] as $attachmentId) {
+                $addFile(MediaLibrary::find($attachmentId), 'Agenda Request');
+            }
+        }
+
+        $regulations = BoardRegulation::with('pdf')
+            ->where('notice_id', $notice->id)
+            ->orWhereIn('id', $notice->board_regulations ?? [])
+            ->get();
+        foreach ($regulations as $regulation) {
+            if ($regulation->pdf_file) {
+                $addFile(MediaLibrary::find($regulation->pdf_file), 'Board Regulation');
+            }
+        }
+
+        $resolutions = OfficialDocument::with('pdf')
+            ->where('notice_id', $notice->id)
+            ->orWhereIn('id', $notice->board_resolutions ?? [])
+            ->get();
+        foreach ($resolutions as $resolution) {
+            if ($resolution->pdf_file) {
+                $addFile(MediaLibrary::find($resolution->pdf_file), 'Board Resolution');
+            }
+        }
+
+        return array_values($referenceFiles);
+    }
+
+    public function referenceMaterials(Request $request)
+    {
+        $userId = Auth::id();
+        $noticeId = $request->query('notice');
+
+        if (!$noticeId) {
+            $query = Notice::noticeOfMeeting()
+                ->whereHas('allowedUsers', function ($builder) use ($userId) {
+                    $builder->where('users.id', $userId);
+                });
+
+            if ($request->filled('q')) {
+                $search = trim($request->query('q'));
+                $query->where(function ($builder) use ($search) {
+                    $builder->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('meeting_date', 'like', '%' . $search . '%');
+                });
+            }
+
+            $notices = $query->orderByDesc('meeting_date')->orderByDesc('created_at')->get();
+            foreach ($notices as $notice) {
+                $notice->reference_material_items_count = count($this->buildReferenceFilesForNotice($notice));
+            }
+
+            return view('reference-materials.index', [
+                'notices' => $notices,
+                'q' => $request->query('q'),
+            ]);
+        }
+
+        $notice = Notice::with('creator')->findOrFail($noticeId);
+        if (!$notice->allowedUsers()->where('users.id', $userId)->exists()) {
+            abort(403, 'You do not have access to these reference materials.');
+        }
+
+        $files = collect($this->buildReferenceFilesForNotice($notice));
+        if ($request->filled('q')) {
+            $search = strtolower(trim($request->query('q')));
+            $files = $files->filter(function ($file) use ($search) {
+                return str_contains(strtolower($file->file_name), $search)
+                    || str_contains(strtolower((string) ($file->source_label ?? '')), $search);
+            })->values();
+        }
+
+        $sort = $request->query('sort', 'modified');
+        $dir = $request->query('dir', 'desc');
+        if ($sort === 'name') {
+            $files = $dir === 'asc'
+                ? $files->sortBy(fn ($file) => strtolower($file->file_name))->values()
+                : $files->sortByDesc(fn ($file) => strtolower($file->file_name))->values();
+        } else {
+            $files = $dir === 'asc'
+                ? $files->sortBy('modified_at')->values()
+                : $files->sortByDesc('modified_at')->values();
+        }
+
+        $perPage = 18;
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $filesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $files->forPage($currentPage, $perPage)->values(),
+            $files->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('reference-materials.show', [
+            'notice' => $notice,
+            'filesPaginated' => $filesPaginated,
+            'q' => $request->query('q'),
+            'sort' => $sort,
+            'dir' => $dir,
+        ]);
+    }
+
     /**
      * Display a listing of notices accessible to the authenticated user
      */
@@ -96,81 +253,7 @@ class NoticeController extends Controller
         // Check if meeting is done
         $isMeetingDone = $notice->isMeetingDone();
 
-        // Build the same file list as admin reference-materials index so user sees all meeting materials.
-        // Sources: approved reference materials, notice attachments, related Agenda notices, approved agenda requests, board regulations, board resolutions.
-        $referenceFiles = [];
-        $addFile = function ($media) use (&$referenceFiles) {
-            if (!$media || isset($referenceFiles[$media->id])) {
-                return;
-            }
-            $referenceFiles[$media->id] = (object)[
-                'media_id' => $media->id,
-                'file_name' => $media->file_name,
-                'file_path' => $media->file_path,
-                'file_type' => $media->file_type,
-            ];
-        };
-
-        $adminMaterials = ReferenceMaterial::with(['user'])
-            ->where('notice_id', $id)
-            ->whereIn('status', ['approved', null])
-            ->get();
-        foreach ($adminMaterials as $material) {
-            $ids = $material->attachments ?? [];
-            $mediaItems = MediaLibrary::whereIn('id', $ids)->get();
-            foreach ($mediaItems as $media) {
-                $addFile($media);
-            }
-        }
-
-        $noticeAttachmentIds = $notice->attachments ?? [];
-        if (!empty($noticeAttachmentIds)) {
-            foreach (MediaLibrary::whereIn('id', $noticeAttachmentIds)->get() as $media) {
-                $addFile($media);
-            }
-        }
-
-        $agendaNotices = Notice::where('related_notice_id', $id)->get();
-        foreach ($agendaNotices as $agenda) {
-            $agendaAttachmentIds = $agenda->attachments ?? [];
-            if (empty($agendaAttachmentIds)) {
-                continue;
-            }
-            foreach (MediaLibrary::whereIn('id', $agendaAttachmentIds)->get() as $media) {
-                $addFile($media);
-            }
-        }
-
-        $approvedAgendaRequests = AgendaInclusionRequest::where('notice_id', $id)->where('status', 'approved')->get();
-        foreach ($approvedAgendaRequests as $agendaRequest) {
-            $attachmentIds = $agendaRequest->attachments ?? [];
-            if (empty($attachmentIds)) {
-                continue;
-            }
-            foreach (MediaLibrary::whereIn('id', $attachmentIds)->get() as $media) {
-                $addFile($media);
-            }
-        }
-
-        $regulations = BoardRegulation::with('pdf')->where('notice_id', $id)
-            ->orWhereIn('id', $notice->board_regulations ?? [])
-            ->get();
-        foreach ($regulations as $regulation) {
-            if ($regulation->pdf_file && ($media = MediaLibrary::find($regulation->pdf_file))) {
-                $addFile($media);
-            }
-        }
-
-        $resolutions = OfficialDocument::with('pdf')->where('notice_id', $id)
-            ->orWhereIn('id', $notice->board_resolutions ?? [])
-            ->get();
-        foreach ($resolutions as $resolution) {
-            if ($resolution->pdf_file && ($media = MediaLibrary::find($resolution->pdf_file))) {
-                $addFile($media);
-            }
-        }
-
-        $referenceFiles = array_values($referenceFiles);
+        $referenceFiles = $this->buildReferenceFilesForNotice($notice);
 
         // Mark any notice-related notifications as read when user views the notice
         Notification::markNoticeAsReadForUser($userId, (int) $id);
@@ -511,6 +594,7 @@ class NoticeController extends Controller
         }
 
         $maxSize = 100 * 1024 * 1024; // 100MB
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi', 'webm', 'mkv'];
         $uploadedFiles = [];
         $errors = [];
 
@@ -526,6 +610,12 @@ class NoticeController extends Controller
             }
             if ($file->getSize() > $maxSize) {
                 $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'File exceeds 100MB limit.'];
+                continue;
+            }
+
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, $allowedExtensions, true)) {
+                $errors[] = ['file' => $file->getClientOriginalName(), 'error' => 'Unsupported file type. Allowed types: PDF, Office documents, images, and videos.'];
                 continue;
             }
 
