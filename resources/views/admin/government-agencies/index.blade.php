@@ -72,6 +72,7 @@
     <!-- Agencies Table -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="p-3 sm:p-4 lg:p-6">
+            @if($agencies->isNotEmpty())
             <div class="flex items-center justify-between mb-4">
                 <div></div>
                 @can('delete government agencies')
@@ -85,7 +86,9 @@
                 </button>
                 @endcan
             </div>
-            <div class="overflow-x-auto">
+            @endif
+            @if($agencies->isNotEmpty())
+            <div class="overflow-x-auto" id="agenciesTableWrapper">
                 <table id="agenciesTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -102,7 +105,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($agencies as $agency)
+                    @foreach($agencies as $agency)
                     <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $agency->id }}">
                         <td class="px-4 py-4 whitespace-nowrap">
                             <input 
@@ -172,13 +175,11 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
             </div>
-
-            @if($agencies->isEmpty())
+            @else
             <div class="px-6 py-12 text-center">
                 <div class="text-gray-500">
                     <i class="fas fa-building text-4xl mb-4"></i>
@@ -202,9 +203,10 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Initialize DataTable
+    // Initialize DataTable only when agencies exist (no empty table row)
     $(document).ready(function() {
-        const table = $('#agenciesTable').DataTable({
+        @if($agencies->isNotEmpty())
+        $('#agenciesTable').DataTable({
             order: [[2, 'asc']], // Sort by agency name (second visible column after checkbox)
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -212,20 +214,22 @@
                 search: "Search by name or code:",
                 lengthMenu: "Show _MENU_ agencies per page",
                 info: "Showing _START_ to _END_ of _TOTAL_ agencies",
-                infoEmpty: "No agencies found",
+                infoEmpty: "Showing 0 to 0 of 0 agencies",
                 infoFiltered: "(filtered from _MAX_ total agencies)",
-                emptyTable: "No agencies found"
+                zeroRecords: "No matching agencies found"
             },
             columnDefs: [
                 { orderable: false, targets: [0, 7] }
             ]
         });
+        @endif
         // Handle row checkbox change
         function updateBulkDeleteState() {
             const anyChecked = $('.agency-select:checked').length > 0;
             $('#bulkDeleteBtn').prop('disabled', !anyChecked);
         }
 
+        @if($agencies->isNotEmpty())
         $(document).on('change', '.agency-select', function() {
             updateBulkDeleteState();
 
@@ -293,6 +297,7 @@
                 });
             });
         });
+        @endif
     });
 
     // Set up axios defaults
