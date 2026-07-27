@@ -174,7 +174,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center">
+                        <td colspan="8" class="px-6 py-12 text-center">
                             <div class="text-gray-500">
                                 <i class="fas fa-building text-4xl mb-4"></i>
                                 <p class="text-lg font-medium">No agencies found</p>
