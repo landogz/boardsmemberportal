@@ -173,24 +173,25 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center">
-                            <div class="text-gray-500">
-                                <i class="fas fa-building text-4xl mb-4"></i>
-                                <p class="text-lg font-medium">No agencies found</p>
-                                <p class="text-sm mt-2">Get started by creating your first government agency</p>
-                                @can('create government agencies')
-                                <a href="{{ route('admin.government-agencies.create') }}" class="mt-4 inline-block px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
-                                    <i class="fas fa-plus mr-2"></i>Add New Agency
-                                </a>
-                                @endcan
-                            </div>
-                        </td>
-                    </tr>
                     @endforelse
                 </tbody>
             </table>
             </div>
+
+            @if($agencies->isEmpty())
+            <div class="px-6 py-12 text-center">
+                <div class="text-gray-500">
+                    <i class="fas fa-building text-4xl mb-4"></i>
+                    <p class="text-lg font-medium">No agencies found</p>
+                    <p class="text-sm mt-2">Get started by creating your first government agency</p>
+                    @can('create government agencies')
+                    <a href="{{ route('admin.government-agencies.create') }}" class="mt-4 inline-block px-4 py-2 text-white rounded-lg font-semibold transition-all duration-300" style="background: linear-gradient(135deg, #055498 0%, #123a60 100%);">
+                        <i class="fas fa-plus mr-2"></i>Add New Agency
+                    </a>
+                    @endcan
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -212,8 +213,12 @@
                 lengthMenu: "Show _MENU_ agencies per page",
                 info: "Showing _START_ to _END_ of _TOTAL_ agencies",
                 infoEmpty: "No agencies found",
-                infoFiltered: "(filtered from _MAX_ total agencies)"
-            }
+                infoFiltered: "(filtered from _MAX_ total agencies)",
+                emptyTable: "No agencies found"
+            },
+            columnDefs: [
+                { orderable: false, targets: [0, 7] }
+            ]
         });
         // Handle row checkbox change
         function updateBulkDeleteState() {
