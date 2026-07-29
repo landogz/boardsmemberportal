@@ -91,8 +91,13 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($regulations as $regulation)
+                    @php
+                        $regulationNo = $regulation->parsed_regulation_number;
+                        $seriesYear = $regulation->parsed_series_year ?? (int) ($regulation->year ?? 0);
+                        $sortKey = ($seriesYear * 10000) + ($regulationNo ?? 0);
+                    @endphp
                     <tr>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4" data-order="{{ $sortKey }}">
                             <div class="text-sm font-medium text-gray-900">{{ $regulation->title }}</div>
                             @if($regulation->description)
                                 <div class="text-xs text-gray-500 mt-1">{{ Str::limit($regulation->description, 60) }}</div>
@@ -207,11 +212,12 @@
     $(document).ready(function() {
         @if($regulations->isNotEmpty())
         $('#regulationsTable').DataTable({
-            order: [[3, 'desc']],
+            order: [[0, 'desc']],
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             columnDefs: [
-                { targets: 2, visible: false }
+                { targets: 0, orderDataType: 'dom-data', type: 'num' },
+                { targets: 1, visible: false }
             ],
             language: {
                 search: "Search regulations:",

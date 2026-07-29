@@ -42,8 +42,36 @@ class BoardRegulation extends Model
         return $this->belongsTo(Notice::class, 'notice_id');
     }
 
+    /**
+     * Extract regulation number from title (e.g. "BOARD REGULATION NO. 5, SERIES OF 2025 - ...").
+     */
+    public function getParsedRegulationNumberAttribute(): ?int
+    {
+        if (preg_match('/board regulation no\.\s*(\d+)/i', $this->title ?? '', $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract series year from title (e.g. "BOARD REGULATION NO. 2, SERIES OF 2024").
+     */
+    public function getParsedSeriesYearAttribute(): ?int
+    {
+        if (preg_match('/series of\s+(\d{4})/i', $this->title ?? '', $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
     public function getYearAttribute(): ?string
     {
+        if ($this->parsed_series_year) {
+            return (string) $this->parsed_series_year;
+        }
+
         return $this->effective_date
             ? $this->effective_date->format('Y')
             : ($this->approved_date ? $this->approved_date->format('Y') : null);

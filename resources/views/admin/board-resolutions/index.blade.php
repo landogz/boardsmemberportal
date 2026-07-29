@@ -91,8 +91,13 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($documents as $document)
+                    @php
+                        $resolutionNo = $document->parsed_resolution_number;
+                        $seriesYear = $document->parsed_series_year ?? (int) ($document->year ?? 0);
+                        $sortKey = ($seriesYear * 10000) + ($resolutionNo ?? 0);
+                    @endphp
                     <tr>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4" data-order="{{ $sortKey }}">
                             <div class="text-sm font-medium text-gray-900">{{ $document->title }}</div>
                             @if($document->description)
                                 <div class="text-xs text-gray-500 mt-1">{{ Str::limit($document->description, 60) }}</div>
@@ -205,18 +210,19 @@
     $(document).ready(function() {
         @if($documents->isNotEmpty())
         $('#documentsTable').DataTable({
-            order: [[0, 'asc']],
+            order: [[0, 'desc']],
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             columnDefs: [
-                { targets: 2, visible: false }
+                { targets: 0, orderDataType: 'dom-data', type: 'num' },
+                { targets: 1, visible: false }
             ],
             language: {
-                search: "Search documents:",
-                lengthMenu: "Show _MENU_ documents per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ documents",
-                infoEmpty: "No documents found",
-                infoFiltered: "(filtered from _MAX_ total documents)"
+                search: "Search resolutions:",
+                lengthMenu: "Show _MENU_ resolutions per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ resolutions",
+                infoEmpty: "No resolutions found",
+                infoFiltered: "(filtered from _MAX_ total resolutions)"
             }
         });
         @endif

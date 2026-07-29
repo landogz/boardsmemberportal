@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OfficialDocument extends Model
 {
     protected $fillable = [
+        'resolution_number',
         'title',
         'description',
         'pdf_file',
@@ -48,10 +49,38 @@ class OfficialDocument extends Model
     }
 
     /**
-     * Get the year from approved_date
+     * Extract resolution number from title (e.g. "BOARD RESOLUTION NO. 11, SERIES OF 2025 - ...").
+     */
+    public function getParsedResolutionNumberAttribute(): ?int
+    {
+        if (preg_match('/board resolution no\.\s*(\d+)/i', $this->title ?? '', $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract series year from title (e.g. "BOARD RESOLUTION NO. 10, SERIES OF 2025").
+     */
+    public function getParsedSeriesYearAttribute(): ?int
+    {
+        if (preg_match('/series of\s+(\d{4})/i', $this->title ?? '', $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the year from title series, falling back to approved_date.
      */
     public function getYearAttribute(): ?string
     {
+        if ($this->parsed_series_year) {
+            return (string) $this->parsed_series_year;
+        }
+
         return $this->approved_date ? $this->approved_date->format('Y') : null;
     }
 

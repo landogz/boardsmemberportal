@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\OfficialDocument;
 use App\Models\BoardRegulation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 class BoardIssuanceController extends Controller
 {
     /**
      * Display the board issuances page (public view)
      * Pagination: 10 per page. Optional filters: type, year, keyword.
+     * Year grouping uses SERIES OF YYYY from the title when available.
      */
     public function index(Request $request)
     {
         $type = $request->query('type');
-        $year = $request->query('year');
+        $year = $request->query('year') ? (int) $request->query('year') : null;
         $keyword = $request->query('keyword');
 
         $documents = null;
@@ -24,12 +25,7 @@ class BoardIssuanceController extends Controller
 
         // Board resolutions (official documents) - only when type is not "regulation"
         if ($type !== 'regulation') {
-            $documentsQuery = OfficialDocument::with(['pdf', 'uploader'])
-                ->orderBy('approved_date', 'desc');
-
-            if ($year) {
-                $documentsQuery->whereYear('approved_date', $year);
-            }
+            $documentsQuery = OfficialDocument::with(['pdf', 'uploader']);
             if ($keyword) {
                 $documentsQuery->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', '%' . $keyword . '%')
@@ -38,19 +34,19 @@ class BoardIssuanceController extends Controller
                 });
             }
 
-            $documents = $documentsQuery->paginate(10)->withQueryString();
+            $documentsCollection = $documentsQuery->get()
+                ->when($year, fn (Collection $c) => $c->filter(fn ($d) => (int) $d->year === $year)->values())
+                ->sortByDesc(fn ($d) => $d->parsed_resolution_number ?? 0)
+                ->values();
+
+            $documents = $this->paginateCollection($documentsCollection, 10, $request);
         } else {
             $documents = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
         }
 
         // Board regulations - only when type is not "resolution"
         if ($type !== 'resolution') {
-            $regulationsQuery = BoardRegulation::with(['pdf', 'uploader'])
-                ->orderBy('effective_date', 'desc');
-
-            if ($year) {
-                $regulationsQuery->whereYear('effective_date', $year);
-            }
+            $regulationsQuery = BoardRegulation::with(['pdf', 'uploader']);
             if ($keyword) {
                 $regulationsQuery->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', '%' . $keyword . '%')
@@ -59,31 +55,35 @@ class BoardIssuanceController extends Controller
                 });
             }
 
-            $regulations = $regulationsQuery->paginate(10)->withQueryString();
+            $regulationsCollection = $regulationsQuery->get()
+                ->when($year, fn (Collection $c) => $c->filter(fn ($r) => (int) $r->year === $year)->values())
+                ->sortByDesc(fn ($r) => $r->parsed_regulation_number ?? 0)
+                ->values();
+
+            $regulations = $this->paginateCollection($regulationsCollection, 10, $request);
         } else {
             $regulations = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
         }
 
-        // Years for filter dropdown (resolutions: approved_date; regulations: effectivity date)
-        $allYears = OfficialDocument::selectRaw('YEAR(approved_date) as y')
-            ->whereNotNull('approved_date')
-            ->pluck('y')
+        // Years from SERIES OF YYYY in titles (fallback: approved/effective date via model year)
+        $allYears = OfficialDocument::query()
+            ->get(['title', 'approved_date'])
+            ->map(fn ($d) => $d->year)
             ->merge(
-                BoardRegulation::selectRaw('YEAR(effective_date) as y')
-                    ->whereNotNull('effective_date')
-                    ->pluck('y')
+                BoardRegulation::query()
+                    ->get(['title', 'effective_date', 'approved_date'])
+                    ->map(fn ($r) => $r->year)
             )
             ->filter()
+            ->map(fn ($y) => (int) $y)
             ->unique()
             ->sortDesc()
             ->values();
 
-        // Distinct years per type for accordion headers (respect type/year filter)
+        // Distinct years per type for accordion headers
         $regulationYears = collect();
         if ($type !== 'resolution') {
-            $regulationYears = BoardRegulation::selectRaw('YEAR(effective_date) as y')
-                ->whereNotNull('effective_date')
-                ->when($year, fn ($q) => $q->whereYear('effective_date', $year))
+            $regulationYears = BoardRegulation::query()
                 ->when($keyword, function ($q) use ($keyword) {
                     $q->where(function ($q2) use ($keyword) {
                         $q2->where('title', 'like', '%' . $keyword . '%')
@@ -91,17 +91,19 @@ class BoardIssuanceController extends Controller
                             ->orWhere('version', 'like', '%' . $keyword . '%');
                     });
                 })
-                ->distinct()
-                ->pluck('y')
+                ->get(['title', 'effective_date', 'approved_date'])
+                ->map(fn ($r) => $r->year)
                 ->filter()
+                ->map(fn ($y) => (int) $y)
+                ->when($year, fn (Collection $c) => $c->filter(fn ($y) => $y === $year)->values())
+                ->unique()
                 ->sortDesc()
                 ->values();
         }
+
         $documentYears = collect();
         if ($type !== 'regulation') {
-            $documentYears = OfficialDocument::selectRaw('YEAR(approved_date) as y')
-                ->whereNotNull('approved_date')
-                ->when($year, fn ($q) => $q->whereYear('approved_date', $year))
+            $documentYears = OfficialDocument::query()
                 ->when($keyword, function ($q) use ($keyword) {
                     $q->where(function ($q2) use ($keyword) {
                         $q2->where('title', 'like', '%' . $keyword . '%')
@@ -109,9 +111,12 @@ class BoardIssuanceController extends Controller
                             ->orWhere('version', 'like', '%' . $keyword . '%');
                     });
                 })
-                ->distinct()
-                ->pluck('y')
+                ->get(['title', 'approved_date'])
+                ->map(fn ($d) => $d->year)
                 ->filter()
+                ->map(fn ($y) => (int) $y)
+                ->when($year, fn (Collection $c) => $c->filter(fn ($y) => $y === $year)->values())
+                ->unique()
                 ->sortDesc()
                 ->values();
         }
@@ -127,11 +132,12 @@ class BoardIssuanceController extends Controller
 
     /**
      * Return paginated items for one series (year) and type. Used for per-series AJAX pagination (no page reload).
+     * Year is matched from "SERIES OF YYYY" in the title when present.
      */
     public function data(Request $request)
     {
         $type = $request->query('type');
-        $year = $request->query('year');
+        $year = (int) $request->query('year');
         $page = max(1, (int) $request->query('page', 1));
         $keyword = $request->query('keyword');
 
@@ -142,9 +148,7 @@ class BoardIssuanceController extends Controller
         $perPage = 10;
 
         if ($type === 'regulation') {
-            $query = BoardRegulation::with(['pdf', 'uploader'])
-                ->whereYear('effective_date', $year)
-                ->orderBy('effective_date', 'desc');
+            $query = BoardRegulation::with(['pdf', 'uploader']);
             if ($keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', '%' . $keyword . '%')
@@ -152,9 +156,19 @@ class BoardIssuanceController extends Controller
                         ->orWhere('version', 'like', '%' . $keyword . '%');
                 });
             }
-            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-            $items = $paginator->getCollection()->map(function ($r) {
-                // For user-side display, always show a generic CONSEC creator label/avatar
+
+            // Filter by SERIES OF year from title; sort by regulation number from title
+            $sorted = $query->get()
+                ->filter(fn ($r) => (int) $r->year === $year)
+                ->sortByDesc(fn ($r) => $r->parsed_regulation_number ?? 0)
+                ->values();
+
+            $total = $sorted->count();
+            $lastPage = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $lastPage);
+            $pageItems = $sorted->forPage($page, $perPage)->values();
+
+            $items = $pageItems->map(function ($r) {
                 $creatorLabel = 'CONSEC';
                 $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
@@ -162,6 +176,8 @@ class BoardIssuanceController extends Controller
                     'title' => $r->title,
                     'type' => 'regulation',
                     'year' => $r->year,
+                    'series_year' => $r->parsed_series_year,
+                    'number' => $r->parsed_regulation_number,
                     'has_pdf' => (bool) $r->pdf,
                     'pdf_url' => $r->pdf ? asset('storage/' . $r->pdf->file_path) : null,
                     'date' => $r->effective_date ? $r->effective_date->format('M d, Y') : '',
@@ -172,9 +188,7 @@ class BoardIssuanceController extends Controller
                 ];
             })->values()->all();
         } else {
-            $query = OfficialDocument::with(['pdf', 'uploader'])
-                ->whereYear('approved_date', $year)
-                ->orderBy('approved_date', 'desc');
+            $query = OfficialDocument::with(['pdf', 'uploader']);
             if ($keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', '%' . $keyword . '%')
@@ -182,9 +196,19 @@ class BoardIssuanceController extends Controller
                         ->orWhere('version', 'like', '%' . $keyword . '%');
                 });
             }
-            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-            $items = $paginator->getCollection()->map(function ($d) {
-                // For user-side display, always show a generic CONSEC creator label/avatar
+
+            // Filter by SERIES OF year from title; sort by resolution number from title
+            $sorted = $query->get()
+                ->filter(fn ($d) => (int) $d->year === $year)
+                ->sortByDesc(fn ($d) => $d->parsed_resolution_number ?? 0)
+                ->values();
+
+            $total = $sorted->count();
+            $lastPage = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $lastPage);
+            $pageItems = $sorted->forPage($page, $perPage)->values();
+
+            $items = $pageItems->map(function ($d) {
                 $creatorLabel = 'CONSEC';
                 $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
@@ -192,6 +216,8 @@ class BoardIssuanceController extends Controller
                     'title' => $d->title,
                     'type' => 'resolution',
                     'year' => $d->year,
+                    'series_year' => $d->parsed_series_year,
+                    'number' => $d->parsed_resolution_number,
                     'has_pdf' => (bool) $d->pdf,
                     'pdf_url' => $d->pdf ? asset('storage/' . $d->pdf->file_path) : null,
                     'date' => $d->approved_date ? $d->approved_date->format('M d, Y') : '',
@@ -206,11 +232,33 @@ class BoardIssuanceController extends Controller
         return response()->json([
             'items' => $items,
             'pagination' => [
-                'current_page' => $paginator->currentPage(),
-                'last_page' => $paginator->lastPage(),
-                'total' => $paginator->total(),
-                'per_page' => $paginator->perPage(),
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'total' => $total,
+                'per_page' => $perPage,
             ],
         ]);
+    }
+
+    /**
+     * Paginate a collection for the index filters (kept for compatibility).
+     */
+    private function paginateCollection(Collection $items, int $perPage, Request $request): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $total = $items->count();
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
     }
 }
