@@ -193,7 +193,7 @@ class BoardIssuanceController extends Controller
             $pageItems = $sorted->forPage($page, $perPage)->values();
 
             $items = $pageItems->map(function ($r) {
-                $creatorLabel = 'CONSEC';
+                $creatorLabel = 'Conference Secretariat';
                 $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
                     'id' => $r->id,
@@ -241,7 +241,7 @@ class BoardIssuanceController extends Controller
             $pageItems = $sorted->forPage($page, $perPage)->values();
 
             $items = $pageItems->map(function ($d) {
-                $creatorLabel = 'CONSEC';
+                $creatorLabel = 'Conference Secretariat';
                 $creatorImg = 'https://ui-avatars.com/api/?name=' . urlencode($creatorLabel) . '&size=64&background=055498&color=fff&bold=true';
                 return [
                     'id' => $d->id,
