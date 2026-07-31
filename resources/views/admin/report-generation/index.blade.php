@@ -678,7 +678,23 @@
                 const results = [@json($printData)];
             @else
                 @php
-                    $printData = $results->map(function($item) {
+                    $printResults = $results;
+                    if (in_array($reportType ?? '', ['board_regulations', 'board_resolutions'], true)) {
+                        $printResults = $results->sortByDesc(function ($item) use ($reportType) {
+                            $seriesYear = $item->parsed_series_year ?? (int) ($item->year ?? 0);
+                            $number = ($reportType === 'board_regulations')
+                                ? ($item->parsed_regulation_number ?? 0)
+                                : ($item->parsed_resolution_number ?? 0);
+
+                            return ($seriesYear * 10000) + $number;
+                        })->values();
+                    }
+                    $printData = $printResults->map(function($item) use ($reportType) {
+                        $seriesYear = $item->parsed_series_year ?? (int) ($item->year ?? 0);
+                        $number = ($reportType === 'board_regulations')
+                            ? ($item->parsed_regulation_number ?? 0)
+                            : ($item->parsed_resolution_number ?? 0);
+
                         return [
                             'id' => $item->id,
                             'title' => $item->title ?? null,
@@ -699,8 +715,9 @@
                             'user' => $item->user ? ['first_name' => $item->user->first_name, 'last_name' => $item->user->last_name] : null,
                             'notice' => $item->notice ? ['title' => $item->notice->title] : null,
                             'declined_reason' => $item->declined_reason ?? null,
+                            'sort_key' => (int) (($seriesYear * 10000) + $number),
                         ];
-                    });
+                    })->values();
                 @endphp
                 const results = @json($printData);
             @endif
@@ -981,6 +998,15 @@
 </html>`;
     }
 
+    function issuanceSortKeyFromTitle(title) {
+        const text = title || '';
+        const seriesMatch = text.match(/SERIES\s+OF\s+(\d{4})/i);
+        const numberMatch = text.match(/(?:REGULATION|RESOLUTION)\s+NO\.\s*(\d+)/i);
+        const seriesYear = seriesMatch ? parseInt(seriesMatch[1], 10) : 0;
+        const number = numberMatch ? parseInt(numberMatch[1], 10) : 0;
+        return (seriesYear * 10000) + number;
+    }
+
     function generateTableContent(results, reportType) {
         if (results.length === 0) {
             return '<div class="no-data"><p>No records found.</p></div>';
@@ -1004,6 +1030,20 @@
             return '<div class="no-data"><p>No records found.</p></div>';
         }
 
+        // Match /admin/board-regulations and /admin/board-resolutions: series year then number DESC
+        let rows = results;
+        if (reportType === 'board_regulations' || reportType === 'board_resolutions') {
+            rows = [...results].sort((a, b) => {
+                const keyA = (typeof a.sort_key === 'number' && a.sort_key > 0)
+                    ? a.sort_key
+                    : issuanceSortKeyFromTitle(a.title);
+                const keyB = (typeof b.sort_key === 'number' && b.sort_key > 0)
+                    ? b.sort_key
+                    : issuanceSortKeyFromTitle(b.title);
+                return keyB - keyA;
+            });
+        }
+
         let table = '<table><thead><tr>';
         let headers = getTableHeaders(reportType);
         headers.forEach(header => {
@@ -1011,7 +1051,7 @@
         });
         table += '</tr></thead><tbody>';
 
-        results.forEach(item => {
+        rows.forEach(item => {
             table += '<tr>';
             let cells = getTableCells(item, reportType);
             cells.forEach(cell => {

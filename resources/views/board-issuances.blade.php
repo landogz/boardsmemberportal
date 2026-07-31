@@ -486,14 +486,8 @@
             const creatorImgEl = document.getElementById('pdfModalCreatorImage');
             const effectiveEl = document.getElementById('pdfModalEffectiveDate');
 
-            // Set title based on type
-            if (type === 'resolution') {
-                modalTitle.textContent = 'Board Resolution: ' + (identifier || 'N/A');
-            } else if (type === 'regulation') {
-                modalTitle.textContent = 'Board Regulation: ' + (identifier || 'N/A');
-            } else {
-                modalTitle.textContent = identifier || 'Board Issuance';
-            }
+            // Title only — no "Board Regulation:" / "Board Resolution:" prefix
+            modalTitle.textContent = identifier || title || 'Board Issuance';
 
             // Show description, date, creator (with image)
             descEl.textContent = description || '';
