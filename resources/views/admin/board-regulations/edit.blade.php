@@ -159,6 +159,31 @@
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+    });
+
+    function getRequestErrorMessage(error, fallback) {
+        const data = error.response?.data;
+        if (!data) {
+            return error.message || fallback;
+        }
+        if (typeof data === 'string') {
+            return fallback;
+        }
+        if (data.errors) {
+            const messages = Object.values(data.errors).flat().filter(Boolean);
+            if (messages.length) {
+                return messages.join(' ');
+            }
+        }
+        return data.message || fallback;
+    }
+
     function addDaysToDate(dateStr, days) {
         if (!dateStr) return '';
         const parts = dateStr.split('-').map(Number);
@@ -173,7 +198,7 @@
     $('#applyPublicationEffectivity').on('click', function() {
         const publicationDate = $('#publication_date').val();
         if (!publicationDate) {
-            Swal.fire({ icon: 'warning', title: 'Publication date required', text: 'Enter a publication date to calculate the suggested effectivity date.' });
+            Toast.fire({ icon: 'warning', title: 'Enter a publication date to calculate the suggested effectivity date.' });
             return;
         }
         $('#effective_date').val(addDaysToDate(publicationDate, 15));
@@ -183,6 +208,12 @@
         e.preventDefault();
 
         const formData = new FormData(this);
+        // Do not send empty file input
+        const pdfInput = document.getElementById('pdf_file');
+        if (pdfInput && (!pdfInput.files || pdfInput.files.length === 0)) {
+            formData.delete('pdf_file');
+        }
+
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.html();
 
@@ -194,14 +225,18 @@
         })
         .then(response => {
             if (response.data.success) {
-                Swal.fire({
+                Toast.fire({
                     icon: 'success',
-                    title: 'Success!',
-                    text: response.data.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
+                    title: response.data.message || 'Board regulation updated successfully.'
+                });
+                setTimeout(() => {
                     window.location.href = response.data.redirect;
+                }, 1200);
+            } else {
+                submitBtn.prop('disabled', false).html(originalText);
+                Toast.fire({
+                    icon: 'error',
+                    title: response.data.message || 'Failed to update board regulation.'
                 });
             }
         })
@@ -215,10 +250,9 @@
                 });
             }
 
-            Swal.fire({
+            Toast.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error.response?.data?.message || 'An error occurred. Please try again.'
+                title: getRequestErrorMessage(error, 'Failed to update board regulation. Please try again.')
             });
         });
     });

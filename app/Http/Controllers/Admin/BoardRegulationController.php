@@ -9,6 +9,7 @@ use App\Models\MediaLibrary;
 use App\Models\Notice;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\BoardIssuance\BoardIssuanceDuplicateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +26,12 @@ class BoardRegulationController extends Controller
             'description' => $request->filled('description') ? $request->input('description') : null,
             'version' => $request->filled('version') ? $request->input('version') : null,
         ]);
+
+        // Empty file inputs must not be validated as uploaded files
+        if (!$request->hasFile('pdf_file')) {
+            $request->files->remove('pdf_file');
+            $request->request->remove('pdf_file');
+        }
     }
 
     public function index()
@@ -72,6 +79,11 @@ class BoardRegulationController extends Controller
                 'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
                 'notice_id' => 'nullable|exists:notices,id',
             ]);
+
+            app(BoardIssuanceDuplicateService::class)->assertUnique(
+                BoardIssuanceDuplicateService::TYPE_REGULATION,
+                $validated['title']
+            );
 
         $pdfFileId = null;
 
@@ -175,6 +187,13 @@ class BoardRegulationController extends Controller
             'change_notes' => 'nullable|string', // Optional notes about the change
         ]);
 
+        app(BoardIssuanceDuplicateService::class)->assertUnique(
+            BoardIssuanceDuplicateService::TYPE_REGULATION,
+            $validated['title'],
+            (int) $regulation->id,
+            $regulation->title
+        );
+
         // Save history before updating if file is being changed or any data changed
         $hasFileChange = $request->hasFile('pdf_file');
         $newNoticeId = !empty($validated['notice_id']) ? (int) $validated['notice_id'] : null;
@@ -183,13 +202,18 @@ class BoardRegulationController extends Controller
                         $regulation->version !== ($validated['version'] ?? null) ||
                         $regulation->effective_date?->format('Y-m-d') !== ($validated['effective_date'] ?? null) ||
                         $regulation->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null) ||
-                        $regulation->notice_id !== $newNoticeId;
+                        (int) ($regulation->notice_id ?? 0) !== (int) ($newNoticeId ?? 0);
 
         if ($hasFileChange || $hasDataChange) {
+            $historyPdfId = $regulation->pdf_file;
+            if ($historyPdfId && !MediaLibrary::where('id', $historyPdfId)->exists()) {
+                $historyPdfId = null;
+            }
+
             // Create version history entry before making changes
             BoardRegulationVersion::create([
                 'board_regulation_id' => $regulation->id,
-                'pdf_file' => $regulation->pdf_file, // Save old file reference
+                'pdf_file' => $historyPdfId,
                 'version' => $regulation->version,
                 'title' => $regulation->title,
                 'description' => $regulation->description,
@@ -224,6 +248,7 @@ class BoardRegulationController extends Controller
         }
 
         $validated['notice_id'] = $newNoticeId;
+        unset($validated['change_notes']);
         $regulation->update($validated);
 
         AuditLogger::log('board_regulation.update', 'Updated board regulation: ' . $regulation->title, $regulation);
@@ -235,6 +260,20 @@ class BoardRegulationController extends Controller
         ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Board regulation update failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            $message = 'Failed to update board regulation. Please check all required fields and try again.';
+            if (str_contains($e->getMessage(), 'Data too long') || str_contains($e->getMessage(), '1406')) {
+                $message = 'Failed to update board regulation: the title is too long for the history table. Please contact the administrator to run the title TEXT migration.';
+            } elseif (str_contains($e->getMessage(), 'foreign key') || str_contains($e->getMessage(), '1452')) {
+                $message = 'Failed to update board regulation due to a related file or meeting link issue. Try again without changing the PDF, or re-upload the PDF.';
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+            ], 500);
         } catch (\Throwable $e) {
             \Log::error('Board regulation update failed: ' . $e->getMessage(), ['exception' => $e]);
 

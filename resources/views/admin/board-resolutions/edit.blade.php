@@ -165,6 +165,10 @@
         e.preventDefault();
 
         const formData = new FormData(this);
+        const pdfInput = document.getElementById('pdf_file');
+        if (pdfInput && (!pdfInput.files || pdfInput.files.length === 0)) {
+            formData.delete('pdf_file');
+        }
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.html();
 

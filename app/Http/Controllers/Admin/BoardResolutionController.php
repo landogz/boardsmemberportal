@@ -9,6 +9,7 @@ use App\Models\OfficialDocumentVersion;
 use App\Models\MediaLibrary;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\BoardIssuance\BoardIssuanceDuplicateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -28,6 +29,12 @@ class BoardResolutionController extends Controller
             'description' => $request->filled('description') ? $request->input('description') : null,
             'version' => $request->filled('version') ? $request->input('version') : null,
         ]);
+
+        // Empty file inputs must not be validated as uploaded files
+        if (!$request->hasFile('pdf_file')) {
+            $request->files->remove('pdf_file');
+            $request->request->remove('pdf_file');
+        }
     }
 
     /**
@@ -87,6 +94,11 @@ class BoardResolutionController extends Controller
                 'pdf_file' => 'required|file|mimes:pdf|max:102400', // 100MB
                 'notice_id' => 'nullable|exists:notices,id',
             ]);
+
+            app(BoardIssuanceDuplicateService::class)->assertUnique(
+                BoardIssuanceDuplicateService::TYPE_RESOLUTION,
+                $validated['title']
+            );
 
             if (!$request->hasFile('pdf_file') && (int) $request->server('CONTENT_LENGTH') > 0) {
                 return response()->json([
@@ -214,19 +226,31 @@ class BoardResolutionController extends Controller
             'notice_id' => 'nullable|exists:notices,id',
         ]);
 
+        app(BoardIssuanceDuplicateService::class)->assertUnique(
+            BoardIssuanceDuplicateService::TYPE_RESOLUTION,
+            $validated['title'],
+            (int) $document->id,
+            $document->title
+        );
+
         // Save history before updating if file is being changed or any data changed
         $hasFileChange = $request->hasFile('pdf_file');
         $hasDataChange = $document->title !== $validated['title'] ||
                         $document->description !== ($validated['description'] ?? null) ||
                         $document->version !== ($validated['version'] ?? null) ||
                         $document->approved_date?->format('Y-m-d') !== ($validated['approved_date'] ?? null) ||
-                        $document->notice_id != ($validated['notice_id'] ?? null);
+                        (int) ($document->notice_id ?? 0) !== (int) ($validated['notice_id'] ?? 0);
 
         if ($hasFileChange || $hasDataChange) {
+            $historyPdfId = $document->pdf_file;
+            if ($historyPdfId && !MediaLibrary::where('id', $historyPdfId)->exists()) {
+                $historyPdfId = null;
+            }
+
             // Create version history entry before making changes
             OfficialDocumentVersion::create([
                 'official_document_id' => $document->id,
-                'pdf_file' => $document->pdf_file, // Save old file reference
+                'pdf_file' => $historyPdfId,
                 'version' => $document->version,
                 'title' => $document->title,
                 'description' => $document->description,
@@ -269,6 +293,7 @@ class BoardResolutionController extends Controller
         }
 
         $updateData = $validated;
+        unset($updateData['change_notes']);
         $updateData['notice_id'] = !empty($validated['notice_id']) ? $validated['notice_id'] : null;
         $updateData['effective_date'] = $validated['approved_date'];
         $document->update($updateData);
@@ -286,6 +311,20 @@ class BoardResolutionController extends Controller
         ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Board resolution update failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            $message = 'Failed to update board resolution. Please check all required fields and try again.';
+            if (str_contains($e->getMessage(), 'Data too long') || str_contains($e->getMessage(), '1406')) {
+                $message = 'Failed to update board resolution: the title is too long for the history table. Please contact the administrator to run the title TEXT migration.';
+            } elseif (str_contains($e->getMessage(), 'foreign key') || str_contains($e->getMessage(), '1452')) {
+                $message = 'Failed to update board resolution due to a related file or meeting link issue. Try again without changing the PDF, or re-upload the PDF.';
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+            ], 500);
         } catch (\Throwable $e) {
             \Log::error('Board resolution update failed: ' . $e->getMessage(), ['exception' => $e]);
 
