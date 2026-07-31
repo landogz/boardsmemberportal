@@ -160,7 +160,7 @@ class ReportGenerationController extends Controller
 
             case 'board_regulations':
                 $query = BoardRegulation::with(['uploader']);
-                
+
                 if ($dateFrom) {
                     $query->where('created_at', '>=', $dateFrom);
                 }
@@ -175,8 +175,31 @@ class ReportGenerationController extends Controller
                             Carbon::create($year, 12, 31)->endOfDay()->toDateString(),
                         ]);
                 }
+                if ($request->input('search')) {
+                    $search = $request->input('search');
+                    $query->where(function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%")
+                          ->orWhere('description', 'like', "%{$search}%")
+                          ->orWhere('version', 'like', "%{$search}%");
+                    });
+                }
+
+                // Chronological by effectivity year/date (newest first), then by regulation number
+                $results = $query->get()
+                    ->sort(function ($a, $b) {
+                        $dateA = $a->effective_date ? $a->effective_date->timestamp : 0;
+                        $dateB = $b->effective_date ? $b->effective_date->timestamp : 0;
+                        if ($dateA !== $dateB) {
+                            return $dateB <=> $dateA;
+                        }
+                        return ($b->parsed_regulation_number ?? 0) <=> ($a->parsed_regulation_number ?? 0);
+                    })
+                    ->values();
+                break;
+
+            case 'board_resolutions':
                 $query = OfficialDocument::with(['uploader']);
-                
+
                 if ($dateFrom) {
                     $query->where('created_at', '>=', $dateFrom);
                 }
@@ -193,14 +216,24 @@ class ReportGenerationController extends Controller
                 }
                 if ($request->input('search')) {
                     $search = $request->input('search');
-                    $query->where(function($q) use ($search) {
+                    $query->where(function ($q) use ($search) {
                         $q->where('title', 'like', "%{$search}%")
                           ->orWhere('description', 'like', "%{$search}%")
                           ->orWhere('version', 'like', "%{$search}%");
                     });
                 }
-                
-                $results = $query->orderBy('created_at', 'desc')->get();
+
+                // Chronological by approved/effectivity year/date (newest first), then by resolution number
+                $results = $query->get()
+                    ->sort(function ($a, $b) {
+                        $dateA = $a->approved_date ? $a->approved_date->timestamp : ($a->effective_date ? $a->effective_date->timestamp : 0);
+                        $dateB = $b->approved_date ? $b->approved_date->timestamp : ($b->effective_date ? $b->effective_date->timestamp : 0);
+                        if ($dateA !== $dateB) {
+                            return $dateB <=> $dateA;
+                        }
+                        return ($b->parsed_resolution_number ?? 0) <=> ($a->parsed_resolution_number ?? 0);
+                    })
+                    ->values();
                 break;
 
             case 'referendums':
