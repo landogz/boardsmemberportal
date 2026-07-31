@@ -47,7 +47,7 @@ class BoardRegulation extends Model
      */
     public function getParsedRegulationNumberAttribute(): ?int
     {
-        if (preg_match('/board regulation no\.\s*(\d+)/i', $this->title ?? '', $matches)) {
+        if (preg_match('/board\s+regulation\s+no\.?\s*(\d+)/i', $this->title ?? '', $matches)) {
             return (int) $matches[1];
         }
 
@@ -56,25 +56,39 @@ class BoardRegulation extends Model
 
     /**
      * Extract series year from title (e.g. "BOARD REGULATION NO. 2, SERIES OF 2024").
+     * This is the classification year — not the effectivity year.
      */
     public function getParsedSeriesYearAttribute(): ?int
     {
-        if (preg_match('/series of\s+(\d{4})/i', $this->title ?? '', $matches)) {
+        if (preg_match('/series\s+of\s+(?:year\s+)?(\d{4})/i', $this->title ?? '', $matches)) {
             return (int) $matches[1];
         }
 
         return null;
     }
 
+    /**
+     * Series classification year for listing/grouping.
+     * Prefer SERIES OF YYYY from the title; never use effectivity year when series is present.
+     */
     public function getYearAttribute(): ?string
     {
         if ($this->parsed_series_year) {
             return (string) $this->parsed_series_year;
         }
 
-        return $this->effective_date
-            ? $this->effective_date->format('Y')
-            : ($this->approved_date ? $this->approved_date->format('Y') : null);
+        // Fallback only when title has no series year
+        return $this->approved_date
+            ? $this->approved_date->format('Y')
+            : ($this->effective_date ? $this->effective_date->format('Y') : null);
+    }
+
+    /**
+     * Whether this regulation belongs to a given series year (title-based).
+     */
+    public function belongsToSeriesYear(int $year): bool
+    {
+        return (int) $this->year === $year;
     }
 
     /**

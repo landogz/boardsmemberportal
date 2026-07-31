@@ -53,7 +53,7 @@ class OfficialDocument extends Model
      */
     public function getParsedResolutionNumberAttribute(): ?int
     {
-        if (preg_match('/board resolution no\.\s*(\d+)/i', $this->title ?? '', $matches)) {
+        if (preg_match('/board\s+resolution\s+no\.?\s*(\d+)/i', $this->title ?? '', $matches)) {
             return (int) $matches[1];
         }
 
@@ -62,10 +62,11 @@ class OfficialDocument extends Model
 
     /**
      * Extract series year from title (e.g. "BOARD RESOLUTION NO. 10, SERIES OF 2025").
+     * This is the classification year — not the approval/effectivity year.
      */
     public function getParsedSeriesYearAttribute(): ?int
     {
-        if (preg_match('/series of\s+(\d{4})/i', $this->title ?? '', $matches)) {
+        if (preg_match('/series\s+of\s+(?:year\s+)?(\d{4})/i', $this->title ?? '', $matches)) {
             return (int) $matches[1];
         }
 
@@ -73,7 +74,8 @@ class OfficialDocument extends Model
     }
 
     /**
-     * Get the year from title series, falling back to approved_date.
+     * Series classification year for listing/grouping.
+     * Prefer SERIES OF YYYY from the title; do not use dates when series is present.
      */
     public function getYearAttribute(): ?string
     {
@@ -81,7 +83,17 @@ class OfficialDocument extends Model
             return (string) $this->parsed_series_year;
         }
 
-        return $this->approved_date ? $this->approved_date->format('Y') : null;
+        return $this->approved_date
+            ? $this->approved_date->format('Y')
+            : ($this->effective_date ? $this->effective_date->format('Y') : null);
+    }
+
+    /**
+     * Whether this resolution belongs to a given series year (title-based).
+     */
+    public function belongsToSeriesYear(int $year): bool
+    {
+        return (int) $this->year === $year;
     }
 
     /**

@@ -35,8 +35,16 @@ class BoardIssuanceController extends Controller
             }
 
             $documentsCollection = $documentsQuery->get()
-                ->when($year, fn (Collection $c) => $c->filter(fn ($d) => (int) $d->year === $year)->values())
-                ->sortByDesc(fn ($d) => $d->parsed_resolution_number ?? 0)
+                ->when($year, fn (Collection $c) => $c->filter(fn ($d) => $d->belongsToSeriesYear($year))->values())
+                ->sort(function ($a, $b) {
+                    $numA = (int) ($a->parsed_resolution_number ?? 0);
+                    $numB = (int) ($b->parsed_resolution_number ?? 0);
+                    if ($numA !== $numB) {
+                        return $numB <=> $numA;
+                    }
+
+                    return $b->id <=> $a->id;
+                })
                 ->values();
 
             $documents = $this->paginateCollection($documentsCollection, 10, $request);
@@ -56,8 +64,16 @@ class BoardIssuanceController extends Controller
             }
 
             $regulationsCollection = $regulationsQuery->get()
-                ->when($year, fn (Collection $c) => $c->filter(fn ($r) => (int) $r->year === $year)->values())
-                ->sortByDesc(fn ($r) => $r->parsed_regulation_number ?? 0)
+                ->when($year, fn (Collection $c) => $c->filter(fn ($r) => $r->belongsToSeriesYear($year))->values())
+                ->sort(function ($a, $b) {
+                    $numA = (int) ($a->parsed_regulation_number ?? 0);
+                    $numB = (int) ($b->parsed_regulation_number ?? 0);
+                    if ($numA !== $numB) {
+                        return $numB <=> $numA;
+                    }
+
+                    return $b->id <=> $a->id;
+                })
                 ->values();
 
             $regulations = $this->paginateCollection($regulationsCollection, 10, $request);
@@ -157,10 +173,18 @@ class BoardIssuanceController extends Controller
                 });
             }
 
-            // Filter by SERIES OF year from title; sort by regulation number from title
+            // Filter by SERIES OF year from title only (not effectivity date); sort by number DESC
             $sorted = $query->get()
-                ->filter(fn ($r) => (int) $r->year === $year)
-                ->sortByDesc(fn ($r) => $r->parsed_regulation_number ?? 0)
+                ->filter(fn ($r) => $r->belongsToSeriesYear($year))
+                ->sort(function ($a, $b) {
+                    $numA = (int) ($a->parsed_regulation_number ?? 0);
+                    $numB = (int) ($b->parsed_regulation_number ?? 0);
+                    if ($numA !== $numB) {
+                        return $numB <=> $numA; // higher number first (18, 17, …, 5)
+                    }
+
+                    return $b->id <=> $a->id;
+                })
                 ->values();
 
             $total = $sorted->count();
@@ -197,10 +221,18 @@ class BoardIssuanceController extends Controller
                 });
             }
 
-            // Filter by SERIES OF year from title; sort by resolution number from title
+            // Filter by SERIES OF year from title only (not approval date); sort by number DESC
             $sorted = $query->get()
-                ->filter(fn ($d) => (int) $d->year === $year)
-                ->sortByDesc(fn ($d) => $d->parsed_resolution_number ?? 0)
+                ->filter(fn ($d) => $d->belongsToSeriesYear($year))
+                ->sort(function ($a, $b) {
+                    $numA = (int) ($a->parsed_resolution_number ?? 0);
+                    $numB = (int) ($b->parsed_resolution_number ?? 0);
+                    if ($numA !== $numB) {
+                        return $numB <=> $numA; // higher number first
+                    }
+
+                    return $b->id <=> $a->id;
+                })
                 ->values();
 
             $total = $sorted->count();

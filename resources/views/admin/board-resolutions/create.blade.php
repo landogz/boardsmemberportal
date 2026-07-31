@@ -24,11 +24,12 @@
                 <textarea 
                     id="title" 
                     name="title" 
-                    rows="3"
+                    rows="5"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#055498] focus:border-[#055498] outline-none transition"
-                    placeholder="Enter document title"
+                    placeholder="Enter full document title (no character limit)"
                 ></textarea>
+                <p class="text-xs text-gray-500 mt-1">Long titles are allowed (open text, no 255-character limit).</p>
                 <span class="text-red-500 text-sm hidden" id="title-error"></span>
             </div>
 

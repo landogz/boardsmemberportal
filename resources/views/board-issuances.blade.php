@@ -194,7 +194,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-semibold" style="color: #055498;">Board Regulations</h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Effective regulations and policy guidelines</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Grouped by Series year in the title (not effectivity date)</p>
                         <a href="https://ddb.gov.ph/board-regulations/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 mt-1.5 text-xs font-medium transition hover:underline" style="color: #055498;">
                             <i class="fas fa-external-link-alt text-[10px]"></i>
                             View all on DDB Website
@@ -240,7 +240,7 @@
                 </div>
                 <div>
                     <h2 class="text-xl font-semibold" style="color: #055498;">Board Resolutions</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Effective resolutions and related issuances</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Grouped by Series year in the title (not approval date)</p>
                     <a href="https://ddb.gov.ph/board-resolutions-2/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 mt-1.5 text-xs font-medium transition hover:underline" style="color: #055498;">
                         <i class="fas fa-external-link-alt text-[10px]"></i>
                         View all on DDB Website
