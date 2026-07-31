@@ -154,12 +154,10 @@
                                 <div class="action-dropdown-menu hidden w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" data-dropdown-id="{{ $regulation->id }}">
                                     <div class="py-1" role="menu">
                                         @can('edit board regulations')
-                                        <div class="hidden">
                                         <a href="{{ route('admin.board-regulations.edit', $regulation->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 flex items-center" role="menuitem">
                                             <i class="fas fa-edit w-4 mr-3 text-blue-600"></i>
                                             Edit Regulation
                                         </a>
-                                        </div>
                                         @endcan
                                         @can('view board regulations')
                                         <div class="hidden">
