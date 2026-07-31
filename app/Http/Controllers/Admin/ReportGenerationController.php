@@ -184,15 +184,13 @@ class ReportGenerationController extends Controller
                     });
                 }
 
-                // Chronological by effectivity year/date (newest first), then by regulation number
+                // Same order as /admin/board-regulations: series year then number (DESC)
                 $results = $query->get()
-                    ->sort(function ($a, $b) {
-                        $dateA = $a->effective_date ? $a->effective_date->timestamp : 0;
-                        $dateB = $b->effective_date ? $b->effective_date->timestamp : 0;
-                        if ($dateA !== $dateB) {
-                            return $dateB <=> $dateA;
-                        }
-                        return ($b->parsed_regulation_number ?? 0) <=> ($a->parsed_regulation_number ?? 0);
+                    ->sortByDesc(function ($r) {
+                        $seriesYear = $r->parsed_series_year ?? (int) ($r->year ?? 0);
+                        $number = $r->parsed_regulation_number ?? 0;
+
+                        return ($seriesYear * 10000) + $number;
                     })
                     ->values();
                 break;
@@ -223,15 +221,13 @@ class ReportGenerationController extends Controller
                     });
                 }
 
-                // Chronological by approved/effectivity year/date (newest first), then by resolution number
+                // Same order as /admin/board-resolutions: series year then number (DESC)
                 $results = $query->get()
-                    ->sort(function ($a, $b) {
-                        $dateA = $a->approved_date ? $a->approved_date->timestamp : ($a->effective_date ? $a->effective_date->timestamp : 0);
-                        $dateB = $b->approved_date ? $b->approved_date->timestamp : ($b->effective_date ? $b->effective_date->timestamp : 0);
-                        if ($dateA !== $dateB) {
-                            return $dateB <=> $dateA;
-                        }
-                        return ($b->parsed_resolution_number ?? 0) <=> ($a->parsed_resolution_number ?? 0);
+                    ->sortByDesc(function ($r) {
+                        $seriesYear = $r->parsed_series_year ?? (int) ($r->year ?? 0);
+                        $number = $r->parsed_resolution_number ?? 0;
+
+                        return ($seriesYear * 10000) + $number;
                     })
                     ->values();
                 break;
